@@ -3,4 +3,4 @@
 apiVersion: cluster.open-cluster-management.io/v1
 kind: ManagedCluster
 metadata:
-  name: {{ .managedCluster.name }}
+  name: "{{ .managedCluster.name }}"

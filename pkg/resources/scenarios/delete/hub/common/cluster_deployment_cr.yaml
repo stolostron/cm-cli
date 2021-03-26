@@ -3,5 +3,5 @@
 apiVersion: hive.openshift.io/v1
 kind: ClusterDeployment
 metadata:
-  name: {{ .managedCluster.name }}
-  namespace: {{ .managedCluster.name }}
+  name: "{{ .managedCluster.name }}"
+  namespace: "{{ .managedCluster.name }}"

@@ -5,9 +5,9 @@ kind: ManagedCluster
 metadata:
   labels:
     cloud: {{ .managedCluster.cloud }}
-    name: {{ .managedCluster.name }}
+    name: "{{ .managedCluster.name }}"
     vendor: {{ .managedCluster.vendor }}
-  name: {{ .managedCluster.name }}
+  name: "{{ .managedCluster.name }}"
 spec:
   hubAcceptsClient: true
   leaseDurationSeconds: 60

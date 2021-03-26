@@ -3,8 +3,8 @@
 apiVersion: hive.openshift.io/v1
 kind: ClusterDeployment
 metadata:
-  name: {{ .managedCluster.name }}
-  namespace: {{ .managedCluster.name }}
+  name: "{{ .managedCluster.name }}"
+  namespace: "{{ .managedCluster.name }}"
   labels:
     cloud: {{ .managedCluster.cloud }}
     vendor: {{ .managedCluster.vendor }}
@@ -21,7 +21,7 @@ spec:
 {{ if (eq .managedCluster.cloud "vsphere") }}
   baseDomain: {{ .managedCluster.vsphere.baseDnsDomain }}
 {{ end }}
-  clusterName: {{ .managedCluster.name }}
+  clusterName: "{{ .managedCluster.name }}"
   controlPlaneConfig:
     servingCertificates: {}
   installAttemptsLimit: 2
@@ -51,7 +51,7 @@ spec:
       network: {{ .managedCluster.vsphere.network }}
 {{ end }}
       credentialsSecretRef:
-        name: {{ .managedCluster.name }}-creds
+        name: "{{ .managedCluster.name }}-creds"
   provisioning:
     installConfigSecretRef:
       name: {{ .managedCluster.name }}-install-config

@@ -4,10 +4,10 @@ apiVersion: hive.openshift.io/v1
 kind: MachinePool
 metadata:
   name: {{ .managedCluster.name }}-worker
-  namespace: {{ .managedCluster.name }}
+  namespace: "{{ .managedCluster.name }}"
 spec:
   clusterDeploymentRef:
-    name: {{ .managedCluster.name }}
+    name: "{{ .managedCluster.name }}"
   name: worker
   platform: 
 {{ block "platform" . }}
