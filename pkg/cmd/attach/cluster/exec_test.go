@@ -141,7 +141,9 @@ func TestAttachClusterOptions_Validate(t *testing.T) {
 			fields: fields{
 				applierScenariosOptions: &applierscenarios.ApplierScenariosOptions{},
 				values: map[string]interface{}{
-					"managedClusterName": "local-cluster",
+					"managedCluster": map[string]interface{}{
+						"name": "local-cluster",
+					},
 				},
 			},
 			wantErr: false,
@@ -151,7 +153,9 @@ func TestAttachClusterOptions_Validate(t *testing.T) {
 			fields: fields{
 				applierScenariosOptions: &applierscenarios.ApplierScenariosOptions{},
 				values: map[string]interface{}{
-					"managedClusterName": "",
+					"managedCluster": map[string]interface{}{
+						"name": "",
+					},
 				},
 			},
 			wantErr: true,
@@ -169,8 +173,11 @@ func TestAttachClusterOptions_Validate(t *testing.T) {
 			fields: fields{
 				applierScenariosOptions: &applierscenarios.ApplierScenariosOptions{},
 				values: map[string]interface{}{
-					"managedClusterName": "test-cluster",
+					"managedCluster": map[string]interface{}{
+						"name": "test-cluster",
+					},
 				},
+
 				clusterName: "local-cluster",
 			},
 			wantErr: false,
@@ -180,7 +187,9 @@ func TestAttachClusterOptions_Validate(t *testing.T) {
 			fields: fields{
 				applierScenariosOptions: &applierscenarios.ApplierScenariosOptions{},
 				values: map[string]interface{}{
-					"managedClusterName": "cluster-test",
+					"managedCluster": map[string]interface{}{
+						"name": "cluster-test",
+					},
 				},
 			},
 			wantErr: true,
@@ -190,8 +199,11 @@ func TestAttachClusterOptions_Validate(t *testing.T) {
 			fields: fields{
 				applierScenariosOptions: &applierscenarios.ApplierScenariosOptions{},
 				values: map[string]interface{}{
-					"managedClusterName": "cluster-test",
+					"managedCluster": map[string]interface{}{
+						"name": "cluster-test",
+					},
 				},
+
 				clusterKubeConfig: "fake-config",
 			},
 			wantErr: false,
@@ -201,8 +213,11 @@ func TestAttachClusterOptions_Validate(t *testing.T) {
 			fields: fields{
 				applierScenariosOptions: &applierscenarios.ApplierScenariosOptions{},
 				values: map[string]interface{}{
-					"managedClusterName": "cluster-test",
+					"managedCluster": map[string]interface{}{
+						"name": "cluster-test",
+					},
 				},
+
 				clusterToken:  "fake-token",
 				clusterServer: "fake-server",
 			},
@@ -213,7 +228,9 @@ func TestAttachClusterOptions_Validate(t *testing.T) {
 			fields: fields{
 				applierScenariosOptions: &applierscenarios.ApplierScenariosOptions{},
 				values: map[string]interface{}{
-					"managedClusterName": "cluster-test",
+					"managedCluster": map[string]interface{}{
+						"name": "cluster-test",
+					},
 				},
 				clusterToken: "fake-token",
 			},
@@ -224,7 +241,9 @@ func TestAttachClusterOptions_Validate(t *testing.T) {
 			fields: fields{
 				applierScenariosOptions: &applierscenarios.ApplierScenariosOptions{},
 				values: map[string]interface{}{
-					"managedClusterName": "cluster-test",
+					"managedCluster": map[string]interface{}{
+						"name": "cluster-test",
+					},
 				},
 				clusterServer: "fake-server",
 			},
@@ -235,7 +254,9 @@ func TestAttachClusterOptions_Validate(t *testing.T) {
 			fields: fields{
 				applierScenariosOptions: &applierscenarios.ApplierScenariosOptions{},
 				values: map[string]interface{}{
-					"managedClusterName": "cluster-test",
+					"managedCluster": map[string]interface{}{
+						"name": "cluster-test",
+					},
 				},
 				clusterKubeConfig: "fake-config",
 				clusterToken:      "fake-token",

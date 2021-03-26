@@ -63,18 +63,24 @@ func (o *Options) validate() error {
 		return nil
 	}
 
+	imc, ok := o.values["managedCluster"]
+	if !ok || imc == nil {
+		return fmt.Errorf("managedCluster is missing")
+	}
+	mc := imc.(map[string]interface{})
+
 	if o.clusterName == "" {
-		iname, ok := o.values["managedClusterName"]
+		iname, ok := mc["name"]
 		if !ok || iname == nil {
 			return fmt.Errorf("cluster name is missing")
 		}
 		o.clusterName = iname.(string)
 		if len(o.clusterName) == 0 {
-			return fmt.Errorf("managedClusterName not specified")
+			return fmt.Errorf("managedCluster.name not specified")
 		}
 	}
 
-	o.values["managedClusterName"] = o.clusterName
+	mc["name"] = o.clusterName
 
 	if o.clusterName != "local-cluster" {
 		if o.clusterKubeConfig != "" && (o.clusterToken != "" || o.clusterServer != "") {

@@ -87,7 +87,9 @@ func TestOptions_validate(t *testing.T) {
 			fields: fields{
 				applierScenariosOptions: &applierscenarios.ApplierScenariosOptions{},
 				values: map[string]interface{}{
-					"managedClusterName": "test",
+					"managedCluster": map[string]interface{}{
+						"name": "test",
+					},
 				},
 			},
 			wantErr: false,
@@ -105,7 +107,9 @@ func TestOptions_validate(t *testing.T) {
 			fields: fields{
 				applierScenariosOptions: &applierscenarios.ApplierScenariosOptions{},
 				values: map[string]interface{}{
-					"managedClusterName": "",
+					"managedCluster": map[string]interface{}{
+						"name": "",
+					},
 				},
 			},
 			wantErr: true,

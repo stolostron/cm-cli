@@ -3,11 +3,11 @@
 apiVersion: agent.open-cluster-management.io/v1
 kind: KlusterletAddonConfig
 metadata:
-  name: "{{ .managedClusterName }}"
-  namespace: "{{ .managedClusterName }}"
+  name: "{{ .managedCluster.name }}"
+  namespace: "{{ .managedCluster.name }}"
 spec:
-  clusterName: "{{ .managedClusterName }}"
-  clusterNamespace: "{{ .managedClusterName }}"
+  clusterName: "{{ .managedCluster.name }}"
+  clusterNamespace: "{{ .managedCluster.name }}"
   clusterLabels:
     cloud: auto-detect
     vendor: auto-detect
