@@ -9,7 +9,7 @@ metadata:
     {{ if eq .managedClusterName "local-cluster" }}
     local-cluster: "true"
     {{ end }}
-  name: "{{ managedClusterName }}"
+  name: "{{ .managedClusterName }}"
 spec:
   hubAcceptsClient: true
   leaseDurationSeconds: 60
