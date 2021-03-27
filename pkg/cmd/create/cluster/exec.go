@@ -83,7 +83,7 @@ func (o *Options) run() error {
 		reader := resources.NewResourcesReader()
 		return reader.ExtractAssets(scenarioDirectory, o.applierScenariosOptions.OutTemplatesDir)
 	}
-	client, err := helpers.GetClientFromFlags(o.applierScenariosOptions.ConfigFlags)
+	client, err := helpers.GetControllerRuntimeClientFromFlags(o.applierScenariosOptions.ConfigFlags)
 	if err != nil {
 		return err
 	}
