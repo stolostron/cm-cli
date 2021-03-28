@@ -10,8 +10,7 @@ import (
 	crclient "sigs.k8s.io/controller-runtime/pkg/client"
 )
 
-var testDir = filepath.Join("..", "..", "..", "..", "test", "unit")
-var detachClusterTestDir = filepath.Join(testDir, "resources", "detach", "cluster")
+var testDir = filepath.Join("test", "unit")
 
 func TestOptions_complete(t *testing.T) {
 	type fields struct {
@@ -42,7 +41,7 @@ func TestOptions_complete(t *testing.T) {
 			name: "Failed, empty values",
 			fields: fields{
 				applierScenariosOptions: &applierscenarios.ApplierScenariosOptions{
-					ValuesPath: filepath.Join(detachClusterTestDir, "values-empty.yaml"),
+					ValuesPath: filepath.Join(testDir, "values-empty.yaml"),
 				},
 			},
 			wantErr: true,
@@ -51,7 +50,7 @@ func TestOptions_complete(t *testing.T) {
 			name: "Sucess, with values",
 			fields: fields{
 				applierScenariosOptions: &applierscenarios.ApplierScenariosOptions{
-					ValuesPath: filepath.Join(detachClusterTestDir, "values-fake.yaml"),
+					ValuesPath: filepath.Join(testDir, "values-fake.yaml"),
 				},
 			},
 			wantErr: false,

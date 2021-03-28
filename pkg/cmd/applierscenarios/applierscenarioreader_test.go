@@ -1,8 +1,9 @@
 // Copyright Contributors to the Open Cluster Management project
 
-package resources
+package applierscenarios
 
 import (
+	"embed"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -11,11 +12,13 @@ import (
 	"testing"
 )
 
+//go:embed embed_test
+var files embed.FS
 var testDir = filepath.Join("..", "..", "test", "unit")
 var testDirTmp = filepath.Join(testDir, "tmp")
 
 func TestResources_Asset(t *testing.T) {
-	asset := "scenarios/attach/hub/managed_cluster_cr.yaml"
+	asset := "embed_test/detach/hub/managed_cluster_cr.yaml"
 	basset, errFile := ioutil.ReadFile(asset)
 	if errFile != nil {
 		t.Error(errFile)
@@ -25,23 +28,23 @@ func TestResources_Asset(t *testing.T) {
 	}
 	tests := []struct {
 		name    string
-		b       *Resources
+		b       *ApplierScenarioResourcesReader
 		args    args
 		want    []byte
 		wantErr bool
 	}{
 		{
 			name: "Existing asset",
-			b:    &Resources{},
+			b:    NewApplierScenarioResourcesReader(&files),
 			args: args{
-				name: "scenarios/attach/hub/managed_cluster_cr.yaml",
+				name: "embed_test/detach/hub/managed_cluster_cr.yaml",
 			},
 			want:    basset,
 			wantErr: false,
 		},
 		{
 			name: "Not found asset",
-			b:    &Resources{},
+			b:    NewApplierScenarioResourcesReader(&files),
 			args: args{
 				name: "hello",
 			},
@@ -66,18 +69,18 @@ func TestResources_Asset(t *testing.T) {
 func TestResources_AssetNames(t *testing.T) {
 	tests := []struct {
 		name    string
-		b       *Resources
+		b       *ApplierScenarioResourcesReader
 		wantErr bool
 	}{
 		{
 			name:    "Existing asset",
-			b:       &Resources{},
+			b:       NewApplierScenarioResourcesReader(&files),
 			wantErr: false,
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			b := &Resources{}
+			b := NewApplierScenarioResourcesReader(&files)
 			got, err := b.AssetNames()
 			if (err != nil) != tt.wantErr {
 				t.Errorf("Resources.AssetNames() error = %v, wantErr %v", err, tt.wantErr)
@@ -91,14 +94,12 @@ func TestResources_AssetNames(t *testing.T) {
 				}
 			}
 			//Check if all files in resources are in AssetNames except resources.go and resources_test.go
-			err = filepath.Walk(".",
+			err = filepath.Walk("./embed_test",
 				func(path string, info os.FileInfo, err error) error {
 					if err != nil {
 						return err
 					}
-					if !info.IsDir() &&
-						path != "resources.go" &&
-						path != "resources_test.go" {
+					if !info.IsDir() {
 						// t.Logf("Check file: %s", path)
 						found := false
 						for _, a := range got {
@@ -127,14 +128,14 @@ func TestResources_ToJSON(t *testing.T) {
 	}
 	tests := []struct {
 		name    string
-		b       *Resources
+		b       *ApplierScenarioResourcesReader
 		args    args
 		want    []byte
 		wantErr bool
 	}{
 		{
 			name: "Good yaml",
-			b:    &Resources{},
+			b:    NewApplierScenarioResourcesReader(&files),
 			args: args{
 				b: []byte("greetings: hello"),
 			},
@@ -143,7 +144,7 @@ func TestResources_ToJSON(t *testing.T) {
 		},
 		{
 			name: "Bad yaml",
-			b:    &Resources{},
+			b:    &ApplierScenarioResourcesReader{},
 			args: args{
 				b: []byte(": hello"),
 			},
@@ -153,7 +154,7 @@ func TestResources_ToJSON(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			b := &Resources{}
+			b := NewApplierScenarioResourcesReader(&files)
 			got, err := b.ToJSON(tt.args.b)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("Resources.ToJSON() error = %v, wantErr %v", err, tt.wantErr)
@@ -169,16 +170,18 @@ func TestResources_ToJSON(t *testing.T) {
 func TestNewResourcesReader(t *testing.T) {
 	tests := []struct {
 		name string
-		want *Resources
+		want *ApplierScenarioResourcesReader
 	}{
 		{
 			name: "Create",
-			want: &Resources{},
+			want: &ApplierScenarioResourcesReader{
+				files: nil,
+			},
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := NewResourcesReader(); !reflect.DeepEqual(got, tt.want) {
+			if got := NewApplierScenarioResourcesReader(nil); !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("NewResourcesReader() = %v, want %v", got, tt.want)
 			}
 		})
@@ -192,14 +195,14 @@ func TestResources_ExtractAssets(t *testing.T) {
 	}
 	tests := []struct {
 		name    string
-		r       *Resources
+		r       *ApplierScenarioResourcesReader
 		args    args
 		wantErr bool
 	}{
 		{
 			name: "Existing prefix",
 			args: args{
-				prefix: "scenarios/attach/hub",
+				prefix: "embed_test/detach/hub",
 				dir:    filepath.Join(testDirTmp, "exist_prefix"),
 			},
 			wantErr: false,
@@ -207,7 +210,7 @@ func TestResources_ExtractAssets(t *testing.T) {
 		{
 			name: "Existing name",
 			args: args{
-				prefix: "scenarios/attach/hub/managed_cluster_cr.yaml",
+				prefix: "embed_test/detach/hub/managed_cluster_cr.yaml",
 				dir:    filepath.Join(testDirTmp, "exist_name"),
 			},
 			wantErr: false,
@@ -215,7 +218,7 @@ func TestResources_ExtractAssets(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			r := &Resources{}
+			r := NewApplierScenarioResourcesReader(&files)
 			os.RemoveAll(tt.args.dir)
 			if err := r.ExtractAssets(tt.args.prefix, tt.args.dir); (err != nil) != tt.wantErr {
 				t.Errorf("Resources.ExtractAssets() error = %v, wantErr %v", err, tt.wantErr)

@@ -1,6 +1,6 @@
 // Copyright Contributors to the Open Cluster Management project
 
-package resources
+package applierscenarios
 
 import (
 	"embed"
@@ -9,26 +9,35 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/open-cluster-management/applier/pkg/templateprocessor"
+
 	"github.com/ghodss/yaml"
 )
 
-type Resources struct{}
-
-//Needed to scenarios/*/*/*/* to include the _helpers.tpl located in:
-//scenarios/create/hub/common/_helpers.tpl and
-//scenarios/destroy/hub/common/_helpers.tpl
-//go:embed scenarios scenarios/*/*/*/_helpers.tpl
-var files embed.FS
-
-func NewResourcesReader() *Resources {
-	return &Resources{}
+type ApplierScenarioReader interface {
+	templateprocessor.TemplateReader
+	ExtractAssets(prefix, dir string) error
 }
 
-func (*Resources) Asset(name string) ([]byte, error) {
-	return files.ReadFile(name)
+type ApplierScenarioResourcesReader struct {
+	files *embed.FS
 }
 
-func (b *Resources) AssetNames() ([]string, error) {
+var _ ApplierScenarioReader = &ApplierScenarioResourcesReader{
+	files: nil,
+}
+
+func NewApplierScenarioResourcesReader(files *embed.FS) *ApplierScenarioResourcesReader {
+	return &ApplierScenarioResourcesReader{
+		files: files,
+	}
+}
+
+func (r *ApplierScenarioResourcesReader) Asset(name string) ([]byte, error) {
+	return r.files.ReadFile(name)
+}
+
+func (b *ApplierScenarioResourcesReader) AssetNames() ([]string, error) {
 	assetNames := make([]string, 0)
 	got, err := b.assetWalk(".")
 	if err != nil {
@@ -37,9 +46,9 @@ func (b *Resources) AssetNames() ([]string, error) {
 	return append(assetNames, got...), nil
 }
 
-func (b *Resources) assetWalk(f string) ([]string, error) {
+func (r *ApplierScenarioResourcesReader) assetWalk(f string) ([]string, error) {
 	assets := make([]string, 0)
-	file, err := files.Open(f)
+	file, err := r.files.Open(f)
 	if err != nil {
 		return assets, err
 	}
@@ -48,7 +57,7 @@ func (b *Resources) assetWalk(f string) ([]string, error) {
 		return assets, err
 	}
 	if fs.IsDir() {
-		de, err := files.ReadDir(f)
+		de, err := r.files.ReadDir(f)
 		if err != nil {
 			return assets, err
 		}
@@ -57,7 +66,7 @@ func (b *Resources) assetWalk(f string) ([]string, error) {
 			if err != nil {
 				return assets, nil
 			}
-			assetsDir, err := b.assetWalk(filepath.Join(f, di.Name()))
+			assetsDir, err := r.assetWalk(filepath.Join(f, di.Name()))
 			if err != nil {
 				return assets, err
 			}
@@ -68,11 +77,11 @@ func (b *Resources) assetWalk(f string) ([]string, error) {
 	return append(assets, f), nil
 }
 
-func (*Resources) ToJSON(b []byte) ([]byte, error) {
+func (r *ApplierScenarioResourcesReader) ToJSON(b []byte) ([]byte, error) {
 	return yaml.YAMLToJSON(b)
 }
 
-func (r *Resources) ExtractAssets(prefix, dir string) error {
+func (r *ApplierScenarioResourcesReader) ExtractAssets(prefix, dir string) error {
 	assetNames, err := r.AssetNames()
 	if err != nil {
 		return err

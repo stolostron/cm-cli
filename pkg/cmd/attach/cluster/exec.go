@@ -15,8 +15,8 @@ import (
 	crclient "sigs.k8s.io/controller-runtime/pkg/client"
 
 	appliercmd "github.com/open-cluster-management/applier/pkg/applier/cmd"
+	"github.com/open-cluster-management/cm-cli/pkg/cmd/attach/cluster/scenario"
 	"github.com/open-cluster-management/cm-cli/pkg/helpers"
-	"github.com/open-cluster-management/cm-cli/pkg/resources"
 
 	"github.com/spf13/cobra"
 )
@@ -106,7 +106,7 @@ func (o *Options) validate() error {
 
 func (o *Options) run() (err error) {
 	if o.applierScenariosOptions.OutTemplatesDir != "" {
-		reader := resources.NewResourcesReader()
+		reader := scenario.GetApplierScenarioResourcesReader()
 		return reader.ExtractAssets(scenarioDirectory, o.applierScenariosOptions.OutTemplatesDir)
 	}
 	client, err := helpers.GetControllerRuntimeClientFromFlags(o.applierScenariosOptions.ConfigFlags)
@@ -117,7 +117,7 @@ func (o *Options) run() (err error) {
 }
 
 func (o *Options) runWithClient(client crclient.Client) (err error) {
-	reader := resources.NewResourcesReader()
+	reader := scenario.GetApplierScenarioResourcesReader()
 
 	applyOptions := &appliercmd.Options{
 		OutFile:     o.applierScenariosOptions.OutFile,
