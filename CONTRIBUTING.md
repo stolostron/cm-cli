@@ -72,7 +72,7 @@ as it uses also the parameters like `--server` or `--kubeconfig` to generate the
 ## Unit tests
 
 - If the unit test needs files to be executed, these files are stored under the pair `<verb>/<noun>/test/unit` like [values-fake/yaml](pkg/cmd/detach/cluster/test/unit/values-fake.yaml).
-A total coverage is shown when running `make test`. For the time being, the `cmd.go` are excluded from the total coverage.
+A total coverage is shown when running `make test`. For the time being, the `cmd.go` and `client.go` are excluded from the total coverage.
 - The `make test` is part of the PR acceptance and it is launched by PROW.
 
 ## Functional tests

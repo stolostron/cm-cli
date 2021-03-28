@@ -28,7 +28,7 @@ go test -v -cover -coverpkg=$_cover_pkgs -covermode=atomic -coverprofile=test/un
 # Merge coverage files
 if [ -f test/unit/coverage/cover.out.tmp ]; then
     # Filtering
-    cat test/unit/coverage/cover.out.tmp | grep -v "cmd.go" > test/unit/coverage/cover.tmp
+    cat test/unit/coverage/cover.out.tmp | grep -v "cmd.go" | grep -v "client.go" > test/unit/coverage/cover.tmp
     $GOPATH/bin/gocovmerge test/unit/coverage/cover.tmp test/unit/coverage/cover.out > test/unit/coverage/cover.all
     mv test/unit/coverage/cover.all test/unit/coverage/cover.out
     rm -f test/unit/coverage/cover.tmp
