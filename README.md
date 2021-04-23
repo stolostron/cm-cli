@@ -3,7 +3,7 @@
 
 A CLI and kubernetes CLI plugin that allows you to interact with OCM/ACM to provision and managed your Hybrid Cloud presence from the command-line.
 
-## Requierments 
+## Requierments
 
 Go 1.16 is required in order to build or contribute on this project as it leverage the `go:embed` tip.
 
@@ -16,6 +16,7 @@ The binary will be installed in GOPATH/bin
 git clone https://github.com/open-cluster-management/cm-cli.git
 cd cm-cli
 make build
+cm
 ```
 
 ### oc/kubectl Plugin
@@ -24,6 +25,7 @@ make build
 git clone https://github.com/open-cluster-management/cm-cli.git
 cd cm-cli
 make kubectl-plugin
+kubectl cm
 ```
 ### oc Plugin only
 
@@ -31,6 +33,7 @@ make kubectl-plugin
 git clone https://github.com/open-cluster-management/cm-cli.git
 cd cm-cli
 make oc-plugin
+oc cm
 ```
 
 ## Dislaimer
@@ -43,11 +46,10 @@ See our [Contributing Document](CONTRIBUTING.md) for more information.
 
 ## Commands
 
-The commands are composed of a verb and a noum and then a number of parameters.
+The commands are composed of a verb and a noun and then a number of parameters.
 
 ## Cluster commands
 
 [applier](docs/applier.md)
 
 [cluster](docs/cluster.md)
-

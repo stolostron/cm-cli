@@ -10,8 +10,14 @@ spec:
     name: "{{ .managedCluster.name }}"
   name: worker
   platform: 
+{{ if (eq .managedCluster.cloud "openstack") }}
+    openstack:
+      flavor: {{ .managedCluster.openstack.workerFlavor }}
+{{ else }}
 {{ block "platform" . }}
 {{ $p := index .installConfig.compute 0 "platform" }}
 {{ toYaml $p | indent 4 }}
 {{ end }}
+{{ end }}
+
   replicas: {{ index .installConfig.compute 0 "replicas" }}

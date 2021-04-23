@@ -1,0 +1,38 @@
+# Copyright Contributors to the Open Cluster Management project
+
+apiVersion: v1
+metadata:
+  name: "{{ .managedCluster.name }}"
+baseDomain: {{ .managedCluster.openstack.baseDnsDomain }}
+controlPlane:
+  hyperthreading: Enabled
+  name: master
+  replicas: 3
+  platform:
+    openstack:
+      type: {{ .managedCluster.openstack.masterFlavor }}
+compute:
+- hyperthreading: Enabled
+  name: worker
+  replicas: 3
+  platform:
+    openstack:
+      type: {{ .managedCluster.openstack.workerFlavor }}
+networking:
+  clusterNetwork:
+  - cidr: 10.128.0.0/14
+    hostPrefix: 23
+  machineNetwork:
+  - cidr: {{ .managedCluster.openstack.machineNetworkCIDR }}
+  networkType: OpenShiftSDN
+  serviceNetwork:
+  - 172.30.0.0/16
+platform:
+  openstack:
+    cloud: {{ .managedCluster.openstack.cloud }}
+    externalNetwork: {{ .managedCluster.openstack.externalNetwork }}
+    lbFloatingIP: {{ .managedCluster.openstack.apiFloatingIP }}
+    ingressFloatingIP: {{ .managedCluster.openstack.ingressFloatingIP }}
+pullSecret: "" # skip, hive will inject based on it's secrets
+sshKey: |-
+{{ .managedCluster.sshPublicKey | indent 4 }}

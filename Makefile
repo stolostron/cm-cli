@@ -27,11 +27,11 @@ install: build
 
 .PHONY: oc-plugin
 oc-plugin: build
-	mv ${GOPATH}/bin/cm ${GOPATH}/bin/oc_cm
+	cp ${GOPATH}/bin/cm ${GOPATH}/bin/oc-cm
 
 .PHONY: kubectl-plugin
 kubectl-plugin: build
-	mv ${GOPATH}/bin/cm ${GOPATH}/bin/kubectl_cm
+	cp ${GOPATH}/bin/cm ${GOPATH}/bin/kubectl-cm
 
 .PHONY: check
 ## Runs a set of required checks
@@ -44,6 +44,13 @@ check-copyright:
 .PHONY: test
 test:
 	@build/run-unit-tests.sh
+
+.PHONY: clean-test
+clean-test: 
+	rm -r ./test/unit/coverage
+	rm -r ./test/unit/tmp
+	rm -r ./test/functional/tmp
+	rm -r ./test/out
 
 .PHONY: functional-test-full
 functional-test-full: deps install
