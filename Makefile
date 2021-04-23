@@ -14,6 +14,10 @@ export PROJECT_NAME			  = $(shell basename ${PROJECT_DIR})
 
 export GOPACKAGES   = $(shell go list ./... | grep -v /vendor | grep -v /build | grep -v /test )
 
+.PHONY: clean
+clean: clean-test
+	kind delete cluster --name ${PROJECT_NAME}-functional-test
+	
 .PHONY: deps
 deps:
 	@$(INSTALL_DEPENDENCIES)
@@ -25,12 +29,9 @@ build:
 .PHONY: install
 install: build
 
-.PHONY: oc-plugin
-oc-plugin: build
+.PHONY: plugin
+plugin: build
 	cp ${GOPATH}/bin/cm ${GOPATH}/bin/oc-cm
-
-.PHONY: kubectl-plugin
-kubectl-plugin: build
 	cp ${GOPATH}/bin/cm ${GOPATH}/bin/kubectl-cm
 
 .PHONY: check
