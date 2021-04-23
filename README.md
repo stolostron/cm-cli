@@ -20,7 +20,7 @@ make build
 
 ### Plugin
 
-This will create a binary `oc_cm` and `kubectl_cm` in the `$GOPATH/go/bin` allowing you to call `oc cm` or `kubectl cm`
+This will create a binary `oc-cm` and `kubectl-cm` in the `$GOPATH/go/bin` allowing you to call `oc cm` or `kubectl cm`
 
 ```bash
 git clone https://github.com/open-cluster-management/cm-cli.git
