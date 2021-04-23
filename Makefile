@@ -48,10 +48,10 @@ test:
 
 .PHONY: clean-test
 clean-test: 
-	rm -r ./test/unit/coverage
-	rm -r ./test/unit/tmp
-	rm -r ./test/functional/tmp
-	rm -r ./test/out
+	-rm -r ./test/unit/coverage
+	-rm -r ./test/unit/tmp
+	-rm -r ./test/functional/tmp
+	-rm -r ./test/out
 
 .PHONY: functional-test-full
 functional-test-full: deps install
