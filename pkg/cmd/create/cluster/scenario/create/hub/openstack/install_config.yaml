@@ -10,14 +10,14 @@ controlPlane:
   replicas: {{ if .managedCluster.master }}{{ .managedCluster.master.replicas }}{{ else }}3{{end}}
   platform:
     openstack:
-      type: {{ .managedCluster.openstack.masterFlavor }}
+      type: {{ if .managedCluster.openstack.masterFlavor }}{{ .managedCluster.openstack.masterFlavor }}{{ else }}m1.xlarge{{end}}
 compute:
 - hyperthreading: Enabled
   name: worker
   replicas: {{ if .managedCluster.worker }}{{ .managedCluster.worker.replicas }}{{ else }}3{{end}}
   platform:
     openstack:
-      type: {{ .managedCluster.openstack.workerFlavor }}
+      type: {{ if .managedCluster.openstack.workerFlavor }}{{ .managedCluster.openstack.workerFlavor }}{{ else }}m1.xlarge{{end}}
 networking:
   clusterNetwork:
   - cidr: 10.128.0.0/14
