@@ -9,10 +9,11 @@ spec:
   clusterDeploymentRef:
     name: "{{ .managedCluster.name }}"
   name: worker
-  platform: 
+  platform:
 {{ if (eq .managedCluster.cloud "openstack") }}
     openstack:
-      flavor: {{ .managedCluster.openstack.workerFlavor }}
+      flavor: {{ if .managedCluster.openstack.workerFlavor }}{{ .managedCluster.openstack.workerFlavor }}{{ else }}m1.xlarge{{end}}
+
 {{ else }}
 {{ block "platform" . }}
 {{ $p := index .installConfig.compute 0 "platform" }}
