@@ -1,7 +1,7 @@
 # Copyright Contributors to the Open Cluster Management project
 
 managedCluster:
-  installAttemptsLimit: 1 #Number of attempt install, default 2
+  installAttemptsLimit: 1 #Number of attempt install, default 1
   master: 
     replicas: 3 #Number of master node, default 3
   worker:
