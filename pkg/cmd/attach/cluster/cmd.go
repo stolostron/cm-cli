@@ -26,6 +26,7 @@ const (
 )
 
 var valuesTemplatePath = filepath.Join(scenarioDirectory, "values-template.yaml")
+var valuesDefaultPath = filepath.Join(scenarioDirectory, "values-default.yaml")
 
 // NewCmd provides a cobra command wrapping NewCmdImportCluster
 func NewCmd(streams genericclioptions.IOStreams) *cobra.Command {
