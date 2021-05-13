@@ -43,7 +43,7 @@ func TestOptions_complete(t *testing.T) {
 			wantErr: true,
 		},
 		{
-			name: "Sucess, with values",
+			name: "Success, with values",
 			fields: fields{
 				applierScenariosOptions: &applierscenarios.ApplierScenariosOptions{
 					ValuesPath: filepath.Join(testDir, "values-fake-aws.yaml"),

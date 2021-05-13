@@ -9,6 +9,7 @@ import (
 	createcluster "github.com/open-cluster-management/cm-cli/pkg/cmd/create/cluster"
 	deletecluster "github.com/open-cluster-management/cm-cli/pkg/cmd/delete/cluster"
 	detachcluster "github.com/open-cluster-management/cm-cli/pkg/cmd/detach/cluster"
+	scalecluster "github.com/open-cluster-management/cm-cli/pkg/cmd/scale/cluster"
 	"github.com/spf13/cobra"
 
 	"k8s.io/cli-runtime/pkg/genericclioptions"
@@ -33,6 +34,8 @@ func NewVerb(verb string, streams genericclioptions.IOStreams) *cobra.Command {
 		return newVerbApplier(verb, streams)
 	case "detach":
 		return newVerbDetach(verb, streams)
+	case "scale":
+		return newVerbScale(verb, streams)
 	}
 	panic(fmt.Sprintf("Unknow verb: %s", verb))
 }
@@ -110,6 +113,17 @@ func newVerbDetach(verb string, streams genericclioptions.IOStreams) *cobra.Comm
 	}
 
 	cmd.AddCommand(detachcluster.NewCmd(streams))
+
+	return cmd
+}
+
+func newVerbScale(verb string, streams genericclioptions.IOStreams) *cobra.Command {
+	cmd := &cobra.Command{
+		Use: verb,
+	}
+	cmd.AddCommand(
+		scalecluster.NewCmd(streams),
+	)
 
 	return cmd
 }

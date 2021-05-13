@@ -34,6 +34,7 @@ func newCmdCMVerbs(streams genericclioptions.IOStreams) *cobra.Command {
 		verbs.NewVerb("applier", streams),
 		verbs.NewVerb("attach", streams),
 		verbs.NewVerb("detach", streams),
+		verbs.NewVerb("scale", streams),
 	)
 
 	return cmd
