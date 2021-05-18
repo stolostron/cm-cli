@@ -27,13 +27,14 @@ func newCmdCMVerbs(streams genericclioptions.IOStreams) *cobra.Command {
 	cmd := &cobra.Command{Use: "cm"}
 	cmd.AddCommand(
 		verbs.NewVerb("create", streams),
-		// verbs.NewVerb("get", streams),
+		verbs.NewVerb("get", streams),
 		// verbs.NewVerb("update", streams),
 		verbs.NewVerb("delete", streams),
 		// verbs.NewVerb("list", streams),
 		verbs.NewVerb("applier", streams),
 		verbs.NewVerb("attach", streams),
 		verbs.NewVerb("detach", streams),
+		verbs.NewVerb("config", streams),
 	)
 
 	return cmd

@@ -9,9 +9,15 @@ import (
 	createcluster "github.com/open-cluster-management/cm-cli/pkg/cmd/create/cluster"
 	deletecluster "github.com/open-cluster-management/cm-cli/pkg/cmd/delete/cluster"
 	detachcluster "github.com/open-cluster-management/cm-cli/pkg/cmd/detach/cluster"
+	getclusters "github.com/open-cluster-management/cm-cli/pkg/cmd/get/clusters"
 	"github.com/spf13/cobra"
 
 	"k8s.io/cli-runtime/pkg/genericclioptions"
+	"k8s.io/client-go/tools/clientcmd"
+	"k8s.io/kubectl/pkg/cmd/config"
+
+	"k8s.io/kubectl/pkg/cmd/get"
+	cmdutil "k8s.io/kubectl/pkg/cmd/util"
 )
 
 //NewVerb creates a new verb
@@ -21,6 +27,8 @@ func NewVerb(verb string, streams genericclioptions.IOStreams) *cobra.Command {
 		return newVerbCreate(verb, streams)
 	case "get":
 		return newVerbGet(verb, streams)
+	case "config":
+		return newVerbConfig(verb, streams)
 	case "update":
 		return newVerbUpdate(verb, streams)
 	case "delete":
@@ -49,11 +57,19 @@ func newVerbCreate(verb string, streams genericclioptions.IOStreams) *cobra.Comm
 }
 
 func newVerbGet(verb string, streams genericclioptions.IOStreams) *cobra.Command {
-	cmd := &cobra.Command{
-		Use:   verb,
-		Short: "Not yet implemented",
-	}
+	matchVersionKubeConfigFlags := cmdutil.NewMatchVersionFlags(genericclioptions.NewConfigFlags(true))
+	f := cmdutil.NewFactory(matchVersionKubeConfigFlags)
+	cmd := get.NewCmdGet("cm", f, streams)
+	cmd.AddCommand(
+		getclusters.NewCmd(streams),
+	)
+	return cmd
+}
 
+func newVerbConfig(verb string, streams genericclioptions.IOStreams) *cobra.Command {
+	matchVersionKubeConfigFlags := cmdutil.NewMatchVersionFlags(genericclioptions.NewConfigFlags(true))
+	f := cmdutil.NewFactory(matchVersionKubeConfigFlags)
+	cmd := config.NewCmdConfig(f, clientcmd.NewDefaultPathOptions(), streams)
 	return cmd
 }
 
