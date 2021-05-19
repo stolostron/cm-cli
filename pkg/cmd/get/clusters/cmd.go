@@ -19,10 +19,8 @@ const (
 )
 
 // NewCmd ...
-func NewCmd(streams genericclioptions.IOStreams) *cobra.Command {
+func NewCmd(f cmdutil.Factory, streams genericclioptions.IOStreams) *cobra.Command {
 	o := get.NewGetOptions("cm", streams)
-	matchVersionKubeConfigFlags := cmdutil.NewMatchVersionFlags(genericclioptions.NewConfigFlags(true))
-	f := cmdutil.NewFactory(matchVersionKubeConfigFlags)
 	cmd := &cobra.Command{
 		Use:                   "clusters [(-o|--output=)json|yaml|wide|custom-columns=...|custom-columns-file=...|go-template=...|go-template-file=...|jsonpath=...|jsonpath-file=...] (TYPE[.VERSION][.GROUP] [NAME | -l label] | TYPE[.VERSION][.GROUP]/NAME ...) [flags]",
 		Aliases:               []string{"cluster"},

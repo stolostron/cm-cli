@@ -13,39 +13,35 @@ import (
 	"github.com/spf13/cobra"
 
 	"k8s.io/cli-runtime/pkg/genericclioptions"
-	"k8s.io/client-go/tools/clientcmd"
-	"k8s.io/kubectl/pkg/cmd/config"
 
 	"k8s.io/kubectl/pkg/cmd/get"
 	cmdutil "k8s.io/kubectl/pkg/cmd/util"
 )
 
 //NewVerb creates a new verb
-func NewVerb(verb string, streams genericclioptions.IOStreams) *cobra.Command {
+func NewVerb(verb string, f cmdutil.Factory, streams genericclioptions.IOStreams) *cobra.Command {
 	switch verb {
 	case "create":
-		return newVerbCreate(verb, streams)
+		return newVerbCreate(verb, f, streams)
 	case "get":
-		return newVerbGet(verb, streams)
-	case "config":
-		return newVerbConfig(verb, streams)
+		return newVerbGet(verb, f, streams)
 	case "update":
-		return newVerbUpdate(verb, streams)
+		return newVerbUpdate(verb, f, streams)
 	case "delete":
-		return newVerbDelete(verb, streams)
+		return newVerbDelete(verb, f, streams)
 	case "list":
-		return newVerbList(verb, streams)
+		return newVerbList(verb, f, streams)
 	case "attach":
-		return newVerbAttach(verb, streams)
+		return newVerbAttach(verb, f, streams)
 	case "applier":
-		return newVerbApplier(verb, streams)
+		return newVerbApplier(verb, f, streams)
 	case "detach":
-		return newVerbDetach(verb, streams)
+		return newVerbDetach(verb, f, streams)
 	}
 	panic(fmt.Sprintf("Unknow verb: %s", verb))
 }
 
-func newVerbCreate(verb string, streams genericclioptions.IOStreams) *cobra.Command {
+func newVerbCreate(verb string, f cmdutil.Factory, streams genericclioptions.IOStreams) *cobra.Command {
 	cmd := &cobra.Command{
 		Use: verb,
 	}
@@ -56,24 +52,15 @@ func newVerbCreate(verb string, streams genericclioptions.IOStreams) *cobra.Comm
 	return cmd
 }
 
-func newVerbGet(verb string, streams genericclioptions.IOStreams) *cobra.Command {
-	matchVersionKubeConfigFlags := cmdutil.NewMatchVersionFlags(genericclioptions.NewConfigFlags(true))
-	f := cmdutil.NewFactory(matchVersionKubeConfigFlags)
+func newVerbGet(verb string, f cmdutil.Factory, streams genericclioptions.IOStreams) *cobra.Command {
 	cmd := get.NewCmdGet("cm", f, streams)
 	cmd.AddCommand(
-		getclusters.NewCmd(streams),
+		getclusters.NewCmd(f, streams),
 	)
 	return cmd
 }
 
-func newVerbConfig(verb string, streams genericclioptions.IOStreams) *cobra.Command {
-	matchVersionKubeConfigFlags := cmdutil.NewMatchVersionFlags(genericclioptions.NewConfigFlags(true))
-	f := cmdutil.NewFactory(matchVersionKubeConfigFlags)
-	cmd := config.NewCmdConfig(f, clientcmd.NewDefaultPathOptions(), streams)
-	return cmd
-}
-
-func newVerbUpdate(verb string, streams genericclioptions.IOStreams) *cobra.Command {
+func newVerbUpdate(verb string, f cmdutil.Factory, streams genericclioptions.IOStreams) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   verb,
 		Short: "Not yet implemented",
@@ -82,7 +69,7 @@ func newVerbUpdate(verb string, streams genericclioptions.IOStreams) *cobra.Comm
 	return cmd
 }
 
-func newVerbDelete(verb string, streams genericclioptions.IOStreams) *cobra.Command {
+func newVerbDelete(verb string, f cmdutil.Factory, streams genericclioptions.IOStreams) *cobra.Command {
 	cmd := &cobra.Command{
 		Use: verb,
 	}
@@ -93,7 +80,7 @@ func newVerbDelete(verb string, streams genericclioptions.IOStreams) *cobra.Comm
 	return cmd
 }
 
-func newVerbList(verb string, streams genericclioptions.IOStreams) *cobra.Command {
+func newVerbList(verb string, f cmdutil.Factory, streams genericclioptions.IOStreams) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   verb,
 		Short: "Not yet implemented",
@@ -102,13 +89,13 @@ func newVerbList(verb string, streams genericclioptions.IOStreams) *cobra.Comman
 	return cmd
 }
 
-func newVerbApplier(verb string, streams genericclioptions.IOStreams) *cobra.Command {
+func newVerbApplier(verb string, f cmdutil.Factory, streams genericclioptions.IOStreams) *cobra.Command {
 	cmd := appliercmd.NewCmd(streams)
 
 	return cmd
 }
 
-func newVerbAttach(verb string, streams genericclioptions.IOStreams) *cobra.Command {
+func newVerbAttach(verb string, f cmdutil.Factory, streams genericclioptions.IOStreams) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   verb,
 		Short: "Attach cluster to hub",
@@ -119,7 +106,7 @@ func newVerbAttach(verb string, streams genericclioptions.IOStreams) *cobra.Comm
 	return cmd
 }
 
-func newVerbDetach(verb string, streams genericclioptions.IOStreams) *cobra.Command {
+func newVerbDetach(verb string, f cmdutil.Factory, streams genericclioptions.IOStreams) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   verb,
 		Short: "Detatch a cluster from the hub",
