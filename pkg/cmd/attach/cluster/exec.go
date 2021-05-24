@@ -133,6 +133,7 @@ func (o *Options) validateWithClient(client crclient.Client) error {
 			return fmt.Errorf("server or token is missing or should be removed")
 		}
 
+		//TODO must check if clusterDeployment CRD exists.
 		cd := unstructured.Unstructured{}
 		cd.SetKind("ClusterDeployment")
 		cd.SetAPIVersion("hive.openshift.io/v1")
@@ -189,7 +190,7 @@ func (o *Options) runWithClient(client crclient.Client) (err error) {
 	}
 
 	err = applyOptions.ApplyWithValues(client, reader,
-		filepath.Join(scenarioDirectory, "hub"),
+		filepath.Join(scenarioDirectory, "hub"), []string{},
 		o.values)
 	if err != nil {
 		return err
@@ -222,7 +223,7 @@ func (o *Options) runWithClient(client crclient.Client) (err error) {
 		applyOptions.Silent = true
 		applyOptions.OutFile = o.importFile
 		err = applyOptions.ApplyWithValues(client, reader,
-			filepath.Join(scenarioDirectory, "managedcluster"),
+			filepath.Join(scenarioDirectory, "managedcluster"), []string{},
 			valueys)
 		if err != nil {
 			return err

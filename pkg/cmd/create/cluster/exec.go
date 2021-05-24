@@ -153,6 +153,6 @@ func (o *Options) runWithClient(client crclient.Client) error {
 	}
 
 	return applyOptions.ApplyWithValues(client, reader,
-		filepath.Join(scenarioDirectory, "hub", "common"),
+		filepath.Join(scenarioDirectory, "hub", "common"), []string{},
 		o.values)
 }

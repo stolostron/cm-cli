@@ -1,12 +1,12 @@
 // Copyright Contributors to the Open Cluster Management project
-package cluster
+package hub
 
 import (
 	"fmt"
 	"path/filepath"
 
 	appliercmd "github.com/open-cluster-management/applier/pkg/applier/cmd"
-	"github.com/open-cluster-management/cm-cli/pkg/cmd/detach/cluster/scenario"
+	"github.com/open-cluster-management/cm-cli/pkg/cmd/init/hub/scenario"
 	"github.com/open-cluster-management/cm-cli/pkg/helpers"
 
 	crclient "sigs.k8s.io/controller-runtime/pkg/client"
@@ -20,14 +20,11 @@ func (o *Options) complete(cmd *cobra.Command, args []string) (err error) {
 	}
 	//Check if default values must be used
 	if o.applierScenariosOptions.ValuesPath == "" {
-		if o.clusterName != "" {
-			o.values = make(map[string]interface{})
-			mc := make(map[string]interface{})
-			mc["name"] = o.clusterName
-			o.values["managedCluster"] = mc
-		} else {
-			return fmt.Errorf("values or name are missing")
-		}
+		o.values = make(map[string]interface{})
+		hub := make(map[string]interface{})
+		hub["tokenID"] = helpers.RandStringRunes_az09(6)
+		hub["tokenSecret"] = helpers.RandStringRunes_az09(16)
+		o.values["hub"] = hub
 	} else {
 		//Read values
 		o.values, err = appliercmd.ConvertValuesFileToValuesMap(o.applierScenariosOptions.ValuesPath, "")
@@ -35,11 +32,6 @@ func (o *Options) complete(cmd *cobra.Command, args []string) (err error) {
 			return err
 		}
 	}
-
-	if len(o.values) == 0 {
-		return fmt.Errorf("values are missing")
-	}
-
 	return nil
 }
 
@@ -47,25 +39,6 @@ func (o *Options) validate() error {
 	if o.applierScenariosOptions.OutTemplatesDir != "" {
 		return nil
 	}
-	imc, ok := o.values["managedCluster"]
-	if !ok || imc == nil {
-		return fmt.Errorf("managedCluster is missing")
-	}
-	mc := imc.(map[string]interface{})
-
-	if o.clusterName == "" {
-		iname, ok := mc["name"]
-		if !ok || iname == nil {
-			return fmt.Errorf("cluster name is missing")
-		}
-		o.clusterName = iname.(string)
-		if len(o.clusterName) == 0 {
-			return fmt.Errorf("managedCluster.name not specified")
-		}
-	}
-
-	mc["name"] = o.clusterName
-
 	return nil
 }
 
@@ -88,15 +61,32 @@ func (o *Options) runWithClient(client crclient.Client) error {
 		OutFile:     o.applierScenariosOptions.OutFile,
 		ConfigFlags: o.applierScenariosOptions.ConfigFlags,
 
-		Delete:    true,
+		Delete:    false,
 		Timeout:   o.applierScenariosOptions.Timeout,
 		Force:     o.applierScenariosOptions.Force,
 		Silent:    o.applierScenariosOptions.Silent,
 		IOStreams: o.applierScenariosOptions.IOStreams,
 	}
 
-	return applyOptions.ApplyWithValues(client, reader,
+	err := applyOptions.ApplyWithValues(client, reader,
 		filepath.Join(scenarioDirectory, "hub"), []string{},
 		o.values)
 
+	if err != nil {
+		return err
+	}
+
+	apiServer, err := helpers.GetAPIServer(client)
+	if err != nil {
+		return err
+	}
+
+	fmt.Printf("login into the cluster and run: %s join hub --hub-token %s.%s --hub-server %s\n",
+		helpers.GetExampleHeader(),
+		o.values["hub"].(map[string]interface{})["tokenID"].(string),
+		o.values["hub"].(map[string]interface{})["tokenSecret"].(string),
+		apiServer,
+	)
+
+	return nil
 }

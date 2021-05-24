@@ -66,6 +66,9 @@ func newCmdCMVerbs(f cmdutil.Factory, streams genericclioptions.IOStreams) *cobr
 		verbs.NewVerbAttach("attach", f, streams),
 		verbs.NewVerbDetach("detach", f, streams),
 		verbs.NewVerbVersion("version", f, streams),
+
+		verbs.NewVerbInit("init", f, streams),
+		verbs.NewVerbJoin("join", f, streams),
 	)
 
 	return cmd

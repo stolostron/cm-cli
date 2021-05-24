@@ -8,6 +8,8 @@ import (
 	deletecluster "github.com/open-cluster-management/cm-cli/pkg/cmd/delete/cluster"
 	detachcluster "github.com/open-cluster-management/cm-cli/pkg/cmd/detach/cluster"
 	getclusters "github.com/open-cluster-management/cm-cli/pkg/cmd/get/clusters"
+	inithub "github.com/open-cluster-management/cm-cli/pkg/cmd/init/hub"
+	joinhub "github.com/open-cluster-management/cm-cli/pkg/cmd/join/hub"
 	"github.com/open-cluster-management/cm-cli/pkg/cmd/version"
 	"github.com/spf13/cobra"
 
@@ -90,6 +92,28 @@ func NewVerbDetach(parent string, f cmdutil.Factory, streams genericclioptions.I
 	}
 
 	cmd.AddCommand(detachcluster.NewCmd(streams))
+
+	return cmd
+}
+
+func NewVerbInit(parent string, f cmdutil.Factory, streams genericclioptions.IOStreams) *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   parent,
+		Short: "Initialize the hub",
+	}
+
+	cmd.AddCommand(inithub.NewCmd(streams))
+
+	return cmd
+}
+
+func NewVerbJoin(parent string, f cmdutil.Factory, streams genericclioptions.IOStreams) *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   parent,
+		Short: "Join the hub",
+	}
+
+	cmd.AddCommand(joinhub.NewCmd(streams))
 
 	return cmd
 }
