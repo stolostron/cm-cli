@@ -6,7 +6,7 @@ metadata:
 spec:
   registrationImagePullSpec: quay.io/open-cluster-management/registration
   workImagePullSpec: quay.io/open-cluster-management/work
-  clusterName: cluster1
+  clusterName: {{ .hub.clusterName }}
   namespace: open-cluster-management-agent
   externalServerURLs:
-  - url: https://localhost
+  - url: {{ .clusterServerExternal}}

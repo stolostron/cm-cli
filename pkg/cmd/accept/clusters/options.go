@@ -1,16 +1,17 @@
 // Copyright Contributors to the Open Cluster Management project
-package hub
+package clusters
 
 import (
 	"github.com/open-cluster-management/cm-cli/pkg/cmd/applierscenarios"
+	cmdutil "k8s.io/kubectl/pkg/cmd/util"
 
 	"k8s.io/cli-runtime/pkg/genericclioptions"
-	cmdutil "k8s.io/kubectl/pkg/cmd/util"
 )
 
 type Options struct {
 	applierScenariosOptions *applierscenarios.ApplierScenariosOptions
 	factory                 cmdutil.Factory
+	clusters                string
 	values                  map[string]interface{}
 }
 

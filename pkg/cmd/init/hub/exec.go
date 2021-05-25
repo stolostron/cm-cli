@@ -2,13 +2,17 @@
 package hub
 
 import (
+	"context"
 	"fmt"
 	"path/filepath"
+	"strings"
 
 	appliercmd "github.com/open-cluster-management/applier/pkg/applier/cmd"
 	"github.com/open-cluster-management/cm-cli/pkg/cmd/init/hub/scenario"
 	"github.com/open-cluster-management/cm-cli/pkg/helpers"
+	"k8s.io/apimachinery/pkg/labels"
 
+	corev1 "k8s.io/api/core/v1"
 	crclient "sigs.k8s.io/controller-runtime/pkg/client"
 
 	"github.com/spf13/cobra"
@@ -55,6 +59,26 @@ func (o *Options) run() error {
 }
 
 func (o *Options) runWithClient(client crclient.Client) error {
+	ss := &corev1.SecretList{}
+	ls := labels.SelectorFromSet(labels.Set{
+		"app": "cluster-manager",
+	})
+	err := client.List(context.TODO(),
+		ss,
+		&crclient.ListOptions{
+			LabelSelector: ls,
+			Namespace:     "kube-system",
+		})
+	if err != nil {
+		return err
+	}
+	var bootstrapSecret *corev1.Secret
+	for _, item := range ss.Items {
+		if strings.HasPrefix(item.Name, "bootstrap-token") {
+			bootstrapSecret = &item
+			break
+		}
+	}
 	reader := scenario.GetApplierScenarioResourcesReader()
 
 	applyOptions := &appliercmd.Options{
@@ -68,24 +92,38 @@ func (o *Options) runWithClient(client crclient.Client) error {
 		IOStreams: o.applierScenariosOptions.IOStreams,
 	}
 
-	err := applyOptions.ApplyWithValues(client, reader,
-		filepath.Join(scenarioDirectory, "hub"), []string{},
-		o.values)
+	if bootstrapSecret == nil {
+		err = applyOptions.ApplyWithValues(client, reader,
+			filepath.Join(scenarioDirectory, "hub"), []string{},
+			o.values)
+	} else {
+		o.values["hub"].(map[string]interface{})["tokenID"] = string(bootstrapSecret.Data["token-id"])
+		o.values["hub"].(map[string]interface{})["tokenSecret"] = string(bootstrapSecret.Data["token-secret"])
+		err = applyOptions.ApplyWithValues(client, reader,
+			filepath.Join(scenarioDirectory, "hub"), []string{"boostrap-token-secret.yaml"},
+			o.values)
+	}
 
 	if err != nil {
 		return err
 	}
 
-	apiServer, err := helpers.GetAPIServer(client)
+	apiServerInternal, err := helpers.GetAPIServer(client)
 	if err != nil {
 		return err
 	}
 
-	fmt.Printf("login into the cluster and run: %s join hub --hub-token %s.%s --hub-server %s\n",
+	restConfig, err := o.factory.ToRESTConfig()
+	if err != nil {
+		return err
+	}
+
+	fmt.Printf("login into the cluster and run: %s join hub --hub-token %s.%s --hub-server-internal %s --hub-server-external %s --name <cluster_name>\n",
 		helpers.GetExampleHeader(),
 		o.values["hub"].(map[string]interface{})["tokenID"].(string),
 		o.values["hub"].(map[string]interface{})["tokenSecret"].(string),
-		apiServer,
+		apiServerInternal,
+		restConfig.Host,
 	)
 
 	return nil

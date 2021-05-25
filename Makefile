@@ -26,6 +26,16 @@ deps:
 build: 
 	go install ./cmd/cm.go
 
+.PHONY: 
+build-bin:
+	@mkdir -p bin
+	GOOS=darwin GOARCH=amd64 go build -o bin/cm_darwin_amd64 ./cmd/cm.go 
+	GOOS=linux GOARCH=amd64 go build -o bin/cm_linux_amd64 ./cmd/cm.go 
+	GOOS=linux GOARCH=arm64 go build -o bin/cm_linux_arm64 ./cmd/cm.go 
+	GOOS=linux GOARCH=ppc64le go build -o bin/cm_linux_ppc64le ./cmd/cm.go 
+	GOOS=linux GOARCH=s390x go build -o bin/cm_linux_s390x ./cmd/cm.go 
+	GOOS=windows GOARCH=amd64 go build -o bin/cm_windows_amd64.exe ./cmd/cm.go 
+
 .PHONY: install
 install: build
 

@@ -3,6 +3,7 @@ package verbs
 
 import (
 	appliercmd "github.com/open-cluster-management/applier/pkg/applier/cmd"
+	acceptclusters "github.com/open-cluster-management/cm-cli/pkg/cmd/accept/clusters"
 	attachcluster "github.com/open-cluster-management/cm-cli/pkg/cmd/attach/cluster"
 	createcluster "github.com/open-cluster-management/cm-cli/pkg/cmd/create/cluster"
 	deletecluster "github.com/open-cluster-management/cm-cli/pkg/cmd/delete/cluster"
@@ -96,13 +97,19 @@ func NewVerbDetach(parent string, f cmdutil.Factory, streams genericclioptions.I
 	return cmd
 }
 
+func NewVerbVersion(parent string, f cmdutil.Factory, streams genericclioptions.IOStreams) *cobra.Command {
+	cmd := version.NewCmd(f, streams)
+
+	return cmd
+}
+
 func NewVerbInit(parent string, f cmdutil.Factory, streams genericclioptions.IOStreams) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   parent,
 		Short: "Initialize the hub",
 	}
 
-	cmd.AddCommand(inithub.NewCmd(streams))
+	cmd.AddCommand(inithub.NewCmd(f, streams))
 
 	return cmd
 }
@@ -113,13 +120,18 @@ func NewVerbJoin(parent string, f cmdutil.Factory, streams genericclioptions.IOS
 		Short: "Join the hub",
 	}
 
-	cmd.AddCommand(joinhub.NewCmd(streams))
+	cmd.AddCommand(joinhub.NewCmd(f, streams))
 
 	return cmd
 }
 
-func NewVerbVersion(parent string, f cmdutil.Factory, streams genericclioptions.IOStreams) *cobra.Command {
-	cmd := version.NewCmd(streams)
+func NewVerbAccept(parent string, f cmdutil.Factory, streams genericclioptions.IOStreams) *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   parent,
+		Short: "Accept a cluster",
+	}
+
+	cmd.AddCommand(acceptclusters.NewCmd(f, streams))
 
 	return cmd
 }

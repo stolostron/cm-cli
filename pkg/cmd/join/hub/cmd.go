@@ -11,6 +11,7 @@ import (
 
 	"github.com/spf13/cobra"
 	"k8s.io/cli-runtime/pkg/genericclioptions"
+	cmdutil "k8s.io/kubectl/pkg/cmd/util"
 )
 
 var example = `
@@ -25,8 +26,8 @@ const (
 var valuesTemplatePath = filepath.Join(scenarioDirectory, "values-template.yaml")
 
 // NewCmd ...
-func NewCmd(streams genericclioptions.IOStreams) *cobra.Command {
-	o := newOptions(streams)
+func NewCmd(f cmdutil.Factory, streams genericclioptions.IOStreams) *cobra.Command {
+	o := newOptions(f, streams)
 
 	cmd := &cobra.Command{
 		Use:          "hub",
@@ -50,7 +51,9 @@ func NewCmd(streams genericclioptions.IOStreams) *cobra.Command {
 
 	cmd.SetUsageTemplate(applierscenarios.UsageTempate(cmd, scenario.GetApplierScenarioResourcesReader(), valuesTemplatePath))
 	cmd.Flags().StringVar(&o.token, "hub-token", "", "The token to access the hub")
-	cmd.Flags().StringVar(&o.hubServer, "hub-server", "", "The api server url to the hub")
+	cmd.Flags().StringVar(&o.hubServerInternal, "hub-server-internal", "", "The internal api server url to the hub")
+	cmd.Flags().StringVar(&o.hubServerExternal, "hub-server-external", "", "The external api server url to the hub")
+	cmd.Flags().StringVar(&o.clusterName, "name", "", "The name of the joining cluster")
 
 	o.applierScenariosOptions.AddFlags(cmd.Flags())
 	o.applierScenariosOptions.ConfigFlags.AddFlags(cmd.Flags())

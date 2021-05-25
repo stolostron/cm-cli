@@ -1,4 +1,7 @@
 # Copyright Contributors to the Open Cluster Management project
 hub:
-  tokenID: hifklm
-  tokenSecret: abcdefghijklmnop
+  clusterName: cluster2
+  token: hifklm.abcdefghijklmnop
+  hubServerInternal:
+  hubServerExternal:
+

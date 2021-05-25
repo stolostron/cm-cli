@@ -1,12 +1,12 @@
 // Copyright Contributors to the Open Cluster Management project
-package hub
+package clusters
 
 import (
 	"fmt"
 	"path/filepath"
 
 	"github.com/open-cluster-management/cm-cli/pkg/cmd/applierscenarios"
-	"github.com/open-cluster-management/cm-cli/pkg/cmd/init/hub/scenario"
+	"github.com/open-cluster-management/cm-cli/pkg/cmd/detach/cluster/scenario"
 	"github.com/open-cluster-management/cm-cli/pkg/helpers"
 
 	"github.com/spf13/cobra"
@@ -15,12 +15,12 @@ import (
 )
 
 var example = `
-# Init hub
-%[1]s init hub
+# Accept clusters
+%[1]s accept cluster --values values.yaml
 `
 
 const (
-	scenarioDirectory = "init"
+	scenarioDirectory = "accept"
 )
 
 var valuesTemplatePath = filepath.Join(scenarioDirectory, "values-template.yaml")
@@ -30,8 +30,8 @@ func NewCmd(f cmdutil.Factory, streams genericclioptions.IOStreams) *cobra.Comma
 	o := newOptions(f, streams)
 
 	cmd := &cobra.Command{
-		Use:          "hub",
-		Short:        "init hub",
+		Use:          "clusters",
+		Short:        "accept clusters",
 		Example:      fmt.Sprintf(example, helpers.GetExampleHeader()),
 		SilenceUsage: true,
 		RunE: func(c *cobra.Command, args []string) error {
@@ -50,6 +50,7 @@ func NewCmd(f cmdutil.Factory, streams genericclioptions.IOStreams) *cobra.Comma
 	}
 
 	cmd.SetUsageTemplate(applierscenarios.UsageTempate(cmd, scenario.GetApplierScenarioResourcesReader(), valuesTemplatePath))
+	cmd.Flags().StringVar(&o.clusters, "names", "", "Names of the cluster to accept (comma separated)")
 
 	o.applierScenariosOptions.AddFlags(cmd.Flags())
 	o.applierScenariosOptions.ConfigFlags.AddFlags(cmd.Flags())

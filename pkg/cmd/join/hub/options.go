@@ -5,17 +5,22 @@ import (
 	"github.com/open-cluster-management/cm-cli/pkg/cmd/applierscenarios"
 
 	"k8s.io/cli-runtime/pkg/genericclioptions"
+	cmdutil "k8s.io/kubectl/pkg/cmd/util"
 )
 
 type Options struct {
 	applierScenariosOptions *applierscenarios.ApplierScenariosOptions
 	token                   string
-	hubServer               string
+	hubServerInternal       string
+	hubServerExternal       string
+	clusterName             string
+	factory                 cmdutil.Factory
 	values                  map[string]interface{}
 }
 
-func newOptions(streams genericclioptions.IOStreams) *Options {
+func newOptions(f cmdutil.Factory, streams genericclioptions.IOStreams) *Options {
 	return &Options{
 		applierScenariosOptions: applierscenarios.NewApplierScenariosOptions(streams),
+		factory:                 f,
 	}
 }

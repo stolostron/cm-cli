@@ -69,6 +69,7 @@ func newCmdCMVerbs(f cmdutil.Factory, streams genericclioptions.IOStreams) *cobr
 
 		verbs.NewVerbInit("init", f, streams),
 		verbs.NewVerbJoin("join", f, streams),
+		verbs.NewVerbAccept("accept", f, streams),
 	)
 
 	return cmd

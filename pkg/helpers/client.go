@@ -8,6 +8,7 @@ import (
 
 	"github.com/ghodss/yaml"
 	corev1 "k8s.io/api/core/v1"
+	clientcmdapiv1 "k8s.io/client-go/tools/clientcmd/api/v1"
 	crclient "sigs.k8s.io/controller-runtime/pkg/client"
 
 	"k8s.io/cli-runtime/pkg/genericclioptions"
@@ -23,27 +24,49 @@ func GetControllerRuntimeClientFromFlags(configFlags *genericclioptions.ConfigFl
 }
 
 func GetAPIServer(client crclient.Client) (string, error) {
+	config, err := getClusterInfoKubeConfig(client)
+	if err != nil {
+		return "", err
+	}
+	clusters := config.Clusters
+	if len(clusters) != 1 {
+		return "", fmt.Errorf("can not find the cluster in the cluster-info")
+	}
+	cluster := clusters[0].Cluster
+	return cluster.Server, nil
+}
+
+func GetCACert(client crclient.Client) ([]byte, error) {
+	config, err := getClusterInfoKubeConfig(client)
+	if err != nil {
+		return nil, err
+	}
+	clusters := config.Clusters
+	if len(clusters) != 1 {
+		return nil, fmt.Errorf("can not find the cluster in the cluster-info")
+	}
+	cluster := clusters[0].Cluster
+	return cluster.CertificateAuthorityData, nil
+}
+
+func getClusterInfo(client crclient.Client) (*corev1.ConfigMap, error) {
 	cm := &corev1.ConfigMap{}
 	err := client.Get(context.TODO(), crclient.ObjectKey{Namespace: "kube-public", Name: "cluster-info"}, cm)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
-	config := make(map[string]interface{})
-	err = yaml.Unmarshal([]byte(cm.Data["kubeconfig"]), &config)
+	return cm, nil
+}
+
+func getClusterInfoKubeConfig(client crclient.Client) (*clientcmdapiv1.Config, error) {
+	cm, err := getClusterInfo(client)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
-	clusters, ok := config["clusters"].([]interface{})
-	if !ok || len(clusters) != 1 {
-		return "", fmt.Errorf("can not find the cluster in the cluster-info")
+	config := &clientcmdapiv1.Config{}
+	err = yaml.Unmarshal([]byte(cm.Data["kubeconfig"]), config)
+	if err != nil {
+		return nil, err
 	}
-	cluster0, ok := clusters[0].(map[string]interface{})
-	if !ok {
-		return "", fmt.Errorf("can not find the cluster")
-	}
-	cluster, ok := cluster0["cluster"].(map[string]interface{})
-	if !ok {
-		return "", fmt.Errorf("cluster not found")
-	}
-	return cluster["server"].(string), nil
+	return config, nil
 }

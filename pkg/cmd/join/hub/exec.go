@@ -9,7 +9,8 @@ import (
 	appliercmd "github.com/open-cluster-management/applier/pkg/applier/cmd"
 	"github.com/open-cluster-management/cm-cli/pkg/cmd/join/hub/scenario"
 	"github.com/open-cluster-management/cm-cli/pkg/helpers"
-	clientcmdapi "k8s.io/client-go/tools/clientcmd/api/v1"
+	"k8s.io/client-go/tools/clientcmd"
+	clientcmdapiv1 "k8s.io/client-go/tools/clientcmd/api/v1"
 
 	crclient "sigs.k8s.io/controller-runtime/pkg/client"
 
@@ -22,11 +23,13 @@ func (o *Options) complete(cmd *cobra.Command, args []string) (err error) {
 	}
 	//Check if default values must be used
 	if o.applierScenariosOptions.ValuesPath == "" {
-		if o.token != "" && o.hubServer != "" {
+		if o.token != "" && o.hubServerInternal != "" {
 			o.values = make(map[string]interface{})
 			hub := make(map[string]interface{})
 			hub["token"] = o.token
-			hub["hubServer"] = o.hubServer
+			hub["hubServerInternal"] = o.hubServerInternal
+			hub["hubServerExternal"] = o.hubServerExternal
+			hub["clusterName"] = o.clusterName
 			o.values["hub"] = hub
 		} else {
 			return fmt.Errorf("values or token/hub-server are missing")
@@ -66,15 +69,35 @@ func (o *Options) validate() error {
 
 	hub["token"] = o.token
 
-	if o.hubServer == "" {
-		ihubServer, ok := hub["hubServer"]
+	if o.hubServerInternal == "" {
+		ihubServer, ok := hub["hubServerInternal"]
 		if !ok || ihubServer == nil {
-			return fmt.Errorf("hub-server name is missing")
+			return fmt.Errorf("hub-server-internal name is missing")
 		}
 		o.token = ihubServer.(string)
 	}
 
-	hub["hubServer"] = o.hubServer
+	hub["hubServerInternal"] = o.hubServerInternal
+
+	if o.hubServerExternal == "" {
+		ihubServer, ok := hub["hubServerExternal"]
+		if !ok || ihubServer == nil {
+			return fmt.Errorf("hub-server-external name is missing")
+		}
+		o.token = ihubServer.(string)
+	}
+
+	hub["hubServerExternal"] = o.hubServerExternal
+
+	if o.clusterName == "" {
+		iclusterName, ok := hub["clusterName"]
+		if !ok || iclusterName == nil {
+			return fmt.Errorf("name is missing")
+		}
+		o.token = iclusterName.(string)
+	}
+
+	hub["clusterName"] = o.clusterName
 
 	return nil
 }
@@ -105,31 +128,31 @@ func (o *Options) runWithClient(client crclient.Client) error {
 		IOStreams: o.applierScenariosOptions.IOStreams,
 	}
 
-	bootstrapConfig := clientcmdapi.Config{
+	bootstrapConfigUnSecure := clientcmdapiv1.Config{
 		// Define a cluster stanza based on the bootstrap kubeconfig.
-		Clusters: []clientcmdapi.NamedCluster{
+		Clusters: []clientcmdapiv1.NamedCluster{
 			{
 				Name: "hub",
-				Cluster: clientcmdapi.Cluster{
-					Server:                o.hubServer,
+				Cluster: clientcmdapiv1.Cluster{
+					Server:                o.hubServerExternal,
 					InsecureSkipTLSVerify: true,
 				},
 			},
 		},
 		// Define auth based on the obtained client cert.
-		AuthInfos: []clientcmdapi.NamedAuthInfo{
+		AuthInfos: []clientcmdapiv1.NamedAuthInfo{
 			{
 				Name: "bootstrap",
-				AuthInfo: clientcmdapi.AuthInfo{
+				AuthInfo: clientcmdapiv1.AuthInfo{
 					Token: string(o.token),
 				},
 			},
 		},
 		// Define a context that connects the auth info and cluster, and set it as the default
-		Contexts: []clientcmdapi.NamedContext{
+		Contexts: []clientcmdapiv1.NamedContext{
 			{
 				Name: "bootstrap",
-				Context: clientcmdapi.Context{
+				Context: clientcmdapiv1.Context{
 					Cluster:   "hub",
 					AuthInfo:  "bootstrap",
 					Namespace: "default",
@@ -138,13 +161,48 @@ func (o *Options) runWithClient(client crclient.Client) error {
 		},
 		CurrentContext: "bootstrap",
 	}
+
+	bootstrapConfigBytesUnSecure, err := yaml.Marshal(bootstrapConfigUnSecure)
+	if err != nil {
+		return err
+	}
+
+	configUnSecure, err := clientcmd.Load(bootstrapConfigBytesUnSecure)
+	if err != nil {
+		return err
+	}
+	restConfigUnSecure, err := clientcmd.NewDefaultClientConfig(*configUnSecure, &clientcmd.ConfigOverrides{}).ClientConfig()
+	if err != nil {
+		return err
+	}
+
+	clientUnSecure, err := crclient.New(restConfigUnSecure, crclient.Options{})
+	if err != nil {
+		return err
+	}
+
+	ca, err := helpers.GetCACert(clientUnSecure)
+	if err != nil {
+		return err
+	}
+
+	bootstrapConfig := bootstrapConfigUnSecure
+	bootstrapConfig.Clusters[0].Cluster.InsecureSkipTLSVerify = false
+	bootstrapConfig.Clusters[0].Cluster.CertificateAuthorityData = ca
+	bootstrapConfig.Clusters[0].Cluster.Server = o.hubServerInternal
 	bootstrapConfigBytes, err := yaml.Marshal(bootstrapConfig)
 	if err != nil {
 		return err
 	}
 
 	o.values["kubeconfig"] = string(bootstrapConfigBytes)
-	fmt.Printf("%v", o.values)
+
+	restConfig, err := o.factory.ToRESTConfig()
+	if err != nil {
+		return err
+	}
+
+	o.values["clusterServerExternal"] = restConfig.Host
 
 	err = applyOptions.ApplyWithValues(client, reader,
 		filepath.Join(scenarioDirectory, "hub"), []string{},
@@ -154,7 +212,7 @@ func (o *Options) runWithClient(client crclient.Client) error {
 		return err
 	}
 
-	fmt.Printf("login back onto the hub and run:  ")
+	fmt.Printf("login back onto the hub and run: %s accept clusters --names %s\n", helpers.GetExampleHeader(), o.clusterName)
 
 	return nil
 
