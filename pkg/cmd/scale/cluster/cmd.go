@@ -16,7 +16,7 @@ import (
 
 var example = `
 # Scale a cluster
-%[1]s scale cluster --values values.yaml --name clustername --machinepool poolname --replicas 4
+%[1]s scale cluster --name clustername --machinepool poolname --replicas 4
 `
 
 const (

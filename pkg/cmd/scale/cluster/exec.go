@@ -4,16 +4,11 @@ package cluster
 import (
 	"context"
 	"fmt"
-	"path/filepath"
 
 	appliercmd "github.com/open-cluster-management/applier/pkg/applier/cmd"
 	"github.com/open-cluster-management/cm-cli/pkg/helpers"
 
-	//libgoclient "github.com/open-cluster-management/library-go/pkg/client"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
-	"k8s.io/apimachinery/pkg/runtime/schema"
-	"k8s.io/apimachinery/pkg/types"
-	"k8s.io/klog"
 
 	"github.com/open-cluster-management/cm-cli/pkg/cmd/scale/cluster/scenario"
 
@@ -39,33 +34,18 @@ func (o *Options) validate() (err error) {
 		return nil
 	}
 
-	//if o == nil {
-	//	o = map[string]interface{}{}
-	//}
-
-	imc, ok := o.values["managedCluster"]
-	if !ok || imc == nil {
-		return fmt.Errorf("managedCluster is missing")
-	}
-	mc := imc.(map[string]interface{})
-
 	if o.clusterName == "" {
-		iname, ok := mc["name"]
-		if !ok || iname == nil {
-			return fmt.Errorf("cluster name is missing")
-		}
-		o.clusterName = iname.(string)
-		if len(o.clusterName) == 0 {
-			return fmt.Errorf("managedCluster.name not specified")
-		}
+	 		return fmt.Errorf("cluster name is missing")
 	}
-	mc["name"] = o.clusterName
 
 	if o.machinePoolName == "" {
 		return fmt.Errorf("machinepool is missing")
-	}
+  }
 
-	// replicas defaults
+	// // replicas defaults
+	if o.replicas == 0 {
+		return fmt.Errorf("replicas is missing")
+  }
 
 	return nil
 }
@@ -82,6 +62,24 @@ func (o *Options) run() error {
 	return o.runWithClient(client)
 }
 
+func (o *Options) runWithClient(client crclient.Client) error {
+	mp := &unstructured.Unstructured{}
+	mp.SetKind("MachinePool")
+	mp.SetAPIVersion("hive.openshift.io/v1")
+	err := client.Get(context.TODO(),
+		crclient.ObjectKey{
+			Name:      o.machinePoolName,
+			Namespace: o.clusterName}, mp)
+	if err != nil {
+		return err
+	}
+	patch := crclient.MergeFrom(mp.DeepCopyObject())
+	spec := mp.Object["spec"].(map[string]interface{})
+	spec["replicas"] = o.replicas
+	return client.Patch(context.TODO(), mp, patch)
+}
+
+/*
 func (o *Options) runWithClient(client crclient.Client) error {
 
 	reader := scenario.GetApplierScenarioResourcesReader()
@@ -183,3 +181,4 @@ func (o *Options) runWithClient(client crclient.Client) error {
 		filepath.Join(scenarioDirectory, "hub", "common"),
 		o.values)
 }
+*/
