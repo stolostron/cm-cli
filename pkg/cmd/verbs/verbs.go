@@ -2,47 +2,25 @@
 package verbs
 
 import (
-	"fmt"
-
 	appliercmd "github.com/open-cluster-management/applier/pkg/applier/cmd"
 	attachcluster "github.com/open-cluster-management/cm-cli/pkg/cmd/attach/cluster"
 	createcluster "github.com/open-cluster-management/cm-cli/pkg/cmd/create/cluster"
 	deletecluster "github.com/open-cluster-management/cm-cli/pkg/cmd/delete/cluster"
 	detachcluster "github.com/open-cluster-management/cm-cli/pkg/cmd/detach/cluster"
 	scalecluster "github.com/open-cluster-management/cm-cli/pkg/cmd/scale/cluster"
+	getclusters "github.com/open-cluster-management/cm-cli/pkg/cmd/get/clusters"
+	"github.com/open-cluster-management/cm-cli/pkg/cmd/version"
 	"github.com/spf13/cobra"
 
 	"k8s.io/cli-runtime/pkg/genericclioptions"
+
+	"k8s.io/kubectl/pkg/cmd/get"
+	cmdutil "k8s.io/kubectl/pkg/cmd/util"
 )
 
-//NewVerb creates a new verb
-func NewVerb(verb string, streams genericclioptions.IOStreams) *cobra.Command {
-	switch verb {
-	case "create":
-		return newVerbCreate(verb, streams)
-	case "get":
-		return newVerbGet(verb, streams)
-	case "update":
-		return newVerbUpdate(verb, streams)
-	case "delete":
-		return newVerbDelete(verb, streams)
-	case "list":
-		return newVerbList(verb, streams)
-	case "attach":
-		return newVerbAttach(verb, streams)
-	case "applier":
-		return newVerbApplier(verb, streams)
-	case "detach":
-		return newVerbDetach(verb, streams)
-	case "scale":
-		return newVerbScale(verb, streams)
-	}
-	panic(fmt.Sprintf("Unknow verb: %s", verb))
-}
-
-func newVerbCreate(verb string, streams genericclioptions.IOStreams) *cobra.Command {
+func NewVerbCreate(parent string, f cmdutil.Factory, streams genericclioptions.IOStreams) *cobra.Command {
 	cmd := &cobra.Command{
-		Use: verb,
+		Use: parent,
 	}
 	cmd.AddCommand(
 		createcluster.NewCmd(streams),
@@ -51,27 +29,27 @@ func newVerbCreate(verb string, streams genericclioptions.IOStreams) *cobra.Comm
 	return cmd
 }
 
-func newVerbGet(verb string, streams genericclioptions.IOStreams) *cobra.Command {
+func NewVerbGet(parent string, f cmdutil.Factory, streams genericclioptions.IOStreams) *cobra.Command {
+	cmd := get.NewCmdGet("cm", f, streams)
+
+	cmd.AddCommand(
+		getclusters.NewCmd(f, streams),
+	)
+	return cmd
+}
+
+func NewVerbUpdate(parent string, f cmdutil.Factory, streams genericclioptions.IOStreams) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   verb,
+		Use:   parent,
 		Short: "Not yet implemented",
 	}
 
 	return cmd
 }
 
-func newVerbUpdate(verb string, streams genericclioptions.IOStreams) *cobra.Command {
+func NewVerbDelete(parent string, f cmdutil.Factory, streams genericclioptions.IOStreams) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   verb,
-		Short: "Not yet implemented",
-	}
-
-	return cmd
-}
-
-func newVerbDelete(verb string, streams genericclioptions.IOStreams) *cobra.Command {
-	cmd := &cobra.Command{
-		Use: verb,
+		Use: parent,
 	}
 	cmd.AddCommand(
 		deletecluster.NewCmd(streams),
@@ -80,24 +58,24 @@ func newVerbDelete(verb string, streams genericclioptions.IOStreams) *cobra.Comm
 	return cmd
 }
 
-func newVerbList(verb string, streams genericclioptions.IOStreams) *cobra.Command {
+func NewVerbList(parent string, f cmdutil.Factory, streams genericclioptions.IOStreams) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   verb,
+		Use:   parent,
 		Short: "Not yet implemented",
 	}
 
 	return cmd
 }
 
-func newVerbApplier(verb string, streams genericclioptions.IOStreams) *cobra.Command {
+func NewVerbApplier(parent string, f cmdutil.Factory, streams genericclioptions.IOStreams) *cobra.Command {
 	cmd := appliercmd.NewCmd(streams)
 
 	return cmd
 }
 
-func newVerbAttach(verb string, streams genericclioptions.IOStreams) *cobra.Command {
+func NewVerbAttach(parent string, f cmdutil.Factory, streams genericclioptions.IOStreams) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   verb,
+		Use:   parent,
 		Short: "Attach cluster to hub",
 	}
 
@@ -106,9 +84,9 @@ func newVerbAttach(verb string, streams genericclioptions.IOStreams) *cobra.Comm
 	return cmd
 }
 
-func newVerbDetach(verb string, streams genericclioptions.IOStreams) *cobra.Command {
+func NewVerbDetach(parent string, f cmdutil.Factory, streams genericclioptions.IOStreams) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   verb,
+		Use:   parent,
 		Short: "Detatch a cluster from the hub",
 	}
 
@@ -120,10 +98,14 @@ func newVerbDetach(verb string, streams genericclioptions.IOStreams) *cobra.Comm
 func newVerbScale(verb string, streams genericclioptions.IOStreams) *cobra.Command {
 	cmd := &cobra.Command{
 		Use: verb,
+		Short: "Scale a worker pool on a managed hub",
 	}
 	cmd.AddCommand(
 		scalecluster.NewCmd(streams),
 	)
+
+func NewVerbVersion(parent string, f cmdutil.Factory, streams genericclioptions.IOStreams) *cobra.Command {
+	cmd := version.NewCmd(streams)
 
 	return cmd
 }
