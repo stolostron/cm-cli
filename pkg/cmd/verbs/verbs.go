@@ -95,7 +95,7 @@ func NewVerbDetach(parent string, f cmdutil.Factory, streams genericclioptions.I
 	return cmd
 }
 
-func newVerbScale(verb string, streams genericclioptions.IOStreams) *cobra.Command {
+func NewVerbScale(verb string, streams genericclioptions.IOStreams) *cobra.Command {
 	cmd := &cobra.Command{
 		Use: verb,
 		Short: "Scale a worker pool on a managed hub",
@@ -103,6 +103,9 @@ func newVerbScale(verb string, streams genericclioptions.IOStreams) *cobra.Comma
 	cmd.AddCommand(
 		scalecluster.NewCmd(streams),
 	)
+
+	return cmd
+}
 
 func NewVerbVersion(parent string, f cmdutil.Factory, streams genericclioptions.IOStreams) *cobra.Command {
 	cmd := version.NewCmd(streams)
