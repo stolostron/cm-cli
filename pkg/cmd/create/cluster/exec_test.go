@@ -5,23 +5,34 @@ import (
 	"path/filepath"
 	"testing"
 
-	appliercmd "github.com/open-cluster-management/applier/pkg/applier/cmd"
-	"github.com/open-cluster-management/cm-cli/pkg/cmd/applierscenarios"
-	"github.com/spf13/cobra"
 	corev1 "k8s.io/api/core/v1"
+
+	genericclioptionscm "github.com/open-cluster-management/cm-cli/pkg/genericclioptions"
+	"github.com/open-cluster-management/cm-cli/pkg/helpers"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	crclient "sigs.k8s.io/controller-runtime/pkg/client"
-	crclientfake "sigs.k8s.io/controller-runtime/pkg/client/fake"
+
+	"github.com/spf13/cobra"
+	apiextensionsclient "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset"
+	fakeapiextensionsclient "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset/fake"
+	"k8s.io/client-go/discovery"
+	fakediscovery "k8s.io/client-go/discovery/fake"
+	"k8s.io/client-go/dynamic"
+	fakedynamic "k8s.io/client-go/dynamic/fake"
+	"k8s.io/client-go/kubernetes"
+	fakekubernetes "k8s.io/client-go/kubernetes/fake"
+	"k8s.io/kubectl/pkg/scheme"
 )
 
 var testDir = filepath.Join("test", "unit")
 
 func TestOptions_complete(t *testing.T) {
 	type fields struct {
-		applierScenariosOptions *applierscenarios.ApplierScenariosOptions
-		clusterName             string
-		cloud                   string
-		values                  map[string]interface{}
+		CMFlags     *genericclioptionscm.CMFlags
+		clusterName string
+		cloud       string
+		valuesPath  string
+		values      map[string]interface{}
+		outputFile  string
 	}
 	type args struct {
 		cmd  *cobra.Command
@@ -36,18 +47,14 @@ func TestOptions_complete(t *testing.T) {
 		{
 			name: "Failed, empty values",
 			fields: fields{
-				applierScenariosOptions: &applierscenarios.ApplierScenariosOptions{
-					ValuesPath: filepath.Join(testDir, "values-empty.yaml"),
-				},
+				valuesPath: filepath.Join(testDir, "values-empty.yaml"),
 			},
 			wantErr: true,
 		},
 		{
 			name: "Sucess, with values",
 			fields: fields{
-				applierScenariosOptions: &applierscenarios.ApplierScenariosOptions{
-					ValuesPath: filepath.Join(testDir, "values-fake-aws.yaml"),
-				},
+				valuesPath: filepath.Join(testDir, "values-fake-aws.yaml"),
 			},
 			wantErr: false,
 		},
@@ -55,10 +62,12 @@ func TestOptions_complete(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			o := &Options{
-				applierScenariosOptions: tt.fields.applierScenariosOptions,
-				clusterName:             tt.fields.clusterName,
-				cloud:                   tt.fields.cloud,
-				values:                  tt.fields.values,
+				CMFlags:     tt.fields.CMFlags,
+				clusterName: tt.fields.clusterName,
+				cloud:       tt.fields.cloud,
+				valuesPath:  tt.fields.valuesPath,
+				values:      tt.fields.values,
+				outputFile:  tt.fields.outputFile,
 			}
 			if err := o.complete(tt.args.cmd, tt.args.args); (err != nil) != tt.wantErr {
 				t.Errorf("Options.complete() error = %v, wantErr %v", err, tt.wantErr)
@@ -69,10 +78,12 @@ func TestOptions_complete(t *testing.T) {
 
 func TestOptions_validate(t *testing.T) {
 	type fields struct {
-		applierScenariosOptions *applierscenarios.ApplierScenariosOptions
-		clusterName             string
-		cloud                   string
-		values                  map[string]interface{}
+		CMFlags     *genericclioptionscm.CMFlags
+		clusterName string
+		cloud       string
+		valuesPath  string
+		values      map[string]interface{}
+		outputFile  string
 	}
 	tests := []struct {
 		name    string
@@ -82,7 +93,6 @@ func TestOptions_validate(t *testing.T) {
 		{
 			name: "Success AWS all info in values",
 			fields: fields{
-				applierScenariosOptions: &applierscenarios.ApplierScenariosOptions{},
 				values: map[string]interface{}{
 					"managedCluster": map[string]interface{}{
 						"name":  "test",
@@ -95,7 +105,6 @@ func TestOptions_validate(t *testing.T) {
 		{
 			name: "Success Azure all info in values",
 			fields: fields{
-				applierScenariosOptions: &applierscenarios.ApplierScenariosOptions{},
 				values: map[string]interface{}{
 					"managedCluster": map[string]interface{}{
 						"name":  "test",
@@ -108,7 +117,6 @@ func TestOptions_validate(t *testing.T) {
 		{
 			name: "Success GCP all info in values",
 			fields: fields{
-				applierScenariosOptions: &applierscenarios.ApplierScenariosOptions{},
 				values: map[string]interface{}{
 					"managedCluster": map[string]interface{}{
 						"name":  "test",
@@ -121,7 +129,6 @@ func TestOptions_validate(t *testing.T) {
 		{
 			name: "Success VSphere all info in values",
 			fields: fields{
-				applierScenariosOptions: &applierscenarios.ApplierScenariosOptions{},
 				values: map[string]interface{}{
 					"managedCluster": map[string]interface{}{
 						"name":  "test",
@@ -134,24 +141,20 @@ func TestOptions_validate(t *testing.T) {
 		{
 			name: "Failed, bad valuesPath",
 			fields: fields{
-				applierScenariosOptions: &applierscenarios.ApplierScenariosOptions{
-					ValuesPath: "bad-values-path.yaml",
-				},
+				valuesPath: "bad-values-path.yaml",
 			},
 			wantErr: true,
 		},
 		{
 			name: "Failed managedCluster missing",
 			fields: fields{
-				applierScenariosOptions: &applierscenarios.ApplierScenariosOptions{},
-				values:                  map[string]interface{}{},
+				values: map[string]interface{}{},
 			},
 			wantErr: true,
 		},
 		{
 			name: "Failed name missing",
 			fields: fields{
-				applierScenariosOptions: &applierscenarios.ApplierScenariosOptions{},
 				values: map[string]interface{}{
 					"managedCluster": map[string]interface{}{
 						"cloud": "vsphere",
@@ -163,7 +166,6 @@ func TestOptions_validate(t *testing.T) {
 		{
 			name: "Failed name empty",
 			fields: fields{
-				applierScenariosOptions: &applierscenarios.ApplierScenariosOptions{},
 				values: map[string]interface{}{
 					"managedCluster": map[string]interface{}{
 						"name":  "",
@@ -176,7 +178,6 @@ func TestOptions_validate(t *testing.T) {
 		{
 			name: "Failed cloud missing",
 			fields: fields{
-				applierScenariosOptions: &applierscenarios.ApplierScenariosOptions{},
 				values: map[string]interface{}{
 					"managedCluster": map[string]interface{}{
 						"name": "test",
@@ -188,7 +189,6 @@ func TestOptions_validate(t *testing.T) {
 		{
 			name: "Failed cloud enpty",
 			fields: fields{
-				applierScenariosOptions: &applierscenarios.ApplierScenariosOptions{},
 				values: map[string]interface{}{
 					"managedCluster": map[string]interface{}{
 						"name":  "test",
@@ -201,7 +201,6 @@ func TestOptions_validate(t *testing.T) {
 		{
 			name: "Success replace clusterName",
 			fields: fields{
-				applierScenariosOptions: &applierscenarios.ApplierScenariosOptions{},
 				values: map[string]interface{}{
 					"managedCluster": map[string]interface{}{
 						"name":  "test",
@@ -216,10 +215,12 @@ func TestOptions_validate(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			o := &Options{
-				applierScenariosOptions: tt.fields.applierScenariosOptions,
-				clusterName:             tt.fields.clusterName,
-				cloud:                   tt.fields.cloud,
-				values:                  tt.fields.values,
+				CMFlags:     tt.fields.CMFlags,
+				clusterName: tt.fields.clusterName,
+				cloud:       tt.fields.cloud,
+				valuesPath:  tt.fields.valuesPath,
+				values:      tt.fields.values,
+				outputFile:  tt.fields.outputFile,
 			}
 			if err := o.validate(); (err != nil) != tt.wantErr {
 				t.Errorf("Options.validate() error = %v, wantErr %v", err, tt.wantErr)
@@ -253,19 +254,81 @@ func TestOptions_runWithClient(t *testing.T) {
 			".dockerconfigjson": []byte("crds: mycrds"),
 		},
 	}
-	client := crclientfake.NewFakeClient(&pullSecret)
-	valuesAWS, err := appliercmd.ConvertValuesFileToValuesMap(filepath.Join(testDir, "values-fake-aws.yaml"), "")
+	values, err := helpers.ConvertValuesFileToValuesMap(filepath.Join(testDir, "values-fake-aws.yaml"), "")
 	if err != nil {
 		t.Fatal(err)
 	}
+	apiextensionsClient := fakeapiextensionsclient.NewSimpleClientset()
+	s := scheme.Scheme
+	kubeClient := fakekubernetes.NewSimpleClientset(pullSecret.DeepCopyObject())
+	kubeClientNoPullSecret := fakekubernetes.NewSimpleClientset()
+	dynamicClient := fakedynamic.NewSimpleDynamicClient(s)
+	discoveryClient := kubeClient.Discovery()
+	discoveryClient.(*fakediscovery.FakeDiscovery).Resources = []*metav1.APIResourceList{
+		{
+			GroupVersion: "v1",
+			APIResources: []metav1.APIResource{
+				{
+					Name:       "secrets",
+					Namespaced: true,
+					Kind:       "Secret",
+				},
+			},
+		},
+		{
+			GroupVersion: "cluster.open-cluster-management.io/v1",
+			APIResources: []metav1.APIResource{
+				{
+					Name:       "managedclusters",
+					Namespaced: false,
+					Kind:       "ManagedCluster",
+				},
+			},
+		},
+		{
+			GroupVersion: "agent.open-cluster-management.io/v1",
+			APIResources: []metav1.APIResource{
+				{
+					Name:       "klusteraddonconfigs",
+					Namespaced: false,
+					Kind:       "KlusterletAddonConfig",
+				},
+			},
+		},
+		{
+			GroupVersion: "hive.openshift.io/v1",
+			APIResources: []metav1.APIResource{
+				{
+					Name:       "machinepools",
+					Namespaced: false,
+					Kind:       "MachinePool",
+				},
+				{
+					Name:       "clusterimagesets",
+					Namespaced: false,
+					Kind:       "ClusterImageSet",
+				},
+				{
+					Name:       "clusterdeployments",
+					Namespaced: false,
+					Kind:       "ClusterDeployment",
+				},
+			},
+		},
+	}
 	type fields struct {
-		applierScenariosOptions *applierscenarios.ApplierScenariosOptions
-		clusterName             string
-		cloud                   string
-		values                  map[string]interface{}
+		CMFlags     *genericclioptionscm.CMFlags
+		clusterName string
+		cloud       string
+		valuesPath  string
+		values      map[string]interface{}
+		outputFile  string
 	}
 	type args struct {
-		client crclient.Client
+		kubeClient          kubernetes.Interface
+		dynamicClient       dynamic.Interface
+		apiextensionsClient apiextensionsclient.Interface
+		discoveryClient     discovery.DiscoveryInterface
 	}
 	tests := []struct {
 		name    string
@@ -276,30 +339,30 @@ func TestOptions_runWithClient(t *testing.T) {
 		{
 			name: "Success",
 			fields: fields{
-				applierScenariosOptions: &applierscenarios.ApplierScenariosOptions{
-					//Had to set to 1 sec otherwise test timeout is reached (30s)
-					Timeout: 1,
-				},
-				values: valuesAWS,
-				cloud:  "aws",
+				CMFlags: genericclioptionscm.NewCMFlags(nil),
+				values:  values,
+				cloud:   "aws",
 			},
 			args: args{
-				client: client,
+				kubeClient:          kubeClient,
+				discoveryClient:     discoveryClient,
+				apiextensionsClient: apiextensionsClient,
+				dynamicClient:       dynamicClient,
 			},
 			wantErr: false,
 		},
 		{
-			name: "Failed no pullSecret",
+			name: "Failed no pullsecret",
 			fields: fields{
-				applierScenariosOptions: &applierscenarios.ApplierScenariosOptions{
-					//Had to set to 1 sec otherwise test timeout is reached (30s)
-					Timeout: 1,
-				},
-				values: valuesAWS,
-				cloud:  "aws",
+				CMFlags: genericclioptionscm.NewCMFlags(nil),
+				values:  values,
+				cloud:   "aws",
 			},
 			args: args{
-				client: crclientfake.NewFakeClient(),
+				kubeClient:          kubeClientNoPullSecret,
+				discoveryClient:     discoveryClient,
+				apiextensionsClient: apiextensionsClient,
+				dynamicClient:       dynamicClient,
 			},
 			wantErr: true,
 		},
@@ -307,12 +370,14 @@ func TestOptions_runWithClient(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			o := &Options{
-				applierScenariosOptions: tt.fields.applierScenariosOptions,
-				clusterName:             tt.fields.clusterName,
-				cloud:                   tt.fields.cloud,
-				values:                  tt.fields.values,
+				CMFlags:     tt.fields.CMFlags,
+				clusterName: tt.fields.clusterName,
+				cloud:       tt.fields.cloud,
+				valuesPath:  tt.fields.valuesPath,
+				values:      tt.fields.values,
+				outputFile:  tt.fields.outputFile,
 			}
-			if err := o.runWithClient(tt.args.client); (err != nil) != tt.wantErr {
+			if err := o.runWithClient(tt.args.kubeClient, tt.args.dynamicClient, tt.args.apiextensionsClient, tt.args.discoveryClient); (err != nil) != tt.wantErr {
 				t.Errorf("Options.runWithClient() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})

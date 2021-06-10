@@ -3,7 +3,6 @@
 # Cluster noun
 
 The CLI has commands to manage clusters.
-Behind the scene it uses the [applier](https://github.com/open-cluster-management/applier) with predefined templates. One template per verb.
 
 ```bash
 cm <verb> cluster <options...>

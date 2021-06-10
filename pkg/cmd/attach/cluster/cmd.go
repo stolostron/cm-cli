@@ -5,9 +5,10 @@ import (
 	"fmt"
 	"path/filepath"
 
-	"github.com/open-cluster-management/cm-cli/pkg/cmd/applierscenarios"
 	"github.com/open-cluster-management/cm-cli/pkg/cmd/attach/cluster/scenario"
+	genericclioptionscm "github.com/open-cluster-management/cm-cli/pkg/genericclioptions"
 	"github.com/open-cluster-management/cm-cli/pkg/helpers"
+	clusteradmhelpers "open-cluster-management.io/clusteradm/pkg/helpers"
 
 	"github.com/spf13/cobra"
 	"k8s.io/cli-runtime/pkg/genericclioptions"
@@ -29,14 +30,24 @@ var valuesTemplatePath = filepath.Join(scenarioDirectory, "values-template.yaml"
 var valuesDefaultPath = filepath.Join(scenarioDirectory, "values-default.yaml")
 
 // NewCmd provides a cobra command wrapping NewCmdImportCluster
-func NewCmd(streams genericclioptions.IOStreams) *cobra.Command {
-	o := newOptions(streams)
-
+func NewCmd(cmFlags *genericclioptionscm.CMFlags, streams genericclioptions.IOStreams) *cobra.Command {
+	o := newOptions(cmFlags, streams)
 	cmd := &cobra.Command{
+		Use: "attach",
+	}
+
+	clusters := &cobra.Command{
 		Use:          "cluster",
 		Short:        "Import a cluster",
 		Example:      fmt.Sprintf(example, helpers.GetExampleHeader()),
 		SilenceUsage: true,
+		PreRunE: func(c *cobra.Command, args []string) error {
+			clusteradmhelpers.DryRunMessage(cmFlags.DryRun)
+			if !helpers.IsRHACM(cmFlags.KubectlFactory) {
+				return fmt.Errorf("this command '%s attach cluster' is only available on RHACM", helpers.GetExampleHeader())
+			}
+			return nil
+		},
 		RunE: func(c *cobra.Command, args []string) error {
 			if err := o.complete(c, args); err != nil {
 				return err
@@ -52,15 +63,16 @@ func NewCmd(streams genericclioptions.IOStreams) *cobra.Command {
 		},
 	}
 
-	cmd.SetUsageTemplate(applierscenarios.UsageTempate(cmd, scenario.GetApplierScenarioResourcesReader(), valuesTemplatePath))
-	cmd.Flags().StringVar(&o.clusterName, "name", "", "Name of the cluster to import")
-	cmd.Flags().StringVar(&o.clusterServer, "cluster-server", "", "cluster server url of the cluster to import")
-	cmd.Flags().StringVar(&o.clusterToken, "cluster-token", "", "token to access the cluster to import")
-	cmd.Flags().StringVar(&o.clusterKubeConfig, "cluster-kubeconfig", "", "path to the kubeconfig the cluster to import")
-	cmd.Flags().StringVar(&o.importFile, "import-file", "", "the file which will contain the import secret for manual import")
+	clusters.SetUsageTemplate(clusteradmhelpers.UsageTempate(cmd, scenario.GetScenarioResourcesReader(), valuesTemplatePath))
+	clusters.Flags().StringVar(&o.valuesPath, "values", "", "The files containing the values")
+	clusters.Flags().StringVar(&o.clusterName, "name", "", "Name of the cluster to import")
+	clusters.Flags().StringVar(&o.clusterServer, "cluster-server", "", "cluster server url of the cluster to import")
+	clusters.Flags().StringVar(&o.clusterToken, "cluster-token", "", "token to access the cluster to import")
+	clusters.Flags().StringVar(&o.clusterKubeConfig, "cluster-kubeconfig", "", "path to the kubeconfig the cluster to import")
+	clusters.Flags().StringVar(&o.importFile, "import-file", "", "the file which will contain the import secret for manual import")
+	clusters.Flags().StringVar(&o.outputFile, "output-file", "", "The generated resources will be copied in the specified file")
 
-	o.applierScenariosOptions.AddFlags(cmd.Flags())
-	o.applierScenariosOptions.ConfigFlags.AddFlags(cmd.Flags())
+	cmd.AddCommand(clusters)
 
 	return cmd
 }

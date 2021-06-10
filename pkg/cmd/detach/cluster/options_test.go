@@ -5,12 +5,14 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/open-cluster-management/cm-cli/pkg/cmd/applierscenarios"
+	genericclioptionscm "github.com/open-cluster-management/cm-cli/pkg/genericclioptions"
 	"k8s.io/cli-runtime/pkg/genericclioptions"
 )
 
 func Test_newOptions(t *testing.T) {
+	cmFlags := genericclioptionscm.NewCMFlags(nil)
 	type args struct {
+		cmFlags *genericclioptionscm.CMFlags
 		streams genericclioptions.IOStreams
 	}
 	tests := []struct {
@@ -21,16 +23,16 @@ func Test_newOptions(t *testing.T) {
 		{
 			name: "success",
 			args: args{
-				streams: genericclioptions.IOStreams{},
+				cmFlags: cmFlags,
 			},
 			want: &Options{
-				applierScenariosOptions: applierscenarios.NewApplierScenariosOptions(genericclioptions.IOStreams{}),
+				CMFlags: cmFlags,
 			},
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := newOptions(tt.args.streams); !reflect.DeepEqual(got, tt.want) {
+			if got := newOptions(tt.args.cmFlags, tt.args.streams); !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("newOptions() = %v, want %v", got, tt.want)
 			}
 		})

@@ -2,19 +2,20 @@
 package cluster
 
 import (
-	"github.com/open-cluster-management/cm-cli/pkg/cmd/applierscenarios"
-
+	genericclioptionscm "github.com/open-cluster-management/cm-cli/pkg/genericclioptions"
 	"k8s.io/cli-runtime/pkg/genericclioptions"
 )
 
 type Options struct {
-	applierScenariosOptions *applierscenarios.ApplierScenariosOptions
-	clusterName             string
-	values                  map[string]interface{}
+	//CMFlags: The generic optiosn from the cm cli-runtime.
+	CMFlags     *genericclioptionscm.CMFlags
+	clusterName string
+	valuesPath  string
+	values      map[string]interface{}
 }
 
-func newOptions(streams genericclioptions.IOStreams) *Options {
+func newOptions(cmFlags *genericclioptionscm.CMFlags, streams genericclioptions.IOStreams) *Options {
 	return &Options{
-		applierScenariosOptions: applierscenarios.NewApplierScenariosOptions(streams),
+		CMFlags: cmFlags,
 	}
 }

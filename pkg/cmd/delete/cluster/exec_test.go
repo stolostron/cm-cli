@@ -2,28 +2,29 @@
 package cluster
 
 import (
-	"context"
 	"path/filepath"
 	"testing"
 
-	"github.com/open-cluster-management/applier/pkg/applier"
-	appliercmd "github.com/open-cluster-management/applier/pkg/applier/cmd"
-	"github.com/open-cluster-management/applier/pkg/templateprocessor"
-	"github.com/open-cluster-management/cm-cli/pkg/cmd/applierscenarios"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+
+	genericclioptionscm "github.com/open-cluster-management/cm-cli/pkg/genericclioptions"
 	"github.com/spf13/cobra"
-	"k8s.io/apimachinery/pkg/api/errors"
-	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
-	crclient "sigs.k8s.io/controller-runtime/pkg/client"
-	crclientfake "sigs.k8s.io/controller-runtime/pkg/client/fake"
+	"k8s.io/client-go/dynamic"
+	fakedynamic "k8s.io/client-go/dynamic/fake"
+	"k8s.io/kubectl/pkg/scheme"
+	clusterclientset "open-cluster-management.io/api/client/cluster/clientset/versioned"
+	clusterclientsetfake "open-cluster-management.io/api/client/cluster/clientset/versioned/fake"
+	cluster "open-cluster-management.io/api/cluster/v1"
 )
 
 var testDir = filepath.Join("test", "unit")
 
 func TestOptions_complete(t *testing.T) {
 	type fields struct {
-		applierScenariosOptions *applierscenarios.ApplierScenariosOptions
-		clusterName             string
-		values                  map[string]interface{}
+		CMFlags     *genericclioptionscm.CMFlags
+		clusterName string
+		valuesPath  string
+		values      map[string]interface{}
 	}
 	type args struct {
 		cmd  *cobra.Command
@@ -38,42 +39,33 @@ func TestOptions_complete(t *testing.T) {
 		{
 			name: "Failed, bad valuesPath",
 			fields: fields{
-				applierScenariosOptions: &applierscenarios.ApplierScenariosOptions{
-					ValuesPath: "bad-values-path.yaml",
-				},
+				valuesPath: "bad-values-path.yaml",
 			},
 			wantErr: true,
 		},
 		{
 			name: "Failed, empty values",
 			fields: fields{
-				applierScenariosOptions: &applierscenarios.ApplierScenariosOptions{
-					ValuesPath: filepath.Join(testDir, "values-empty.yaml"),
-				},
+				valuesPath: filepath.Join(testDir, "values-empty.yaml"),
 			},
 			wantErr: true,
 		},
 		{
-			name: "Success, no values.yaml, no name",
-			fields: fields{
-				applierScenariosOptions: &applierscenarios.ApplierScenariosOptions{},
-			},
+			name:    "Success, no values.yaml, no name",
+			fields:  fields{},
 			wantErr: true,
 		},
 		{
 			name: "Success, no values.yaml",
 			fields: fields{
-				applierScenariosOptions: &applierscenarios.ApplierScenariosOptions{},
-				clusterName:             "myCluster",
+				clusterName: "myCluster",
 			},
 			wantErr: false,
 		},
 		{
 			name: "Success, with values",
 			fields: fields{
-				applierScenariosOptions: &applierscenarios.ApplierScenariosOptions{
-					ValuesPath: filepath.Join(testDir, "values-fake.yaml"),
-				},
+				valuesPath: filepath.Join(testDir, "values-fake.yaml"),
 			},
 			wantErr: false,
 		},
@@ -81,24 +73,13 @@ func TestOptions_complete(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			o := &Options{
-				applierScenariosOptions: tt.fields.applierScenariosOptions,
-				clusterName:             tt.fields.clusterName,
-				values:                  tt.fields.values,
+				CMFlags:     tt.fields.CMFlags,
+				clusterName: tt.fields.clusterName,
+				valuesPath:  tt.fields.valuesPath,
+				values:      tt.fields.values,
 			}
 			if err := o.complete(tt.args.cmd, tt.args.args); (err != nil) != tt.wantErr {
 				t.Errorf("Options.complete() error = %v, wantErr %v", err, tt.wantErr)
-			}
-			if !tt.wantErr {
-				imc, ok := o.values["managedCluster"]
-				if !ok || imc == nil {
-					t.Errorf("missing managedCluster")
-				}
-				mc := imc.(map[string]interface{})
-				if tt.name == "Success, no values.yaml" {
-					if mc["name"] != o.clusterName {
-						t.Errorf("Expect %s got %s", o.clusterName, mc["name"])
-					}
-				}
 			}
 		})
 	}
@@ -106,9 +87,10 @@ func TestOptions_complete(t *testing.T) {
 
 func TestOptions_validate(t *testing.T) {
 	type fields struct {
-		applierScenariosOptions *applierscenarios.ApplierScenariosOptions
-		clusterName             string
-		values                  map[string]interface{}
+		CMFlags     *genericclioptionscm.CMFlags
+		clusterName string
+		valuesPath  string
+		values      map[string]interface{}
 	}
 	tests := []struct {
 		name    string
@@ -118,7 +100,6 @@ func TestOptions_validate(t *testing.T) {
 		{
 			name: "Success AWS all info in values",
 			fields: fields{
-				applierScenariosOptions: &applierscenarios.ApplierScenariosOptions{},
 				values: map[string]interface{}{
 					"managedCluster": map[string]interface{}{
 						"name": "test",
@@ -130,7 +111,6 @@ func TestOptions_validate(t *testing.T) {
 		{
 			name: "Failed name missing",
 			fields: fields{
-				applierScenariosOptions: &applierscenarios.ApplierScenariosOptions{},
 				values: map[string]interface{}{
 					"managedCluster": map[string]interface{}{},
 				},
@@ -140,7 +120,6 @@ func TestOptions_validate(t *testing.T) {
 		{
 			name: "Failed name empty",
 			fields: fields{
-				applierScenariosOptions: &applierscenarios.ApplierScenariosOptions{},
 				values: map[string]interface{}{
 					"managedCluster": map[string]interface{}{
 						"name": "",
@@ -152,15 +131,13 @@ func TestOptions_validate(t *testing.T) {
 		{
 			name: "Failed managedCluster missing",
 			fields: fields{
-				applierScenariosOptions: &applierscenarios.ApplierScenariosOptions{},
-				values:                  map[string]interface{}{},
+				values: map[string]interface{}{},
 			},
 			wantErr: true,
 		},
 		{
 			name: "Success replace clusterName",
 			fields: fields{
-				applierScenariosOptions: &applierscenarios.ApplierScenariosOptions{},
 				values: map[string]interface{}{
 					"managedCluster": map[string]interface{}{
 						"name":  "test",
@@ -175,9 +152,10 @@ func TestOptions_validate(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			o := &Options{
-				applierScenariosOptions: tt.fields.applierScenariosOptions,
-				clusterName:             tt.fields.clusterName,
-				values:                  tt.fields.values,
+				CMFlags:     tt.fields.CMFlags,
+				clusterName: tt.fields.clusterName,
+				valuesPath:  tt.fields.valuesPath,
+				values:      tt.fields.values,
 			}
 			if err := o.validate(); (err != nil) != tt.wantErr {
 				t.Errorf("Options.validate() error = %v, wantErr %v", err, tt.wantErr)
@@ -187,46 +165,24 @@ func TestOptions_validate(t *testing.T) {
 }
 
 func TestOptions_runWithClient(t *testing.T) {
-	existingMC := `apiVersion: cluster.open-cluster-management.io/v1
-kind: ManagedCluster
-metadata:
-  labels:
-    cloud: auto-detect
-    vendor: auto-detect
-  name: "run-with-client"
-spec:
-  hubAcceptsClient: true
-  leaseDurationSeconds: 60
----
-apiVersion: hive.openshift.io/v1
-kind: ClusterDeployment
-metadata:
-  name: "run-with-client"
-  namespace: "run-with-client"
-
-`
-	client := crclientfake.NewFakeClient()
-	values, err := appliercmd.ConvertValuesFileToValuesMap(filepath.Join(testDir, "values-with-data.yaml"), "")
-	if err != nil {
-		t.Error(err)
+	mc := &cluster.ManagedCluster{
+		ObjectMeta: metav1.ObjectMeta{
+			Name: "test",
+		},
 	}
-
-	reader := templateprocessor.NewYamlStringReader(existingMC, templateprocessor.KubernetesYamlsDelimiter)
-	a, err := applier.NewApplier(reader, &templateprocessor.Options{}, client, nil, nil, &applier.Options{})
-	if err != nil {
-		t.Error(err)
-	}
-	err = a.CreateResources([]string{"0"}, values)
-	if err != nil {
-		t.Error(err)
-	}
+	clusterClient := clusterclientsetfake.NewSimpleClientset(mc)
+	clusterClientNoManagedCluster := clusterclientsetfake.NewSimpleClientset()
+	s := scheme.Scheme
+	dynamicClient := fakedynamic.NewSimpleDynamicClient(s)
 	type fields struct {
-		applierScenariosOptions *applierscenarios.ApplierScenariosOptions
-		clusterName             string
-		values                  map[string]interface{}
+		CMFlags     *genericclioptionscm.CMFlags
+		clusterName string
+		valuesPath  string
+		values      map[string]interface{}
 	}
 	type args struct {
-		client crclient.Client
+		clusterClient clusterclientset.Interface
+		dynamicClient dynamic.Interface
 	}
 	tests := []struct {
 		name    string
@@ -237,15 +193,24 @@ metadata:
 		{
 			name: "Success",
 			fields: fields{
-				applierScenariosOptions: &applierscenarios.ApplierScenariosOptions{
-					//Had to set to 1 sec otherwise test timeout is reached (30s)
-					Timeout: 1,
-				},
-				values:      values,
+				CMFlags:     genericclioptionscm.NewCMFlags(nil),
 				clusterName: "test",
 			},
 			args: args{
-				client: client,
+				clusterClient: clusterClient,
+				dynamicClient: dynamicClient,
+			},
+			wantErr: false,
+		},
+		{
+			name: "Success no managedcluster",
+			fields: fields{
+				CMFlags:     genericclioptionscm.NewCMFlags(nil),
+				clusterName: "test",
+			},
+			args: args{
+				clusterClient: clusterClientNoManagedCluster,
+				dynamicClient: dynamicClient,
 			},
 			wantErr: false,
 		},
@@ -253,27 +218,13 @@ metadata:
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			o := &Options{
-				applierScenariosOptions: tt.fields.applierScenariosOptions,
-				// clusterName:             tt.fields.clusterName,
-				values: tt.fields.values,
+				CMFlags:     tt.fields.CMFlags,
+				clusterName: tt.fields.clusterName,
+				valuesPath:  tt.fields.valuesPath,
+				values:      tt.fields.values,
 			}
-			if err := o.runWithClient(tt.args.client); (err != nil) != tt.wantErr {
+			if err := o.runWithClient(tt.args.clusterClient, tt.args.dynamicClient); (err != nil) != tt.wantErr {
 				t.Errorf("Options.runWithClient() error = %v, wantErr %v", err, tt.wantErr)
-			} else {
-				obj := unstructured.Unstructured{}
-				obj.SetKind("ManagedCluster")
-				obj.SetAPIVersion("cluster.open-cluster-management.io/v1")
-				err := tt.args.client.Get(context.TODO(), crclient.ObjectKey{Name: tt.fields.clusterName}, &obj)
-				if err != nil && !errors.IsNotFound(err) {
-					t.Error(err)
-				}
-				obj = unstructured.Unstructured{}
-				obj.SetKind("ClusterDeployment")
-				obj.SetAPIVersion("hive.openshift.io/v1")
-				err = tt.args.client.Get(context.TODO(), crclient.ObjectKey{Name: tt.fields.clusterName}, &obj)
-				if err != nil && !errors.IsNotFound(err) {
-					t.Error(err)
-				}
 			}
 		})
 	}

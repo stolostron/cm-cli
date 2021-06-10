@@ -12,7 +12,7 @@ GOPATH := ${shell go env GOPATH}
 export PROJECT_DIR            = $(shell 'pwd')
 export PROJECT_NAME			  = $(shell basename ${PROJECT_DIR})
 
-export GOPACKAGES   = $(shell go list ./... | grep -v /vendor | grep -v /build | grep -v /test )
+export GOPACKAGES   = $(shell go list ./... | grep -v /vendor | grep -v /build | grep -v /test | grep -v /scenario )
 
 .PHONY: clean
 clean: clean-test
@@ -25,6 +25,16 @@ deps:
 .PHONY: build
 build: 
 	go install ./cmd/cm.go
+
+.PHONY: 
+build-bin:
+	@mkdir -p bin
+	GOOS=darwin GOARCH=amd64 go build -o bin/cm_darwin_amd64 ./cmd/cm.go 
+	GOOS=linux GOARCH=amd64 go build -o bin/cm_linux_amd64 ./cmd/cm.go 
+	GOOS=linux GOARCH=arm64 go build -o bin/cm_linux_arm64 ./cmd/cm.go 
+	GOOS=linux GOARCH=ppc64le go build -o bin/cm_linux_ppc64le ./cmd/cm.go 
+	GOOS=linux GOARCH=s390x go build -o bin/cm_linux_s390x ./cmd/cm.go 
+	GOOS=windows GOARCH=amd64 go build -o bin/cm_windows_amd64.exe ./cmd/cm.go 
 
 .PHONY: install
 install: build

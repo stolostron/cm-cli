@@ -3,23 +3,19 @@ package cluster
 
 import (
 	"fmt"
-	"path/filepath"
 
-	appliercmd "github.com/open-cluster-management/applier/pkg/applier/cmd"
-	"github.com/open-cluster-management/cm-cli/pkg/cmd/detach/cluster/scenario"
+	"golang.org/x/net/context"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+
+	clusterclientset "open-cluster-management.io/api/client/cluster/clientset/versioned"
+
 	"github.com/open-cluster-management/cm-cli/pkg/helpers"
-
-	crclient "sigs.k8s.io/controller-runtime/pkg/client"
-
 	"github.com/spf13/cobra"
 )
 
 func (o *Options) complete(cmd *cobra.Command, args []string) (err error) {
-	if o.applierScenariosOptions.OutTemplatesDir != "" {
-		return nil
-	}
 	//Check if default values must be used
-	if o.applierScenariosOptions.ValuesPath == "" {
+	if o.valuesPath == "" {
 		if o.clusterName != "" {
 			o.values = make(map[string]interface{})
 			mc := make(map[string]interface{})
@@ -30,7 +26,7 @@ func (o *Options) complete(cmd *cobra.Command, args []string) (err error) {
 		}
 	} else {
 		//Read values
-		o.values, err = appliercmd.ConvertValuesFileToValuesMap(o.applierScenariosOptions.ValuesPath, "")
+		o.values, err = helpers.ConvertValuesFileToValuesMap(o.valuesPath, "")
 		if err != nil {
 			return err
 		}
@@ -44,9 +40,6 @@ func (o *Options) complete(cmd *cobra.Command, args []string) (err error) {
 }
 
 func (o *Options) validate() error {
-	if o.applierScenariosOptions.OutTemplatesDir != "" {
-		return nil
-	}
 	imc, ok := o.values["managedCluster"]
 	if !ok || imc == nil {
 		return fmt.Errorf("managedCluster is missing")
@@ -70,33 +63,20 @@ func (o *Options) validate() error {
 }
 
 func (o *Options) run() error {
-	if o.applierScenariosOptions.OutTemplatesDir != "" {
-		reader := scenario.GetApplierScenarioResourcesReader()
-		return reader.ExtractAssets(scenarioDirectory, o.applierScenariosOptions.OutTemplatesDir)
-	}
-	client, err := helpers.GetControllerRuntimeClientFromFlags(o.applierScenariosOptions.ConfigFlags)
+	restConfig, err := o.CMFlags.KubectlFactory.ToRESTConfig()
 	if err != nil {
 		return err
 	}
-	return o.runWithClient(client)
+	clusterClient, err := clusterclientset.NewForConfig(restConfig)
+	if err != nil {
+		return err
+	}
+	return o.runWithClient(clusterClient)
 }
 
-func (o *Options) runWithClient(client crclient.Client) error {
-	reader := scenario.GetApplierScenarioResourcesReader()
-
-	applyOptions := &appliercmd.Options{
-		OutFile:     o.applierScenariosOptions.OutFile,
-		ConfigFlags: o.applierScenariosOptions.ConfigFlags,
-
-		Delete:    true,
-		Timeout:   o.applierScenariosOptions.Timeout,
-		Force:     o.applierScenariosOptions.Force,
-		Silent:    o.applierScenariosOptions.Silent,
-		IOStreams: o.applierScenariosOptions.IOStreams,
+func (o *Options) runWithClient(clusterClient clusterclientset.Interface) error {
+	if !o.CMFlags.DryRun {
+		return clusterClient.ClusterV1().ManagedClusters().Delete(context.TODO(), o.clusterName, metav1.DeleteOptions{})
 	}
-
-	return applyOptions.ApplyWithValues(client, reader,
-		filepath.Join(scenarioDirectory, "hub"),
-		o.values)
-
+	return nil
 }
