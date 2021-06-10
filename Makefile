@@ -12,7 +12,7 @@ GOPATH := ${shell go env GOPATH}
 export PROJECT_DIR            = $(shell 'pwd')
 export PROJECT_NAME			  = $(shell basename ${PROJECT_DIR})
 
-export GOPACKAGES   = $(shell go list ./... | grep -v /vendor | grep -v /build | grep -v /test )
+export GOPACKAGES   = $(shell go list ./... | grep -v /vendor | grep -v /build | grep -v /test | grep -v /scenario )
 
 .PHONY: clean
 clean: clean-test

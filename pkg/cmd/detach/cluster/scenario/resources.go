@@ -4,12 +4,12 @@ package scenario
 import (
 	"embed"
 
-	"github.com/open-cluster-management/cm-cli/pkg/cmd/applierscenarios"
+	"open-cluster-management.io/clusteradm/pkg/helpers/asset"
 )
 
 //go:embed detach
 var files embed.FS
 
-func GetApplierScenarioResourcesReader() *applierscenarios.ApplierScenarioResourcesReader {
-	return applierscenarios.NewApplierScenarioResourcesReader(&files)
+func GetScenarioResourcesReader() *asset.ScenarioResourcesReader {
+	return asset.NewScenarioResourcesReader(&files)
 }

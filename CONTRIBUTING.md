@@ -36,14 +36,10 @@ Anyone can comment on issues and submit reviews for pull requests. In order to b
 - The project tries to follow the following grammar for the commands:
 
 ```bash
-cm <verb> <noun>
+cm <verb> [subcmd...] [flags]
 ```
 
-- A number of verbs are already defined in [verbs](pkg/cmd/verbs/verbs.go), if you would like to add a new verb or noun, please contact the [OWNERS](OWNERS).
-
-- The noun represents the object on which the verb applies.
-
-- Each pair (verb/noum) has its own package. For example [create/cluster](pkg/cmd/delete/cluster/cmd.go) package contains the code to create a cluster.
+- cmd/subcmd has its own package. For example [delete/cluster](pkg/cmd/delete/cluster/cmd.go) package contains the code to create a cluster.
 
 - Inside the package, the code is split in 3 files: The [cmd.go](pkg/cmd/create/cluster/cmd.go) which creates the cobra command, the [options.go](pkg/cmd/create/cluster/options.go) which defines the different option parameters for the command and the the [exec.go](pkg/cmd/create/cluster/exec.go) which contains the code to execute the command.
 
@@ -53,10 +49,6 @@ cm <verb> <noun>
 - Some commands needs resources files, in the project uses the `Go 1.16` `go:embed` functionality to store the resources files.
 - Each command package contains its own resources in the scenario package. The scenario package contains one go file which provides the `go:embed` `embed.FS` files. For example [resources.go](pkg/cmd/create/cluster/scenario/resources.go).
 - All resources must be accessed using unstrusctured, the project must not have api dependencies.
-
-## Applier
-
-- This project relies on the [applier](https://github.com/open-cluster-management/applier) to create, update or delete kubernetes resources. The applier allows you to create templated resources and these templates are parsed with a provided values files and then applied in the kubernetes cluster. For example, the [scenario](pkg/cmd/create/cluster/scenario) contains the templated resources to create a managed cluster on a hub.
 
 ## Client
 

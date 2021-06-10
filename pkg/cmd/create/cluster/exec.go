@@ -6,16 +6,19 @@ import (
 	"fmt"
 	"path/filepath"
 
-	appliercmd "github.com/open-cluster-management/applier/pkg/applier/cmd"
+	clusteradmapply "open-cluster-management.io/clusteradm/pkg/helpers/apply"
+
 	"github.com/open-cluster-management/cm-cli/pkg/cmd/create/cluster/scenario"
+	"github.com/open-cluster-management/cm-cli/pkg/helpers"
+	"github.com/openshift/library-go/pkg/operator/resource/resourceapply"
+	apiextensionsclient "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	"github.com/ghodss/yaml"
-	"github.com/open-cluster-management/applier/pkg/templateprocessor"
-	"github.com/open-cluster-management/cm-cli/pkg/helpers"
 
-	corev1 "k8s.io/api/core/v1"
-	"k8s.io/apimachinery/pkg/types"
-	crclient "sigs.k8s.io/controller-runtime/pkg/client"
+	"k8s.io/client-go/discovery"
+	"k8s.io/client-go/dynamic"
+	"k8s.io/client-go/kubernetes"
 
 	"github.com/spf13/cobra"
 )
@@ -29,10 +32,7 @@ const (
 )
 
 func (o *Options) complete(cmd *cobra.Command, args []string) (err error) {
-	if o.applierScenariosOptions.OutTemplatesDir != "" {
-		return nil
-	}
-	o.values, err = appliercmd.ConvertValuesFileToValuesMap(o.applierScenariosOptions.ValuesPath, "")
+	o.values, err = helpers.ConvertValuesFileToValuesMap(o.valuesPath, "")
 	if err != nil {
 		return err
 	}
@@ -45,9 +45,6 @@ func (o *Options) complete(cmd *cobra.Command, args []string) (err error) {
 }
 
 func (o *Options) validate() (err error) {
-	if o.applierScenariosOptions.OutTemplatesDir != "" {
-		return nil
-	}
 	imc, ok := o.values["managedCluster"]
 	if !ok || imc == nil {
 		return fmt.Errorf("managedCluster is missing")
@@ -80,26 +77,38 @@ func (o *Options) validate() (err error) {
 }
 
 func (o *Options) run() error {
-	if o.applierScenariosOptions.OutTemplatesDir != "" {
-		return scenario.GetApplierScenarioResourcesReader().ExtractAssets(scenarioDirectory,
-			o.applierScenariosOptions.OutTemplatesDir)
-	}
-	client, err := helpers.GetControllerRuntimeClientFromFlags(o.applierScenariosOptions.ConfigFlags)
+	kubeClient, err := o.CMFlags.KubectlFactory.KubernetesClientSet()
 	if err != nil {
 		return err
 	}
-	return o.runWithClient(client)
+	dynamicClient, err := o.CMFlags.KubectlFactory.DynamicClient()
+	if err != nil {
+		return err
+	}
+	restConfig, err := o.CMFlags.KubectlFactory.ToRESTConfig()
+	if err != nil {
+		return err
+	}
+	apiextensionsClient, err := apiextensionsclient.NewForConfig(restConfig)
+	if err != nil {
+		return err
+	}
+	discoveryClient, err := o.CMFlags.KubectlFactory.ToDiscoveryClient()
+	if err != nil {
+		return err
+	}
+	return o.runWithClient(kubeClient, dynamicClient, apiextensionsClient, discoveryClient)
 }
 
-func (o *Options) runWithClient(client crclient.Client) error {
-	pullSecret := &corev1.Secret{}
-	err := client.Get(
+func (o *Options) runWithClient(kubeClient kubernetes.Interface,
+	dynamicClient dynamic.Interface,
+	apiextensionsClient apiextensionsclient.Interface,
+	discoveryClient discovery.DiscoveryInterface) (err error) {
+	output := make([]string, 0)
+	pullSecret, err := kubeClient.CoreV1().Secrets("openshift-config").Get(
 		context.TODO(),
-		types.NamespacedName{
-			Name:      "pull-secret",
-			Namespace: "openshift-config",
-		},
-		pullSecret)
+		"pull-secret",
+		metav1.GetOptions{})
 	if err != nil {
 		return err
 	}
@@ -117,18 +126,8 @@ func (o *Options) runWithClient(client crclient.Client) error {
 
 	o.values["pullSecret"] = valueps
 
-	reader := scenario.GetApplierScenarioResourcesReader()
-	tp, err := templateprocessor.NewTemplateProcessor(
-		reader,
-		&templateprocessor.Options{},
-	)
-	if err != nil {
-		return err
-	}
-
-	installConfig, err := tp.TemplateResource(
-		filepath.Join(scenarioDirectory, "hub", o.cloud, "install_config.yaml"),
-		o.values)
+	reader := scenario.GetScenarioResourcesReader()
+	installConfig, err := clusteradmapply.MustTempalteAsset(reader, o.values, "", filepath.Join(scenarioDirectory, "hub", o.cloud, "install_config.yaml"))
 	if err != nil {
 		return err
 	}
@@ -139,20 +138,42 @@ func (o *Options) runWithClient(client crclient.Client) error {
 		return err
 	}
 
-	o.values["installConfig"] = valueic
-
-	applyOptions := &appliercmd.Options{
-		OutFile:     o.applierScenariosOptions.OutFile,
-		ConfigFlags: o.applierScenariosOptions.ConfigFlags,
-
-		Delete:    false,
-		Timeout:   o.applierScenariosOptions.Timeout,
-		Force:     o.applierScenariosOptions.Force,
-		Silent:    o.applierScenariosOptions.Silent,
-		IOStreams: o.applierScenariosOptions.IOStreams,
+	files := []string{
+		"create/hub/common/namespace.yaml",
 	}
 
-	return applyOptions.ApplyWithValues(client, reader,
-		filepath.Join(scenarioDirectory, "hub", "common"), []string{},
-		o.values)
+	clientHolder := resourceapply.NewClientHolder().
+		WithAPIExtensionsClient(apiextensionsClient).
+		WithKubernetes(kubeClient).
+		WithDynamicClient(dynamicClient)
+
+	out, err := clusteradmapply.ApplyDirectly(clientHolder, reader, o.values, o.CMFlags.DryRun, "", files...)
+	if err != nil {
+		return err
+	}
+	output = append(output, out...)
+	o.values["installConfig"] = valueic
+
+	files = []string{
+
+		"create/hub/common/creds_secret_cr.yaml",
+		"create/hub/common/install_config_secret_cr.yaml",
+		"create/hub/common/klusterlet_addon_config_cr.yaml",
+		"create/hub/common/machinepool_cr.yaml",
+		"create/hub/common/pull_secret_cr.yaml",
+		"create/hub/common/ssh_private_key_secret_cr.yaml",
+		"create/hub/common/vsphere_ca_cert_secret_cr.yaml",
+		"create/hub/common/clusterimageset_cr.yaml",
+	}
+
+	files = append(files,
+		"create/hub/common/cluster_deployment_cr.yaml",
+		"create/hub/common/managed_cluster_cr.yaml")
+
+	out, err = clusteradmapply.ApplyCustomResouces(dynamicClient, discoveryClient, reader, o.values, o.CMFlags.DryRun, "create/hub/common/_helpers.tpl", files...)
+	if err != nil {
+		return err
+	}
+	output = append(output, out...)
+	return clusteradmapply.WriteOutput(o.outputFile, output)
 }

@@ -2,18 +2,17 @@
 package version
 
 import (
+	genericclioptionscm "github.com/open-cluster-management/cm-cli/pkg/genericclioptions"
 	"k8s.io/cli-runtime/pkg/genericclioptions"
-	cmdutil "k8s.io/kubectl/pkg/cmd/util"
 )
 
 type Options struct {
-	ConfigFlags *genericclioptions.ConfigFlags
-	factory     cmdutil.Factory
+	//CMFlags: The generic optiosn from the cm cli-runtime.
+	CMFlags *genericclioptionscm.CMFlags
 }
 
-func newOptions(f cmdutil.Factory, streams genericclioptions.IOStreams) *Options {
+func newOptions(cmFlags *genericclioptionscm.CMFlags, streams genericclioptions.IOStreams) *Options {
 	return &Options{
-		ConfigFlags: genericclioptions.NewConfigFlags(true),
-		factory:     f,
+		CMFlags: cmFlags,
 	}
 }

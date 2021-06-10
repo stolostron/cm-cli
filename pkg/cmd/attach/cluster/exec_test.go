@@ -9,26 +9,32 @@ import (
 	"path/filepath"
 	"testing"
 
-	appliercmd "github.com/open-cluster-management/applier/pkg/applier/cmd"
-	"github.com/open-cluster-management/cm-cli/pkg/cmd/applierscenarios"
-	"github.com/spf13/cobra"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	crclient "sigs.k8s.io/controller-runtime/pkg/client"
-	crclientfake "sigs.k8s.io/controller-runtime/pkg/client/fake"
+
+	"github.com/open-cluster-management/cm-cli/pkg/genericclioptions"
+	"github.com/open-cluster-management/cm-cli/pkg/helpers"
+	"github.com/spf13/cobra"
+	apiextensionsclient "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset"
+	fakeapiextensionsclient "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset/fake"
+	"k8s.io/client-go/discovery"
+	fakediscovery "k8s.io/client-go/discovery/fake"
+	"k8s.io/client-go/dynamic"
+	fakedynamic "k8s.io/client-go/dynamic/fake"
+	"k8s.io/client-go/kubernetes"
+	fakekubernetes "k8s.io/client-go/kubernetes/fake"
+	"k8s.io/kubectl/pkg/scheme"
 )
 
 var testDir = filepath.Join("test", "unit")
 
 func TestOptions_complete(t *testing.T) {
 	type fields struct {
-		applierScenariosOptions *applierscenarios.ApplierScenariosOptions
-		values                  map[string]interface{}
-		clusterName             string
-		clusterServer           string
-		clusterToken            string
-		clusterKubeConfig       string
-		importFile              string
+		valuesPath        string
+		clusterName       string
+		clusterServer     string
+		clusterToken      string
+		clusterKubeConfig string
 	}
 	type args struct {
 		cmd  *cobra.Command
@@ -43,52 +49,41 @@ func TestOptions_complete(t *testing.T) {
 		{
 			name: "Failed, bad valuesPath",
 			fields: fields{
-				applierScenariosOptions: &applierscenarios.ApplierScenariosOptions{
-					ValuesPath: "bad-values-path.yaml",
-				},
+				valuesPath: "badpath",
 			},
 			wantErr: true,
 		},
 		{
 			name: "Failed, empty values",
 			fields: fields{
-				applierScenariosOptions: &applierscenarios.ApplierScenariosOptions{
-					ValuesPath: filepath.Join(testDir, "values-empty.yaml"),
-				},
+				valuesPath: filepath.Join(testDir, "values-empty.yaml"),
 			},
 			wantErr: true,
 		},
 		{
-			name: "Failed, no values.yaml, no name",
-			fields: fields{
-				applierScenariosOptions: &applierscenarios.ApplierScenariosOptions{},
-			},
+			name:    "Failed, no values.yaml, no name",
+			fields:  fields{},
 			wantErr: true,
 		},
 		{
 			name: "Success, not replacing values",
 			fields: fields{
-				applierScenariosOptions: &applierscenarios.ApplierScenariosOptions{
-					ValuesPath: filepath.Join(testDir, "values-with-data.yaml"),
-				},
+				valuesPath: filepath.Join(testDir, "values-with-data.yaml"),
 			},
 			wantErr: false,
 		},
 		{
 			name: "Success, no values.yaml",
 			fields: fields{
-				applierScenariosOptions: &applierscenarios.ApplierScenariosOptions{},
-				clusterName:             "mycluster",
-				clusterKubeConfig:       filepath.Join(testDir, "fake-kubeconfig.yaml"),
+				clusterName:       "mycluster",
+				clusterKubeConfig: filepath.Join(testDir, "fake-kubeconfig.yaml"),
 			},
 			wantErr: false,
 		},
 		{
 			name: "Success, replacing values",
 			fields: fields{
-				applierScenariosOptions: &applierscenarios.ApplierScenariosOptions{
-					ValuesPath: filepath.Join(testDir, "values-with-data.yaml"),
-				},
+				clusterName:       "mycluster",
 				clusterServer:     "overwriteServer",
 				clusterToken:      "overwriteToken",
 				clusterKubeConfig: filepath.Join(testDir, "fake-kubeconfig.yaml"),
@@ -99,13 +94,11 @@ func TestOptions_complete(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			o := &Options{
-				applierScenariosOptions: tt.fields.applierScenariosOptions,
-				values:                  tt.fields.values,
-				clusterName:             tt.fields.clusterName,
-				clusterServer:           tt.fields.clusterServer,
-				clusterToken:            tt.fields.clusterToken,
-				clusterKubeConfig:       tt.fields.clusterKubeConfig,
-				importFile:              tt.fields.importFile,
+				valuesPath:        tt.fields.valuesPath,
+				clusterName:       tt.fields.clusterName,
+				clusterServer:     tt.fields.clusterServer,
+				clusterToken:      tt.fields.clusterToken,
+				clusterKubeConfig: tt.fields.clusterKubeConfig,
 			}
 			if err := o.complete(tt.args.cmd, tt.args.args); (err != nil) != tt.wantErr {
 				t.Errorf("Options.complete() error = %v, wantErr %v", err, tt.wantErr)
@@ -153,15 +146,26 @@ func TestOptions_complete(t *testing.T) {
 }
 
 func TestAttachClusterOptions_ValidateWithClient(t *testing.T) {
-	client := crclientfake.NewFakeClient()
+	s := scheme.Scheme
+	cm := &corev1.ConfigMap{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      "myName",
+			Namespace: "myNamespace",
+			Labels: map[string]string{
+				"ocm-configmap-type":  "image-manifest",
+				"ocm-release-version": "2.3.0",
+			},
+		},
+		Data: map[string]string{},
+	}
+	kubeClient := fakekubernetes.NewSimpleClientset(cm)
+	dynamicClient := fakedynamic.NewSimpleDynamicClient(s)
 	type fields struct {
-		applierScenariosOptions *applierscenarios.ApplierScenariosOptions
-		values                  map[string]interface{}
-		clusterName             string
-		clusterServer           string
-		clusterToken            string
-		clusterKubeConfig       string
-		importFile              string
+		values            map[string]interface{}
+		clusterName       string
+		clusterServer     string
+		clusterToken      string
+		clusterKubeConfig string
 	}
 	tests := []struct {
 		name    string
@@ -171,7 +175,6 @@ func TestAttachClusterOptions_ValidateWithClient(t *testing.T) {
 		{
 			name: "Success local-cluster, all info in values",
 			fields: fields{
-				applierScenariosOptions: &applierscenarios.ApplierScenariosOptions{},
 				values: map[string]interface{}{
 					"managedCluster": map[string]interface{}{
 						"name": "local-cluster",
@@ -183,7 +186,6 @@ func TestAttachClusterOptions_ValidateWithClient(t *testing.T) {
 		{
 			name: "Failed local-cluster, cluster name empty",
 			fields: fields{
-				applierScenariosOptions: &applierscenarios.ApplierScenariosOptions{},
 				values: map[string]interface{}{
 					"managedCluster": map[string]interface{}{
 						"name": "",
@@ -195,15 +197,13 @@ func TestAttachClusterOptions_ValidateWithClient(t *testing.T) {
 		{
 			name: "Failed local-cluster, cluster name missing",
 			fields: fields{
-				applierScenariosOptions: &applierscenarios.ApplierScenariosOptions{},
-				values:                  map[string]interface{}{},
+				values: map[string]interface{}{},
 			},
 			wantErr: true,
 		},
 		{
 			name: "Success non-local-cluster, overrite cluster-name with local-cluster",
 			fields: fields{
-				applierScenariosOptions: &applierscenarios.ApplierScenariosOptions{},
 				values: map[string]interface{}{
 					"managedCluster": map[string]interface{}{
 						"name": "test-cluster",
@@ -217,7 +217,6 @@ func TestAttachClusterOptions_ValidateWithClient(t *testing.T) {
 		{
 			name: "Failed non-local-cluster, missing kubeconfig or token/server",
 			fields: fields{
-				applierScenariosOptions: &applierscenarios.ApplierScenariosOptions{},
 				values: map[string]interface{}{
 					"managedCluster": map[string]interface{}{
 						"name": "cluster-test",
@@ -229,7 +228,6 @@ func TestAttachClusterOptions_ValidateWithClient(t *testing.T) {
 		{
 			name: "Success non-local-cluster, with kubeconfig",
 			fields: fields{
-				applierScenariosOptions: &applierscenarios.ApplierScenariosOptions{},
 				values: map[string]interface{}{
 					"managedCluster": map[string]interface{}{
 						"name": "cluster-test",
@@ -243,7 +241,6 @@ func TestAttachClusterOptions_ValidateWithClient(t *testing.T) {
 		{
 			name: "Success non-local-cluster, with token/server",
 			fields: fields{
-				applierScenariosOptions: &applierscenarios.ApplierScenariosOptions{},
 				values: map[string]interface{}{
 					"managedCluster": map[string]interface{}{
 						"name": "cluster-test",
@@ -258,7 +255,6 @@ func TestAttachClusterOptions_ValidateWithClient(t *testing.T) {
 		{
 			name: "Failed non-local-cluster, with token no server",
 			fields: fields{
-				applierScenariosOptions: &applierscenarios.ApplierScenariosOptions{},
 				values: map[string]interface{}{
 					"managedCluster": map[string]interface{}{
 						"name": "cluster-test",
@@ -271,7 +267,6 @@ func TestAttachClusterOptions_ValidateWithClient(t *testing.T) {
 		{
 			name: "Failed non-local-cluster, with server no token",
 			fields: fields{
-				applierScenariosOptions: &applierscenarios.ApplierScenariosOptions{},
 				values: map[string]interface{}{
 					"managedCluster": map[string]interface{}{
 						"name": "cluster-test",
@@ -284,7 +279,6 @@ func TestAttachClusterOptions_ValidateWithClient(t *testing.T) {
 		{
 			name: "Failed non-local-cluster, with kubeconfig and token/server",
 			fields: fields{
-				applierScenariosOptions: &applierscenarios.ApplierScenariosOptions{},
 				values: map[string]interface{}{
 					"managedCluster": map[string]interface{}{
 						"name": "cluster-test",
@@ -300,15 +294,13 @@ func TestAttachClusterOptions_ValidateWithClient(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			o := &Options{
-				applierScenariosOptions: tt.fields.applierScenariosOptions,
-				values:                  tt.fields.values,
-				clusterName:             tt.fields.clusterName,
-				clusterServer:           tt.fields.clusterServer,
-				clusterToken:            tt.fields.clusterToken,
-				clusterKubeConfig:       tt.fields.clusterKubeConfig,
-				importFile:              tt.fields.importFile,
+				values:            tt.fields.values,
+				clusterName:       tt.fields.clusterName,
+				clusterServer:     tt.fields.clusterServer,
+				clusterToken:      tt.fields.clusterToken,
+				clusterKubeConfig: tt.fields.clusterKubeConfig,
 			}
-			if err := o.validateWithClient(client); (err != nil) != tt.wantErr {
+			if err := o.validateWithClient(kubeClient, dynamicClient); (err != nil) != tt.wantErr {
 				t.Errorf("AttachClusterOptions.Validate() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
@@ -323,8 +315,7 @@ func TestOptions_runWithClient(t *testing.T) {
 	defer os.RemoveAll(dir)
 	generatedImportFileName := filepath.Join(dir, "import.yaml")
 	resultImportFileName := filepath.Join(testDir, "import_result.yaml")
-	os.Remove(generatedImportFileName)
-	importSecret := corev1.Secret{
+	importSecret := &corev1.Secret{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "test-import",
 			Namespace: "test",
@@ -334,22 +325,48 @@ func TestOptions_runWithClient(t *testing.T) {
 			"import.yaml": []byte("import: myimport"),
 		},
 	}
-	client := crclientfake.NewFakeClient(&importSecret)
-	values, err := appliercmd.ConvertValuesFileToValuesMap(filepath.Join(testDir, "values-with-data.yaml"), "")
+	values, err := helpers.ConvertValuesFileToValuesMap(filepath.Join(testDir, "values-with-data.yaml"), "")
 	if err != nil {
 		t.Fatal(err)
 	}
+	apiextensionsClient := fakeapiextensionsclient.NewSimpleClientset()
+	s := scheme.Scheme
+	kubeClient := fakekubernetes.NewSimpleClientset(importSecret)
+	dynamicClient := fakedynamic.NewSimpleDynamicClient(s)
+	discoveryClient := kubeClient.Discovery()
+	discoveryClient.(*fakediscovery.FakeDiscovery).Resources = []*metav1.APIResourceList{
+		{
+			GroupVersion: "cluster.open-cluster-management.io/v1",
+			APIResources: []metav1.APIResource{
+				{
+					Name:       "managedclusters",
+					Namespaced: false,
+					Kind:       "ManagedCluster",
+				},
+			},
+		},
+		{
+			GroupVersion: "agent.open-cluster-management.io/v1",
+			APIResources: []metav1.APIResource{
+				{
+					Name:       "klusteraddonconfigs",
+					Namespaced: false,
+					Kind:       "KlusterletAddonConfig",
+				},
+			},
+		},
+	}
 	type fields struct {
-		applierScenariosOptions *applierscenarios.ApplierScenariosOptions
-		values                  map[string]interface{}
-		clusterName             string
-		clusterServer           string
-		clusterToken            string
-		clusterKubeConfig       string
-		importFile              string
+		CMFlags     *genericclioptions.CMFlags
+		values      map[string]interface{}
+		clusterName string
+		importFile  string
 	}
 	type args struct {
-		client crclient.Client
+		kubeClient          kubernetes.Interface
+		dynamicClient       dynamic.Interface
+		apiextensionsClient apiextensionsclient.Interface
+		discoveryClient     discovery.DiscoveryInterface
 	}
 	tests := []struct {
 		name    string
@@ -360,39 +377,32 @@ func TestOptions_runWithClient(t *testing.T) {
 		{
 			name: "Success",
 			fields: fields{
-				applierScenariosOptions: &applierscenarios.ApplierScenariosOptions{
-					//Had to set to 1 sec otherwise test timeout is reached (30s)
-					Timeout: 1,
-				},
+				CMFlags:     genericclioptions.NewCMFlags(nil),
 				values:      values,
 				importFile:  generatedImportFileName,
 				clusterName: "test",
 			},
 			args: args{
-				client: client,
+				kubeClient:          kubeClient,
+				discoveryClient:     discoveryClient,
+				apiextensionsClient: apiextensionsClient,
+				dynamicClient:       dynamicClient,
 			},
+			wantErr: false,
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			o := &Options{
-				applierScenariosOptions: tt.fields.applierScenariosOptions,
-				values:                  tt.fields.values,
-				clusterName:             tt.fields.clusterName,
-				clusterServer:           tt.fields.clusterServer,
-				clusterToken:            tt.fields.clusterToken,
-				clusterKubeConfig:       tt.fields.clusterKubeConfig,
-				importFile:              tt.fields.importFile,
+				CMFlags:     tt.fields.CMFlags,
+				values:      tt.fields.values,
+				clusterName: tt.fields.clusterName,
+				importFile:  tt.fields.importFile,
 			}
-			if err := o.runWithClient(tt.args.client); (err != nil) != tt.wantErr {
+			if err := o.runWithClient(tt.args.kubeClient, tt.args.dynamicClient, tt.args.apiextensionsClient, tt.args.discoveryClient); (err != nil) != tt.wantErr {
 				t.Errorf("Options.runWithClient() error = %v, wantErr %v", err, tt.wantErr)
 			} else {
-				ns := &corev1.Namespace{}
-				err = client.Get(context.TODO(),
-					crclient.ObjectKey{
-						Name: "test",
-					},
-					ns)
+				_, err := tt.args.kubeClient.CoreV1().Namespaces().Get(context.TODO(), "test", metav1.GetOptions{})
 				if err != nil {
 					t.Error(err)
 				}
@@ -411,6 +421,7 @@ func TestOptions_runWithClient(t *testing.T) {
 						string(resultImportFile))
 				}
 			}
+
 		})
 	}
 }

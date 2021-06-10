@@ -3,34 +3,46 @@
 package main
 
 import (
+	"flag"
 	"os"
 
 	"github.com/spf13/cobra"
 
-	"github.com/open-cluster-management/cm-cli/pkg/cmd/verbs"
+	"github.com/open-cluster-management/cm-cli/pkg/cmd/version"
+	genericclioptionscm "github.com/open-cluster-management/cm-cli/pkg/genericclioptions"
 	"k8s.io/cli-runtime/pkg/genericclioptions"
 	"k8s.io/client-go/tools/clientcmd"
 	cliflag "k8s.io/component-base/cli/flag"
-	kubectlcmd "k8s.io/kubectl/pkg/cmd"
 	cmdconfig "k8s.io/kubectl/pkg/cmd/config"
 	"k8s.io/kubectl/pkg/cmd/options"
 	"k8s.io/kubectl/pkg/cmd/plugin"
 	cmdutil "k8s.io/kubectl/pkg/cmd/util"
+	"k8s.io/kubectl/pkg/util/templates"
+
+	// genericclioptionsclusteradm "open-cluster-management.io/clusteradm/pkg/genericclioptions"
+
+	// clusteradmaccept "open-cluster-management.io/clusteradm/pkg/cmd/accept"
+	// clusteradminit "open-cluster-management.io/clusteradm/pkg/cmd/init"
+	// clusteradmjoin "open-cluster-management.io/clusteradm/pkg/cmd/join"
+
+	attachcluster "github.com/open-cluster-management/cm-cli/pkg/cmd/attach/cluster"
+	createcluster "github.com/open-cluster-management/cm-cli/pkg/cmd/create/cluster"
+	deletecluster "github.com/open-cluster-management/cm-cli/pkg/cmd/delete/cluster"
+	detachcluster "github.com/open-cluster-management/cm-cli/pkg/cmd/detach/cluster"
+	getclusters "github.com/open-cluster-management/cm-cli/pkg/cmd/get/clusters"
 )
 
 func main() {
 	streams := genericclioptions.IOStreams{In: os.Stdin, Out: os.Stdout, ErrOut: os.Stderr}
-	// root, f := clusteradmcmd.GetRootCmd("cm", streams)
-	// root.AddCommand(newCmdCMVerbs(f, streams))
-
-	// flags := pflag.NewFlagSet("cm", pflag.ExitOnError)
-	// pflag.CommandLine = flags
-
 	configFlags := genericclioptions.NewConfigFlags(true).WithDeprecatedPasswordFlag()
 	matchVersionKubeConfigFlags := cmdutil.NewMatchVersionFlags(configFlags)
 	f := cmdutil.NewFactory(matchVersionKubeConfigFlags)
-
-	root := newCmdCMVerbs(f, streams)
+	// clusteradmFlags := genericclioptionsclusteradm.NewClusteradmFlags(f)
+	cmFlags := genericclioptionscm.NewCMFlags(f)
+	root := &cobra.Command{
+		Use: "cm",
+	}
+	// root := newCmdCMVerbs(f, streams)
 
 	flags := root.PersistentFlags()
 	matchVersionKubeConfigFlags.AddFlags(flags)
@@ -43,34 +55,41 @@ func main() {
 	root.SetGlobalNormalizationFunc(cliflag.WarnWordSepNormalizeFunc)
 
 	configFlags.AddFlags(flags)
+	cmFlags.AddFlags(flags)
+	flags.AddGoFlagSet(flag.CommandLine)
 	root.AddCommand(cmdconfig.NewCmdConfig(f, clientcmd.NewDefaultPathOptions(), streams))
 	//enable plugin functionality: all `os.Args[0]-<binary>` in the $PATH will be available for plugin
 	plugin.ValidPluginFilenamePrefixes = []string{os.Args[0]}
 	root.AddCommand(plugin.NewCmdPlugin(f, streams))
-	root.AddCommand(kubectlcmd.NewDefaultKubectlCommand())
 	root.AddCommand(options.NewCmdOptions(streams.Out))
-
+	groups := templates.CommandGroups{
+		{
+			Message: "General commands:",
+			Commands: []*cobra.Command{
+				version.NewCmd(cmFlags, streams),
+			},
+		},
+		{
+			Message: "Clusters commands:",
+			Commands: []*cobra.Command{
+				attachcluster.NewCmd(cmFlags, streams),
+				detachcluster.NewCmd(cmFlags, streams),
+				createcluster.NewCmd(cmFlags, streams),
+				deletecluster.NewCmd(cmFlags, streams),
+				getclusters.NewCmd(cmFlags, streams),
+			},
+		},
+		// {
+		// 	Message: "Registration commands:",
+		// 	Commands: []*cobra.Command{
+		// 		clusteradminit.NewCmd(clusteradmFlags, streams),
+		// 		clusteradmjoin.NewCmd(clusteradmFlags, streams),
+		// 		clusteradmaccept.NewCmd(clusteradmFlags, streams),
+		// 	},
+		// },
+	}
+	groups.Add(root)
 	if err := root.Execute(); err != nil {
 		os.Exit(1)
 	}
-}
-
-// NewCmdNamespace provides a cobra command wrapping NamespaceOptions
-func newCmdCMVerbs(f cmdutil.Factory, streams genericclioptions.IOStreams) *cobra.Command {
-	cmd := &cobra.Command{Use: "cm"}
-	cmd.AddCommand(
-		verbs.NewVerbCreate("create", f, streams),
-		verbs.NewVerbGet("get", f, streams),
-		verbs.NewVerbDelete("delete", f, streams),
-		verbs.NewVerbApplier("applier", f, streams),
-		verbs.NewVerbAttach("attach", f, streams),
-		verbs.NewVerbDetach("detach", f, streams),
-		verbs.NewVerbVersion("version", f, streams),
-
-		verbs.NewVerbInit("init", f, streams),
-		verbs.NewVerbJoin("join", f, streams),
-		verbs.NewVerbAccept("accept", f, streams),
-	)
-
-	return cmd
 }

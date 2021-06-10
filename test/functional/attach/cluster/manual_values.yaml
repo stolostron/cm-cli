@@ -15,6 +15,6 @@ managedCluster:
     iamPolicyController:
       enabled: true
     version: 2.2.0
-  token: ""
+  # token: ""
   # kubeConfig: ""
 
