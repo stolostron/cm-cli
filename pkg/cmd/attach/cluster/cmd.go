@@ -32,9 +32,9 @@ var valuesDefaultPath = filepath.Join(scenarioDirectory, "values-default.yaml")
 // NewCmd provides a cobra command wrapping NewCmdImportCluster
 func NewCmd(cmFlags *genericclioptionscm.CMFlags, streams genericclioptions.IOStreams) *cobra.Command {
 	o := newOptions(cmFlags, streams)
-	cmd := &cobra.Command{
-		Use: "attach",
-	}
+	// cmd := &cobra.Command{
+	// 	Use: "attach",
+	// }
 
 	clusters := &cobra.Command{
 		Use:          "cluster",
@@ -63,7 +63,7 @@ func NewCmd(cmFlags *genericclioptionscm.CMFlags, streams genericclioptions.IOSt
 		},
 	}
 
-	clusters.SetUsageTemplate(clusteradmhelpers.UsageTempate(cmd, scenario.GetScenarioResourcesReader(), valuesTemplatePath))
+	clusters.SetUsageTemplate(clusteradmhelpers.UsageTempate(clusters, scenario.GetScenarioResourcesReader(), valuesTemplatePath))
 	clusters.Flags().StringVar(&o.valuesPath, "values", "", "The files containing the values")
 	clusters.Flags().StringVar(&o.clusterName, "name", "", "Name of the cluster to import")
 	clusters.Flags().StringVar(&o.clusterServer, "cluster-server", "", "cluster server url of the cluster to import")
@@ -72,7 +72,7 @@ func NewCmd(cmFlags *genericclioptionscm.CMFlags, streams genericclioptions.IOSt
 	clusters.Flags().StringVar(&o.importFile, "import-file", "", "the file which will contain the import secret for manual import")
 	clusters.Flags().StringVar(&o.outputFile, "output-file", "", "The generated resources will be copied in the specified file")
 
-	cmd.AddCommand(clusters)
+	// cmd.AddCommand(clusters)
 
-	return cmd
+	return clusters
 }

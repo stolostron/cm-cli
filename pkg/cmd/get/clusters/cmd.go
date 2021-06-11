@@ -21,14 +21,13 @@ const (
 
 // NewCmd ...
 func NewCmd(cmFlags *genericclioptionscm.CMFlags, streams genericclioptions.IOStreams) *cobra.Command {
-	cmd := get.NewCmdGet("cm", cmFlags.KubectlFactory, streams)
 
 	o := get.NewGetOptions("cm", streams)
 	clusters := &cobra.Command{
 		Use:                   "clusters [(-o|--output=)json|yaml|wide|custom-columns=...|custom-columns-file=...|go-template=...|go-template-file=...|jsonpath=...|jsonpath-file=...] (TYPE[.VERSION][.GROUP] [NAME | -l label] | TYPE[.VERSION][.GROUP]/NAME ...) [flags]",
 		Aliases:               []string{"cluster"},
 		DisableFlagsInUseLine: true,
-		Short:                 "Display one or many resources",
+		Short:                 "Display the attached clusters",
 		Example:               fmt.Sprintf(example, helpers.GetExampleHeader()),
 		Run: func(cmd *cobra.Command, args []string) {
 			args = append([]string{"managedcluster"}, args...)
@@ -53,9 +52,7 @@ func NewCmd(cmFlags *genericclioptionscm.CMFlags, streams genericclioptions.IOSt
 	addServerPrintColumnFlags(clusters, o)
 	cmdutil.AddFilenameOptionFlags(clusters, &o.FilenameOptions, "identifying the resource to get from a server.")
 
-	cmd.AddCommand(clusters)
-
-	return cmd
+	return clusters
 }
 
 const (

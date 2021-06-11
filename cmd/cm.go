@@ -8,7 +8,6 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/open-cluster-management/cm-cli/pkg/cmd/version"
 	genericclioptionscm "github.com/open-cluster-management/cm-cli/pkg/genericclioptions"
 	"k8s.io/cli-runtime/pkg/genericclioptions"
 	"k8s.io/client-go/tools/clientcmd"
@@ -25,11 +24,13 @@ import (
 	// clusteradminit "open-cluster-management.io/clusteradm/pkg/cmd/init"
 	// clusteradmjoin "open-cluster-management.io/clusteradm/pkg/cmd/join"
 
-	attachcluster "github.com/open-cluster-management/cm-cli/pkg/cmd/attach/cluster"
-	createcluster "github.com/open-cluster-management/cm-cli/pkg/cmd/create/cluster"
-	deletecluster "github.com/open-cluster-management/cm-cli/pkg/cmd/delete/cluster"
-	detachcluster "github.com/open-cluster-management/cm-cli/pkg/cmd/detach/cluster"
-	getclusters "github.com/open-cluster-management/cm-cli/pkg/cmd/get/clusters"
+	"github.com/open-cluster-management/cm-cli/pkg/cmd/attach"
+	"github.com/open-cluster-management/cm-cli/pkg/cmd/create"
+	"github.com/open-cluster-management/cm-cli/pkg/cmd/delete"
+	"github.com/open-cluster-management/cm-cli/pkg/cmd/detach"
+	"github.com/open-cluster-management/cm-cli/pkg/cmd/get"
+	"github.com/open-cluster-management/cm-cli/pkg/cmd/scale"
+	"github.com/open-cluster-management/cm-cli/pkg/cmd/version"
 )
 
 func main() {
@@ -72,11 +73,12 @@ func main() {
 		{
 			Message: "Clusters commands:",
 			Commands: []*cobra.Command{
-				attachcluster.NewCmd(cmFlags, streams),
-				detachcluster.NewCmd(cmFlags, streams),
-				createcluster.NewCmd(cmFlags, streams),
-				deletecluster.NewCmd(cmFlags, streams),
-				getclusters.NewCmd(cmFlags, streams),
+				attach.NewCmd(cmFlags, streams),
+				detach.NewCmd(cmFlags, streams),
+				create.NewCmd(cmFlags, streams),
+				delete.NewCmd(cmFlags, streams),
+				scale.NewCmd(cmFlags, streams),
+				get.NewCmd(cmFlags, streams),
 			},
 		},
 		// {
