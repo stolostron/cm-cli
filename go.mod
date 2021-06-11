@@ -23,5 +23,5 @@ require (
 	k8s.io/component-base v0.21.1
 	k8s.io/kubectl v0.21.1
 	open-cluster-management.io/api v0.0.0-20210607023841-cd164385e2bb
-	open-cluster-management.io/clusteradm v0.0.0-20210610011616-677c93e03a9c
+	open-cluster-management.io/clusteradm v0.0.0-20210611012639-e513b4f17927
 )
