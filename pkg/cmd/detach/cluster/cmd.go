@@ -31,11 +31,8 @@ var valuesTemplatePath = filepath.Join(scenarioDirectory, "values-template.yaml"
 // NewCmd ...
 func NewCmd(cmFlags *genericclioptionscm.CMFlags, streams genericclioptions.IOStreams) *cobra.Command {
 	o := newOptions(cmFlags, streams)
-	cmd := &cobra.Command{
-		Use: "detach",
-	}
 
-	clusters := &cobra.Command{
+	cluster := &cobra.Command{
 		Use:          "cluster",
 		Short:        "detach a cluster",
 		Example:      fmt.Sprintf(example, helpers.GetExampleHeader()),
@@ -62,11 +59,9 @@ func NewCmd(cmFlags *genericclioptionscm.CMFlags, streams genericclioptions.IOSt
 		},
 	}
 
-	clusters.SetUsageTemplate(clusteradmhelpers.UsageTempate(clusters, scenario.GetScenarioResourcesReader(), valuesTemplatePath))
-	clusters.Flags().StringVar(&o.valuesPath, "values", "", "The files containing the values")
-	clusters.Flags().StringVar(&o.clusterName, "name", "", "Name of the cluster to import")
+	cluster.SetUsageTemplate(clusteradmhelpers.UsageTempate(cluster, scenario.GetScenarioResourcesReader(), valuesTemplatePath))
+	cluster.Flags().StringVar(&o.clusterName, "cluster", "", "Name of the cluster")
+	cluster.Flags().StringVar(&o.valuesPath, "values", "", "The files containing the values")
 
-	cmd.AddCommand(clusters)
-
-	return cmd
+	return cluster
 }

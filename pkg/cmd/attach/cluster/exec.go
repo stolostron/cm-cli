@@ -7,7 +7,6 @@ import (
 	"io/ioutil"
 	"time"
 
-	"github.com/ghodss/yaml"
 	"github.com/openshift/library-go/pkg/operator/resource/resourceapply"
 	apiextensionsclient "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset"
 	"k8s.io/apimachinery/pkg/api/errors"
@@ -28,11 +27,7 @@ func (o *Options) complete(cmd *cobra.Command, args []string) (err error) {
 	if o.valuesPath == "" {
 		if o.clusterName != "" {
 			reader := scenario.GetScenarioResourcesReader()
-			b, err := reader.Asset(valuesDefaultPath)
-			if err != nil {
-				return err
-			}
-			err = yaml.Unmarshal(b, &o.values)
+			o.values, err = helpers.ConvertReaderFileToValuesMap(valuesDefaultPath, reader)
 			if err != nil {
 				return err
 			}

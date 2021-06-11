@@ -33,11 +33,7 @@ var example = `
 // NewCmd ...
 func NewCmd(cmFlags *genericclioptionscm.CMFlags, streams genericclioptions.IOStreams) *cobra.Command {
 	o := newOptions(cmFlags, streams)
-	cmd := &cobra.Command{
-		Use: "create",
-	}
-
-	clusters := &cobra.Command{
+	cluster := &cobra.Command{
 		Use:          "cluster",
 		Short:        "Create a cluster",
 		Example:      fmt.Sprintf(example, helpers.GetExampleHeader()),
@@ -64,11 +60,10 @@ func NewCmd(cmFlags *genericclioptionscm.CMFlags, streams genericclioptions.IOSt
 		},
 	}
 
-	clusters.SetUsageTemplate(clusteradmhelpers.UsageTempate(cmd, scenario.GetScenarioResourcesReader(), valuesTemplatePath))
-	clusters.Flags().StringVar(&o.clusterName, "name", "", "Name of the cluster to import")
-	clusters.Flags().StringVar(&o.valuesPath, "values", "", "The files containing the values")
-	clusters.Flags().StringVar(&o.outputFile, "output-file", "", "The generated resources will be copied in the specified file")
-	cmd.AddCommand(clusters)
+	cluster.SetUsageTemplate(clusteradmhelpers.UsageTempate(cluster, scenario.GetScenarioResourcesReader(), valuesTemplatePath))
+	cluster.Flags().StringVar(&o.clusterName, "cluster", "", "Name of the cluster")
+	cluster.Flags().StringVar(&o.valuesPath, "values", "", "The files containing the values")
+	cluster.Flags().StringVar(&o.outputFile, "output-file", "", "The generated resources will be copied in the specified file")
 
-	return cmd
+	return cluster
 }

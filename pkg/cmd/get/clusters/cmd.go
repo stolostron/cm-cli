@@ -21,14 +21,13 @@ const (
 
 // NewCmd ...
 func NewCmd(cmFlags *genericclioptionscm.CMFlags, streams genericclioptions.IOStreams) *cobra.Command {
-	cmd := get.NewCmdGet("cm", cmFlags.KubectlFactory, streams)
 
 	o := get.NewGetOptions("cm", streams)
 	clusters := &cobra.Command{
 		Use:                   "clusters [(-o|--output=)json|yaml|wide|custom-columns=...|custom-columns-file=...|go-template=...|go-template-file=...|jsonpath=...|jsonpath-file=...] (TYPE[.VERSION][.GROUP] [NAME | -l label] | TYPE[.VERSION][.GROUP]/NAME ...) [flags]",
 		Aliases:               []string{"cluster"},
 		DisableFlagsInUseLine: true,
-		Short:                 "Display one or many resources",
+		Short:                 "Display the attached clusters",
 		Example:               fmt.Sprintf(example, helpers.GetExampleHeader()),
 		Run: func(cmd *cobra.Command, args []string) {
 			args = append([]string{"managedcluster"}, args...)
@@ -48,14 +47,11 @@ func NewCmd(cmFlags *genericclioptionscm.CMFlags, streams genericclioptions.IOSt
 	clusters.Flags().BoolVar(&o.IgnoreNotFound, "ignore-not-found", o.IgnoreNotFound, "If the requested object does not exist the command will return exit code 0.")
 	clusters.Flags().StringVarP(&o.LabelSelector, "selector", "l", o.LabelSelector, "Selector (label query) to filter on, supports '=', '==', and '!='.(e.g. -l key1=value1,key2=value2)")
 	clusters.Flags().StringVar(&o.FieldSelector, "field-selector", o.FieldSelector, "Selector (field query) to filter on, supports '=', '==', and '!='.(e.g. --field-selector key1=value1,key2=value2). The server only supports a limited number of field queries per type.")
-	clusters.Flags().BoolVarP(&o.AllNamespaces, "all-namespaces", "A", o.AllNamespaces, "If present, list the requested object(s) across all namespaces. Namespace in current context is ignored even if specified with --namespace.")
 	addOpenAPIPrintColumnFlags(clusters, o)
 	addServerPrintColumnFlags(clusters, o)
 	cmdutil.AddFilenameOptionFlags(clusters, &o.FilenameOptions, "identifying the resource to get from a server.")
 
-	cmd.AddCommand(clusters)
-
-	return cmd
+	return clusters
 }
 
 const (

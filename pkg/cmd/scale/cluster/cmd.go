@@ -5,29 +5,26 @@ import (
 	"fmt"
 	"path/filepath"
 
-	clusteradmhelpers "open-cluster-management.io/clusteradm/pkg/helpers"
-
-	"github.com/open-cluster-management/cm-cli/pkg/cmd/delete/cluster/scenario"
+	"github.com/open-cluster-management/cm-cli/pkg/cmd/scale/cluster/scenario"
 	genericclioptionscm "github.com/open-cluster-management/cm-cli/pkg/genericclioptions"
 	"github.com/open-cluster-management/cm-cli/pkg/helpers"
+	clusteradmhelpers "open-cluster-management.io/clusteradm/pkg/helpers"
 
 	"github.com/spf13/cobra"
 	"k8s.io/cli-runtime/pkg/genericclioptions"
 )
 
 var example = `
-# Delete a cluster
-%[1]s delete cluster --values values.yaml
-
-# Delete a cluster with overwritting the cluster name
-%[1]s delete cluster --values values.yaml --name mycluster
+# Scale a cluster
+%[1]s scale cluster --name clustername --machinepool poolname --replicas 4
 `
 
 const (
-	scenarioDirectory = "delete"
+	scenarioDirectory = "scale"
 )
 
 var valuesTemplatePath = filepath.Join(scenarioDirectory, "values-template.yaml")
+var valuesDefaultPath = filepath.Join(scenarioDirectory, "values-default.yaml")
 
 // NewCmd ...
 func NewCmd(cmFlags *genericclioptionscm.CMFlags, streams genericclioptions.IOStreams) *cobra.Command {
@@ -35,12 +32,12 @@ func NewCmd(cmFlags *genericclioptionscm.CMFlags, streams genericclioptions.IOSt
 
 	cluster := &cobra.Command{
 		Use:          "cluster",
-		Short:        "Delete a cluster",
+		Short:        "Scale a cluster",
 		Example:      fmt.Sprintf(example, helpers.GetExampleHeader()),
 		SilenceUsage: true,
 		PreRunE: func(c *cobra.Command, args []string) error {
 			if !helpers.IsRHACM(cmFlags.KubectlFactory) {
-				return fmt.Errorf("this command '%s delete cluster' is only available on RHACM", helpers.GetExampleHeader())
+				return fmt.Errorf("this command '%s scale cluster' is only available on RHACM", helpers.GetExampleHeader())
 			}
 			clusteradmhelpers.DryRunMessage(cmFlags.DryRun)
 			return nil
@@ -61,8 +58,9 @@ func NewCmd(cmFlags *genericclioptionscm.CMFlags, streams genericclioptions.IOSt
 	}
 
 	cluster.SetUsageTemplate(clusteradmhelpers.UsageTempate(cluster, scenario.GetScenarioResourcesReader(), valuesTemplatePath))
-	cluster.Flags().StringVar(&o.clusterName, "cluster", "", "Name of the cluster")
 	cluster.Flags().StringVar(&o.valuesPath, "values", "", "The files containing the values")
+	cluster.Flags().StringVar(&o.clusterName, "cluster", "", "Name of the cluster")
+	cluster.Flags().IntVar(&o.replicas, "replicas", 3, "number of workers for the pool")
 
 	return cluster
 }

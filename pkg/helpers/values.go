@@ -8,6 +8,7 @@ import (
 	"path/filepath"
 
 	"github.com/ghodss/yaml"
+	"open-cluster-management.io/clusteradm/pkg/helpers/asset"
 )
 
 func ConvertValuesFileToValuesMap(path, prefix string) (values map[string]interface{}, err error) {
@@ -45,5 +46,19 @@ func ConvertValuesFileToValuesMap(path, prefix string) (values map[string]interf
 		values = valuesc
 	}
 
+	return values, nil
+}
+
+func ConvertReaderFileToValuesMap(path string,
+	reader *asset.ScenarioResourcesReader) (values map[string]interface{}, err error) {
+	values = make(map[string]interface{})
+	b, err := reader.Asset(path)
+	if err != nil {
+		return values, err
+	}
+	err = yaml.Unmarshal(b, &values)
+	if err != nil {
+		return values, err
+	}
 	return values, nil
 }
