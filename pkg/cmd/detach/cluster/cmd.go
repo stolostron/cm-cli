@@ -60,8 +60,8 @@ func NewCmd(cmFlags *genericclioptionscm.CMFlags, streams genericclioptions.IOSt
 	}
 
 	cluster.SetUsageTemplate(clusteradmhelpers.UsageTempate(cluster, scenario.GetScenarioResourcesReader(), valuesTemplatePath))
+	cluster.Flags().StringVar(&o.clusterName, "cluster", "", "Name of the cluster")
 	cluster.Flags().StringVar(&o.valuesPath, "values", "", "The files containing the values")
-	cluster.Flags().StringVar(&o.clusterName, "name", "", "Name of the cluster to import")
 
 	return cluster
 }

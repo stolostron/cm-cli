@@ -39,10 +39,6 @@ See our [Contributing Document](CONTRIBUTING.md) for more information.
 
 ## Commands
 
-The commands are composed of a verb and a noun and then a number of parameters.
+[general commands](docs/general.md)
 
-## Cluster commands
-
-[applier](docs/applier.md)
-
-[cluster](docs/cluster.md)
+[cluster commands](docs/cluster.md)

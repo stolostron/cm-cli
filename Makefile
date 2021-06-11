@@ -28,13 +28,14 @@ build:
 
 .PHONY: 
 build-bin:
+	@rm -rf bin
 	@mkdir -p bin
-	GOOS=darwin GOARCH=amd64 go build -o bin/cm_darwin_amd64 ./cmd/cm.go 
-	GOOS=linux GOARCH=amd64 go build -o bin/cm_linux_amd64 ./cmd/cm.go 
-	GOOS=linux GOARCH=arm64 go build -o bin/cm_linux_arm64 ./cmd/cm.go 
-	GOOS=linux GOARCH=ppc64le go build -o bin/cm_linux_ppc64le ./cmd/cm.go 
-	GOOS=linux GOARCH=s390x go build -o bin/cm_linux_s390x ./cmd/cm.go 
-	GOOS=windows GOARCH=amd64 go build -o bin/cm_windows_amd64.exe ./cmd/cm.go 
+	GOOS=darwin GOARCH=amd64 go build -ldflags="-s -w" -gcflags=-trimpath=x/y  -o bin/cm_darwin_amd64 ./cmd/cm.go && tar -czf bin/cm_darwin_amd64.tar.gz -C bin/ cm_darwin_amd64 
+	GOOS=linux GOARCH=amd64 go build -ldflags="-s -w" -gcflags=-trimpath=x/y  -o bin/cm_linux_amd64 ./cmd/cm.go && tar -czf bin/cm_linux_amd64.tar.gz -C bin/ cm_linux_amd64 
+	GOOS=linux GOARCH=arm64 go build -ldflags="-s -w" -gcflags=-trimpath=x/y  -o bin/cm_linux_arm64 ./cmd/cm.go && tar -czf bin/cm_linux_arm64.tar.gz -C bin/ cm_linux_arm64 
+	GOOS=linux GOARCH=ppc64le go build -ldflags="-s -w" -gcflags=-trimpath=x/y  -o bin/cm_linux_ppc64le ./cmd/cm.go && tar -czf bin/cm_linux_ppc64le.tar.gz -C bin/ cm_linux_ppc64le 
+	GOOS=linux GOARCH=s390x go build -ldflags="-s -w" -gcflags=-trimpath=x/y  -o bin/cm_linux_s390x ./cmd/cm.go && tar -czf bin/cm_linux_s390x.tar.gz -C bin/ cm_linux_s390x 
+	GOOS=windows GOARCH=amd64 go build -ldflags="-s -w" -gcflags=-trimpath=x/y  -o bin/cm_windows_amd64.exe ./cmd/cm.go && zip -q bin/cm_windows_amd64.zip -j bin/cm_windows_amd64.exe
 
 .PHONY: install
 install: build

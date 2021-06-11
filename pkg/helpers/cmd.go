@@ -32,7 +32,7 @@ func IsRHACM(f cmdutil.Factory) bool {
 		LabelSelector: fmt.Sprintf("%v = %v", "ocm-configmap-type", "image-manifest"),
 	})
 	if err != nil {
-		panic(err)
+		return false
 	}
 	if len(cms.Items) == 0 {
 		return false

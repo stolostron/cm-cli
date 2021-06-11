@@ -43,7 +43,7 @@ func NewCmd(cmFlags *genericclioptionscm.CMFlags, streams genericclioptions.IOSt
 
 	o.PrintFlags.AddFlags(machinepools)
 
-	machinepools.Flags().StringVar(&clusterName, "name", "", "Name of the cluster to import")
+	machinepools.Flags().StringVar(&clusterName, "cluster", "", "Name of the cluster")
 	machinepools.Flags().BoolVarP(&o.Watch, "watch", "w", o.Watch, "After listing/getting the requested object, watch for changes. Uninitialized objects are excluded if no object name is provided.")
 	machinepools.Flags().BoolVar(&o.WatchOnly, "watch-only", o.WatchOnly, "Watch for changes to the requested object(s), without listing/getting first.")
 	machinepools.Flags().BoolVar(&o.OutputWatchEvents, "output-watch-events", o.OutputWatchEvents, "Output watch event objects when --watch or --watch-only is used. Existing objects are output as initial ADDED events.")

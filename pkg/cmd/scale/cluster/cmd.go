@@ -37,7 +37,7 @@ func NewCmd(cmFlags *genericclioptionscm.CMFlags, streams genericclioptions.IOSt
 		SilenceUsage: true,
 		PreRunE: func(c *cobra.Command, args []string) error {
 			if !helpers.IsRHACM(cmFlags.KubectlFactory) {
-				return fmt.Errorf("this command '%s detach cluster' is only available on RHACM", helpers.GetExampleHeader())
+				return fmt.Errorf("this command '%s scale cluster' is only available on RHACM", helpers.GetExampleHeader())
 			}
 			clusteradmhelpers.DryRunMessage(cmFlags.DryRun)
 			return nil
@@ -59,8 +59,7 @@ func NewCmd(cmFlags *genericclioptionscm.CMFlags, streams genericclioptions.IOSt
 
 	cluster.SetUsageTemplate(clusteradmhelpers.UsageTempate(cluster, scenario.GetScenarioResourcesReader(), valuesTemplatePath))
 	cluster.Flags().StringVar(&o.valuesPath, "values", "", "The files containing the values")
-	cluster.Flags().StringVar(&o.clusterName, "name", "", "Name of the cluster to scale")
-	cluster.Flags().StringVar(&o.machinePoolName, "machinepool", "", "Name of the machine pool on the cluster to scale (default <cluster_name>-worker)")
+	cluster.Flags().StringVar(&o.clusterName, "cluster", "", "Name of the cluster")
 	cluster.Flags().IntVar(&o.replicas, "replicas", 3, "number of workers for the pool")
 
 	return cluster

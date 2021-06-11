@@ -82,7 +82,7 @@ then
 fi
 
 echo "Test cm attach cluster no values.yaml"
-cm attach cluster --name mycluster --dry-run --output-file $TEST_RESULT_DIR/manual_no_values_result.yaml  --import-file $TEST_RESULT_DIR/manual_import_no_values_result.yaml
+cm attach cluster --cluster mycluster --dry-run --output-file $TEST_RESULT_DIR/manual_no_values_result.yaml  --import-file $TEST_RESULT_DIR/manual_import_no_values_result.yaml
 diff -u $TEST_DIR/attach/cluster/manual_no_values_result.yaml $TEST_RESULT_DIR/manual_no_values_result.yaml
 if [ $? != 0 ]
 then
@@ -99,7 +99,7 @@ then
 fi
 
 echo "Test cm attach cluster kubeconfig no values.yaml with kubeconfig"
-cm attach cluster --name mycluster --cluster-kubeconfig $TEST_DIR/attach/cluster/fake-kubeconfig.yaml --dry-run --output-file $TEST_RESULT_DIR/kubeconfig_no_values_result.yaml
+cm attach cluster --cluster mycluster --cluster-kubeconfig $TEST_DIR/attach/cluster/fake-kubeconfig.yaml --dry-run --output-file $TEST_RESULT_DIR/kubeconfig_no_values_result.yaml
 diff -u $TEST_DIR/attach/cluster/kubeconfig_no_values_result.yaml $TEST_RESULT_DIR/kubeconfig_no_values_result.yaml
 if [ $? != 0 ]
 then
