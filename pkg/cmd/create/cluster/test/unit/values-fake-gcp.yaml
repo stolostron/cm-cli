@@ -1,7 +1,7 @@
 # Copyright Contributors to the Open Cluster Management project
 
 managedCluster:
-  name: fake #<cluster-name>, this value is overwritten by the --name parameter
+  name: fake #<cluster-name>, this value is overwritten by the --cluster parameter
   cloud: gcp # clouds values can be aws, azure, gcp, openstack, vsphere
   vendor: OpenShift
   ocpImage: quay.io/openshift-release-dev/ocp-release:4.6.17-x86_64

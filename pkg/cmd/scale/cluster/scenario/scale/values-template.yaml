@@ -1,7 +1,7 @@
 # Copyright Contributors to the Open Cluster Management project
 
 managedCluster:
-  name: # <cluster_name>, this value is overwritten by the --name parameter
+  name: # <cluster_name>, this value is overwritten by the --cluster parameter
   machinepool: #The machinepool to patch
   replicas: 3
 
