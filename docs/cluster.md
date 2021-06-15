@@ -89,7 +89,7 @@ This is valid only for cluster deployed with hive.
 
 First find the machinepool you would like to alterate
 ```bash
-cm get manchinepools --cluster <cluster_name>
+cm get machinepools --cluster <cluster_name>
 ```
 then change the number of replicas for the machinepool.
 ```bash
