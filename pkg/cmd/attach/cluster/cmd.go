@@ -19,7 +19,7 @@ var example = `
 %[1]s attach cluster --values values.yaml
 
 # Attach a cluster with overwritting the cluster name
-%[1]s attach cluster --values values.yaml --name mycluster
+%[1]s attach cluster --values values.yaml --cluster mycluster
 `
 
 const (

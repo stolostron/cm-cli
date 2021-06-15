@@ -5,7 +5,7 @@ managedCluster:
     replicas: 3 #Number of master node, default 3
   worker:
     replicas: 3 #Number of worker node, default 3
-  name: #<cluster-name>, this value is overwritten by the --name parameter
+  name: #<cluster-name>, this value is overwritten by the --cluster parameter
   cloud: vsphere # clouds values can be aws, azure, gcp, openstack, vsphere
   vendor: OpenShift
   ocpImage: # ocp image (ie: quay.io/openshift-release-dev/ocp-release:4.3.40-x86_64)
