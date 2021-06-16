@@ -41,6 +41,14 @@ then
    ERROR_REPORT=$ERROR_REPORT+"cm create cluster AWS failed\n"
 fi
 
+echo "Test cm create cluster AWS with labels"
+cm create cluster --values $TEST_DIR/create/cluster/aws_values_with_labels.yaml --dry-run --output-file $TEST_RESULT_DIR/aws_result_with_labels.yaml
+diff -u $TEST_DIR/create/cluster/aws_result_with_labels.yaml $TEST_RESULT_DIR/aws_result_with_labels.yaml
+if [ $? != 0 ]
+then
+   ERROR_REPORT=$ERROR_REPORT+"cm create cluster AWS failed\n"
+fi
+
 echo "Test cm create cluster Azure"
 cm create cluster --values $TEST_DIR/create/cluster/azure_values.yaml --dry-run --output-file $TEST_RESULT_DIR/azure_result.yaml
 diff -u $TEST_DIR/create/cluster/azure_result.yaml $TEST_RESULT_DIR/azure_result.yaml
@@ -76,6 +84,14 @@ fi
 echo "Test cm attach cluster manual"
 cm attach cluster --values $TEST_DIR/attach/cluster/manual_values.yaml --dry-run --output-file $TEST_RESULT_DIR/manual_result.yaml --import-file $TEST_RESULT_DIR/manual_import_result.yaml
 diff -u $TEST_DIR/attach/cluster/manual_result.yaml $TEST_RESULT_DIR/manual_result.yaml
+if [ $? != 0 ]
+then
+   ERROR_REPORT=$ERROR_REPORT+"cm attach cluster manual failed\n"
+fi
+
+echo "Test cm attach cluster manual with labels"
+cm attach cluster --values $TEST_DIR/attach/cluster/manual_values_with_labels.yaml --dry-run --output-file $TEST_RESULT_DIR/manual_result_with_labels.yaml --import-file $TEST_RESULT_DIR/manual_import_result_with_labels.yaml
+diff -u $TEST_DIR/attach/cluster/manual_result_with_labels.yaml $TEST_RESULT_DIR/manual_result_with_labels.yaml
 if [ $? != 0 ]
 then
    ERROR_REPORT=$ERROR_REPORT+"cm attach cluster manual failed\n"

@@ -1,0 +1,23 @@
+# Copyright Contributors to the Open Cluster Management project
+
+managedCluster:
+  name: mycluster
+  labels:
+    mylabel1: myvalue1
+    mylabel2: myvalue2
+  addons:
+    applicationManager:
+      argocdCluster: false
+      enabled: true
+    policyController:
+      enabled: true
+    searchCollector:
+      enabled: true
+    certPolicyController:
+      enabled: true
+    iamPolicyController:
+      enabled: true
+    version: 2.2.0
+  # token: ""
+  # kubeConfig: ""
+

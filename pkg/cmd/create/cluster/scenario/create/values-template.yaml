@@ -6,6 +6,8 @@ managedCluster:
   worker:
     replicas: 3 #Number of worker node, default 3
   name: #<cluster-name>, this value is overwritten by the --cluster parameter
+  labels: # map of custom labels, cloud and vendor labels will be overwritten by the cloud and vendor attribute below.
+    #mylabel: myvalue
   cloud: vsphere # clouds values can be aws, azure, gcp, openstack, vsphere
   vendor: OpenShift
   ocpImage: # ocp image (ie: quay.io/openshift-release-dev/ocp-release:4.3.40-x86_64)
