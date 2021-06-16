@@ -8,32 +8,16 @@ metadata:
 ---
 # Copyright Contributors to the Open Cluster Management project
 
-
-
-apiVersion: v1
-kind: Secret
-metadata:
-  name: auto-import-secret
-  namespace: "mycluster"
-stringData:
-  autoImportRetry: "5"
-
-
-  token: fakeToken
-  server: https://fakeurl
-
-type: Opaque
-
-
----
-# Copyright Contributors to the Open Cluster Management project
-
 apiVersion: cluster.open-cluster-management.io/v1
 kind: ManagedCluster
 metadata:
   labels:
     
     cloud: auto-detect
+    
+    mylabel1: myvalue1
+    
+    mylabel2: myvalue2
     
     vendor: auto-detect
     

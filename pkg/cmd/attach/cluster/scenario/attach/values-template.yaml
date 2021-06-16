@@ -2,6 +2,8 @@
 
 managedCluster:
   name: # <cluster_name>, this value is overwritten by the --cluster parameter
+  labels: # map of custom labels, if cloud and vendor labels are not specified they will be set to "auto-detect"
+    #mylabel: myvalue
   addons:
     applicationManager:
       enabled: true

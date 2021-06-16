@@ -50,6 +50,23 @@ func (o *Options) complete(cmd *cobra.Command, args []string) (err error) {
 	}
 	mc := imc.(map[string]interface{})
 
+	if _, ok := mc["labels"]; !ok {
+		mc["labels"] = map[string]interface{}{
+			"cloud":  "auto-detect",
+			"vendor": "auto-detect",
+		}
+	}
+
+	ilabels := mc["labels"]
+	labels := ilabels.(map[string]interface{})
+	if _, ok := labels["vendor"]; !ok {
+		labels["vendor"] = "auto-detect"
+	}
+
+	if _, ok := labels["cloud"]; !ok {
+		labels["cloud"] = "auto-detect"
+	}
+
 	if o.clusterKubeConfig == "" {
 		if ikubeConfig, ok := mc["kubeConfig"]; ok {
 			o.clusterKubeConfig = ikubeConfig.(string)

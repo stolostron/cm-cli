@@ -196,6 +196,7 @@ apiVersion: cluster.open-cluster-management.io/v1
 kind: ManagedCluster
 metadata:
   labels:
+    
     cloud: openstack
     name: "mycluster"
     vendor: OpenShift

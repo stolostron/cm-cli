@@ -4,6 +4,9 @@ apiVersion: cluster.open-cluster-management.io/v1
 kind: ManagedCluster
 metadata:
   labels:
+    {{ range $key, $value := .managedCluster.labels }}
+    {{ $key }}: {{ $value }}
+    {{ end }}
     cloud: {{ .managedCluster.cloud }}
     name: "{{ .managedCluster.name }}"
     vendor: {{ .managedCluster.vendor }}
