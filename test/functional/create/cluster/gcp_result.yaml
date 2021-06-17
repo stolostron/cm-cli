@@ -15,14 +15,8 @@ metadata:
   name: mycluster-creds
   namespace: "mycluster"
 stringData:
-
-
-
   osServiceAccount.json: |-
     {"fakeJson":"fakeJsonValue"}
-
-
-
 
 ---
 # Copyright Contributors to the Open Cluster Management project
@@ -39,31 +33,6 @@ data:
 ---
 # Copyright Contributors to the Open Cluster Management project
 
-apiVersion: agent.open-cluster-management.io/v1
-kind: KlusterletAddonConfig
-metadata:
-  name: "mycluster"
-  namespace: "mycluster"
-spec:
-  clusterName: "mycluster"
-  clusterNamespace: "mycluster"
-  clusterLabels:
-    cloud: gcp
-    vendor: OpenShift
-  applicationManager:
-    enabled: true
-  policyController:
-    enabled: true
-  searchCollector:
-    enabled: true
-  certPolicyController:
-    enabled: true
-  iamPolicyController:
-    enabled: true
-
----
-# Copyright Contributors to the Open Cluster Management project
-
 apiVersion: hive.openshift.io/v1
 kind: MachinePool
 metadata:
@@ -74,15 +43,9 @@ spec:
     name: "mycluster"
   name: worker
   platform:
-
-
-
     gcp:
       type: n1-standard-4
     
-
-
-
   replicas: 3
 
 ---
@@ -114,21 +77,12 @@ type: Opaque
 
 ---
 # Copyright Contributors to the Open Cluster Management project
-
-
 apiVersion: hive.openshift.io/v1
 kind: ClusterImageSet
 metadata:
-  name:       
-        
-        
-          
-          
-      4.6.17-x86-64-mycluster
-        
+  name: 4.6.17-x86-64-mycluster
 spec:
   releaseImage: quay.io/openshift-release-dev/ocp-release:4.6.17-x86_64
-
 ---
 # Copyright Contributors to the Open Cluster Management project
 
@@ -141,27 +95,15 @@ metadata:
     cloud: gcp
     vendor: OpenShift
 spec:
-
-
-
   baseDomain: baseDnsDomainValue
-
-
-
   clusterName: "mycluster"
   controlPlaneConfig:
     servingCertificates: {}
   installAttemptsLimit: 1
   installed: false
   platform:
-
-
-
     gcp:
       region: regionValue
-
-
-
       credentialsSecretRef:
         name: "mycluster-creds"
   provisioning:
@@ -170,13 +112,7 @@ spec:
     sshPrivateKeySecretRef:
       name: mycluster-ssh-private-key
     imageSetRef:
-      name:         
-          
-          
-            
-            
-        4.6.17-x86-64-mycluster
-          
+      name: 4.6.17-x86-64-mycluster
   pullSecretRef:
     name: mycluster-pull-secret
 
@@ -187,12 +123,38 @@ apiVersion: cluster.open-cluster-management.io/v1
 kind: ManagedCluster
 metadata:
   labels:
-    
     cloud: gcp
-    name: "mycluster"
     vendor: OpenShift
+    name: "mycluster"
   name: "mycluster"
 spec:
   hubAcceptsClient: true
   leaseDurationSeconds: 60
+
+---
+# Copyright Contributors to the Open Cluster Management project
+
+apiVersion: agent.open-cluster-management.io/v1
+kind: KlusterletAddonConfig
+metadata:
+  name: "mycluster"
+  namespace: "mycluster"
+spec:
+  clusterName: "mycluster"
+  clusterNamespace: "mycluster"
+  clusterLabels:
+    cloud: auto-detect
+    vendor: auto-detect
+  applicationManager:
+    enabled: true
+    argocdCluster: false
+  policyController:
+    enabled: true
+  searchCollector:
+    enabled: true
+  certPolicyController:
+    enabled: true
+  iamPolicyController:
+    enabled: true
+
 ---
