@@ -66,7 +66,7 @@ func NewCmd(cmFlags *genericclioptionscm.CMFlags, streams genericclioptions.IOSt
 	cluster.Flags().StringVar(&o.clusterServer, "cluster-server", "", "cluster server url of the cluster to import")
 	cluster.Flags().StringVar(&o.clusterToken, "cluster-token", "", "token to access the cluster to import")
 	cluster.Flags().StringVar(&o.clusterKubeConfig, "cluster-kubeconfig", "", "path to the kubeconfig the cluster to import")
-	cluster.Flags().StringVar(&o.importFile, "import-file", "", "the file which will contain the import secret for manual import")
+	cluster.Flags().StringVar(&o.importFile, "import-file", "", "the file path and prefix which will contain the import yaml files for manual import")
 	cluster.Flags().StringVar(&o.outputFile, "output-file", "", "The generated resources will be copied in the specified file")
 
 	return cluster

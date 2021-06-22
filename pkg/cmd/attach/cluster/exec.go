@@ -250,16 +250,28 @@ func (o *Options) runWithClient(kubeClient kubernetes.Interface,
 		values := make(map[string]string)
 		values["crds_yaml"] = string(importSecret.Data["crds.yaml"])
 		values["import_yaml"] = string(importSecret.Data["import.yaml"])
-		importFileContent, err := clusteradmapply.MustTempalteAsset(reader, values, "", "attach/managedcluster/import.yaml")
+		importFileContentCRD, err := clusteradmapply.MustTempalteAsset(reader, values, "", "attach/managedcluster/import_crd.yaml")
 		if err != nil {
 			return err
 		}
-		// importFileContent := fmt.Sprintf("%s\n%s", importSecret.Data["crds.yaml"], importSecret.Data["import.yaml"])
-		err = ioutil.WriteFile(o.importFile, importFileContent, 0600)
+		importFileContentCRDFileName := fmt.Sprintf("%s_crd.yaml", o.importFile)
+		importFileContentYAML, err := clusteradmapply.MustTempalteAsset(reader, values, "", "attach/managedcluster/import_yaml.yaml")
 		if err != nil {
 			return err
 		}
-		fmt.Printf("Execute this command on the managed cluster\nkubectl apply -f %s\n", o.importFile)
+		importFileContentYAMLFileName := fmt.Sprintf("%s_yaml.yaml", o.importFile)
+
+		err = ioutil.WriteFile(importFileContentCRDFileName, importFileContentCRD, 0600)
+		if err != nil {
+			return err
+		}
+		err = ioutil.WriteFile(importFileContentYAMLFileName, importFileContentYAML, 0600)
+		if err != nil {
+			return err
+		}
+		fmt.Printf("Execute this command on the managed cluster\nkubectl apply -f %s;sleep 10; kubectl apply -f %s\n",
+			importFileContentCRDFileName,
+			importFileContentYAMLFileName)
 	}
 	return clusteradmapply.WriteOutput(o.outputFile, output)
 }
