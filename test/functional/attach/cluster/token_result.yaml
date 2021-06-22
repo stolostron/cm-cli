@@ -7,9 +7,6 @@ metadata:
 
 ---
 # Copyright Contributors to the Open Cluster Management project
-
-
-
 apiVersion: v1
 kind: Secret
 metadata:
@@ -17,13 +14,9 @@ metadata:
   namespace: "mycluster"
 stringData:
   autoImportRetry: "5"
-
-
   token: fakeToken
   server: https://fakeurl
-
 type: Opaque
-
 
 ---
 # Copyright Contributors to the Open Cluster Management project
@@ -32,12 +25,9 @@ apiVersion: cluster.open-cluster-management.io/v1
 kind: ManagedCluster
 metadata:
   labels:
-    
     cloud: auto-detect
-    
     vendor: auto-detect
-    
-    
+    name: "mycluster"
   name: "mycluster"
 spec:
   hubAcceptsClient: true

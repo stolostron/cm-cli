@@ -18,16 +18,17 @@ import (
 	cmdutil "k8s.io/kubectl/pkg/cmd/util"
 	"k8s.io/kubectl/pkg/util/templates"
 
-	// genericclioptionsclusteradm "open-cluster-management.io/clusteradm/pkg/genericclioptions"
+	genericclioptionsclusteradm "open-cluster-management.io/clusteradm/pkg/genericclioptions"
 
-	// clusteradmaccept "open-cluster-management.io/clusteradm/pkg/cmd/accept"
-	// clusteradminit "open-cluster-management.io/clusteradm/pkg/cmd/init"
-	// clusteradmjoin "open-cluster-management.io/clusteradm/pkg/cmd/join"
+	clusteradmaccept "open-cluster-management.io/clusteradm/pkg/cmd/accept"
+	clusteradminit "open-cluster-management.io/clusteradm/pkg/cmd/init"
+	clusteradmjoin "open-cluster-management.io/clusteradm/pkg/cmd/join"
 
 	"github.com/open-cluster-management/cm-cli/pkg/cmd/attach"
 	"github.com/open-cluster-management/cm-cli/pkg/cmd/create"
 	"github.com/open-cluster-management/cm-cli/pkg/cmd/delete"
 	"github.com/open-cluster-management/cm-cli/pkg/cmd/detach"
+	"github.com/open-cluster-management/cm-cli/pkg/cmd/enable"
 	"github.com/open-cluster-management/cm-cli/pkg/cmd/get"
 	"github.com/open-cluster-management/cm-cli/pkg/cmd/scale"
 	"github.com/open-cluster-management/cm-cli/pkg/cmd/version"
@@ -38,7 +39,7 @@ func main() {
 	configFlags := genericclioptions.NewConfigFlags(true).WithDeprecatedPasswordFlag()
 	matchVersionKubeConfigFlags := cmdutil.NewMatchVersionFlags(configFlags)
 	f := cmdutil.NewFactory(matchVersionKubeConfigFlags)
-	// clusteradmFlags := genericclioptionsclusteradm.NewClusteradmFlags(f)
+	clusteradmFlags := genericclioptionsclusteradm.NewClusteradmFlags(f)
 	cmFlags := genericclioptionscm.NewCMFlags(f)
 	root := &cobra.Command{
 		Use: "cm",
@@ -78,17 +79,18 @@ func main() {
 				create.NewCmd(cmFlags, streams),
 				delete.NewCmd(cmFlags, streams),
 				scale.NewCmd(cmFlags, streams),
-				get.NewCmd(cmFlags, streams),
+				enable.NewCmd(cmFlags, streams),
+				get.NewCmd(clusteradmFlags, cmFlags, streams),
 			},
 		},
-		// {
-		// 	Message: "Registration commands:",
-		// 	Commands: []*cobra.Command{
-		// 		clusteradminit.NewCmd(clusteradmFlags, streams),
-		// 		clusteradmjoin.NewCmd(clusteradmFlags, streams),
-		// 		clusteradmaccept.NewCmd(clusteradmFlags, streams),
-		// 	},
-		// },
+		{
+			Message: "Registration commands:",
+			Commands: []*cobra.Command{
+				clusteradminit.NewCmd(clusteradmFlags, streams),
+				clusteradmjoin.NewCmd(clusteradmFlags, streams),
+				clusteradmaccept.NewCmd(clusteradmFlags, streams),
+			},
+		},
 	}
 	groups.Add(root)
 	if err := root.Execute(); err != nil {

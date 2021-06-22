@@ -42,4 +42,3 @@ platform:
 pullSecret: "" # skip, hive will inject based on it's secrets
 sshKey: |-
 {{ .managedCluster.sshPublicKey | indent 4 }}
-    

@@ -4,12 +4,21 @@ apiVersion: cluster.open-cluster-management.io/v1
 kind: ManagedCluster
 metadata:
   labels:
-    {{ range $key, $value := .managedCluster.labels }}
+    {{- range $key, $value := .managedCluster.labels }}
     {{ $key }}: {{ $value }}
-    {{ end }}
-    {{ if eq .managedCluster.name "local-cluster" }}
+    {{- end }}
+    {{- if eq .managedCluster.name "local-cluster" }}
     local-cluster: "true"
-    {{ end }}
+    {{- end }}
+    {{- if .managedCluster.cloud }}
+    cloud: {{ .managedCluster.cloud }}
+    {{- end}}
+    {{- if .managedCluster.vendor }}
+    vendor: {{ .managedCluster.vendor }}
+    {{- end}}
+    {{- if .managedCluster.name }}
+    name: "{{ .managedCluster.name }}"
+    {{- end}}
   name: "{{ .managedCluster.name }}"
 spec:
   hubAcceptsClient: true

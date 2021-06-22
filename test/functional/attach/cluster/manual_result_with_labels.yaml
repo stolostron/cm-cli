@@ -12,16 +12,11 @@ apiVersion: cluster.open-cluster-management.io/v1
 kind: ManagedCluster
 metadata:
   labels:
-    
     cloud: auto-detect
-    
     mylabel1: myvalue1
-    
     mylabel2: myvalue2
-    
     vendor: auto-detect
-    
-    
+    name: "mycluster"
   name: "mycluster"
 spec:
   hubAcceptsClient: true

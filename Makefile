@@ -24,6 +24,7 @@ deps:
 
 .PHONY: build
 build: 
+	rm -f ${GOPATH}/bin/cm
 	go install ./cmd/cm.go
 
 .PHONY: 

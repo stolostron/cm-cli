@@ -1,5 +1,5 @@
 // Copyright Contributors to the Open Cluster Management project
-package cluster
+package addons
 
 import (
 	"fmt"
@@ -15,15 +15,15 @@ import (
 )
 
 var example = `
-# Attach a cluster
-%[1]s attach cluster --values values.yaml
+# Enable addons on a cluster
+%[1]s enable addons --values values.yaml
 
 # Attach a cluster with overwritting the cluster name
-%[1]s attach cluster --values values.yaml --cluster mycluster
+%[1]s enable addons --values values.yaml --cluster mycluster
 `
 
 const (
-	scenarioDirectory = "attach"
+	scenarioDirectory = "addons"
 )
 
 var valuesTemplatePath = filepath.Join(scenarioDirectory, "values-template.yaml")
@@ -34,7 +34,7 @@ func NewCmd(cmFlags *genericclioptionscm.CMFlags, streams genericclioptions.IOSt
 	o := newOptions(cmFlags, streams)
 
 	cluster := &cobra.Command{
-		Use:          "cluster",
+		Use:          "addons",
 		Short:        "Import a cluster",
 		Example:      fmt.Sprintf(example, helpers.GetExampleHeader()),
 		SilenceUsage: true,
@@ -63,10 +63,6 @@ func NewCmd(cmFlags *genericclioptionscm.CMFlags, streams genericclioptions.IOSt
 	cluster.SetUsageTemplate(clusteradmhelpers.UsageTempate(cluster, scenario.GetScenarioResourcesReader(), valuesTemplatePath))
 	cluster.Flags().StringVar(&o.valuesPath, "values", "", "The files containing the values")
 	cluster.Flags().StringVar(&o.clusterName, "cluster", "", "Name of the cluster")
-	cluster.Flags().StringVar(&o.clusterServer, "cluster-server", "", "cluster server url of the cluster to import")
-	cluster.Flags().StringVar(&o.clusterToken, "cluster-token", "", "token to access the cluster to import")
-	cluster.Flags().StringVar(&o.clusterKubeConfig, "cluster-kubeconfig", "", "path to the kubeconfig the cluster to import")
-	cluster.Flags().StringVar(&o.importFile, "import-file", "", "the file which will contain the import secret for manual import")
 	cluster.Flags().StringVar(&o.outputFile, "output-file", "", "The generated resources will be copied in the specified file")
 
 	return cluster

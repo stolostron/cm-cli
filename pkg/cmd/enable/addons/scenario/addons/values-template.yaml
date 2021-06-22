@@ -1,0 +1,16 @@
+# Copyright Contributors to the Open Cluster Management project
+
+managedCluster:
+  name: # <cluster_name>, this value is overwritten by the --cluster parameter
+  addons:
+    applicationManager:
+      enabled: true
+      argocdCluster: false
+    policyController:
+      enabled: true
+    searchCollector:
+      enabled: true
+    certPolicyController:
+      enabled: true
+    iamPolicyController:
+      enabled: true

@@ -8,6 +8,7 @@ import (
 
 	clusteradmapply "open-cluster-management.io/clusteradm/pkg/helpers/apply"
 
+	attachscenario "github.com/open-cluster-management/cm-cli/pkg/cmd/attach/cluster/scenario"
 	"github.com/open-cluster-management/cm-cli/pkg/cmd/create/cluster/scenario"
 	"github.com/open-cluster-management/cm-cli/pkg/helpers"
 	"github.com/openshift/library-go/pkg/operator/resource/resourceapply"
@@ -127,6 +128,8 @@ func (o *Options) runWithClient(kubeClient kubernetes.Interface,
 	o.values["pullSecret"] = valueps
 
 	reader := scenario.GetScenarioResourcesReader()
+	attachreader := attachscenario.GetScenarioResourcesReader()
+
 	installConfig, err := clusteradmapply.MustTempalteAsset(reader, o.values, "", filepath.Join(scenarioDirectory, "hub", o.cloud, "install_config.yaml"))
 	if err != nil {
 		return err
@@ -155,25 +158,31 @@ func (o *Options) runWithClient(kubeClient kubernetes.Interface,
 	o.values["installConfig"] = valueic
 
 	files = []string{
-
 		"create/hub/common/creds_secret_cr.yaml",
 		"create/hub/common/install_config_secret_cr.yaml",
-		"create/hub/common/klusterlet_addon_config_cr.yaml",
 		"create/hub/common/machinepool_cr.yaml",
 		"create/hub/common/pull_secret_cr.yaml",
 		"create/hub/common/ssh_private_key_secret_cr.yaml",
 		"create/hub/common/vsphere_ca_cert_secret_cr.yaml",
 		"create/hub/common/clusterimageset_cr.yaml",
-	}
-
-	files = append(files,
 		"create/hub/common/cluster_deployment_cr.yaml",
-		"create/hub/common/managed_cluster_cr.yaml")
+	}
 
 	out, err = clusteradmapply.ApplyCustomResouces(dynamicClient, discoveryClient, reader, o.values, o.CMFlags.DryRun, "create/hub/common/_helpers.tpl", files...)
 	if err != nil {
 		return err
 	}
+	output = append(output, out...)
+
+	files = []string{
+		"attach/hub/managed_cluster_cr.yaml",
+		"attach/hub/klusterlet_addon_config_cr.yaml",
+	}
+	out, err = clusteradmapply.ApplyCustomResouces(dynamicClient, discoveryClient, attachreader, o.values, o.CMFlags.DryRun, "", files...)
+	if err != nil {
+		return err
+	}
+
 	output = append(output, out...)
 	return clusteradmapply.WriteOutput(o.outputFile, output)
 }
