@@ -4,6 +4,7 @@ package cluster
 import (
 	"bytes"
 	"context"
+	"fmt"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -314,7 +315,10 @@ func TestOptions_runWithClient(t *testing.T) {
 	}
 	defer os.RemoveAll(dir)
 	generatedImportFileName := filepath.Join(dir, "import.yaml")
-	resultImportFileName := filepath.Join(testDir, "import_result.yaml")
+	generatedImportFileNameCRD := fmt.Sprintf("%s_crd.yaml", generatedImportFileName)
+	resultImportFileNameCRD := filepath.Join(testDir, "import_result.yaml_crd.yaml")
+	generatedImportFileNameYAML := fmt.Sprintf("%s_yaml.yaml", generatedImportFileName)
+	resultImportFileNameYAML := filepath.Join(testDir, "import_result.yaml_yaml.yaml")
 	importSecret := &corev1.Secret{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "test-import",
@@ -406,19 +410,31 @@ func TestOptions_runWithClient(t *testing.T) {
 				if err != nil {
 					t.Error(err)
 				}
-				//TO DO add test on exists managedcluster
-				generatedImportFile, err := ioutil.ReadFile(generatedImportFileName)
+				generatedImportFileCRD, err := ioutil.ReadFile(generatedImportFileNameCRD)
 				if err != nil {
 					t.Error(err)
 				}
-				resultImportFile, err := ioutil.ReadFile(resultImportFileName)
+				resultImportFileCRD, err := ioutil.ReadFile(resultImportFileNameCRD)
 				if err != nil {
 					t.Error(err)
 				}
-				if !bytes.Equal(generatedImportFile, resultImportFile) {
+				if !bytes.Equal(generatedImportFileCRD, resultImportFileCRD) {
 					t.Errorf("expected import file doesn't match expected got: \n%s\n expected:\n%s\n",
-						string(generatedImportFile),
-						string(resultImportFile))
+						string(generatedImportFileCRD),
+						string(resultImportFileCRD))
+				}
+				generatedImportFileYAML, err := ioutil.ReadFile(generatedImportFileNameYAML)
+				if err != nil {
+					t.Error(err)
+				}
+				resultImportFileYAML, err := ioutil.ReadFile(resultImportFileNameYAML)
+				if err != nil {
+					t.Error(err)
+				}
+				if !bytes.Equal(generatedImportFileYAML, resultImportFileYAML) {
+					t.Errorf("expected import file doesn't match expected got: \n%s\n expected:\n%s\n",
+						string(generatedImportFileYAML),
+						string(resultImportFileYAML))
 				}
 			}
 
