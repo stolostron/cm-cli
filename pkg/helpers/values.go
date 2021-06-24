@@ -3,6 +3,7 @@
 package helpers
 
 import (
+	"fmt"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -36,6 +37,11 @@ func ConvertValuesFileToValuesMap(path, prefix string) (values map[string]interf
 	valuesc := make(map[string]interface{})
 	err = yaml.Unmarshal(b, &valuesc)
 	if err != nil {
+		if path != "" {
+			fmt.Printf("Error while unmarshaling stdin or values file %s\n", path)
+		} else {
+			fmt.Printf("Error while unmarshaling stdin:\n%s\n", string(b))
+		}
 		return nil, err
 	}
 
