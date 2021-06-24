@@ -77,7 +77,7 @@ func main() {
 				attach.NewCmd(cmFlags, streams),
 				detach.NewCmd(cmFlags, streams),
 				create.NewCmd(cmFlags, streams),
-				delete.NewCmd(cmFlags, streams),
+				delete.NewCmd(clusteradmFlags, cmFlags, streams),
 				scale.NewCmd(cmFlags, streams),
 				enable.NewCmd(cmFlags, streams),
 				get.NewCmd(clusteradmFlags, cmFlags, streams),

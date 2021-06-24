@@ -19,9 +19,10 @@ require (
 	k8s.io/apiextensions-apiserver v0.21.1
 	k8s.io/apimachinery v0.21.1
 	k8s.io/cli-runtime v0.21.1
-	k8s.io/client-go v1.5.2
+	k8s.io/client-go v0.21.1
 	k8s.io/component-base v0.21.1
+	k8s.io/klog/v2 v2.8.0
 	k8s.io/kubectl v0.21.1
 	open-cluster-management.io/api v0.0.0-20210607023841-cd164385e2bb
-	open-cluster-management.io/clusteradm v0.1.0-alpha.3
+	open-cluster-management.io/clusteradm v0.1.0-alpha.3.0.20210624093812-dd97fd13ae3e
 )
