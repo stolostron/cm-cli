@@ -377,7 +377,7 @@ func TestOptions_runWithClient(t *testing.T) {
 				values:      tt.fields.values,
 				outputFile:  tt.fields.outputFile,
 			}
-			if err := o.runWithClient(tt.args.kubeClient, tt.args.dynamicClient, tt.args.apiextensionsClient, tt.args.discoveryClient); (err != nil) != tt.wantErr {
+			if err := o.runWithClient(tt.args.kubeClient, tt.args.apiextensionsClient, tt.args.dynamicClient); (err != nil) != tt.wantErr {
 				t.Errorf("Options.runWithClient() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})

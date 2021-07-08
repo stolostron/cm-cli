@@ -1,6 +1,9 @@
 [comment]: # ( Copyright Contributors to the Open Cluster Management project )
 # Release Content
 
+# Technical Preview
+- `create cphs`, `get cphs` : [Create a command to register to clusterpool hosts](https://github.com/open-cluster-management/cm-cli/issues/43)
+- `use <clusterName>` : [](https://github.com/open-cluster-management/cm-cli/issues/32)
 ### Additions
 - Add the command `delete token` from [clusteradm](https://github.com/open-cluster-management-io/clusteradm)
 ### Breacking changes

@@ -20,17 +20,17 @@ import (
 
 	genericclioptionsclusteradm "open-cluster-management.io/clusteradm/pkg/genericclioptions"
 
-	clusteradmaccept "open-cluster-management.io/clusteradm/pkg/cmd/accept"
-	clusteradminit "open-cluster-management.io/clusteradm/pkg/cmd/init"
-	clusteradmjoin "open-cluster-management.io/clusteradm/pkg/cmd/join"
-
+	"github.com/open-cluster-management/cm-cli/pkg/cmd/accept"
 	"github.com/open-cluster-management/cm-cli/pkg/cmd/attach"
 	"github.com/open-cluster-management/cm-cli/pkg/cmd/create"
 	"github.com/open-cluster-management/cm-cli/pkg/cmd/delete"
 	"github.com/open-cluster-management/cm-cli/pkg/cmd/detach"
 	"github.com/open-cluster-management/cm-cli/pkg/cmd/enable"
 	"github.com/open-cluster-management/cm-cli/pkg/cmd/get"
+	"github.com/open-cluster-management/cm-cli/pkg/cmd/initialization"
+	"github.com/open-cluster-management/cm-cli/pkg/cmd/join"
 	"github.com/open-cluster-management/cm-cli/pkg/cmd/scale"
+	"github.com/open-cluster-management/cm-cli/pkg/cmd/use"
 	"github.com/open-cluster-management/cm-cli/pkg/cmd/version"
 )
 
@@ -81,14 +81,20 @@ func main() {
 				scale.NewCmd(cmFlags, streams),
 				enable.NewCmd(cmFlags, streams),
 				get.NewCmd(clusteradmFlags, cmFlags, streams),
+				initialization.NewCmd(clusteradmFlags, cmFlags, streams),
 			},
 		},
 		{
 			Message: "Registration commands:",
 			Commands: []*cobra.Command{
-				clusteradminit.NewCmd(clusteradmFlags, streams),
-				clusteradmjoin.NewCmd(clusteradmFlags, streams),
-				clusteradmaccept.NewCmd(clusteradmFlags, streams),
+				join.NewCmd(clusteradmFlags, cmFlags, streams),
+				accept.NewCmd(clusteradmFlags, cmFlags, streams),
+			},
+		},
+		{
+			Message: "cluster pools commands:",
+			Commands: []*cobra.Command{
+				use.NewCmd(cmFlags, streams),
 			},
 		},
 	}

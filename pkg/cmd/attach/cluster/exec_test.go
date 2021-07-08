@@ -18,7 +18,6 @@ import (
 	"github.com/spf13/cobra"
 	apiextensionsclient "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset"
 	fakeapiextensionsclient "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset/fake"
-	"k8s.io/client-go/discovery"
 	fakediscovery "k8s.io/client-go/discovery/fake"
 	"k8s.io/client-go/dynamic"
 	fakedynamic "k8s.io/client-go/dynamic/fake"
@@ -370,7 +369,6 @@ func TestOptions_runWithClient(t *testing.T) {
 		kubeClient          kubernetes.Interface
 		dynamicClient       dynamic.Interface
 		apiextensionsClient apiextensionsclient.Interface
-		discoveryClient     discovery.DiscoveryInterface
 	}
 	tests := []struct {
 		name    string
@@ -388,7 +386,6 @@ func TestOptions_runWithClient(t *testing.T) {
 			},
 			args: args{
 				kubeClient:          kubeClient,
-				discoveryClient:     discoveryClient,
 				apiextensionsClient: apiextensionsClient,
 				dynamicClient:       dynamicClient,
 			},
@@ -403,7 +400,7 @@ func TestOptions_runWithClient(t *testing.T) {
 				clusterName: tt.fields.clusterName,
 				importFile:  tt.fields.importFile,
 			}
-			if err := o.runWithClient(tt.args.kubeClient, tt.args.dynamicClient, tt.args.apiextensionsClient, tt.args.discoveryClient); (err != nil) != tt.wantErr {
+			if err := o.runWithClient(tt.args.kubeClient, tt.args.apiextensionsClient, tt.args.dynamicClient); (err != nil) != tt.wantErr {
 				t.Errorf("Options.runWithClient() error = %v, wantErr %v", err, tt.wantErr)
 			} else {
 				_, err := tt.args.kubeClient.CoreV1().Namespaces().Get(context.TODO(), "test", metav1.GetOptions{})

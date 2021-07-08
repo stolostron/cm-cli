@@ -6,18 +6,17 @@ import (
 	"fmt"
 	"path/filepath"
 
+	clusteradmhelpers "open-cluster-management.io/clusteradm/pkg/helpers"
 	clusteradmapply "open-cluster-management.io/clusteradm/pkg/helpers/apply"
 
 	attachscenario "github.com/open-cluster-management/cm-cli/pkg/cmd/attach/cluster/scenario"
 	"github.com/open-cluster-management/cm-cli/pkg/cmd/create/cluster/scenario"
 	"github.com/open-cluster-management/cm-cli/pkg/helpers"
-	"github.com/openshift/library-go/pkg/operator/resource/resourceapply"
 	apiextensionsclient "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	"github.com/ghodss/yaml"
 
-	"k8s.io/client-go/discovery"
 	"k8s.io/client-go/dynamic"
 	"k8s.io/client-go/kubernetes"
 
@@ -78,33 +77,16 @@ func (o *Options) validate() (err error) {
 }
 
 func (o *Options) run() error {
-	kubeClient, err := o.CMFlags.KubectlFactory.KubernetesClientSet()
+	kubeClient, apiextensionsClient, dynamicClient, err := clusteradmhelpers.GetClients(o.CMFlags.KubectlFactory)
 	if err != nil {
 		return err
 	}
-	dynamicClient, err := o.CMFlags.KubectlFactory.DynamicClient()
-	if err != nil {
-		return err
-	}
-	restConfig, err := o.CMFlags.KubectlFactory.ToRESTConfig()
-	if err != nil {
-		return err
-	}
-	apiextensionsClient, err := apiextensionsclient.NewForConfig(restConfig)
-	if err != nil {
-		return err
-	}
-	discoveryClient, err := o.CMFlags.KubectlFactory.ToDiscoveryClient()
-	if err != nil {
-		return err
-	}
-	return o.runWithClient(kubeClient, dynamicClient, apiextensionsClient, discoveryClient)
+	return o.runWithClient(kubeClient, apiextensionsClient, dynamicClient)
 }
 
 func (o *Options) runWithClient(kubeClient kubernetes.Interface,
-	dynamicClient dynamic.Interface,
 	apiextensionsClient apiextensionsclient.Interface,
-	discoveryClient discovery.DiscoveryInterface) (err error) {
+	dynamicClient dynamic.Interface) (err error) {
 	output := make([]string, 0)
 	pullSecret, err := kubeClient.CoreV1().Secrets("openshift-config").Get(
 		context.TODO(),
@@ -129,8 +111,10 @@ func (o *Options) runWithClient(kubeClient kubernetes.Interface,
 
 	reader := scenario.GetScenarioResourcesReader()
 	attachreader := attachscenario.GetScenarioResourcesReader()
+	applierBuilder := &clusteradmapply.ApplierBuilder{}
+	applier := applierBuilder.WithClient(kubeClient, apiextensionsClient, dynamicClient).Build()
 
-	installConfig, err := clusteradmapply.MustTempalteAsset(reader, o.values, "", filepath.Join(scenarioDirectory, "hub", o.cloud, "install_config.yaml"))
+	installConfig, err := applier.MustTempalteAsset(reader, o.values, "", filepath.Join(scenarioDirectory, "hub", o.cloud, "install_config.yaml"))
 	if err != nil {
 		return err
 	}
@@ -145,12 +129,7 @@ func (o *Options) runWithClient(kubeClient kubernetes.Interface,
 		"create/hub/common/namespace.yaml",
 	}
 
-	clientHolder := resourceapply.NewClientHolder().
-		WithAPIExtensionsClient(apiextensionsClient).
-		WithKubernetes(kubeClient).
-		WithDynamicClient(dynamicClient)
-
-	out, err := clusteradmapply.ApplyDirectly(clientHolder, reader, o.values, o.CMFlags.DryRun, "", files...)
+	out, err := applier.ApplyDirectly(reader, o.values, o.CMFlags.DryRun, "", files...)
 	if err != nil {
 		return err
 	}
@@ -168,7 +147,7 @@ func (o *Options) runWithClient(kubeClient kubernetes.Interface,
 		"create/hub/common/cluster_deployment_cr.yaml",
 	}
 
-	out, err = clusteradmapply.ApplyCustomResouces(dynamicClient, discoveryClient, reader, o.values, o.CMFlags.DryRun, "create/hub/common/_helpers.tpl", files...)
+	out, err = applier.ApplyCustomResouces(reader, o.values, o.CMFlags.DryRun, "create/hub/common/_helpers.tpl", files...)
 	if err != nil {
 		return err
 	}
@@ -178,7 +157,7 @@ func (o *Options) runWithClient(kubeClient kubernetes.Interface,
 		"attach/hub/managed_cluster_cr.yaml",
 		"attach/hub/klusterlet_addon_config_cr.yaml",
 	}
-	out, err = clusteradmapply.ApplyCustomResouces(dynamicClient, discoveryClient, attachreader, o.values, o.CMFlags.DryRun, "", files...)
+	out, err = applier.ApplyCustomResouces(attachreader, o.values, o.CMFlags.DryRun, "", files...)
 	if err != nil {
 		return err
 	}

@@ -8,15 +8,17 @@ import (
 	"testing"
 
 	corev1 "k8s.io/api/core/v1"
+	apiextensionsclient "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	"github.com/open-cluster-management/cm-cli/pkg/genericclioptions"
 	"github.com/open-cluster-management/cm-cli/pkg/helpers"
 	"github.com/spf13/cobra"
-	"k8s.io/client-go/discovery"
+	fakeapiextensionsclient "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset/fake"
 	fakediscovery "k8s.io/client-go/discovery/fake"
 	"k8s.io/client-go/dynamic"
 	fakedynamic "k8s.io/client-go/dynamic/fake"
+	"k8s.io/client-go/kubernetes"
 	fakekubernetes "k8s.io/client-go/kubernetes/fake"
 	"k8s.io/kubectl/pkg/scheme"
 )
@@ -204,6 +206,7 @@ func TestOptions_runWithClient(t *testing.T) {
 	s := scheme.Scheme
 	kubeClient := fakekubernetes.NewSimpleClientset(importSecret)
 	dynamicClient := fakedynamic.NewSimpleDynamicClient(s)
+	apiExtensionsClient := fakeapiextensionsclient.NewSimpleClientset()
 	discoveryClient := kubeClient.Discovery()
 	discoveryClient.(*fakediscovery.FakeDiscovery).Resources = []*metav1.APIResourceList{
 		{
@@ -233,8 +236,9 @@ func TestOptions_runWithClient(t *testing.T) {
 		clusterName string
 	}
 	type args struct {
-		dynamicClient   dynamic.Interface
-		discoveryClient discovery.DiscoveryInterface
+		kubeClient          kubernetes.Interface
+		apiExtensionsClient apiextensionsclient.Interface
+		dynamicClient       dynamic.Interface
 	}
 	tests := []struct {
 		name    string
@@ -250,8 +254,9 @@ func TestOptions_runWithClient(t *testing.T) {
 				clusterName: "test",
 			},
 			args: args{
-				discoveryClient: discoveryClient,
-				dynamicClient:   dynamicClient,
+				kubeClient:          kubeClient,
+				apiExtensionsClient: apiExtensionsClient,
+				dynamicClient:       dynamicClient,
 			},
 			wantErr: false,
 		},
@@ -263,7 +268,7 @@ func TestOptions_runWithClient(t *testing.T) {
 				values:      tt.fields.values,
 				clusterName: tt.fields.clusterName,
 			}
-			if err := o.runWithClient(tt.args.dynamicClient, tt.args.discoveryClient); (err != nil) != tt.wantErr {
+			if err := o.runWithClient(tt.args.kubeClient, tt.args.apiExtensionsClient, tt.args.dynamicClient); (err != nil) != tt.wantErr {
 				t.Errorf("Options.runWithClient() error = %v, wantErr %v", err, tt.wantErr)
 			}
 

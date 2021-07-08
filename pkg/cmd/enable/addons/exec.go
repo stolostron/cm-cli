@@ -4,9 +4,10 @@ package addons
 import (
 	"fmt"
 
-	"k8s.io/client-go/discovery"
+	apiextensionsclient "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset"
 	"k8s.io/client-go/dynamic"
 	"k8s.io/client-go/kubernetes"
+	clusteradmhelpers "open-cluster-management.io/clusteradm/pkg/helpers"
 	clusteradmapply "open-cluster-management.io/clusteradm/pkg/helpers/apply"
 
 	attachscenario "github.com/open-cluster-management/cm-cli/pkg/cmd/attach/cluster/scenario"
@@ -81,19 +82,17 @@ func (o *Options) validateWithClient(kubeClient kubernetes.Interface, dynamicCli
 }
 
 func (o *Options) run() (err error) {
-	dynamicClient, err := o.CMFlags.KubectlFactory.DynamicClient()
+	kubeClient, apiExtensionsClient, dynamicClient, err := clusteradmhelpers.GetClients(o.CMFlags.KubectlFactory)
 	if err != nil {
 		return err
 	}
-	discoveryClient, err := o.CMFlags.KubectlFactory.ToDiscoveryClient()
-	if err != nil {
-		return err
-	}
-	return o.runWithClient(dynamicClient, discoveryClient)
+	return o.runWithClient(kubeClient, apiExtensionsClient, dynamicClient)
 }
 
-func (o *Options) runWithClient(dynamicClient dynamic.Interface,
-	discoveryClient discovery.DiscoveryInterface) (err error) {
+func (o *Options) runWithClient(
+	kubeClient kubernetes.Interface,
+	apiExtensionsClient apiextensionsclient.Interface,
+	dynamicClient dynamic.Interface) (err error) {
 	output := make([]string, 0)
 	reader := attachscenario.GetScenarioResourcesReader()
 
@@ -101,7 +100,9 @@ func (o *Options) runWithClient(dynamicClient dynamic.Interface,
 		"attach/hub/klusterlet_addon_config_cr.yaml",
 	}
 
-	out, err := clusteradmapply.ApplyCustomResouces(dynamicClient, discoveryClient, reader, o.values, o.CMFlags.DryRun, "", files...)
+	applierBuilder := &clusteradmapply.ApplierBuilder{}
+	applier := applierBuilder.WithClient(kubeClient, apiExtensionsClient, dynamicClient).Build()
+	out, err := applier.ApplyCustomResouces(reader, o.values, o.CMFlags.DryRun, "", files...)
 	if err != nil {
 		return err
 	}
