@@ -14,7 +14,7 @@ import (
 
 var example = `
 # Use a cluster
-%[1]s use cluster
+%[1]s use <cluster_claim_name> [<cluster_pool_host_name>]
 `
 
 // NewCmd provides a cobra command for using a cluster claim
@@ -23,6 +23,7 @@ func NewCmd(cmFlags *genericclioptionscm.CMFlags, streams genericclioptions.IOSt
 	cmd := &cobra.Command{
 		Use:          "use",
 		Short:        "use change the current context to a cluster claim",
+		Long:         "use change the current context to a cluster claim, optionally the cluster pool host can be provided to override the current one",
 		Example:      fmt.Sprintf(example, helpers.GetExampleHeader()),
 		SilenceUsage: true,
 		PreRunE: func(c *cobra.Command, args []string) error {

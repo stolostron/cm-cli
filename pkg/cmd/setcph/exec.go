@@ -12,7 +12,7 @@ func (o *Options) complete(cmd *cobra.Command, args []string) (err error) {
 	if len(args) < 1 {
 		return fmt.Errorf("clusterpoolcph name is missing")
 	}
-	o.ClusterHostPool = args[0]
+	o.ClusterPoolHost = args[0]
 	return nil
 }
 
@@ -26,7 +26,7 @@ func (o *Options) run() (err error) {
 		return err
 	}
 
-	cph, err := cphs.GetClusterPoolHost(o.ClusterHostPool)
+	cph, err := cphs.GetClusterPoolHost(o.ClusterPoolHost)
 	if err != nil {
 		return err
 	}

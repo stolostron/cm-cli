@@ -171,6 +171,15 @@ func (cs *ClusterPoolHosts) SetActive(c *ClusterPoolHost) error {
 	return cs.ApplyClusterPoolHosts()
 }
 
+func (cs *ClusterPoolHosts) GetCurrentClusterPoolHost() (*ClusterPoolHost, error) {
+	for _, c := range cs.ClusterPoolHosts {
+		if c.IsActive() {
+			return c, nil
+		}
+	}
+	return nil, fmt.Errorf("active cluster pool host not found")
+}
+
 func (c *ClusterPoolHost) AddClusterPoolHost() error {
 	cs, err := GetClusterPoolHosts()
 	if err != nil {
@@ -198,10 +207,5 @@ func GetCurrentClusterPoolHost() (*ClusterPoolHost, error) {
 	if err != nil {
 		return nil, err
 	}
-	for _, c := range cs.ClusterPoolHosts {
-		if c.IsActive() {
-			return c, nil
-		}
-	}
-	return nil, fmt.Errorf("active cluster pool host not found")
+	return cs.GetCurrentClusterPoolHost()
 }

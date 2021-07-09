@@ -9,7 +9,8 @@ import (
 type Options struct {
 	//CMFlags: The generic optiosn from the cm cli-runtime.
 	CMFlags         *genericclioptionscm.CMFlags
-	ClusterHostPool string
+	Cluster         string
+	ClusterPoolHost string
 	//The file to output the resources will be sent to the file.
 	outputFile string
 }

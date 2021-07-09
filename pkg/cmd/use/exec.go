@@ -12,7 +12,10 @@ func (o *Options) complete(cmd *cobra.Command, args []string) (err error) {
 	if len(args) < 1 {
 		return fmt.Errorf("clustername is missing")
 	}
-	o.ClusterHostPool = args[0]
+	o.Cluster = args[0]
+	if len(args) > 1 {
+		o.ClusterPoolHost = args[1]
+	}
 	return nil
 }
 
@@ -21,5 +24,34 @@ func (o *Options) validate() error {
 }
 
 func (o *Options) run() (err error) {
-	return clusterpoolhost.VerifyContext(o.ClusterHostPool, o.CMFlags.DryRun, o.outputFile)
+	cphs, err := clusterpoolhost.GetClusterPoolHosts()
+	if err != nil {
+		return err
+	}
+
+	currentCph, err := cphs.GetCurrentClusterPoolHost()
+	if err != nil {
+		return err
+	}
+
+	if len(o.ClusterPoolHost) != 0 {
+		cph, err := cphs.GetClusterPoolHost(o.ClusterPoolHost)
+		if err != nil {
+			return err
+		}
+
+		err = cphs.SetActive(cph)
+		if err != nil {
+			return err
+		}
+	}
+	err = clusterpoolhost.VerifyContext(o.Cluster, o.CMFlags.DryRun, o.outputFile)
+	if err != nil {
+		return err
+	}
+
+	if len(o.ClusterPoolHost) != 0 {
+		return cphs.SetActive(currentCph)
+	}
+	return nil
 }
