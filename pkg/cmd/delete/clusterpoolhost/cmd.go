@@ -1,5 +1,5 @@
 // Copyright Contributors to the Open Cluster Management project
-package use
+package clusterpoolhost
 
 import (
 	"fmt"
@@ -13,16 +13,22 @@ import (
 )
 
 var example = `
-# Use a cluster
-%[1]s use cluster
+# Get cluster pool hosts
+%[1]s delete clusterpoolhosts
 `
 
-// NewCmd provides a cobra command for using a cluster claim
+const (
+	scenarioDirectory = "clusterpoolhoss"
+)
+
+// NewCmd provides a cobra command wrapping NewCmdImportCluster
 func NewCmd(cmFlags *genericclioptionscm.CMFlags, streams genericclioptions.IOStreams) *cobra.Command {
 	o := newOptions(cmFlags, streams)
+
 	cmd := &cobra.Command{
-		Use:          "use",
-		Short:        "use change the current context to a cluster claim",
+		Use:          "clusterpoolhost",
+		Aliases:      []string{"cph"},
+		Short:        "delete clusterpoolhost",
 		Example:      fmt.Sprintf(example, helpers.GetExampleHeader()),
 		SilenceUsage: true,
 		PreRunE: func(c *cobra.Command, args []string) error {

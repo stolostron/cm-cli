@@ -9,7 +9,6 @@ import (
 	"net/url"
 	"os"
 	"path/filepath"
-	"strings"
 
 	"k8s.io/client-go/rest"
 
@@ -45,38 +44,11 @@ type ClusterPoolHost struct {
 	Group string `json:"group"`
 }
 
-type ClusterPoolHostError struct {
-	Name string
-	Err  error
-}
-
 type ErrorType string
 
 const (
 	errorNotFound ErrorType = "not found"
 )
-
-func IsNotFound(err error) bool {
-	if err == nil {
-		return false
-	}
-	switch v := err.(type) {
-	case *ClusterPoolHostError:
-		return strings.Contains(v.Err.Error(), string(errorNotFound))
-	}
-	return false
-}
-
-func (err *ClusterPoolHostError) Error() string {
-	return err.Name + ":" + err.Err.Error()
-}
-
-func newError(name string, err error) *ClusterPoolHostError {
-	return &ClusterPoolHostError{
-		Name: name,
-		Err:  err,
-	}
-}
 
 func (c *ClusterPoolHost) WhoAmI(restConfig *rest.Config) (*userv1.User, error) {
 	userInterface, err := userv1typedclient.NewForConfig(restConfig)
@@ -138,7 +110,7 @@ func GetClusterPoolHost(clusterPoolHostName string) (*ClusterPoolHost, error) {
 	if c, ok := cphs.ClusterPoolHosts[clusterPoolHostName]; ok {
 		return c, nil
 	}
-	return nil, newError(clusterPoolHostName, fmt.Errorf("%s", errorNotFound))
+	return nil, fmt.Errorf("%s %s", clusterPoolHostName, errorNotFound)
 }
 
 func (cs *ClusterPoolHosts) ApplyClusterPoolHosts() error {
@@ -158,11 +130,11 @@ func (cs *ClusterPoolHosts) ApplyClusterPoolHosts() error {
 	return ioutil.WriteFile(fileName, b, 0600)
 }
 
-func (cs *ClusterPoolHosts) GetClusterPoolHost(name string) (*ClusterPoolHost, *ClusterPoolHostError) {
+func (cs *ClusterPoolHosts) GetClusterPoolHost(name string) (*ClusterPoolHost, error) {
 	if c, ok := cs.ClusterPoolHosts[name]; ok {
 		return c, nil
 	}
-	return nil, newError(name, fmt.Errorf("cluster pool host not found"))
+	return nil, fmt.Errorf("cluster pool host %s not found", name)
 }
 
 func (cs *ClusterPoolHosts) RawPrint() error {
@@ -199,13 +171,22 @@ func (cs *ClusterPoolHosts) SetActive(c *ClusterPoolHost) error {
 	return cs.ApplyClusterPoolHosts()
 }
 
-func (c *ClusterPoolHost) AddClusterPoolHost(current bool) error {
+func (c *ClusterPoolHost) AddClusterPoolHost() error {
 	cs, err := GetClusterPoolHosts()
 	if err != nil {
 		return err
 	}
 	cs.ClusterPoolHosts[c.Name] = c
-	return cs.SetActive(c)
+	return cs.ApplyClusterPoolHosts()
+}
+
+func (c *ClusterPoolHost) DeleteClusterPoolHost() error {
+	cs, err := GetClusterPoolHosts()
+	if err != nil {
+		return err
+	}
+	delete(cs.ClusterPoolHosts, c.Name)
+	return cs.ApplyClusterPoolHosts()
 }
 
 func (c *ClusterPoolHost) IsActive() bool {
@@ -222,5 +203,5 @@ func GetCurrentClusterPoolHost() (*ClusterPoolHost, error) {
 			return c, nil
 		}
 	}
-	return nil, newError("", fmt.Errorf("active cluster pool host not found"))
+	return nil, fmt.Errorf("active cluster pool host not found")
 }

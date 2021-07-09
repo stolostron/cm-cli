@@ -59,14 +59,19 @@ func (o *Options) initclusterpoolhost() error {
 		Group:     o.ClusterPoolHost.Group,
 		Namespace: o.ClusterPoolHost.Namespace,
 	}
-	//Update the clusterpoolhostfile
-	err := cph.AddClusterPoolHost(true)
+	err := cph.VerifyContext(o.CMFlags.DryRun, o.outputFile)
 	if err != nil {
 		return err
 	}
-	err = cph.VerifyContext(o.CMFlags.DryRun, o.outputFile)
+	cphs, err := clusterpoolhost.GetClusterPoolHosts()
 	if err != nil {
 		return err
 	}
-	return nil
+
+	cph, err = cphs.GetClusterPoolHost(o.ClusterPoolHost.Name)
+	if err != nil {
+		return err
+	}
+
+	return cphs.SetActive(cph)
 }

@@ -30,7 +30,9 @@ import (
 	"github.com/open-cluster-management/cm-cli/pkg/cmd/initialization"
 	"github.com/open-cluster-management/cm-cli/pkg/cmd/join"
 	"github.com/open-cluster-management/cm-cli/pkg/cmd/scale"
+	"github.com/open-cluster-management/cm-cli/pkg/cmd/setcph"
 	"github.com/open-cluster-management/cm-cli/pkg/cmd/use"
+	"github.com/open-cluster-management/cm-cli/pkg/cmd/usecph"
 	"github.com/open-cluster-management/cm-cli/pkg/cmd/version"
 )
 
@@ -95,6 +97,8 @@ func main() {
 			Message: "cluster pools commands:",
 			Commands: []*cobra.Command{
 				use.NewCmd(cmFlags, streams),
+				usecph.NewCmd(cmFlags, streams),
+				setcph.NewCmd(cmFlags, streams),
 			},
 		},
 	}

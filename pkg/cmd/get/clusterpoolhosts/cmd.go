@@ -3,9 +3,7 @@ package clusterpoolhosts
 
 import (
 	"fmt"
-	"path/filepath"
 
-	"github.com/open-cluster-management/cm-cli/pkg/cmd/attach/cluster/scenario"
 	genericclioptionscm "github.com/open-cluster-management/cm-cli/pkg/genericclioptions"
 	"github.com/open-cluster-management/cm-cli/pkg/helpers"
 	clusteradmhelpers "open-cluster-management.io/clusteradm/pkg/helpers"
@@ -20,11 +18,8 @@ var example = `
 `
 
 const (
-	scenarioDirectory = "clusterpoolhoss"
+	scenarioDirectory = "clusterpoolhost"
 )
-
-var valuesTemplatePath = filepath.Join(scenarioDirectory, "values-template.yaml")
-var valuesDefaultPath = filepath.Join(scenarioDirectory, "values-default.yaml")
 
 // NewCmd provides a cobra command wrapping NewCmdImportCluster
 func NewCmd(cmFlags *genericclioptionscm.CMFlags, streams genericclioptions.IOStreams) *cobra.Command {
@@ -55,7 +50,6 @@ func NewCmd(cmFlags *genericclioptionscm.CMFlags, streams genericclioptions.IOSt
 		},
 	}
 
-	cmd.SetUsageTemplate(clusteradmhelpers.UsageTempate(cmd, scenario.GetScenarioResourcesReader(), valuesTemplatePath))
 	cmd.Flags().BoolVar(&o.raw, "raw", false, "If set return a raw display")
 	return cmd
 }

@@ -79,7 +79,7 @@ func (c *ClusterPoolHost) setupClusterPool(
 	}
 
 	//Update the clusterpoolhostfile
-	err = c.AddClusterPoolHost(true)
+	err = c.AddClusterPoolHost()
 	if err != nil {
 		return err
 	}
@@ -317,10 +317,6 @@ func (c *ClusterPoolHost) CreateClusterPoolContext(token, serviceAccountName str
 
 	//Move ClusterPool context
 	return MoveContextToDefault(currentContext.CurrentContext, c.GetContextName(), c.Namespace, serviceAccountName, token)
-	// if err != nil {
-	// 	return err
-	// }
-	// return SetCurrentContext(c.GetContextName())
 }
 
 func CreateClusterClaimContext(configAPI *clientcmdapi.Config, token, clusterName, user string) error {

@@ -1,5 +1,5 @@
 // Copyright Contributors to the Open Cluster Management project
-package use
+package setcph
 
 import (
 	genericclioptionscm "github.com/open-cluster-management/cm-cli/pkg/genericclioptions"

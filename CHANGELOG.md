@@ -2,8 +2,8 @@
 # Release Content
 
 # Technical Preview
-- `create cphs`, `get cphs` : [Create a command to register to clusterpool hosts](https://github.com/open-cluster-management/cm-cli/issues/43)
-- `use <clusterName>` : [](https://github.com/open-cluster-management/cm-cli/issues/32)
+- `create cph`, `get cphs`, `delete cph`, `use-cph`, `set-cph` : [Create a command to register to clusterpool hosts](https://github.com/open-cluster-management/cm-cli/issues/43)
+- `use <clusterName>` : [Create a ck use like command](https://github.com/open-cluster-management/cm-cli/issues/32)
 ### Additions
 - Add the command `delete token` from [clusteradm](https://github.com/open-cluster-management-io/clusteradm)
 ### Breacking changes

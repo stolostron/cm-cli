@@ -1,5 +1,5 @@
 // Copyright Contributors to the Open Cluster Management project
-package use
+package usecph
 
 import (
 	"fmt"
@@ -14,15 +14,15 @@ import (
 
 var example = `
 # Use a cluster
-%[1]s use cluster
+%[1]s use-cph clusterpoolhost
 `
 
-// NewCmd provides a cobra command for using a cluster claim
+// NewCmd provides a cobra command to use a clusterpoolhost
 func NewCmd(cmFlags *genericclioptionscm.CMFlags, streams genericclioptions.IOStreams) *cobra.Command {
 	o := newOptions(cmFlags, streams)
 	cmd := &cobra.Command{
-		Use:          "use",
-		Short:        "use change the current context to a cluster claim",
+		Use:          "use-cph",
+		Short:        "use-cph change the current context to a clusterpoolhost",
 		Example:      fmt.Sprintf(example, helpers.GetExampleHeader()),
 		SilenceUsage: true,
 		PreRunE: func(c *cobra.Command, args []string) error {

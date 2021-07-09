@@ -12,15 +12,19 @@ A clusterpoolhost can be created using the command `cm create clusterpoolhost|cp
 
 The list of clusterpoolhosts can be retreived by calling the command `cm get clusterpoolhosts|cphs <options>`.
 
-The list of clusterpoolhosts is maintained in the `./kube/known-cphs`.
+The list of clusterpoolhosts is maintained in the `~/.kube/known-cphs`.
 
-Once the clusterpoolhost is created, the `./kube/config` is updated with a context pointing to that cluster and the clusterpoolhost is set as the current one.
+Delete a clusterpoolhosts can be acheived by runnig `cm delete clusterpoolhost|cph <clusterpoolhost_name>`.
+
+Set a clusterpoolhost active or current with `cm set-cph <clusterpoolhost_name>`. Setting as active means the CLI will used it to find a cluster claims attached to that clusterpoolhost.
+
+Once the clusterpoolhost is created, the `~/.kube/config` is updated with a context pointing to that cluster and the clusterpoolhost is set as the current one.
 
 ## Use a clusterpoolhost
 
-`cm use <clusterpoolhost_name>` updates the `./kube/config` to point to that cluster.
+`cm use-cph <clusterpoolhost_name>` updates the `~/.kube/config` to point to that cluster.
 
-## Use a cluster clainm managed by a clusterpoolhost
+## Use a cluster claim managed by a clusterpoolhost
 
 First, the clusterpoolhost which manage the cluster claim must be the current one. This can be done by using the command `cm use <clusterpoolhost_name>`
 
