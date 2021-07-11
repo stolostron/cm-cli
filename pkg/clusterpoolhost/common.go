@@ -64,12 +64,16 @@ func (c *ClusterPoolHost) CreateContext(
 func (c *ClusterPoolHost) setupClusterPool(
 	dryRun bool,
 	outputFile string) error {
-	inGlobal, err := FindConfigAPIByAPIServer(c.GetContextName(), c.APIServer)
+	isGlobal := true
+	err := SetCPHContext(c.GetContextName())
 	if err != nil {
-		return fmt.Errorf("please login on %s", c.APIServer)
+		isGlobal, err = findConfigAPIByAPIServer(c.GetContextName(), c.APIServer)
+		if err != nil {
+			return fmt.Errorf("please login on %s", c.APIServer)
+		}
 	}
 	var clusterPoolRestConfig *rest.Config
-	if inGlobal {
+	if isGlobal {
 		clusterPoolRestConfig, err = GetGlobalCurrentRestConfig()
 	} else {
 		clusterPoolRestConfig, err = GetCurrentRestConfig()
@@ -84,7 +88,7 @@ func (c *ClusterPoolHost) setupClusterPool(
 		return err
 	}
 
-	me, err := c.WhoAmI(clusterPoolRestConfig)
+	me, err := WhoAmI(clusterPoolRestConfig)
 	if err != nil {
 		return err
 	}
@@ -112,7 +116,7 @@ func (c *ClusterPoolHost) setupClusterPool(
 		return err
 	}
 
-	return c.CreateClusterPoolContext(token, serviceAccountName, inGlobal)
+	return c.CreateClusterPoolContext(token, serviceAccountName, isGlobal)
 
 }
 
@@ -147,7 +151,7 @@ func (c *ClusterPoolHost) setupClusterClaim(
 		return err
 	}
 
-	me, err := c.WhoAmI(clusterPoolRestConfig)
+	me, err := WhoAmI(clusterPoolRestConfig)
 	if err != nil {
 		return err
 	}
@@ -172,6 +176,11 @@ func (c *ClusterPoolHost) setupClusterClaim(
 	}
 	output = append(output, out...)
 
+	err = clusteradmapply.WriteOutput(outputFile, output)
+	if err != nil {
+		return err
+	}
+
 	if !dryRun {
 		token, err := getTokenFromSA(kubeClient, serviceAccountName, "default")
 		if err != nil {
@@ -182,10 +191,13 @@ func (c *ClusterPoolHost) setupClusterClaim(
 			return err
 		}
 
-		return CreateClusterClaimContext(ccConfigAPI, token, clusterName, serviceAccountName)
-	} else {
-		return clusteradmapply.WriteOutput(outputFile, output)
+		err = CreateClusterClaimContext(ccConfigAPI, token, clusterName, serviceAccountName)
+		if err != nil {
+			return err
+		}
 	}
+
+	return nil
 }
 
 func (c *ClusterPoolHost) newCKServiceAccount(clusterPoolRestConfig *rest.Config, user string, dryRun bool, outputFile string) error {
@@ -221,18 +233,20 @@ func (c *ClusterPoolHost) newCKServiceAccount(clusterPoolRestConfig *rest.Config
 	}
 	output = append(output, out...)
 
-	if dryRun {
-		return clusteradmapply.WriteOutput(outputFile, output)
-	}
-
-	//if service-account wait for the sa secret
-	err = wait.PollImmediate(1*time.Second, 10*time.Second, func() (bool, error) {
-		return waitForSAToken(kubeClient, user, c.Namespace)
-	})
+	err = clusteradmapply.WriteOutput(outputFile, output)
 	if err != nil {
 		return err
 	}
 
+	if !dryRun {
+		//if service-account wait for the sa secret
+		err = wait.PollImmediate(1*time.Second, 10*time.Second, func() (bool, error) {
+			return waitForSAToken(kubeClient, user, c.Namespace)
+		})
+		if err != nil {
+			return err
+		}
+	}
 	return nil
 
 }
@@ -338,6 +352,8 @@ func (c *ClusterPoolHost) getClusterClaimConfigAPI(clusterName string, clusterPo
 	if err != nil {
 		return nil, err
 	}
+	//TODO Check if pending then error or wait not pending (status type=Pending status=true)
+	//Check if !running (status type=ClusterRunning/status=true) then poweron
 	cc := &hivev1.ClusterClaim{}
 	err = runtime.DefaultUnstructuredConverter.FromUnstructured(ccu.UnstructuredContent(), cc)
 	if err != nil {
@@ -367,4 +383,207 @@ func (c *ClusterPoolHost) getClusterClaimRestConfig(clusterName string, clusterP
 	}
 	clientConfig := clientcmd.NewDefaultClientConfig(*configapi, nil)
 	return clientConfig.ClientConfig()
+}
+
+func CreateClusterClaims(clusterClaimNames, clusterPoolName string, timeout int, dryRun bool, outputFile string) error {
+	cph, err := GetCurrentClusterPoolHost()
+	if err != nil {
+		return err
+	}
+	err = cph.VerifyContext(dryRun, outputFile)
+	if err != nil {
+		return err
+	}
+	clusterPoolRestConfig, err := GetGlobalCurrentRestConfig()
+	if err != nil {
+		return err
+	}
+	kubeClient, err := kubernetes.NewForConfig(clusterPoolRestConfig)
+	if err != nil {
+		return err
+	}
+
+	dynamicClient, err := dynamic.NewForConfig(clusterPoolRestConfig)
+	if err != nil {
+		return err
+	}
+
+	apiExtensionsClient, err := apiextensionsclient.NewForConfig(clusterPoolRestConfig)
+	if err != nil {
+		return err
+	}
+
+	gvr := schema.GroupVersionResource{Group: "hive.openshift.io", Version: "v1", Resource: "clusterpools"}
+	_, err = dynamicClient.Resource(gvr).Namespace(cph.Namespace).Get(context.TODO(), clusterPoolName, metav1.GetOptions{})
+	if err != nil {
+		return err
+	}
+
+	me, err := WhoAmI(clusterPoolRestConfig)
+	if err != nil {
+		return err
+	}
+
+	serviceAccountName := strings.TrimPrefix(me.Name, "system:serviceaccount:"+cph.Namespace+":")
+
+	reader := scenario.GetScenarioResourcesReader()
+
+	output := make([]string, 0)
+	for _, ccn := range strings.Split(clusterClaimNames, ",") {
+		clusterClaimName := strings.TrimSpace(ccn)
+		values := make(map[string]string)
+		values["Name"] = clusterClaimName
+		values["Namespace"] = cph.Namespace
+		values["ClusterPoolName"] = clusterPoolName
+		values["ServiceAccountName"] = serviceAccountName
+		values["Group"] = cph.Group
+		files := []string{
+			"create/clusterclaim/clusterclaim_cr.yaml",
+		}
+
+		applierBuilder := &clusteradmapply.ApplierBuilder{}
+		applier := applierBuilder.WithClient(kubeClient, apiExtensionsClient, dynamicClient)
+		out, err := applier.ApplyCustomResources(reader, values, dryRun, "", files...)
+		if err != nil {
+			return err
+		}
+		fmt.Printf("clusterclaim %s created\n", clusterClaimName)
+		output = append(output, out...)
+	}
+
+	if !dryRun {
+		i := 0
+		err = wait.PollImmediate(1*time.Minute, time.Duration(timeout)*time.Minute, func() (bool, error) {
+			i += 1
+			return checkClusterClaimsRunning(dynamicClient, clusterClaimNames, clusterPoolName, cph.Namespace, i, timeout)
+		})
+		if err != nil {
+			return err
+		}
+	}
+	return clusteradmapply.WriteOutput(outputFile, output)
+}
+
+func checkClusterClaimsRunning(dynamicClient dynamic.Interface, clusterClaimNames, clusterPoolName, namespace string, i, timeout int) (bool, error) {
+	gvr := schema.GroupVersionResource{Group: "hive.openshift.io", Version: "v1", Resource: "clusterpools"}
+	cpu, err := dynamicClient.Resource(gvr).Namespace(namespace).Get(context.TODO(), clusterPoolName, metav1.GetOptions{})
+	if err != nil {
+		return false, err
+	}
+	cp := &hivev1.ClusterPool{}
+	err = runtime.DefaultUnstructuredConverter.FromUnstructured(cpu.UnstructuredContent(), cp)
+	if err != nil {
+		return false, err
+	}
+	if cp.Spec.Size == 0 {
+		fmt.Printf("WARNING: the clusterpool %s size is 0, should be at least 1 for the clusterclaim to be honored\n", clusterPoolName)
+	}
+	gvr = schema.GroupVersionResource{Group: "hive.openshift.io", Version: "v1", Resource: "clusterclaims"}
+	allErrors := make(map[string]error)
+	allRunning := true
+	for _, ccn := range strings.Split(clusterClaimNames, ",") {
+		clusterClaimName := strings.TrimSpace(ccn)
+		ccu, err := dynamicClient.Resource(gvr).Namespace(namespace).Get(context.TODO(), clusterClaimName, metav1.GetOptions{})
+		if err != nil {
+			allErrors[clusterClaimName] = err
+			fmt.Printf("Error: %s\n", err.Error())
+			continue
+		}
+		cc := &hivev1.ClusterClaim{}
+		err = runtime.DefaultUnstructuredConverter.FromUnstructured(ccu.UnstructuredContent(), cc)
+		if err != nil {
+			allErrors[clusterClaimName] = err
+			fmt.Printf("Error: %s\n", err.Error())
+			continue
+		}
+		running := false
+		for _, c := range cc.Status.Conditions {
+			if c.Type == hivev1.ClusterRunningCondition &&
+				c.Status == corev1.ConditionStatus(metav1.ConditionTrue) {
+				running = true
+				fmt.Printf("clusterclaim %s is running with id %s (%d/%d)\n", clusterClaimName, cc.Spec.Namespace, i, timeout)
+				break
+			}
+		}
+		if !running {
+			fmt.Printf("clusterclaim %s is not running (%d/%d)\n", clusterClaimName, i, timeout)
+			allRunning = false
+		}
+	}
+	if len(allErrors) == len(strings.Split(clusterClaimNames, ",")) {
+		return false, fmt.Errorf("all requested clusterclaims have errors")
+	}
+	if len(allErrors) == 0 {
+		return allRunning, nil
+	}
+	return false, nil
+}
+
+func DeleteClusterClaims(clusterClaimNames string, dryRun bool, outputFile string) error {
+	cph, err := GetCurrentClusterPoolHost()
+	if err != nil {
+		return err
+	}
+	err = cph.VerifyContext(dryRun, outputFile)
+	if err != nil {
+		return err
+	}
+	clusterPoolRestConfig, err := GetGlobalCurrentRestConfig()
+	if err != nil {
+		return err
+	}
+
+	dynamicClient, err := dynamic.NewForConfig(clusterPoolRestConfig)
+	if err != nil {
+		return err
+	}
+
+	if !dryRun {
+		gvr := schema.GroupVersionResource{Group: "hive.openshift.io", Version: "v1", Resource: "clusterclaims"}
+		for _, ccn := range strings.Split(clusterClaimNames, ",") {
+			clusterClaimName := strings.TrimSpace(ccn)
+			err = dynamicClient.Resource(gvr).Namespace(cph.Namespace).Delete(context.TODO(), clusterClaimName, metav1.DeleteOptions{})
+			if err != nil {
+				return err
+			}
+		}
+	}
+	return nil
+}
+
+func GetClusterClaims(showCphName, dryRun bool, outputFile string) error {
+	cph, err := GetCurrentClusterPoolHost()
+	if err != nil {
+		return err
+	}
+	err = cph.VerifyContext(dryRun, outputFile)
+	if err != nil {
+		return err
+	}
+	clusterPoolRestConfig, err := GetGlobalCurrentRestConfig()
+	if err != nil {
+		return err
+	}
+
+	dynamicClient, err := dynamic.NewForConfig(clusterPoolRestConfig)
+	if err != nil {
+		return err
+	}
+
+	gvr := schema.GroupVersionResource{Group: "hive.openshift.io", Version: "v1", Resource: "clusterclaims"}
+	l, err := dynamicClient.Resource(gvr).Namespace(cph.Namespace).List(context.TODO(), metav1.ListOptions{})
+	if err != nil {
+		return err
+	}
+	if len(l.Items) == 0 {
+		fmt.Printf("No clusterclaim found for clusterpoolhost %s\n", cph.Name)
+	}
+	for _, c := range l.Items {
+		if showCphName {
+			fmt.Printf("%s %s\n", cph.Name, c.GetName())
+		} else {
+			fmt.Println(c.GetName())
+		}
+	}
+	return nil
 }

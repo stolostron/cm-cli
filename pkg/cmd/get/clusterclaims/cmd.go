@@ -1,37 +1,34 @@
 // Copyright Contributors to the Open Cluster Management project
-package clusterpoolhosts
+package clusterclaims
 
 import (
 	"fmt"
 
 	"github.com/open-cluster-management/cm-cli/pkg/clusterpoolhost"
 	genericclioptionscm "github.com/open-cluster-management/cm-cli/pkg/genericclioptions"
-	"github.com/open-cluster-management/cm-cli/pkg/helpers"
 	cmdutil "k8s.io/kubectl/pkg/cmd/util"
 
+	"github.com/open-cluster-management/cm-cli/pkg/helpers"
 	"github.com/spf13/cobra"
 	"k8s.io/cli-runtime/pkg/genericclioptions"
 )
 
-var example = `
-# Get cluster pool hosts
-%[1]s get clusterpoolhosts
-`
-
 const (
-	scenarioDirectory = "clusterpoolhost"
+	example = `
+	# get a clusterclaim in current clusterpoolhost
+	%[1]s clusterclaims|cc <cluster-name> <clusterpoolhosts>`
 )
 
-// NewCmd provides a cobra command wrapping NewCmdImportCluster
+// NewCmd ...
 func NewCmd(cmFlags *genericclioptionscm.CMFlags, streams genericclioptions.IOStreams) *cobra.Command {
-	o := newOptions(cmFlags, streams)
 
-	cmd := &cobra.Command{
-		Use:          "clusterpoolhosts",
-		Aliases:      []string{"cphs"},
-		Short:        "list the clusterpoolhosts",
-		Example:      fmt.Sprintf(example, helpers.GetExampleHeader()),
-		SilenceUsage: true,
+	o := newOptions(cmFlags, streams)
+	clusters := &cobra.Command{
+		Use:                   "clusterclaims",
+		Aliases:               []string{"clusterclaim", "cc"},
+		DisableFlagsInUseLine: true,
+		Short:                 "Display the clusterclaims",
+		Example:               fmt.Sprintf(example, helpers.GetExampleHeader()),
 		PreRunE: func(cmd *cobra.Command, args []string) error {
 			return clusterpoolhost.BackupCurrentContexts()
 		},
@@ -43,8 +40,9 @@ func NewCmd(cmFlags *genericclioptionscm.CMFlags, streams genericclioptions.IOSt
 		PostRunE: func(cmd *cobra.Command, args []string) error {
 			return clusterpoolhost.RestoreCurrentContexts()
 		},
+		SuggestFor: []string{"list", "ps"},
 	}
 
-	cmd.Flags().BoolVar(&o.raw, "raw", false, "If set return a raw display")
-	return cmd
+	clusters.Flags().BoolVarP(&o.AllClusterPoolHosts, "all-cphs", "A", o.AllClusterPoolHosts, "If the requested object does not exist the command will return exit code 0.")
+	return clusters
 }

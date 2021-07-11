@@ -17,6 +17,8 @@ const (
 	KubeConfigSwitchMessage  = "Switching to context %s\n"
 )
 
+var contextBackup, globalContextBackup string
+
 func GetGlobalConfig() (*clientcmdapi.Config, error) {
 	return getConfig(true)
 }
@@ -51,7 +53,6 @@ func isContextExists(contextName string, globalKubeConfig bool) (bool, error) {
 	}
 	pathOptions := clientcmd.NewDefaultPathOptions()
 	if globalKubeConfig {
-		fmt.Printf(KubeConfigIgnoredMessage, contextName)
 		pathOptions.EnvVar = ""
 	}
 	config, err := pathOptions.GetStartingConfig()
@@ -75,8 +76,8 @@ func setCurrentContext(contextName string, globalKubeConfig bool) error {
 		return fmt.Errorf("context name is empty")
 	}
 	pathOptions := clientcmd.NewDefaultPathOptions()
-	fmt.Printf(KubeConfigIgnoredMessage, contextName)
-	if globalKubeConfig {
+	if globalKubeConfig && os.Getenv(pathOptions.EnvVar) != "" {
+		fmt.Printf(KubeConfigIgnoredMessage, contextName)
 		pathOptions.EnvVar = ""
 	}
 	config, err := pathOptions.GetStartingConfig()
@@ -88,9 +89,12 @@ func setCurrentContext(contextName string, globalKubeConfig bool) error {
 	if !ok {
 		return fmt.Errorf("context name %s not found", contextName)
 	}
-	config.CurrentContext = contextName
-	fmt.Printf(KubeConfigSwitchMessage, contextName)
-	return clientcmd.ModifyConfig(pathOptions, *config, true)
+	if config.CurrentContext != contextName {
+		config.CurrentContext = contextName
+		fmt.Printf(KubeConfigSwitchMessage, contextName)
+		return clientcmd.ModifyConfig(pathOptions, *config, true)
+	}
+	return nil
 
 }
 
@@ -204,24 +208,27 @@ func CreateContextFronConfigAPI(configAPI *clientcmdapi.Config, token, contextNa
 	return clientcmd.WriteToFile(clientConfig, file)
 }
 
-func GetGlobalConfigAPI() (*clientcmdapi.Config, error) {
+//GetGlobalConfigAPI returns the Global ConfigAPI and if the KUBECONFIG was set.
+func GetGlobalConfigAPI() (*clientcmdapi.Config, bool, error) {
 	return getConfigAPI(true)
 }
 
-func GetConfigAPI() (*clientcmdapi.Config, error) {
+//GetConfigAPI returns the ConfigAPI and if the KUBECONFIG was set.
+func GetConfigAPI() (*clientcmdapi.Config, bool, error) {
 	return getConfigAPI(false)
 }
 
-func getConfigAPI(globalKubeConfig bool) (*clientcmdapi.Config, error) {
+func getConfigAPI(globalKubeConfig bool) (*clientcmdapi.Config, bool, error) {
 	pathOptions := clientcmd.NewDefaultPathOptions()
+	isEnvVarSet := os.Getenv(pathOptions.EnvVar) != ""
 	if globalKubeConfig {
 		pathOptions.EnvVar = ""
 	}
 	configapi, err := pathOptions.GetStartingConfig()
 	if err != nil {
-		return nil, err
+		return nil, isEnvVarSet, err
 	}
-	return configapi, nil
+	return configapi, isEnvVarSet, nil
 }
 
 func GetGlobalCurrentRestConfig() (*rest.Config, error) {
@@ -233,7 +240,7 @@ func GetCurrentRestConfig() (*rest.Config, error) {
 }
 
 func getCurrentRestConfig(globalKubeConfig bool) (*rest.Config, error) {
-	configapi, err := getConfigAPI(globalKubeConfig)
+	configapi, _, err := getConfigAPI(globalKubeConfig)
 	if err != nil {
 		return nil, err
 	}
@@ -241,32 +248,72 @@ func getCurrentRestConfig(globalKubeConfig bool) (*rest.Config, error) {
 	return clientConfig.ClientConfig()
 }
 
-func FindConfigAPIByAPIServer(contextName, apiServer string) (bool, error) {
-	configAPI, err := GetConfigAPI()
+func SetCPHContext(contextName string) error {
+	if strings.HasPrefix(contextName, ClusterPoolHostContextPrefix) {
+		IsGlobalContext, err := IsGlobalContext(contextName)
+		if err != nil {
+			return err
+		}
+		if IsGlobalContext {
+			if err := SetGlobalCurrentContext(contextName); err != nil {
+				return err
+			}
+			return nil
+		}
+	}
+	return fmt.Errorf("%s is not cph context", contextName)
+}
+
+func findConfigAPIByAPIServer(contextName, apiServer string) (bool, error) {
+	configAPI, isEnvVarSet, err := GetConfigAPI()
 	if err != nil {
 		return false, err
 	}
-	if len(configAPI.CurrentContext) == 0 {
-		return false, fmt.Errorf("no current context")
-	}
-
-	if _, ok := configAPI.Contexts[contextName]; ok {
-		if err := SetCurrentContext(contextName); err != nil {
+	isGlobal, foundContxt, err := findConfigAPIByAPIServerForConfig(configAPI, contextName, apiServer)
+	if err == nil {
+		if err := setCurrentContext(foundContxt, isGlobal); err != nil {
 			return false, err
 		}
-		return IsGlobalContext(configAPI.CurrentContext)
+		return isGlobal, err
 	}
+	if isEnvVarSet {
+		configAPI, _, err = GetGlobalConfigAPI()
+		if err != nil {
+			return isGlobal, err
+		}
+		isGlobal, foundContxt, err = findConfigAPIByAPIServerForConfig(configAPI, contextName, apiServer)
+		if err == nil {
+			if err := setCurrentContext(foundContxt, isGlobal); err != nil {
+				return false, err
+			}
+			return isGlobal, err
+		}
+	}
+	return isGlobal, err
+}
+
+func findConfigAPIByAPIServerForConfig(configAPI *clientcmdapi.Config, contextName, apiServer string) (bool, string, error) {
+	if len(configAPI.CurrentContext) == 0 {
+		return false, "", fmt.Errorf("no current context")
+	}
+
+	// if _, ok := configAPI.Contexts[contextName]; ok {
+	// 	isGlobal, err := IsGlobalContext(configAPI.CurrentContext)
+	// 	return isGlobal, contextName, err
+	// } else {
+	// 	fmt.Printf("Context %s does not exist\n", contextName)
+	// }
 
 	//Search for the cluster in kubeconfig.clusters
 	var foundCluster string
 	for clusterName, cluster := range configAPI.Clusters {
-		if cluster.Server == apiServer && !strings.HasPrefix(clusterName, ClusterPoolHostContextPrefix) {
+		if cluster.Server == apiServer {
 			foundCluster = clusterName
 			break
 		}
 	}
 	if len(foundCluster) == 0 {
-		return false, fmt.Errorf("not found %s as current context", apiServer)
+		return false, "", fmt.Errorf("not found %s as current context", apiServer)
 	}
 
 	//Search for the found cluster in the kubeconfig.context.
@@ -278,11 +325,38 @@ func FindConfigAPIByAPIServer(contextName, apiServer string) (bool, error) {
 		}
 	}
 	if len(foundContext) == 0 {
-		return false, fmt.Errorf("not found %s as current context", apiServer)
+		return false, "", fmt.Errorf("not found %s as current context", apiServer)
 	}
-	err = SetCurrentContext(foundContext)
+	isGlobal, err := IsGlobalContext(configAPI.CurrentContext)
+	return isGlobal, foundContext, err
+}
+
+func BackupCurrentContexts() (err error) {
+	configAPI, isEnvVarSet, err := GetConfigAPI()
 	if err != nil {
-		return false, err
+		return
 	}
-	return IsGlobalContext(configAPI.CurrentContext)
+	if isEnvVarSet {
+		contextBackup = configAPI.CurrentContext
+		configAPI, _, err = GetGlobalConfigAPI()
+		if err != nil {
+			return
+		}
+	}
+	globalContextBackup = configAPI.CurrentContext
+	return
+}
+
+func RestoreCurrentContexts() error {
+	if len(contextBackup) != 0 {
+		if err := setCurrentContext(contextBackup, false); err != nil {
+			return err
+		}
+	}
+	if len(globalContextBackup) != 0 {
+		if err := setCurrentContext(globalContextBackup, true); err != nil {
+			return err
+		}
+	}
+	return nil
 }

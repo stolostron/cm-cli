@@ -5,6 +5,7 @@ go 1.16
 replace (
 	github.com/go-logr/logr => github.com/go-logr/logr v0.4.0
 	k8s.io/client-go => k8s.io/client-go v0.21.0
+	open-cluster-management.io/clusteradm => /Users/dvernier/acm-tools/clusteradm
 )
 
 require (

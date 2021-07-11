@@ -6,6 +6,7 @@ import (
 
 	genericclioptionscm "github.com/open-cluster-management/cm-cli/pkg/genericclioptions"
 	"github.com/open-cluster-management/cm-cli/pkg/helpers"
+	cmdutil "k8s.io/kubectl/pkg/cmd/util"
 	clusteradmhelpers "open-cluster-management.io/clusteradm/pkg/helpers"
 
 	"github.com/spf13/cobra"
@@ -30,18 +31,10 @@ func NewCmd(cmFlags *genericclioptionscm.CMFlags, streams genericclioptions.IOSt
 			clusteradmhelpers.DryRunMessage(cmFlags.DryRun)
 			return nil
 		},
-		RunE: func(c *cobra.Command, args []string) error {
-			if err := o.complete(c, args); err != nil {
-				return err
-			}
-			if err := o.validate(); err != nil {
-				return err
-			}
-			if err := o.run(); err != nil {
-				return err
-			}
-
-			return nil
+		Run: func(cmd *cobra.Command, args []string) {
+			cmdutil.CheckErr(o.complete(cmd, args))
+			cmdutil.CheckErr(o.validate())
+			cmdutil.CheckErr(o.run())
 		},
 	}
 

@@ -2,6 +2,7 @@
 package get
 
 import (
+	"github.com/open-cluster-management/cm-cli/pkg/cmd/get/clusterclaims"
 	"github.com/open-cluster-management/cm-cli/pkg/cmd/get/clusterpoolhosts"
 	"github.com/open-cluster-management/cm-cli/pkg/cmd/get/clusters"
 	"github.com/open-cluster-management/cm-cli/pkg/cmd/get/machinepools"
@@ -24,6 +25,7 @@ func NewCmd(clusteradmFlags *genericclioptionsclusteradm.ClusteradmFlags, cmFlag
 	cmd.AddCommand(machinepools.NewCmd(cmFlags, streams))
 	cmd.AddCommand(clusteradmgettoken.NewCmd(clusteradmFlags, streams))
 	cmd.AddCommand(clusterpoolhosts.NewCmd(cmFlags, streams))
+	cmd.AddCommand(clusterclaims.NewCmd(cmFlags, streams))
 
 	return cmd
 }

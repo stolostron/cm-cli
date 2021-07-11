@@ -1,0 +1,19 @@
+# Copyright Contributors to the Open Cluster Management project
+
+apiVersion: hive.openshift.io/v1
+kind: ClusterClaim
+metadata:
+  name: "{{ .Name }}"
+  namespace: "{{ .Namespace }}"
+spec:
+  clusterPoolName: "{{ .ClusterPoolName }}"
+  subjects:
+  - kind: ServiceAccount
+    name: "{{ .ServiceAccountName }}"
+    namespace: "{{ .Namespace }}"
+  - apiGroup: rbac.authorization.k8s.io
+    kind: Group
+    name: "{{ .Group }}"
+  - apiGroup: rbac.authorization.k8s.io
+    kind: Group
+    name: system:serviceaccounts:{{ .Namespace }}

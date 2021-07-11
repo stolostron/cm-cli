@@ -30,3 +30,22 @@ First, the clusterpoolhost which manage the cluster claim must be the current on
 
 Then use `cm use <cluster_claim_name>` to update the kubeconfig with a context toward that cluster. If the KUBECONFIG environment variable is set, the file specifed in the environment variable is updated with the context.
 
+## Creeate clusterclaims
+
+To create clusterclaims on the active clusterpool, the command `cm create clusterclaim|cc <clusterpool_name> <clusterclaim_name>` can be executed. Multiple clusterclaims can be created simultaneously by providing a list (comma-separated) of clusterclaim name.
+
+For example:
+
+```bash
+cm create cc myclusterpool_name clusterclaim1,clusterclaim2
+```
+
+NB: The comma-separated list must not contain space, if it does it should be surrounded by double-quotes.
+
+## Delete clusterclaims
+
+In the same way clusterclaims can be created, they can be deleted by using `cm delete clusterclaim|cc <clusterclaim>[,<clusterclaim>...]`. 
+
+## Get clusterclaims
+
+The command `cm get cc` can be used to retreive the list of available cc on the current context. A `cm use-cph <clusterpoolhost>` must be executed to set the current context.

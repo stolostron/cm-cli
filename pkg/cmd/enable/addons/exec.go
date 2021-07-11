@@ -102,7 +102,7 @@ func (o *Options) runWithClient(
 
 	applierBuilder := &clusteradmapply.ApplierBuilder{}
 	applier := applierBuilder.WithClient(kubeClient, apiExtensionsClient, dynamicClient).Build()
-	out, err := applier.ApplyCustomResouces(reader, o.values, o.CMFlags.DryRun, "", files...)
+	out, err := applier.ApplyCustomResources(reader, o.values, o.CMFlags.DryRun, "", files...)
 	if err != nil {
 		return err
 	}

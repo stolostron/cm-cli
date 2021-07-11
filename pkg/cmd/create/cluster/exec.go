@@ -147,7 +147,7 @@ func (o *Options) runWithClient(kubeClient kubernetes.Interface,
 		"create/hub/common/cluster_deployment_cr.yaml",
 	}
 
-	out, err = applier.ApplyCustomResouces(reader, o.values, o.CMFlags.DryRun, "create/hub/common/_helpers.tpl", files...)
+	out, err = applier.ApplyCustomResources(reader, o.values, o.CMFlags.DryRun, "create/hub/common/_helpers.tpl", files...)
 	if err != nil {
 		return err
 	}
@@ -157,7 +157,7 @@ func (o *Options) runWithClient(kubeClient kubernetes.Interface,
 		"attach/hub/managed_cluster_cr.yaml",
 		"attach/hub/klusterlet_addon_config_cr.yaml",
 	}
-	out, err = applier.ApplyCustomResouces(attachreader, o.values, o.CMFlags.DryRun, "", files...)
+	out, err = applier.ApplyCustomResources(attachreader, o.values, o.CMFlags.DryRun, "", files...)
 	if err != nil {
 		return err
 	}

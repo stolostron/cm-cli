@@ -50,7 +50,7 @@ const (
 	errorNotFound ErrorType = "not found"
 )
 
-func (c *ClusterPoolHost) WhoAmI(restConfig *rest.Config) (*userv1.User, error) {
+func WhoAmI(restConfig *rest.Config) (*userv1.User, error) {
 	userInterface, err := userv1typedclient.NewForConfig(restConfig)
 	if err != nil {
 		return nil, err

@@ -208,7 +208,7 @@ func (o *Options) runWithClient(kubeClient kubernetes.Interface,
 		"attach/hub/klusterlet_addon_config_cr.yaml",
 	}
 
-	out, err = applier.ApplyCustomResouces(reader, o.values, o.CMFlags.DryRun, "", files...)
+	out, err = applier.ApplyCustomResources(reader, o.values, o.CMFlags.DryRun, "", files...)
 	if err != nil {
 		return err
 	}
