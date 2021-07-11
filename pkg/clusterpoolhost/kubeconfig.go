@@ -19,10 +19,12 @@ const (
 
 var contextBackup, globalContextBackup string
 
+//GetGlobalConfig gets the config from the global file
 func GetGlobalConfig() (*clientcmdapi.Config, error) {
 	return getConfig(true)
 }
 
+//GetConfig gets the config from the file specified by the env var if set otherwise the global file
 func GetConfig() (*clientcmdapi.Config, error) {
 	return getConfig(false)
 }
@@ -39,10 +41,12 @@ func getConfig(globalKubeConfig bool) (*clientcmdapi.Config, error) {
 	return config, nil
 }
 
+//IsGlobalContext checks if the context is in the global file
 func IsGlobalContext(contextName string) (bool, error) {
 	return isContextExists(contextName, true)
 }
 
+//IsContext check if the context is in the file specified by the env var if set otherwise the global file
 func IsContext(contextName string) (bool, error) {
 	return isContextExists(contextName, false)
 }
@@ -63,10 +67,12 @@ func isContextExists(contextName string, globalKubeConfig bool) (bool, error) {
 	return ok, nil
 }
 
+//SetGlobalCurrentContext sets the current context in the global file
 func SetGlobalCurrentContext(contextName string) error {
 	return setCurrentContext(contextName, true)
 }
 
+//SetCurrentContext sets the current context in the file specified by the env var if set otherwise in the global file.
 func SetCurrentContext(contextName string) error {
 	return setCurrentContext(contextName, false)
 }
@@ -98,6 +104,7 @@ func setCurrentContext(contextName string, globalKubeConfig bool) error {
 
 }
 
+//MoveContextToDefault Move the context from its current location to the global file.
 func MoveContextToDefault(contextName, clusterPoolContextName, defaultNamespace, user, token string) error {
 	if len(contextName) == 0 {
 		return fmt.Errorf("context name is empty")
@@ -168,6 +175,7 @@ func MoveContextToDefault(contextName, clusterPoolContextName, defaultNamespace,
 	return clientcmd.WriteToFile(clientConfig, file)
 }
 
+//CreateContextFronConfigAPI creates a new context in the global file
 func CreateContextFronConfigAPI(configAPI *clientcmdapi.Config, token, contextName, defaultNamespace, user string) error {
 	if len(contextName) == 0 {
 		return fmt.Errorf("context name is empty")
@@ -231,10 +239,12 @@ func getConfigAPI(globalKubeConfig bool) (*clientcmdapi.Config, bool, error) {
 	return configapi, isEnvVarSet, nil
 }
 
+//GetGlobalCurrentRestConfig gets the *rest.Config of the current context in the global file.
 func GetGlobalCurrentRestConfig() (*rest.Config, error) {
 	return getCurrentRestConfig(true)
 }
 
+//GetCurrentRestConfig gest the *rest.Config of the current context in the file specified by the env var if set.
 func GetCurrentRestConfig() (*rest.Config, error) {
 	return getCurrentRestConfig(false)
 }
@@ -248,6 +258,7 @@ func getCurrentRestConfig(globalKubeConfig bool) (*rest.Config, error) {
 	return clientConfig.ClientConfig()
 }
 
+//SetCPHContext sets the clusterpoolhost context as current
 func SetCPHContext(contextName string) error {
 	if strings.HasPrefix(contextName, ClusterPoolHostContextPrefix) {
 		IsGlobalContext, err := IsGlobalContext(contextName)
@@ -297,13 +308,6 @@ func findConfigAPIByAPIServerForConfig(configAPI *clientcmdapi.Config, contextNa
 		return false, "", fmt.Errorf("no current context")
 	}
 
-	// if _, ok := configAPI.Contexts[contextName]; ok {
-	// 	isGlobal, err := IsGlobalContext(configAPI.CurrentContext)
-	// 	return isGlobal, contextName, err
-	// } else {
-	// 	fmt.Printf("Context %s does not exist\n", contextName)
-	// }
-
 	//Search for the cluster in kubeconfig.clusters
 	var foundCluster string
 	for clusterName, cluster := range configAPI.Clusters {
@@ -331,6 +335,8 @@ func findConfigAPIByAPIServerForConfig(configAPI *clientcmdapi.Config, contextNa
 	return isGlobal, foundContext, err
 }
 
+//BackupCurrentContexts backups the names for the current contexts, the context in the
+//global file and the one defined in the env var if set.
 func BackupCurrentContexts() (err error) {
 	configAPI, isEnvVarSet, err := GetConfigAPI()
 	if err != nil {
@@ -347,6 +353,7 @@ func BackupCurrentContexts() (err error) {
 	return
 }
 
+//RestoreCurrentContexts restores the backuped contexts.
 func RestoreCurrentContexts() error {
 	if len(contextBackup) != 0 {
 		if err := setCurrentContext(contextBackup, false); err != nil {

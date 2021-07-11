@@ -50,6 +50,7 @@ const (
 	errorNotFound ErrorType = "not found"
 )
 
+//WhoAmI returns the current user
 func WhoAmI(restConfig *rest.Config) (*userv1.User, error) {
 	userInterface, err := userv1typedclient.NewForConfig(restConfig)
 	if err != nil {
@@ -63,6 +64,7 @@ func WhoAmI(restConfig *rest.Config) (*userv1.User, error) {
 	return me, err
 }
 
+//GetContextName returns the context name for a given clusterpoolhost
 func (c *ClusterPoolHost) GetContextName() string {
 	u, err := url.Parse(c.APIServer)
 	if err != nil {
@@ -71,6 +73,7 @@ func (c *ClusterPoolHost) GetContextName() string {
 	return fmt.Sprintf("%s/%s/%s/%s", ClusterPoolHostContextPrefix, c.Namespace, u.Hostname(), c.Name)
 }
 
+//GetClusterPoolHosts returns all clusterpoolhosts
 func GetClusterPoolHosts() (*ClusterPoolHosts, error) {
 	home, err := os.UserHomeDir()
 	if err != nil {
@@ -93,6 +96,7 @@ func GetClusterPoolHosts() (*ClusterPoolHosts, error) {
 	return cpc, nil
 }
 
+//IsClusterPoolHost checks if the provided context name is a clusterpoolhost context
 func IsClusterPoolHost(contextName string) (bool, error) {
 	cphs, err := GetClusterPoolHosts()
 	if err != nil {
@@ -102,6 +106,7 @@ func IsClusterPoolHost(contextName string) (bool, error) {
 	return ok, nil
 }
 
+//GetClusterPoolHost returns the clusterpoolhost corresponding to the provided name
 func GetClusterPoolHost(clusterPoolHostName string) (*ClusterPoolHost, error) {
 	cphs, err := GetClusterPoolHosts()
 	if err != nil {
@@ -113,6 +118,7 @@ func GetClusterPoolHost(clusterPoolHostName string) (*ClusterPoolHost, error) {
 	return nil, fmt.Errorf("%s %s", clusterPoolHostName, errorNotFound)
 }
 
+//ApplyClusterPoolHosts saves the list of clusterpoolhost
 func (cs *ClusterPoolHosts) ApplyClusterPoolHosts() error {
 	home, err := os.UserHomeDir()
 	if err != nil {
@@ -130,6 +136,7 @@ func (cs *ClusterPoolHosts) ApplyClusterPoolHosts() error {
 	return ioutil.WriteFile(fileName, b, 0600)
 }
 
+//GetClusterPoolHost returns the clusterpoolhost
 func (cs *ClusterPoolHosts) GetClusterPoolHost(name string) (*ClusterPoolHost, error) {
 	if c, ok := cs.ClusterPoolHosts[name]; ok {
 		return c, nil
@@ -137,6 +144,7 @@ func (cs *ClusterPoolHosts) GetClusterPoolHost(name string) (*ClusterPoolHost, e
 	return nil, fmt.Errorf("cluster pool host %s not found", name)
 }
 
+//RawPrint prints the clusterpoolhosts
 func (cs *ClusterPoolHosts) RawPrint() error {
 	b, err := yaml.Marshal(cs)
 	if err != nil {
@@ -146,6 +154,7 @@ func (cs *ClusterPoolHosts) RawPrint() error {
 	return nil
 }
 
+//Print prints a summary of the clusterpoolhosts
 func (cs *ClusterPoolHosts) Print() {
 	for _, c := range cs.ClusterPoolHosts {
 		star := " "
@@ -156,6 +165,7 @@ func (cs *ClusterPoolHosts) Print() {
 	}
 }
 
+//UnActiveAll unactives all clusterpoolhosts
 func (cs *ClusterPoolHosts) UnActiveAll() error {
 	for _, c := range cs.ClusterPoolHosts {
 		c.Active = false
@@ -163,6 +173,7 @@ func (cs *ClusterPoolHosts) UnActiveAll() error {
 	return cs.ApplyClusterPoolHosts()
 }
 
+//SetActive actives a specific clusterpoolhost
 func (cs *ClusterPoolHosts) SetActive(c *ClusterPoolHost) error {
 	if err := cs.UnActiveAll(); err != nil {
 		return err
@@ -171,6 +182,7 @@ func (cs *ClusterPoolHosts) SetActive(c *ClusterPoolHost) error {
 	return cs.ApplyClusterPoolHosts()
 }
 
+//GetCurrentClusterPoolHost gets the current clusterpoolhost
 func (cs *ClusterPoolHosts) GetCurrentClusterPoolHost() (*ClusterPoolHost, error) {
 	for _, c := range cs.ClusterPoolHosts {
 		if c.IsActive() {
@@ -180,6 +192,7 @@ func (cs *ClusterPoolHosts) GetCurrentClusterPoolHost() (*ClusterPoolHost, error
 	return nil, fmt.Errorf("active cluster pool host not found")
 }
 
+//AddClusterPoolHost adds a clusterpoolhost
 func (c *ClusterPoolHost) AddClusterPoolHost() error {
 	cs, err := GetClusterPoolHosts()
 	if err != nil {
@@ -189,6 +202,7 @@ func (c *ClusterPoolHost) AddClusterPoolHost() error {
 	return cs.ApplyClusterPoolHosts()
 }
 
+//DeleteClusterPoolHost deletes a clusterpoolhost
 func (c *ClusterPoolHost) DeleteClusterPoolHost() error {
 	cs, err := GetClusterPoolHosts()
 	if err != nil {
@@ -198,10 +212,12 @@ func (c *ClusterPoolHost) DeleteClusterPoolHost() error {
 	return cs.ApplyClusterPoolHosts()
 }
 
+//IsActive checks if clusterpoolhost is active
 func (c *ClusterPoolHost) IsActive() bool {
 	return c.Active
 }
 
+//GetCurrentClusterPoolHost gets the current active clusterpoolhost
 func GetCurrentClusterPoolHost() (*ClusterPoolHost, error) {
 	cs, err := GetClusterPoolHosts()
 	if err != nil {
