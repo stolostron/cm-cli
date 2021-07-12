@@ -24,9 +24,6 @@ func (o *Options) validate() error {
 }
 
 func (o *Options) run() (err error) {
-	if err != nil {
-		return err
-	}
 	var cphs, allcphs *clusterpoolhost.ClusterPoolHosts
 	allcphs, err = clusterpoolhost.GetClusterPoolHosts()
 	if err != nil {

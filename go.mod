@@ -24,6 +24,7 @@ require (
 	k8s.io/cli-runtime v0.21.1
 	k8s.io/client-go v0.21.1
 	k8s.io/component-base v0.21.1
+	k8s.io/klog/v2 v2.9.0
 	k8s.io/kubectl v0.21.1
 	open-cluster-management.io/api v0.0.0-20210607023841-cd164385e2bb
 	open-cluster-management.io/clusteradm v0.1.0-alpha.4.0.20210709205037-2347693f34cd

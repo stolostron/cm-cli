@@ -12,6 +12,7 @@ import (
 	"k8s.io/cli-runtime/pkg/genericclioptions"
 	"k8s.io/client-go/tools/clientcmd"
 	cliflag "k8s.io/component-base/cli/flag"
+	"k8s.io/klog/v2"
 	cmdconfig "k8s.io/kubectl/pkg/cmd/config"
 	"k8s.io/kubectl/pkg/cmd/options"
 	"k8s.io/kubectl/pkg/cmd/plugin"
@@ -27,45 +28,54 @@ import (
 	"github.com/open-cluster-management/cm-cli/pkg/cmd/detach"
 	"github.com/open-cluster-management/cm-cli/pkg/cmd/enable"
 	"github.com/open-cluster-management/cm-cli/pkg/cmd/get"
+	"github.com/open-cluster-management/cm-cli/pkg/cmd/hibernate"
 	"github.com/open-cluster-management/cm-cli/pkg/cmd/initialization"
 	"github.com/open-cluster-management/cm-cli/pkg/cmd/join"
+	"github.com/open-cluster-management/cm-cli/pkg/cmd/run"
 	"github.com/open-cluster-management/cm-cli/pkg/cmd/scale"
-	"github.com/open-cluster-management/cm-cli/pkg/cmd/setcph"
+	"github.com/open-cluster-management/cm-cli/pkg/cmd/set"
 	"github.com/open-cluster-management/cm-cli/pkg/cmd/use"
-	"github.com/open-cluster-management/cm-cli/pkg/cmd/usecph"
 	"github.com/open-cluster-management/cm-cli/pkg/cmd/version"
 )
 
 func main() {
-	streams := genericclioptions.IOStreams{In: os.Stdin, Out: os.Stdout, ErrOut: os.Stderr}
-	configFlags := genericclioptions.NewConfigFlags(true).WithDeprecatedPasswordFlag()
-	matchVersionKubeConfigFlags := cmdutil.NewMatchVersionFlags(configFlags)
-	f := cmdutil.NewFactory(matchVersionKubeConfigFlags)
-	clusteradmFlags := genericclioptionsclusteradm.NewClusteradmFlags(f)
-	cmFlags := genericclioptionscm.NewCMFlags(f)
 	root := &cobra.Command{
 		Use: "cm",
 	}
-	// root := newCmdCMVerbs(f, streams)
 
 	flags := root.PersistentFlags()
-	matchVersionKubeConfigFlags.AddFlags(flags)
 	flags.SetNormalizeFunc(cliflag.WarnWordSepNormalizeFunc) // Warn for "_" flags
 
 	// Normalize all flags that are coming from other packages or pre-configurations
 	// a.k.a. change all "_" to "-". e.g. glog package
 	flags.SetNormalizeFunc(cliflag.WordSepNormalizeFunc)
+
+	kubeConfigFlags := genericclioptions.NewConfigFlags(true).WithDeprecatedPasswordFlag()
+	kubeConfigFlags.AddFlags(flags)
+	matchVersionKubeConfigFlags := cmdutil.NewMatchVersionFlags(kubeConfigFlags)
+
+	matchVersionKubeConfigFlags.AddFlags(flags)
+
+	klog.InitFlags(nil)
+	flags.AddGoFlagSet(flag.CommandLine)
+
+	f := cmdutil.NewFactory(matchVersionKubeConfigFlags)
 	// From this point and forward we get warnings on flags that contain "_" separators
 	root.SetGlobalNormalizationFunc(cliflag.WarnWordSepNormalizeFunc)
+	streams := genericclioptions.IOStreams{In: os.Stdin, Out: os.Stdout, ErrOut: os.Stderr}
 
-	configFlags.AddFlags(flags)
+	clusteradmFlags := genericclioptionsclusteradm.NewClusteradmFlags(f)
+
+	cmFlags := genericclioptionscm.NewCMFlags(f)
 	cmFlags.AddFlags(flags)
-	flags.AddGoFlagSet(flag.CommandLine)
+
 	root.AddCommand(cmdconfig.NewCmdConfig(f, clientcmd.NewDefaultPathOptions(), streams))
+	root.AddCommand(options.NewCmdOptions(streams.Out))
+
 	//enable plugin functionality: all `os.Args[0]-<binary>` in the $PATH will be available for plugin
 	plugin.ValidPluginFilenamePrefixes = []string{os.Args[0]}
 	root.AddCommand(plugin.NewCmdPlugin(f, streams))
-	root.AddCommand(options.NewCmdOptions(streams.Out))
+
 	groups := templates.CommandGroups{
 		{
 			Message: "General commands:",
@@ -97,13 +107,19 @@ func main() {
 			Message: "cluster pools commands:",
 			Commands: []*cobra.Command{
 				use.NewCmd(cmFlags, streams),
-				usecph.NewCmd(cmFlags, streams),
-				setcph.NewCmd(cmFlags, streams),
+				set.NewCmd(cmFlags, streams),
+				run.NewCmd(cmFlags, streams),
+				hibernate.NewCmd(cmFlags, streams),
 			},
 		},
 	}
 	groups.Add(root)
-	if err := root.Execute(); err != nil {
+	err := root.Execute()
+	if err != nil {
+		klog.V(1).ErrorS(err, "Error:")
+	}
+	klog.Flush()
+	if err != nil {
 		os.Exit(1)
 	}
 }

@@ -59,7 +59,7 @@ func (o *Options) initclusterpoolhost() error {
 		Group:     o.ClusterPoolHost.Group,
 		Namespace: o.ClusterPoolHost.Namespace,
 	}
-	err := cph.VerifyContext(o.CMFlags.DryRun, o.outputFile)
+	err := cph.VerifyClusterPoolContext(o.CMFlags.DryRun, o.outputFile)
 	if err != nil {
 		return err
 	}

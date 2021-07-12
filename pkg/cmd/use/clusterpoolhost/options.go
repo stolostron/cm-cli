@@ -1,5 +1,5 @@
 // Copyright Contributors to the Open Cluster Management project
-package clusterclaim
+package clusterpoolhost
 
 import (
 	genericclioptionscm "github.com/open-cluster-management/cm-cli/pkg/genericclioptions"
@@ -8,13 +8,8 @@ import (
 
 type Options struct {
 	//CMFlags: The generic optiosn from the cm cli-runtime.
-	CMFlags *genericclioptionscm.CMFlags
-	//The list of cluster claim name to create (comma-separated)
-	ClusterClaims   string
-	ClusterPool     string
-	ClusterPoolHost string
-	Timeout         int
-	SkipSchedule    bool
+	CMFlags         *genericclioptionscm.CMFlags
+	ClusterHostPool string
 	//The file to output the resources will be sent to the file.
 	outputFile string
 }

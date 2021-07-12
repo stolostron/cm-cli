@@ -37,7 +37,7 @@ func NewCmd(cmFlags *genericclioptionscm.CMFlags, streams genericclioptions.IOSt
 	o := newOptions(cmFlags, streams)
 	cmd := &cobra.Command{
 		Use:          "clusterclaim",
-		Aliases:      []string{"cc", "clusterclaims"},
+		Aliases:      []string{"cc", "ccs", "clusterclaims"},
 		Short:        "Delete clusterclaims",
 		Example:      fmt.Sprintf(example, helpers.GetExampleHeader()),
 		SilenceUsage: true,

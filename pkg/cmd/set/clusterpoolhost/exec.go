@@ -1,5 +1,5 @@
 // Copyright Contributors to the Open Cluster Management project
-package usecph
+package clusterpoolhost
 
 import (
 	"fmt"
@@ -12,7 +12,7 @@ func (o *Options) complete(cmd *cobra.Command, args []string) (err error) {
 	if len(args) < 1 {
 		return fmt.Errorf("clusterpoolcph name is missing")
 	}
-	o.ClusterHostPool = args[0]
+	o.ClusterPoolHost = args[0]
 	return nil
 }
 
@@ -21,9 +21,15 @@ func (o *Options) validate() error {
 }
 
 func (o *Options) run() (err error) {
-	cph, err := clusterpoolhost.GetClusterPoolHost(o.ClusterHostPool)
+	cphs, err := clusterpoolhost.GetClusterPoolHosts()
 	if err != nil {
 		return err
 	}
-	return cph.VerifyContext(o.CMFlags.DryRun, o.outputFile)
+
+	cph, err := cphs.GetClusterPoolHost(o.ClusterPoolHost)
+	if err != nil {
+		return err
+	}
+
+	return cphs.SetActive(cph)
 }

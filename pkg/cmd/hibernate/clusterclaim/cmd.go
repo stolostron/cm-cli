@@ -16,11 +16,11 @@ import (
 )
 
 var example = `
-# Create clusterclaims in the current clusterpoolhost
-%[1]s create clusterclaim|cc <clusterpool> <clusterclaim_name>[,<clusterclaim_name>...] <options>
+# Hibernate clusterclaims
+%[1]s hibernate clusterclaim|cc <clusterclaim_name>[,<clusterclaim_name>...] <options>
 
-# Create clusterclaims on a given clusterpoolhost
-%[1]s create clusterclaim|cc <clusterpool> <clusterclaim_name>[,<clusterclaim_name>...] <clusterpoolhost> <options>
+# run clusterclaims on a given clusterpoolhost
+%[1]s hibernate clusterclaim|cc <clusterclaim_name>[,<clusterclaim_name>...] <clusterpoolhost> <options>
 `
 
 // NewCmd ...
@@ -28,8 +28,8 @@ func NewCmd(cmFlags *genericclioptionscm.CMFlags, streams genericclioptions.IOSt
 	o := newOptions(cmFlags, streams)
 	cmd := &cobra.Command{
 		Use:          "clusterclaim",
-		Aliases:      []string{"cc", "ccs", "clusterclaims"},
-		Short:        "Create clusterclaims",
+		Aliases:      []string{"cc", "clusterclaims"},
+		Short:        "hibernate clusterclaims",
 		Example:      fmt.Sprintf(example, helpers.GetExampleHeader()),
 		SilenceUsage: true,
 		PreRunE: func(cmd *cobra.Command, args []string) error {
@@ -46,9 +46,8 @@ func NewCmd(cmFlags *genericclioptionscm.CMFlags, streams genericclioptions.IOSt
 		},
 	}
 
-	cmd.Flags().BoolVar(&o.SkipSchedule, "skip-schedule", false, "Set the hibernation schedule to skip")
-	cmd.Flags().IntVar(&o.Timeout, "timeout", 60, "Timeout to get the cluster claim running")
 	cmd.Flags().StringVar(&o.outputFile, "output-file", "", "The generated resources will be copied in the specified file")
+	cmd.Flags().BoolVar(&o.SkipSchedule, "skip-schedule", false, "Set the hibernation schedule to skip")
 
 	return cmd
 }

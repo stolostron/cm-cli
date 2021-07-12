@@ -11,15 +11,11 @@ import (
 
 func (o *Options) complete(cmd *cobra.Command, args []string) (err error) {
 	if len(args) < 1 {
-		return fmt.Errorf("clusterpool name is missing")
+		return fmt.Errorf("clusterclaim is missing")
 	}
-	o.ClusterPool = args[0]
-	if len(args) < 2 {
-		return fmt.Errorf("clusterclaim name is missing")
-	}
-	o.ClusterClaims = args[1]
-	if len(args) > 2 {
-		o.ClusterPoolHost = args[2]
+	o.ClusterClaim = args[0]
+	if len(args) > 1 {
+		o.ClusterPoolHost = args[1]
 	}
 	return nil
 }
@@ -50,7 +46,7 @@ func (o *Options) run() (err error) {
 			return err
 		}
 	}
-	err = clusterpoolhost.CreateClusterClaims(o.ClusterClaims, o.ClusterPool, o.SkipSchedule, o.Timeout, o.CMFlags.DryRun, o.outputFile)
+	err = clusterpoolhost.GetClusterClaim(o.ClusterClaim, o.CMFlags.DryRun, o.outputFile)
 	if err != nil {
 		return err
 	}

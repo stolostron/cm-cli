@@ -1,5 +1,5 @@
 // Copyright Contributors to the Open Cluster Management project
-package clusterclaims
+package clusterclaim
 
 import (
 	"fmt"
@@ -15,8 +15,8 @@ import (
 
 const (
 	example = `
-	# get clusterclaims in current clusterpoolhost
-	%[1]s clusterclaims|ccs <cluster-name> <clusterpoolhosts>`
+	# get a clusterclaim in current clusterpoolhost
+	%[1]s clusterclaim|cc <cluster-name> <clusterpoolhosts>`
 )
 
 // NewCmd ...
@@ -24,10 +24,10 @@ func NewCmd(cmFlags *genericclioptionscm.CMFlags, streams genericclioptions.IOSt
 
 	o := newOptions(cmFlags, streams)
 	clusters := &cobra.Command{
-		Use:                   "clusterclaims",
-		Aliases:               []string{"ccs"},
+		Use:                   "clusterclaim",
+		Aliases:               []string{"cc"},
 		DisableFlagsInUseLine: true,
-		Short:                 "Display the clusterclaims",
+		Short:                 "Display a clusterclaim credentials",
 		Example:               fmt.Sprintf(example, helpers.GetExampleHeader()),
 		PreRunE: func(cmd *cobra.Command, args []string) error {
 			return clusterpoolhost.BackupCurrentContexts()
@@ -40,9 +40,7 @@ func NewCmd(cmFlags *genericclioptionscm.CMFlags, streams genericclioptions.IOSt
 		PostRunE: func(cmd *cobra.Command, args []string) error {
 			return clusterpoolhost.RestoreCurrentContexts()
 		},
-		SuggestFor: []string{"list", "ps"},
 	}
 
-	clusters.Flags().BoolVarP(&o.AllClusterPoolHosts, "all-cphs", "A", o.AllClusterPoolHosts, "If the requested object does not exist the command will return exit code 0.")
 	return clusters
 }

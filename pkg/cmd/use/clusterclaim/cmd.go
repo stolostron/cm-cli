@@ -1,5 +1,5 @@
 // Copyright Contributors to the Open Cluster Management project
-package setcph
+package clusterclaim
 
 import (
 	"fmt"
@@ -15,15 +15,17 @@ import (
 
 var example = `
 # Use a cluster
-%[1]s set-cph clusterpoolhost
+%[1]s use clusterclaim|cc <cluster_claim_name> [<cluster_pool_host_name>]
 `
 
-// NewCmd provides a cobra command to use a clusterpoolhost
+// NewCmd provides a cobra command for using a cluster claim
 func NewCmd(cmFlags *genericclioptionscm.CMFlags, streams genericclioptions.IOStreams) *cobra.Command {
 	o := newOptions(cmFlags, streams)
 	cmd := &cobra.Command{
-		Use:          "set-cph",
-		Short:        "set-cph make the given clusterpoolhost active/current",
+		Use:          "clusterlclaim",
+		Aliases:      []string{"cc"},
+		Short:        "use clusterclaim change the current context to a cluster claim",
+		Long:         "use clusterclaim change the current context to a cluster claim, optionally the cluster pool host can be provided to override the current one",
 		Example:      fmt.Sprintf(example, helpers.GetExampleHeader()),
 		SilenceUsage: true,
 		PreRunE: func(c *cobra.Command, args []string) error {
@@ -36,6 +38,8 @@ func NewCmd(cmFlags *genericclioptionscm.CMFlags, streams genericclioptions.IOSt
 			cmdutil.CheckErr(o.run())
 		},
 	}
+
+	cmd.Flags().IntVar(&o.Timeout, "timeout", 60, "Timeout to wait the cluster claim running")
 
 	return cmd
 }

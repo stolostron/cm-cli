@@ -1,5 +1,5 @@
 // Copyright Contributors to the Open Cluster Management project
-package use
+package clusterclaim
 
 import (
 	"fmt"
@@ -45,7 +45,7 @@ func (o *Options) run() (err error) {
 			return err
 		}
 	}
-	err = clusterpoolhost.VerifyContext(o.Cluster, o.CMFlags.DryRun, o.outputFile)
+	err = clusterpoolhost.VerifyClusterClaimContext(o.Cluster, o.Timeout, o.CMFlags.DryRun, o.outputFile)
 	if err != nil {
 		return err
 	}
