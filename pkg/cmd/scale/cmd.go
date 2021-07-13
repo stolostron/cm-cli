@@ -3,6 +3,7 @@ package scale
 
 import (
 	"github.com/open-cluster-management/cm-cli/pkg/cmd/scale/cluster"
+	"github.com/open-cluster-management/cm-cli/pkg/cmd/scale/clusterpool"
 	genericclioptionscm "github.com/open-cluster-management/cm-cli/pkg/genericclioptions"
 
 	"github.com/spf13/cobra"
@@ -17,6 +18,7 @@ func NewCmd(cmFlags *genericclioptionscm.CMFlags, streams genericclioptions.IOSt
 	}
 
 	cmd.AddCommand(cluster.NewCmd(cmFlags, streams))
+	cmd.AddCommand(clusterpool.NewCmd(cmFlags, streams))
 
 	return cmd
 }

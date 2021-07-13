@@ -6,8 +6,10 @@
 - `use cc <clusterName>` : [Create a ck use like command](https://github.com/open-cluster-management/cm-cli/issues/32)
 - `create cc <clusterpool> <clusterclaim>[,<clusterclaim>...]`: [Create a command to claim a clusters](https://github.com/open-cluster-management/cm-cli/issues/33)
 - `delete cc <clusterclaim>[,<clusterclaim>...]`: [Create a command to delete a clusters](https://github.com/open-cluster-management/cm-cli/issues/34)
-- `get ccs [clusterpoolhost|-A]` to get clusterclaims for a given clusterpoolhost or for all of them.
+- `get ccs [<clusterpoolhost>|-A]` to get clusterclaims for a given clusterpoolhost or for all of them.
 - `get cc` returns the credentials of a cluster claim [Retrieve the credentials of a given cluster](https://github.com/open-cluster-management/cm-cli/issues/39)
+- `scale cp <clusterpool_name> --size <size>`
+- `get cps [<clusterpoolhost>|-A]` to get the list of clusterpools
 ### Additions
 - Add the command `delete token` from [clusteradm](https://github.com/open-cluster-management-io/clusteradm)
 ### Breacking changes

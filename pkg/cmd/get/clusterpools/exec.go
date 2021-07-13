@@ -1,5 +1,5 @@
 // Copyright Contributors to the Open Cluster Management project
-package clusterclaims
+package clusterpools
 
 import (
 	"fmt"
@@ -61,7 +61,7 @@ func (o *Options) run() (err error) {
 		if err != nil {
 			return err
 		}
-		err = clusterpoolhost.GetClusterClaims(o.AllClusterPoolHosts, o.CMFlags.DryRun, o.outputFile)
+		err = clusterpoolhost.GetClusterPools(o.AllClusterPoolHosts, o.CMFlags.DryRun)
 		if err != nil {
 			return err
 		}
