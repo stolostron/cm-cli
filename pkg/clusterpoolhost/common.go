@@ -81,6 +81,10 @@ func (cph *ClusterPoolHost) getClusterPoolSAToken(
 			}
 			return
 		}
+		if clusterPoolRestConfig.Host != cph.APIServer {
+			err = fmt.Errorf("please login on %s", cph.APIServer)
+			return
+		}
 		var kubeClient kubernetes.Interface
 		kubeClient, err = kubernetes.NewForConfig(clusterPoolRestConfig)
 		if err != nil {
