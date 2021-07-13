@@ -18,10 +18,6 @@ var example = `
 %[1]s get clusterpoolhosts
 `
 
-const (
-	scenarioDirectory = "clusterpoolhost"
-)
-
 // NewCmd provides a cobra command wrapping NewCmdImportCluster
 func NewCmd(cmFlags *genericclioptionscm.CMFlags, streams genericclioptions.IOStreams) *cobra.Command {
 	o := newOptions(cmFlags, streams)

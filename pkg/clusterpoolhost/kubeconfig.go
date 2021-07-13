@@ -150,9 +150,9 @@ func MoveContextToDefault(contextName, clusterPoolContextName, defaultNamespace,
 		return err
 	}
 
-	delete(config.Clusters, context.Cluster)
-	delete(config.Contexts, contextName)
-	delete(config.AuthInfos, context.AuthInfo)
+	// delete(config.Clusters, context.Cluster)
+	// delete(config.Contexts, contextName)
+	// delete(config.AuthInfos, context.AuthInfo)
 
 	config.Clusters[clusterPoolContextName] = cluster
 	context.AuthInfo = clusterPoolContextName
@@ -294,65 +294,65 @@ func SetCPHContext(contextName string) error {
 	return fmt.Errorf("%s is not cph context", contextName)
 }
 
-func findConfigAPIByAPIServer(contextName, apiServer string) (bool, error) {
-	configAPI, isEnvVarSet, err := GetConfigAPI()
-	if err != nil {
-		return false, err
-	}
-	isGlobal, foundContxt, err := findConfigAPIByAPIServerForConfig(configAPI, contextName, apiServer)
-	if err == nil {
-		if err := setCurrentContext(foundContxt, isGlobal); err != nil {
-			return false, err
-		}
-		return isGlobal, err
-	}
-	if isEnvVarSet {
-		configAPI, _, err = GetGlobalConfigAPI()
-		if err != nil {
-			return isGlobal, err
-		}
-		isGlobal, foundContxt, err = findConfigAPIByAPIServerForConfig(configAPI, contextName, apiServer)
-		if err == nil {
-			if err := setCurrentContext(foundContxt, isGlobal); err != nil {
-				return false, err
-			}
-			return isGlobal, err
-		}
-	}
-	return isGlobal, err
-}
+// func findConfigAPIByAPIServer(contextName, apiServer string) (bool, error) {
+// 	configAPI, isEnvVarSet, err := GetConfigAPI()
+// 	if err != nil {
+// 		return false, err
+// 	}
+// 	isGlobal, foundContxt, err := findConfigAPIByAPIServerForConfig(configAPI, contextName, apiServer)
+// 	if err == nil {
+// 		if err := setCurrentContext(foundContxt, isGlobal); err != nil {
+// 			return false, err
+// 		}
+// 		return isGlobal, err
+// 	}
+// 	if isEnvVarSet {
+// 		configAPI, _, err = GetGlobalConfigAPI()
+// 		if err != nil {
+// 			return isGlobal, err
+// 		}
+// 		isGlobal, foundContxt, err = findConfigAPIByAPIServerForConfig(configAPI, contextName, apiServer)
+// 		if err == nil {
+// 			if err := setCurrentContext(foundContxt, isGlobal); err != nil {
+// 				return false, err
+// 			}
+// 			return isGlobal, err
+// 		}
+// 	}
+// 	return isGlobal, err
+// }
 
-func findConfigAPIByAPIServerForConfig(configAPI *clientcmdapi.Config, contextName, apiServer string) (bool, string, error) {
-	if len(configAPI.CurrentContext) == 0 {
-		return false, "", fmt.Errorf("no current context")
-	}
+// func findConfigAPIByAPIServerForConfig(configAPI *clientcmdapi.Config, contextName, apiServer string) (bool, string, error) {
+// 	if len(configAPI.CurrentContext) == 0 {
+// 		return false, "", fmt.Errorf("no current context")
+// 	}
 
-	//Search for the cluster in kubeconfig.clusters
-	var foundCluster string
-	for clusterName, cluster := range configAPI.Clusters {
-		if cluster.Server == apiServer && !strings.HasPrefix(clusterName, ClusterPoolHostContextPrefix) {
-			foundCluster = clusterName
-			break
-		}
-	}
-	if len(foundCluster) == 0 {
-		return false, "", fmt.Errorf("not found %s as current context", apiServer)
-	}
+// 	//Search for the cluster in kubeconfig.clusters
+// 	var foundCluster string
+// 	for clusterName, cluster := range configAPI.Clusters {
+// 		if cluster.Server == apiServer && !strings.HasPrefix(clusterName, ClusterPoolHostContextPrefix) {
+// 			foundCluster = clusterName
+// 			break
+// 		}
+// 	}
+// 	if len(foundCluster) == 0 {
+// 		return false, "", fmt.Errorf("not found %s as current context", apiServer)
+// 	}
 
-	//Search for the found cluster in the kubeconfig.context.
-	var foundContext string
-	for contextName, context := range configAPI.Contexts {
-		if context.Cluster == foundCluster {
-			foundContext = contextName
-			break
-		}
-	}
-	if len(foundContext) == 0 {
-		return false, "", fmt.Errorf("not found %s as current context", apiServer)
-	}
-	isGlobal, err := IsGlobalContext(configAPI.CurrentContext)
-	return isGlobal, foundContext, err
-}
+// 	//Search for the found cluster in the kubeconfig.context.
+// 	var foundContext string
+// 	for contextName, context := range configAPI.Contexts {
+// 		if context.Cluster == foundCluster {
+// 			foundContext = contextName
+// 			break
+// 		}
+// 	}
+// 	if len(foundContext) == 0 {
+// 		return false, "", fmt.Errorf("not found %s as current context", apiServer)
+// 	}
+// 	isGlobal, err := IsGlobalContext(configAPI.CurrentContext)
+// 	return isGlobal, foundContext, err
+// }
 
 //BackupCurrentContexts backups the names for the current contexts, the context in the
 //global file and the one defined in the env var if set.

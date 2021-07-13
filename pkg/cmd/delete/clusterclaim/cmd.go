@@ -3,7 +3,6 @@ package clusterclaim
 
 import (
 	"fmt"
-	"path/filepath"
 
 	clusteradmhelpers "open-cluster-management.io/clusteradm/pkg/helpers"
 
@@ -12,17 +11,9 @@ import (
 	"github.com/open-cluster-management/cm-cli/pkg/helpers"
 	cmdutil "k8s.io/kubectl/pkg/cmd/util"
 
-	"github.com/open-cluster-management/cm-cli/pkg/cmd/create/cluster/scenario"
-
 	"github.com/spf13/cobra"
 	"k8s.io/cli-runtime/pkg/genericclioptions"
 )
-
-const (
-	scenarioDirectory = "create"
-)
-
-var valuesTemplatePath = filepath.Join(scenarioDirectory, "values-template.yaml")
 
 var example = `
 # Delete a clusterclaim in the current clusterpoolhost
@@ -54,8 +45,6 @@ func NewCmd(cmFlags *genericclioptionscm.CMFlags, streams genericclioptions.IOSt
 			return clusterpoolhost.RestoreCurrentContexts()
 		},
 	}
-
-	cmd.SetUsageTemplate(clusteradmhelpers.UsageTempate(cmd, scenario.GetScenarioResourcesReader(), valuesTemplatePath))
 
 	return cmd
 }

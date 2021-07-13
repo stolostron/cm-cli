@@ -3,9 +3,7 @@ package clusterpoolhost
 
 import (
 	"fmt"
-	"path/filepath"
 
-	"github.com/open-cluster-management/cm-cli/pkg/cmd/attach/cluster/scenario"
 	genericclioptionscm "github.com/open-cluster-management/cm-cli/pkg/genericclioptions"
 	"github.com/open-cluster-management/cm-cli/pkg/helpers"
 	clusteradmhelpers "open-cluster-management.io/clusteradm/pkg/helpers"
@@ -18,12 +16,6 @@ var example = `
 # Initialize a clusterpool management cluster
 %[1]s create clusterpoolhost <clusterpool_name>
 `
-
-const (
-	scenarioDirectory = "create"
-)
-
-var valuesTemplatePath = filepath.Join(scenarioDirectory, "values-template.yaml")
 
 // var valuesDefaultPath = filepath.Join(scenarioDirectory, "values-default.yaml")
 
@@ -56,7 +48,6 @@ func NewCmd(cmFlags *genericclioptionscm.CMFlags, streams genericclioptions.IOSt
 		},
 	}
 
-	cmd.SetUsageTemplate(clusteradmhelpers.UsageTempate(cmd, scenario.GetScenarioResourcesReader(), valuesTemplatePath))
 	cmd.Flags().StringVar(&o.ClusterPoolHost.APIServer, "api-server", "", "The API address of the cluster where your 'ClusterPools' are defined. Also referred to as the 'ClusterPool host'")
 	cmd.Flags().StringVar(&o.ClusterPoolHost.Console, "console", "", "The URL of the OpenShift console for the ClusterPool host")
 	cmd.Flags().StringVar(&o.ClusterPoolHost.Group, "group", "", "Name of a 'Group' ('user.openshift.io/v1') that should be added to each 'ClusterClaim' for team access")

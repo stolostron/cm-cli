@@ -70,21 +70,29 @@ func VerifyClusterClaimContext(
 func (cph *ClusterPoolHost) getClusterPoolSAToken(
 	dryRun bool,
 	outputFile string) (token, serviceAccountName string, isGlobal bool, err error) {
+	var clusterPoolRestConfig *rest.Config
 	isGlobal = true
 	err = SetCPHContext(cph.GetContextName())
 	if err != nil {
-		isGlobal, err = findConfigAPIByAPIServer(cph.GetContextName(), cph.APIServer)
+		clusterPoolRestConfig, err = GetCurrentRestConfig()
+		if err != nil {
+			if clusterPoolRestConfig == nil {
+				err = fmt.Errorf("please login on %s", cph.APIServer)
+			}
+			return
+		}
+		var kubeClient kubernetes.Interface
+		kubeClient, err = kubernetes.NewForConfig(clusterPoolRestConfig)
+		if err != nil {
+			return
+		}
+		_, err = kubeClient.CoreV1().Secrets(cph.Namespace).List(context.TODO(), metav1.ListOptions{})
 		if err != nil {
 			err = fmt.Errorf("please login on %s", cph.APIServer)
 			return
 		}
 	}
-	var clusterPoolRestConfig *rest.Config
-	if isGlobal {
-		clusterPoolRestConfig, err = GetGlobalCurrentRestConfig()
-	} else {
-		clusterPoolRestConfig, err = GetCurrentRestConfig()
-	}
+	clusterPoolRestConfig, err = GetGlobalCurrentRestConfig()
 	if err != nil {
 		return
 	}
