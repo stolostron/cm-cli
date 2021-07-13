@@ -11,8 +11,7 @@ type Options struct {
 	CMFlags         *genericclioptionscm.CMFlags
 	ClusterClaim    string
 	ClusterPoolHost string
-	//The file to output the resources will be sent to the file.
-	outputFile string
+	Timeout         int
 }
 
 func newOptions(cmFlags *genericclioptionscm.CMFlags, streams genericclioptions.IOStreams) *Options {

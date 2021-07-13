@@ -258,6 +258,25 @@ func getCurrentRestConfig(globalKubeConfig bool) (*rest.Config, error) {
 	return clientConfig.ClientConfig()
 }
 
+//GetGlobalRestConfig gets the *rest.Config of the current context in the global file.
+func (cph *ClusterPoolHost) GetGlobalRestConfig() (*rest.Config, error) {
+	return cph.getRestConfig(true)
+}
+
+//GetRestConfig gest the *rest.Config of the current context in the file specified by the env var if set.
+func (cph *ClusterPoolHost) GetRestConfig() (*rest.Config, error) {
+	return cph.getRestConfig(false)
+}
+
+func (cph *ClusterPoolHost) getRestConfig(globalKubeConfig bool) (*rest.Config, error) {
+	configapi, _, err := getConfigAPI(globalKubeConfig)
+	if err != nil {
+		return nil, err
+	}
+	clientConfig := clientcmd.NewDefaultClientConfig(*configapi, &clientcmd.ConfigOverrides{CurrentContext: cph.GetContextName()})
+	return clientConfig.ClientConfig()
+}
+
 //SetCPHContext sets the clusterpoolhost context as current
 func SetCPHContext(contextName string) error {
 	if strings.HasPrefix(contextName, ClusterPoolHostContextPrefix) {
@@ -311,7 +330,7 @@ func findConfigAPIByAPIServerForConfig(configAPI *clientcmdapi.Config, contextNa
 	//Search for the cluster in kubeconfig.clusters
 	var foundCluster string
 	for clusterName, cluster := range configAPI.Clusters {
-		if cluster.Server == apiServer {
+		if cluster.Server == apiServer && !strings.HasPrefix(clusterName, ClusterPoolHostContextPrefix) {
 			foundCluster = clusterName
 			break
 		}

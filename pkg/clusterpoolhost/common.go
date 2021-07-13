@@ -129,7 +129,7 @@ func (cph *ClusterPoolHost) getClusterClaimSAToken(
 		return
 	}
 
-	clusterPoolRestConfig, err := GetGlobalCurrentRestConfig()
+	clusterPoolRestConfig, err := cph.GetGlobalRestConfig()
 	if err != nil {
 		return
 	}
@@ -159,7 +159,7 @@ func (cph *ClusterPoolHost) getClusterClaimSAToken(
 
 	applierBuilder := &clusteradmapply.ApplierBuilder{}
 	if !dryRun {
-		if err = setHibernateClusterClaims(clusterName, false, "", dryRun, outputFile); err != nil {
+		if err = cph.setHibernateClusterClaims(clusterName, false, "", dryRun, outputFile); err != nil {
 			return
 		}
 		if err = waitClusterClaimsRunning(dynamicClientCP, clusterName, "", cph.Namespace, timeout); err != nil {
@@ -216,9 +216,6 @@ func (cph *ClusterPoolHost) getClusterClaimSAToken(
 	err = clusteradmapply.WriteOutput(outputFile, output)
 	if err != nil {
 		return
-	}
-
-	if !dryRun {
 	}
 
 	return
@@ -410,11 +407,7 @@ func CreateClusterClaims(clusterClaimNames, clusterPoolName string, skipSchedule
 	if err != nil {
 		return err
 	}
-	err = cph.VerifyClusterPoolContext(dryRun, outputFile)
-	if err != nil {
-		return err
-	}
-	clusterPoolRestConfig, err := GetGlobalCurrentRestConfig()
+	clusterPoolRestConfig, err := cph.GetGlobalRestConfig()
 	if err != nil {
 		return err
 	}
@@ -487,7 +480,11 @@ func RunClusterClaims(clusterClaimNames string, skipSchedule, dryRun bool, outpu
 	if skipSchedule {
 		skipScheduleAction = "skip"
 	}
-	return setHibernateClusterClaims(clusterClaimNames, false, skipScheduleAction, dryRun, outputFile)
+	cph, err := GetCurrentClusterPoolHost()
+	if err != nil {
+		return err
+	}
+	return cph.setHibernateClusterClaims(clusterClaimNames, false, skipScheduleAction, dryRun, outputFile)
 }
 
 func HibernateClusterClaims(clusterClaimNames string, skipSchedule, dryRun bool, outputFile string) error {
@@ -495,19 +492,15 @@ func HibernateClusterClaims(clusterClaimNames string, skipSchedule, dryRun bool,
 	if skipSchedule {
 		skipScheduleAction = "skip"
 	}
-	return setHibernateClusterClaims(clusterClaimNames, true, skipScheduleAction, dryRun, outputFile)
-}
-
-func setHibernateClusterClaims(clusterClaimNames string, hibernate bool, skipScheduleAction string, dryRun bool, outputFile string) error {
 	cph, err := GetCurrentClusterPoolHost()
 	if err != nil {
 		return err
 	}
-	err = cph.VerifyClusterPoolContext(dryRun, outputFile)
-	if err != nil {
-		return err
-	}
-	clusterPoolRestConfig, err := GetGlobalCurrentRestConfig()
+	return cph.setHibernateClusterClaims(clusterClaimNames, true, skipScheduleAction, dryRun, outputFile)
+}
+
+func (cph *ClusterPoolHost) setHibernateClusterClaims(clusterClaimNames string, hibernate bool, skipScheduleAction string, dryRun bool, outputFile string) error {
+	clusterPoolRestConfig, err := cph.GetGlobalRestConfig()
 	if err != nil {
 		return err
 	}
@@ -627,11 +620,7 @@ func DeleteClusterClaims(clusterClaimNames string, dryRun bool, outputFile strin
 	if err != nil {
 		return err
 	}
-	err = cph.VerifyClusterPoolContext(dryRun, outputFile)
-	if err != nil {
-		return err
-	}
-	clusterPoolRestConfig, err := GetGlobalCurrentRestConfig()
+	clusterPoolRestConfig, err := cph.GetGlobalRestConfig()
 	if err != nil {
 		return err
 	}
@@ -659,11 +648,7 @@ func GetClusterClaims(showCphName, dryRun bool, outputFile string) error {
 	if err != nil {
 		return err
 	}
-	err = cph.VerifyClusterPoolContext(dryRun, outputFile)
-	if err != nil {
-		return err
-	}
-	clusterPoolRestConfig, err := GetGlobalCurrentRestConfig()
+	clusterPoolRestConfig, err := cph.GetGlobalRestConfig()
 	if err != nil {
 		return err
 	}
@@ -707,16 +692,12 @@ func GetClusterClaims(showCphName, dryRun bool, outputFile string) error {
 	return nil
 }
 
-func GetClusterClaim(clusterName string, dryRun bool, outputFile string) error {
+func GetClusterClaim(clusterName string, timeout int, dryRun bool) error {
 	cph, err := GetCurrentClusterPoolHost()
 	if err != nil {
 		return err
 	}
-	err = cph.VerifyClusterPoolContext(dryRun, outputFile)
-	if err != nil {
-		return err
-	}
-	clusterPoolRestConfig, err := GetGlobalCurrentRestConfig()
+	clusterPoolRestConfig, err := cph.GetGlobalRestConfig()
 	if err != nil {
 		return err
 	}
@@ -737,6 +718,9 @@ func GetClusterClaim(clusterName string, dryRun bool, outputFile string) error {
 	}
 	cc := &hivev1.ClusterClaim{}
 	if runtime.DefaultUnstructuredConverter.FromUnstructured(ccu.UnstructuredContent(), cc); err != nil {
+		return err
+	}
+	if err = waitClusterClaimsRunning(dynamicClient, clusterName, "", cph.Namespace, timeout); err != nil {
 		return err
 	}
 	cdu, err := dynamicClient.Resource(gvrCD).Namespace(cc.Spec.Namespace).Get(context.TODO(), cc.Spec.Namespace, metav1.GetOptions{})

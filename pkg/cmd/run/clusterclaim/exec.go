@@ -46,7 +46,7 @@ func (o *Options) run() (err error) {
 			return err
 		}
 	}
-	err = clusterpoolhost.HibernateClusterClaims(o.ClusterClaims, o.SkipSchedule, o.CMFlags.DryRun, o.outputFile)
+	err = clusterpoolhost.RunClusterClaims(o.ClusterClaims, o.SkipSchedule, o.CMFlags.DryRun, o.outputFile)
 	if err != nil {
 		return err
 	}

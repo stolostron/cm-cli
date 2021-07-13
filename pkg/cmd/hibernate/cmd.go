@@ -2,7 +2,7 @@
 package hibernate
 
 import (
-	"github.com/open-cluster-management/cm-cli/pkg/cmd/run/clusterclaim"
+	"github.com/open-cluster-management/cm-cli/pkg/cmd/hibernate/clusterclaim"
 	genericclioptionscm "github.com/open-cluster-management/cm-cli/pkg/genericclioptions"
 
 	"github.com/spf13/cobra"

@@ -42,5 +42,7 @@ func NewCmd(cmFlags *genericclioptionscm.CMFlags, streams genericclioptions.IOSt
 		},
 	}
 
+	clusters.Flags().IntVar(&o.Timeout, "timeout", 60, "Timeout to get the cluster claim running")
+
 	return clusters
 }

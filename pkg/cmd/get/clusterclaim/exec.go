@@ -46,7 +46,7 @@ func (o *Options) run() (err error) {
 			return err
 		}
 	}
-	err = clusterpoolhost.GetClusterClaim(o.ClusterClaim, o.CMFlags.DryRun, o.outputFile)
+	err = clusterpoolhost.GetClusterClaim(o.ClusterClaim, o.Timeout, o.CMFlags.DryRun)
 	if err != nil {
 		return err
 	}
