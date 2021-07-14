@@ -3,23 +3,21 @@
 package clusterpoolhost
 
 import (
-	"context"
 	"fmt"
 	"io/ioutil"
 	"net/url"
 	"os"
 	"path/filepath"
 
-	"k8s.io/client-go/rest"
-
 	"github.com/ghodss/yaml"
-	userv1 "github.com/openshift/api/user/v1"
-	userv1typedclient "github.com/openshift/client-go/user/clientset/versioned/typed/user/v1"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 const ClusterPoolHostsDir = ".kube"
 const ServiceAccountNameSpace = "default"
+
+const (
+	ClusterPoolHostContextPrefix string = "clusterpoolhost"
+)
 
 var (
 	clusterPoolClustersFile = filepath.Join(ClusterPoolHostsDir, "known-cphs")
@@ -49,20 +47,6 @@ type ErrorType string
 const (
 	errorNotFound ErrorType = "not found"
 )
-
-//WhoAmI returns the current user
-func WhoAmI(restConfig *rest.Config) (*userv1.User, error) {
-	userInterface, err := userv1typedclient.NewForConfig(restConfig)
-	if err != nil {
-		return nil, err
-	}
-	me, err := userInterface.Users().Get(context.TODO(), "~", metav1.GetOptions{})
-	if err == nil {
-		return me, err
-	}
-
-	return me, err
-}
 
 //GetContextName returns the context name for a given clusterpoolhost
 func (c *ClusterPoolHost) GetContextName() string {
@@ -189,7 +173,7 @@ func (cs *ClusterPoolHosts) GetCurrentClusterPoolHost() (*ClusterPoolHost, error
 			return c, nil
 		}
 	}
-	return nil, fmt.Errorf("active cluster pool host not found")
+	return nil, fmt.Errorf("no active cluster pool host found")
 }
 
 //AddClusterPoolHost adds a clusterpoolhost

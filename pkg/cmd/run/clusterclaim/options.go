@@ -13,6 +13,7 @@ type Options struct {
 	ClusterClaims   string
 	ClusterPoolHost string
 	SkipSchedule    bool
+	Timeout         int
 	//The file to output the resources will be sent to the file.
 	outputFile string
 }
