@@ -13,9 +13,6 @@ func (o *Options) complete(cmd *cobra.Command, args []string) (err error) {
 		return fmt.Errorf("clustername is missing")
 	}
 	o.Cluster = args[0]
-	if len(args) > 1 {
-		o.ClusterPoolHost = args[1]
-	}
 	return nil
 }
 
@@ -45,13 +42,27 @@ func (o *Options) run() (err error) {
 			return err
 		}
 	}
-	err = clusterpoolhost.VerifyClusterClaimContext(o.Cluster, o.Timeout, o.CMFlags.DryRun, o.outputFile)
-	if err != nil {
-		return err
-	}
+	err = o.useClusterClaimContext(cphs)
 
 	if len(o.ClusterPoolHost) != 0 {
-		return cphs.SetActive(currentCph)
+		if err := cphs.SetActive(currentCph); err != nil {
+			return err
+		}
 	}
-	return nil
+	return err
+}
+
+func (o *Options) useClusterClaimContext(cphs *clusterpoolhost.ClusterPoolHosts) (err error) {
+	if len(o.ClusterPoolHost) != 0 {
+		cph, err := cphs.GetClusterPoolHost(o.ClusterPoolHost)
+		if err != nil {
+			return err
+		}
+
+		err = cphs.SetActive(cph)
+		if err != nil {
+			return err
+		}
+	}
+	return clusterpoolhost.UseClusterClaimContext(o.Cluster, o.Timeout, o.CMFlags.DryRun, o.outputFile)
 }

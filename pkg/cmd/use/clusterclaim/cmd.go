@@ -39,6 +39,7 @@ func NewCmd(cmFlags *genericclioptionscm.CMFlags, streams genericclioptions.IOSt
 		},
 	}
 
+	cmd.Flags().StringVar(&o.ClusterPoolHost, "cph", "", "The clusterpoolhost to use")
 	cmd.Flags().IntVar(&o.Timeout, "timeout", 60, "Timeout to wait the cluster claim running")
 
 	return cmd

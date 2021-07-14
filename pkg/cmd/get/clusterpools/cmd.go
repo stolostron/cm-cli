@@ -28,7 +28,7 @@ func NewCmd(cmFlags *genericclioptionscm.CMFlags, streams genericclioptions.IOSt
 	o := newOptions(cmFlags, streams)
 	cmd := &cobra.Command{
 		Use:          "clusterpools",
-		Aliases:      []string{"cps"},
+		Aliases:      []string{"cps", "cp", "clusterpool"},
 		Short:        "Get clusterpool",
 		Example:      fmt.Sprintf(example, helpers.GetExampleHeader()),
 		SilenceUsage: true,

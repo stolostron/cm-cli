@@ -22,7 +22,7 @@ const (
 	DefaultNamespace string = "default"
 )
 
-func VerifyClusterClaimContext(
+func UseClusterClaimContext(
 	clusterName string,
 	timeout int,
 	dryRun bool,

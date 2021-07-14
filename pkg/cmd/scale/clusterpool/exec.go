@@ -35,6 +35,17 @@ func (o *Options) run() (err error) {
 		return err
 	}
 
+	err = o.sizeClusterPool(cphs)
+
+	if len(o.ClusterPoolHost) != 0 {
+		if err := cphs.SetActive(currentCph); err != nil {
+			return err
+		}
+	}
+	return err
+}
+
+func (o *Options) sizeClusterPool(cphs *clusterpoolhost.ClusterPoolHosts) (err error) {
 	if len(o.ClusterPoolHost) != 0 {
 		cph, err := cphs.GetClusterPoolHost(o.ClusterPoolHost)
 		if err != nil {
@@ -46,13 +57,5 @@ func (o *Options) run() (err error) {
 			return err
 		}
 	}
-	err = clusterpoolhost.SizeClusterPool(o.ClusterPool, o.Size, o.CMFlags.DryRun)
-	if err != nil {
-		return err
-	}
-
-	if len(o.ClusterPoolHost) != 0 {
-		return cphs.SetActive(currentCph)
-	}
-	return nil
+	return clusterpoolhost.SizeClusterPool(o.ClusterPool, o.Size, o.CMFlags.DryRun)
 }

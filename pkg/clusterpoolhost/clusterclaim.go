@@ -305,7 +305,7 @@ func DeleteClusterClaims(clusterClaimNames string, dryRun bool, outputFile strin
 	return nil
 }
 
-func GetClusterClaims(showCphName, dryRun bool, outputFile string) error {
+func GetClusterClaims(showCphName, dryRun bool) error {
 	cph, err := GetCurrentClusterPoolHost()
 	if err != nil {
 		return err

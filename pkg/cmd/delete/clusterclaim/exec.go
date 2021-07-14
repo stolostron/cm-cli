@@ -14,9 +14,6 @@ func (o *Options) complete(cmd *cobra.Command, args []string) (err error) {
 		return fmt.Errorf("clusterclaim name is missing")
 	}
 	o.ClusterClaims = args[0]
-	if len(args) > 1 {
-		o.ClusterPoolHost = args[1]
-	}
 	return nil
 }
 
@@ -35,6 +32,20 @@ func (o *Options) run() (err error) {
 		return err
 	}
 
+	err = o.deleteClusterClaims(cphs)
+	if err != nil {
+		return err
+	}
+
+	if len(o.ClusterPoolHost) != 0 {
+		if err := cphs.SetActive(currentCph); err != nil {
+			return err
+		}
+	}
+	return err
+}
+
+func (o *Options) deleteClusterClaims(cphs *clusterpoolhost.ClusterPoolHosts) (err error) {
 	if len(o.ClusterPoolHost) != 0 {
 		cph, err := cphs.GetClusterPoolHost(o.ClusterPoolHost)
 		if err != nil {
@@ -46,13 +57,6 @@ func (o *Options) run() (err error) {
 			return err
 		}
 	}
-	err = clusterpoolhost.DeleteClusterClaims(o.ClusterClaims, o.CMFlags.DryRun, o.outputFile)
-	if err != nil {
-		return err
-	}
+	return clusterpoolhost.DeleteClusterClaims(o.ClusterClaims, o.CMFlags.DryRun, o.outputFile)
 
-	if len(o.ClusterPoolHost) != 0 {
-		return cphs.SetActive(currentCph)
-	}
-	return nil
 }
