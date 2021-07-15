@@ -16,14 +16,16 @@ import (
 func (o *Options) complete(cmd *cobra.Command, args []string) (err error) {
 	//Check if default values must be used
 	if o.valuesPath == "" {
-		if o.clusterName != "" {
-			o.values = make(map[string]interface{})
-			mc := make(map[string]interface{})
-			mc["name"] = o.clusterName
-			o.values["managedCluster"] = mc
-		} else {
+		if len(args) > 0 {
+			o.clusterName = args[0]
+		}
+		if len(o.clusterName) == 0 {
 			return fmt.Errorf("values or name are missing")
 		}
+		o.values = make(map[string]interface{})
+		mc := make(map[string]interface{})
+		mc["name"] = o.clusterName
+		o.values["managedCluster"] = mc
 	} else {
 		//Read values
 		o.values, err = helpers.ConvertValuesFileToValuesMap(o.valuesPath, "")

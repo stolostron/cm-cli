@@ -36,6 +36,9 @@ func (o *Options) complete(cmd *cobra.Command, args []string) (err error) {
 		mc = imc.(map[string]interface{})
 	}
 	// overwrite values with parameters
+	if len(args) > 0 {
+		o.clusterName = args[0]
+	}
 	if o.clusterName != "" {
 		mc["name"] = o.clusterName
 	}

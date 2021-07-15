@@ -41,6 +41,10 @@ func (o *Options) complete(cmd *cobra.Command, args []string) (err error) {
 		return fmt.Errorf("values are missing")
 	}
 
+	if len(args) > 0 {
+		o.clusterName = args[0]
+	}
+
 	return nil
 }
 

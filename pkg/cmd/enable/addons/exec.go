@@ -19,17 +19,19 @@ import (
 func (o *Options) complete(cmd *cobra.Command, args []string) (err error) {
 	//Check if default values must be used
 	if o.valuesPath == "" {
-		if o.clusterName != "" {
-			reader := scenario.GetScenarioResourcesReader()
-			o.values, err = helpers.ConvertReaderFileToValuesMap(valuesDefaultPath, reader)
-			if err != nil {
-				return err
-			}
-			mc := o.values["managedCluster"].(map[string]interface{})
-			mc["name"] = o.clusterName
-		} else {
+		if len(args) > 0 {
+			o.clusterName = args[0]
+		}
+		if len(o.clusterName) == 0 {
 			return fmt.Errorf("values or name are missing")
 		}
+		reader := scenario.GetScenarioResourcesReader()
+		o.values, err = helpers.ConvertReaderFileToValuesMap(valuesDefaultPath, reader)
+		if err != nil {
+			return err
+		}
+		mc := o.values["managedCluster"].(map[string]interface{})
+		mc["name"] = o.clusterName
 	} else {
 		//Read values
 		o.values, err = helpers.ConvertValuesFileToValuesMap(o.valuesPath, "")

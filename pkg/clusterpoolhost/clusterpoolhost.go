@@ -140,12 +140,13 @@ func (cs *ClusterPoolHosts) RawPrint() error {
 
 //Print prints a summary of the clusterpoolhosts
 func (cs *ClusterPoolHosts) Print() {
+	fmt.Printf("%-1s%-20s\t%-30s\t%-60s\n", " ", "CLUSTER_POOL_HOST", "NAMESPACE", "API_URL")
 	for _, c := range cs.ClusterPoolHosts {
 		star := " "
 		if c.IsActive() {
 			star = "*"
 		}
-		fmt.Printf("%s%s\t%s\n", star, c.Name, c.APIServer)
+		fmt.Printf("%-1s%-20s\t%-30s\t%-60s\n", star, c.Name, c.Namespace, c.APIServer)
 	}
 }
 
