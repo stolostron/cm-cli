@@ -26,8 +26,11 @@ var example = `
 # Create a cluster
 %[1]s create cluster --values values.yaml
 
-# Create a cluster
-%[1]s create cluster --values values.yaml
+# Create a cluster with cluster name overwrite
+%[1]s create cluster --cluster mycluster --values values.yaml
+
+# Create a cluster with cluster name overwrite by args
+%[1]s create cluster mycluster --values values.yaml
 `
 
 // NewCmd ...

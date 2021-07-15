@@ -19,7 +19,10 @@ var example = `
 %[1]s detach cluster --values values.yaml
 
 # Detach a cluster with overwritting the cluster name
-%[1]s detach cluster --values values.yaml --cluster mycluster
+%[1]s detach cluster --cluster mycluster --values values.yaml
+
+# Detach a cluster with overwritting the cluster name with arg
+%[1]s detach cluster mycluster --values values.yaml
 `
 
 const (
