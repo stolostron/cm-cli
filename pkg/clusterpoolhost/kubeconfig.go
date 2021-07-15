@@ -19,27 +19,27 @@ const (
 
 var contextBackup, globalContextBackup string
 
-//GetGlobalConfig gets the config from the global file
-func GetGlobalConfig() (*clientcmdapi.Config, error) {
-	return getConfig(true)
-}
+// //GetGlobalConfig gets the config from the global file
+// func GetGlobalConfig() (*clientcmdapi.Config, error) {
+// 	return getConfig(true)
+// }
 
-//GetConfig gets the config from the file specified by the env var if set otherwise the global file
-func GetConfig() (*clientcmdapi.Config, error) {
-	return getConfig(false)
-}
+// //GetConfig gets the config from the file specified by the env var if set otherwise the global file
+// func GetConfig() (*clientcmdapi.Config, error) {
+// 	return getConfig(false)
+// }
 
-func getConfig(globalKubeConfig bool) (*clientcmdapi.Config, error) {
-	pathOptions := clientcmd.NewDefaultPathOptions()
-	if globalKubeConfig {
-		pathOptions.EnvVar = ""
-	}
-	config, err := pathOptions.GetStartingConfig()
-	if err != nil {
-		return nil, err
-	}
-	return config, nil
-}
+// func getConfig(globalKubeConfig bool) (*clientcmdapi.Config, error) {
+// 	pathOptions := clientcmd.NewDefaultPathOptions()
+// 	if globalKubeConfig {
+// 		pathOptions.EnvVar = ""
+// 	}
+// 	config, err := pathOptions.GetStartingConfig()
+// 	if err != nil {
+// 		return nil, err
+// 	}
+// 	return config, nil
+// }
 
 //IsGlobalContext checks if the context is in the global file
 func IsGlobalContext(contextName string) (bool, error) {

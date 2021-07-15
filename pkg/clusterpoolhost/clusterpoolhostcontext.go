@@ -94,9 +94,9 @@ func (cph *ClusterPoolHost) CreateClusterPoolContext(token, serviceAccountName s
 	var currentContext *clientcmdapi.Config
 	//Get current context
 	if inGlobal {
-		currentContext, err = GetGlobalConfig()
+		currentContext, _, err = GetGlobalConfigAPI()
 	} else {
-		currentContext, err = GetConfig()
+		currentContext, _, err = GetConfigAPI()
 
 	}
 	if err != nil {

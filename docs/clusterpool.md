@@ -64,6 +64,12 @@ cm hibernate cc <clusterclaim>[,<clusterlcaim>...] [--skip-schedule]
 cm run cc <clusterclaim>[,<clusterlcaim>...] [--skip-schedule]
 ```
 
+### Attach clusterclaims
+
+```bash
+cm attach cc <clusterclaim>
+```
+
 ## ClusterPools
 ### Scale clusterpool
 

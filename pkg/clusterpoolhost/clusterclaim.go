@@ -8,22 +8,17 @@ import (
 	"time"
 
 	"github.com/open-cluster-management/cm-cli/pkg/clusterpoolhost/scenario"
+	"github.com/open-cluster-management/cm-cli/pkg/helpers"
 	hivev1 "github.com/openshift/hive/apis/hive/v1"
 	corev1 "k8s.io/api/core/v1"
 	apiextensionsclient "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
-	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/apimachinery/pkg/util/wait"
 	"k8s.io/client-go/dynamic"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/klog/v2"
 	clusteradmapply "open-cluster-management.io/clusteradm/pkg/helpers/apply"
-)
-
-var (
-	gvrCC schema.GroupVersionResource = schema.GroupVersionResource{Group: "hive.openshift.io", Version: "v1", Resource: "clusterclaims"}
-	gvrCD schema.GroupVersionResource = schema.GroupVersionResource{Group: "hive.openshift.io", Version: "v1", Resource: "clusterdeployments"}
 )
 
 func CreateClusterClaims(clusterClaimNames, clusterPoolName string, skipSchedule bool, timeout int, dryRun bool, outputFile string) error {
@@ -50,7 +45,7 @@ func CreateClusterClaims(clusterClaimNames, clusterPoolName string, skipSchedule
 		return err
 	}
 
-	_, err = dynamicClient.Resource(gvrCP).Namespace(cph.Namespace).Get(context.TODO(), clusterPoolName, metav1.GetOptions{})
+	_, err = dynamicClient.Resource(helpers.GvrCP).Namespace(cph.Namespace).Get(context.TODO(), clusterPoolName, metav1.GetOptions{})
 	if err != nil {
 		return err
 	}
@@ -146,7 +141,7 @@ func (cph *ClusterPoolHost) setHibernateClusterClaims(clusterClaimNames string, 
 	}
 
 	for _, ccn := range strings.Split(clusterClaimNames, ",") {
-		ccu, err := dynamicClient.Resource(gvrCC).Namespace(cph.Namespace).Get(context.TODO(), ccn, metav1.GetOptions{})
+		ccu, err := dynamicClient.Resource(helpers.GvrCC).Namespace(cph.Namespace).Get(context.TODO(), ccn, metav1.GetOptions{})
 		if err != nil {
 			return err
 		}
@@ -154,7 +149,7 @@ func (cph *ClusterPoolHost) setHibernateClusterClaims(clusterClaimNames string, 
 		if err = runtime.DefaultUnstructuredConverter.FromUnstructured(ccu.UnstructuredContent(), cc); err != nil {
 			return err
 		}
-		cdu, err := dynamicClient.Resource(gvrCD).Namespace(cc.Spec.Namespace).Get(context.TODO(), cc.Spec.Namespace, metav1.GetOptions{})
+		cdu, err := dynamicClient.Resource(helpers.GvrCD).Namespace(cc.Spec.Namespace).Get(context.TODO(), cc.Spec.Namespace, metav1.GetOptions{})
 		if err != nil {
 			return err
 		}
@@ -176,7 +171,7 @@ func (cph *ClusterPoolHost) setHibernateClusterClaims(clusterClaimNames string, 
 			if err != nil {
 				return err
 			}
-			_, err = dynamicClient.Resource(gvrCD).Namespace(cc.Spec.Namespace).Update(context.TODO(), cdu, metav1.UpdateOptions{})
+			_, err = dynamicClient.Resource(helpers.GvrCD).Namespace(cc.Spec.Namespace).Update(context.TODO(), cdu, metav1.UpdateOptions{})
 			if err != nil {
 				return err
 			}
@@ -196,7 +191,7 @@ func waitClusterClaimsRunning(dynamicClient dynamic.Interface, clusterClaimNames
 }
 func checkClusterClaimsRunning(dynamicClient dynamic.Interface, clusterClaimNames, clusterPoolName, namespace string, i, timeout int) (bool, error) {
 	if len(clusterPoolName) != 0 {
-		cpu, err := dynamicClient.Resource(gvrCP).Namespace(namespace).Get(context.TODO(), clusterPoolName, metav1.GetOptions{})
+		cpu, err := dynamicClient.Resource(helpers.GvrCP).Namespace(namespace).Get(context.TODO(), clusterPoolName, metav1.GetOptions{})
 		if err != nil {
 			return false, err
 		}
@@ -213,7 +208,7 @@ func checkClusterClaimsRunning(dynamicClient dynamic.Interface, clusterClaimName
 	allRunning := true
 	for _, ccn := range strings.Split(clusterClaimNames, ",") {
 		clusterClaimName := strings.TrimSpace(ccn)
-		ccu, err := dynamicClient.Resource(gvrCC).Namespace(namespace).Get(context.TODO(), clusterClaimName, metav1.GetOptions{})
+		ccu, err := dynamicClient.Resource(helpers.GvrCC).Namespace(namespace).Get(context.TODO(), clusterClaimName, metav1.GetOptions{})
 		if err != nil {
 			allErrors[clusterClaimName] = err
 			fmt.Printf("Error: %s\n", err.Error())
@@ -228,7 +223,7 @@ func checkClusterClaimsRunning(dynamicClient dynamic.Interface, clusterClaimName
 		}
 		running := false
 		if len(cc.Spec.Namespace) != 0 {
-			cdu, err := dynamicClient.Resource(gvrCD).Namespace(cc.Spec.Namespace).Get(context.TODO(), cc.Spec.Namespace, metav1.GetOptions{})
+			cdu, err := dynamicClient.Resource(helpers.GvrCD).Namespace(cc.Spec.Namespace).Get(context.TODO(), cc.Spec.Namespace, metav1.GetOptions{})
 			if err != nil {
 				allErrors[clusterClaimName] = err
 				fmt.Printf("Error: %s\n", err.Error())
@@ -293,10 +288,9 @@ func DeleteClusterClaims(clusterClaimNames string, dryRun bool, outputFile strin
 	}
 
 	if !dryRun {
-		gvr := schema.GroupVersionResource{Group: "hive.openshift.io", Version: "v1", Resource: "clusterclaims"}
 		for _, ccn := range strings.Split(clusterClaimNames, ",") {
 			clusterClaimName := strings.TrimSpace(ccn)
-			err = dynamicClient.Resource(gvr).Namespace(cph.Namespace).Delete(context.TODO(), clusterClaimName, metav1.DeleteOptions{})
+			err = dynamicClient.Resource(helpers.GvrCC).Namespace(cph.Namespace).Delete(context.TODO(), clusterClaimName, metav1.DeleteOptions{})
 			if err != nil {
 				return err
 			}
@@ -320,7 +314,7 @@ func GetClusterClaims(showCphName, dryRun bool) error {
 		return err
 	}
 
-	l, err := dynamicClient.Resource(gvrCC).Namespace(cph.Namespace).List(context.TODO(), metav1.ListOptions{})
+	l, err := dynamicClient.Resource(helpers.GvrCC).Namespace(cph.Namespace).List(context.TODO(), metav1.ListOptions{})
 	if err != nil {
 		return err
 	}
@@ -342,7 +336,7 @@ func GetClusterClaims(showCphName, dryRun bool) error {
 			printClusterClaim(showCphName, true, cph, cc, nil)
 			continue
 		}
-		cdu, err := dynamicClient.Resource(gvrCD).Namespace(cc.Spec.Namespace).Get(context.TODO(), cc.Spec.Namespace, metav1.GetOptions{})
+		cdu, err := dynamicClient.Resource(helpers.GvrCD).Namespace(cc.Spec.Namespace).Get(context.TODO(), cc.Spec.Namespace, metav1.GetOptions{})
 		if err != nil {
 			if showCphName {
 				fmt.Printf("%s clusterdeployment %s\n", cc.GetName(), err.Error())
@@ -409,7 +403,7 @@ func GetClusterClaim(clusterName string, timeout int, dryRun bool) error {
 	if err != nil {
 		return err
 	}
-	ccu, err := dynamicClient.Resource(gvrCC).Namespace(cph.Namespace).Get(context.TODO(), clusterName, metav1.GetOptions{})
+	ccu, err := dynamicClient.Resource(helpers.GvrCC).Namespace(cph.Namespace).Get(context.TODO(), clusterName, metav1.GetOptions{})
 	if err != nil {
 		return err
 	}
@@ -417,7 +411,7 @@ func GetClusterClaim(clusterName string, timeout int, dryRun bool) error {
 	if runtime.DefaultUnstructuredConverter.FromUnstructured(ccu.UnstructuredContent(), cc); err != nil {
 		return err
 	}
-	cdu, err := dynamicClient.Resource(gvrCD).Namespace(cc.Spec.Namespace).Get(context.TODO(), cc.Spec.Namespace, metav1.GetOptions{})
+	cdu, err := dynamicClient.Resource(helpers.GvrCD).Namespace(cc.Spec.Namespace).Get(context.TODO(), cc.Spec.Namespace, metav1.GetOptions{})
 	if err != nil {
 		return err
 	}

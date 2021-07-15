@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/open-cluster-management/cm-cli/pkg/clusterpoolhost/scenario"
+	"github.com/open-cluster-management/cm-cli/pkg/helpers"
 	hivev1 "github.com/openshift/hive/apis/hive/v1"
 	apiextensionsclient "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -155,7 +156,7 @@ func (cph *ClusterPoolHost) getClusterClaimConfigAPI(clusterName string, cluster
 	if err != nil {
 		return nil, err
 	}
-	ccu, err := dynamicClient.Resource(gvrCC).Namespace(cph.Namespace).Get(context.TODO(), clusterName, metav1.GetOptions{})
+	ccu, err := dynamicClient.Resource(helpers.GvrCC).Namespace(cph.Namespace).Get(context.TODO(), clusterName, metav1.GetOptions{})
 	if err != nil {
 		return nil, err
 	}
@@ -164,7 +165,7 @@ func (cph *ClusterPoolHost) getClusterClaimConfigAPI(clusterName string, cluster
 	if err != nil {
 		return nil, err
 	}
-	cdu, err := dynamicClient.Resource(gvrCD).Namespace(cc.Spec.Namespace).Get(context.TODO(), cc.Spec.Namespace, metav1.GetOptions{})
+	cdu, err := dynamicClient.Resource(helpers.GvrCD).Namespace(cc.Spec.Namespace).Get(context.TODO(), cc.Spec.Namespace, metav1.GetOptions{})
 	if err != nil {
 		return nil, err
 	}

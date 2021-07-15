@@ -5,15 +5,11 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/open-cluster-management/cm-cli/pkg/helpers"
 	hivev1 "github.com/openshift/hive/apis/hive/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
-	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/client-go/dynamic"
-)
-
-var (
-	gvrCP schema.GroupVersionResource = schema.GroupVersionResource{Group: "hive.openshift.io", Version: "v1", Resource: "clusterpools"}
 )
 
 func SizeClusterPool(clusterPoolName string, size int32, dryRun bool) error {
@@ -30,7 +26,7 @@ func SizeClusterPool(clusterPoolName string, size int32, dryRun bool) error {
 	if err != nil {
 		return err
 	}
-	cpu, err := dynamicClient.Resource(gvrCP).Namespace(cph.Namespace).Get(context.TODO(), clusterPoolName, metav1.GetOptions{})
+	cpu, err := dynamicClient.Resource(helpers.GvrCP).Namespace(cph.Namespace).Get(context.TODO(), clusterPoolName, metav1.GetOptions{})
 	if err != nil {
 		return err
 	}
@@ -44,7 +40,7 @@ func SizeClusterPool(clusterPoolName string, size int32, dryRun bool) error {
 		if runtime.DefaultUnstructuredConverter.FromUnstructured(cpu.UnstructuredContent(), cp); err != nil {
 			return err
 		}
-		if _, err = dynamicClient.Resource(gvrCP).Namespace(cph.Namespace).Update(context.TODO(), cpu, metav1.UpdateOptions{}); err != nil {
+		if _, err = dynamicClient.Resource(helpers.GvrCP).Namespace(cph.Namespace).Update(context.TODO(), cpu, metav1.UpdateOptions{}); err != nil {
 			return err
 		}
 	}
@@ -66,7 +62,7 @@ func GetClusterPools(showCphName, dryRun bool) error {
 		return err
 	}
 
-	l, err := dynamicClient.Resource(gvrCP).Namespace(cph.Namespace).List(context.TODO(), metav1.ListOptions{})
+	l, err := dynamicClient.Resource(helpers.GvrCP).Namespace(cph.Namespace).List(context.TODO(), metav1.ListOptions{})
 	if err != nil {
 		return err
 	}

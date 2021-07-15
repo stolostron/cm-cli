@@ -33,9 +33,6 @@ func (o *Options) run() (err error) {
 	}
 
 	err = o.deleteClusterClaims(cphs)
-	if err != nil {
-		return err
-	}
 
 	if len(o.ClusterPoolHost) != 0 {
 		if err := cphs.SetActive(currentCph); err != nil {
