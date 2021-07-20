@@ -3,6 +3,7 @@ package attach
 
 import (
 	"github.com/open-cluster-management/cm-cli/pkg/cmd/attach/cluster"
+	"github.com/open-cluster-management/cm-cli/pkg/cmd/attach/clusterclaim"
 	genericclioptionscm "github.com/open-cluster-management/cm-cli/pkg/genericclioptions"
 
 	"github.com/spf13/cobra"
@@ -17,6 +18,7 @@ func NewCmd(cmFlags *genericclioptionscm.CMFlags, streams genericclioptions.IOSt
 	}
 
 	cmd.AddCommand(cluster.NewCmd(cmFlags, streams))
+	cmd.AddCommand(clusterclaim.NewCmd(cmFlags, streams))
 
 	return cmd
 }

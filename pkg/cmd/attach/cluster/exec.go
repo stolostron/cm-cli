@@ -7,14 +7,13 @@ import (
 	"io/ioutil"
 	"time"
 
-	"github.com/openshift/library-go/pkg/operator/resource/resourceapply"
 	apiextensionsclient "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset"
 	"k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime/schema"
-	"k8s.io/client-go/discovery"
 	"k8s.io/client-go/dynamic"
 	"k8s.io/client-go/kubernetes"
+	clusteradmhelpers "open-cluster-management.io/clusteradm/pkg/helpers"
 	clusteradmapply "open-cluster-management.io/clusteradm/pkg/helpers/apply"
 
 	"github.com/open-cluster-management/cm-cli/pkg/cmd/attach/cluster/scenario"
@@ -25,17 +24,19 @@ import (
 func (o *Options) complete(cmd *cobra.Command, args []string) (err error) {
 	//Check if default values must be used
 	if o.valuesPath == "" {
-		if o.clusterName != "" {
-			reader := scenario.GetScenarioResourcesReader()
-			o.values, err = helpers.ConvertReaderFileToValuesMap(valuesDefaultPath, reader)
-			if err != nil {
-				return err
-			}
-			mc := o.values["managedCluster"].(map[string]interface{})
-			mc["name"] = o.clusterName
-		} else {
+		if len(args) > 0 {
+			o.clusterName = args[0]
+		}
+		if len(o.clusterName) == 0 {
 			return fmt.Errorf("values or name are missing")
 		}
+		reader := scenario.GetScenarioResourcesReader()
+		o.values, err = helpers.ConvertReaderFileToValuesMap(valuesDefaultPath, reader)
+		if err != nil {
+			return err
+		}
+		mc := o.values["managedCluster"].(map[string]interface{})
+		mc["name"] = o.clusterName
 	} else {
 		//Read values
 		o.values, err = helpers.ConvertValuesFileToValuesMap(o.valuesPath, "")
@@ -175,40 +176,18 @@ func (o *Options) validateWithClient(kubeClient kubernetes.Interface, dynamicCli
 }
 
 func (o *Options) run() (err error) {
-	kubeClient, err := o.CMFlags.KubectlFactory.KubernetesClientSet()
+	kubeClient, apiextensionsClient, dynamicClient, err := clusteradmhelpers.GetClients(o.CMFlags.KubectlFactory)
 	if err != nil {
 		return err
 	}
-	dynamicClient, err := o.CMFlags.KubectlFactory.DynamicClient()
-	if err != nil {
-		return err
-	}
-	restConfig, err := o.CMFlags.KubectlFactory.ToRESTConfig()
-	if err != nil {
-		return err
-	}
-	apiextensionsClient, err := apiextensionsclient.NewForConfig(restConfig)
-	if err != nil {
-		return err
-	}
-	discoveryClient, err := o.CMFlags.KubectlFactory.ToDiscoveryClient()
-	if err != nil {
-		return err
-	}
-	return o.runWithClient(kubeClient, dynamicClient, apiextensionsClient, discoveryClient)
+	return o.runWithClient(kubeClient, apiextensionsClient, dynamicClient)
 }
 
 func (o *Options) runWithClient(kubeClient kubernetes.Interface,
-	dynamicClient dynamic.Interface,
 	apiextensionsClient apiextensionsclient.Interface,
-	discoveryClient discovery.DiscoveryInterface) (err error) {
+	dynamicClient dynamic.Interface) (err error) {
 	output := make([]string, 0)
 	reader := scenario.GetScenarioResourcesReader()
-
-	clientHolder := resourceapply.NewClientHolder().
-		WithAPIExtensionsClient(apiextensionsClient).
-		WithKubernetes(kubeClient).
-		WithDynamicClient(dynamicClient)
 
 	files := []string{
 		"attach/hub/namespace.yaml",
@@ -218,7 +197,9 @@ func (o *Options) runWithClient(kubeClient kubernetes.Interface,
 		files = append(files, "attach/hub/managed_cluster_secret.yaml")
 	}
 
-	out, err := clusteradmapply.ApplyDirectly(clientHolder, reader, o.values, o.CMFlags.DryRun, "", files...)
+	applierBuilder := &clusteradmapply.ApplierBuilder{}
+	applier := applierBuilder.WithClient(kubeClient, apiextensionsClient, dynamicClient).Build()
+	out, err := applier.ApplyDirectly(reader, o.values, o.CMFlags.DryRun, "", files...)
 	if err != nil {
 		return err
 	}
@@ -229,7 +210,7 @@ func (o *Options) runWithClient(kubeClient kubernetes.Interface,
 		"attach/hub/klusterlet_addon_config_cr.yaml",
 	}
 
-	out, err = clusteradmapply.ApplyCustomResouces(dynamicClient, discoveryClient, reader, o.values, o.CMFlags.DryRun, "", files...)
+	out, err = applier.ApplyCustomResources(reader, o.values, o.CMFlags.DryRun, "", files...)
 	if err != nil {
 		return err
 	}
@@ -250,12 +231,12 @@ func (o *Options) runWithClient(kubeClient kubernetes.Interface,
 		values := make(map[string]string)
 		values["crds_yaml"] = string(importSecret.Data["crds.yaml"])
 		values["import_yaml"] = string(importSecret.Data["import.yaml"])
-		importFileContentCRD, err := clusteradmapply.MustTempalteAsset(reader, values, "", "attach/managedcluster/import_crd.yaml")
+		importFileContentCRD, err := applier.MustTempalteAsset(reader, values, "", "attach/managedcluster/import_crd.yaml")
 		if err != nil {
 			return err
 		}
 		importFileContentCRDFileName := fmt.Sprintf("%s_crd.yaml", o.importFile)
-		importFileContentYAML, err := clusteradmapply.MustTempalteAsset(reader, values, "", "attach/managedcluster/import_yaml.yaml")
+		importFileContentYAML, err := applier.MustTempalteAsset(reader, values, "", "attach/managedcluster/import_yaml.yaml")
 		if err != nil {
 			return err
 		}

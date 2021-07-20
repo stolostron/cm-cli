@@ -42,3 +42,5 @@ See our [Contributing Document](CONTRIBUTING.md) for more information.
 [general commands](docs/general.md)
 
 [cluster commands](docs/cluster.md)
+
+[clusterpool commands](docs/clusterpool.md)

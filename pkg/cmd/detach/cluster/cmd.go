@@ -19,7 +19,10 @@ var example = `
 %[1]s detach cluster --values values.yaml
 
 # Detach a cluster with overwritting the cluster name
-%[1]s detach cluster --values values.yaml --cluster mycluster
+%[1]s detach cluster --cluster mycluster --values values.yaml
+
+# Detach a cluster with overwritting the cluster name with arg
+%[1]s detach cluster mycluster --values values.yaml
 `
 
 const (
@@ -34,6 +37,7 @@ func NewCmd(cmFlags *genericclioptionscm.CMFlags, streams genericclioptions.IOSt
 
 	cluster := &cobra.Command{
 		Use:          "cluster",
+		Aliases:      []string{"clusters", "clusterclaim", "clusterclaims", "cc", "ccs"},
 		Short:        "detach a cluster",
 		Example:      fmt.Sprintf(example, helpers.GetExampleHeader()),
 		SilenceUsage: true,

@@ -3,6 +3,8 @@ package delete
 
 import (
 	"github.com/open-cluster-management/cm-cli/pkg/cmd/delete/cluster"
+	"github.com/open-cluster-management/cm-cli/pkg/cmd/delete/clusterclaim"
+	"github.com/open-cluster-management/cm-cli/pkg/cmd/delete/clusterpoolhost"
 	genericclioptionscm "github.com/open-cluster-management/cm-cli/pkg/genericclioptions"
 	clusteradmdeletetoken "open-cluster-management.io/clusteradm/pkg/cmd/delete/token"
 	genericclioptionsclusteradm "open-cluster-management.io/clusteradm/pkg/genericclioptions"
@@ -20,5 +22,7 @@ func NewCmd(clusteradmFlags *genericclioptionsclusteradm.ClusteradmFlags, cmFlag
 
 	cmd.AddCommand(cluster.NewCmd(cmFlags, streams))
 	cmd.AddCommand(clusteradmdeletetoken.NewCmd(clusteradmFlags, streams))
+	cmd.AddCommand(clusterpoolhost.NewCmd(cmFlags, streams))
+	cmd.AddCommand(clusterclaim.NewCmd(cmFlags, streams))
 	return cmd
 }

@@ -3,6 +3,8 @@ package create
 
 import (
 	"github.com/open-cluster-management/cm-cli/pkg/cmd/create/cluster"
+	"github.com/open-cluster-management/cm-cli/pkg/cmd/create/clusterclaim"
+	"github.com/open-cluster-management/cm-cli/pkg/cmd/create/clusterpoolhost"
 	genericclioptionscm "github.com/open-cluster-management/cm-cli/pkg/genericclioptions"
 
 	"github.com/spf13/cobra"
@@ -17,6 +19,8 @@ func NewCmd(cmFlags *genericclioptionscm.CMFlags, streams genericclioptions.IOSt
 	}
 
 	cmd.AddCommand(cluster.NewCmd(cmFlags, streams))
+	cmd.AddCommand(clusterpoolhost.NewCmd(cmFlags, streams))
+	cmd.AddCommand(clusterclaim.NewCmd(cmFlags, streams))
 
 	return cmd
 }

@@ -20,7 +20,10 @@ var example = `
 %[1]s delete cluster --values values.yaml
 
 # Delete a cluster with overwritting the cluster name
-%[1]s delete cluster --values values.yaml --cluster mycluster
+%[1]s delete cluster  --cluster mycluster --values values.yaml
+
+# Delete a cluster with overwritting the cluster name with arg
+%[1]s delete cluster mycluster--values values.yaml
 `
 
 const (
