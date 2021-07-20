@@ -1,35 +1,45 @@
 // Copyright Contributors to the Open Cluster Management project
-package clusterclaim
+package clusterpool
 
 import (
 	"fmt"
+	"path/filepath"
+
+	cmdutil "k8s.io/kubectl/pkg/cmd/util"
 
 	clusteradmhelpers "open-cluster-management.io/clusteradm/pkg/helpers"
 
 	"github.com/open-cluster-management/cm-cli/pkg/clusterpoolhost"
 	genericclioptionscm "github.com/open-cluster-management/cm-cli/pkg/genericclioptions"
 	"github.com/open-cluster-management/cm-cli/pkg/helpers"
-	cmdutil "k8s.io/kubectl/pkg/cmd/util"
+
+	"github.com/open-cluster-management/cm-cli/pkg/clusterpoolhost/scenario"
 
 	"github.com/spf13/cobra"
 	"k8s.io/cli-runtime/pkg/genericclioptions"
 )
 
-var example = `
-# Delete a clusterclaim in the current clusterpoolhost
-%[1]s delete clusterclaim|cc <clusterclaim_name>[,<clusterclaim_name>...] <options>
+const (
+	scenarioDirectory = "create/clusterpool"
+)
 
-# Delete a clusterclaim on a given clusterpoolhost
-%[1]s delete clusterclaim|cc <clusterclaim_name>[,<clusterclaim_name>...] -cph <clusterpoolhost_name> <options>
+var valuesTemplatePath = filepath.Join(scenarioDirectory, "common/values-template.yaml")
+
+var example = `
+# Create a clusterpool
+%[1]s create clusterpool --values values.yaml
+
+# Create a cluster with cluster name overwrite by args
+%[1]s create clusterpool mycluster --values values.yaml
 `
 
 // NewCmd ...
 func NewCmd(cmFlags *genericclioptionscm.CMFlags, streams genericclioptions.IOStreams) *cobra.Command {
 	o := newOptions(cmFlags, streams)
 	cmd := &cobra.Command{
-		Use:          "clusterclaim",
-		Aliases:      []string{"cc", "ccs", "clusterclaims"},
-		Short:        "Delete clusterclaims",
+		Use:          "clusterpool",
+		Aliases:      []string{"cp"},
+		Short:        "Create a clusterpool",
 		Example:      fmt.Sprintf(example, helpers.GetExampleHeader()),
 		SilenceUsage: true,
 		PreRunE: func(cmd *cobra.Command, args []string) error {
@@ -46,7 +56,10 @@ func NewCmd(cmFlags *genericclioptionscm.CMFlags, streams genericclioptions.IOSt
 		},
 	}
 
+	cmd.SetUsageTemplate(clusteradmhelpers.UsageTempate(cmd, scenario.GetScenarioResourcesReader(), valuesTemplatePath))
 	cmd.Flags().StringVar(&o.ClusterPoolHost, "cph", "", "The clusterpoolhost to use")
+	cmd.Flags().StringVar(&o.valuesPath, "values", "", "The files containing the values")
+	cmd.Flags().StringVar(&o.outputFile, "output-file", "", "The generated resources will be copied in the specified file")
 
 	return cmd
 }

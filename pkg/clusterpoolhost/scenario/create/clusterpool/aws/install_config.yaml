@@ -1,0 +1,67 @@
+# Copyright Contributors to the Open Cluster Management project
+
+apiVersion: v1
+metadata:
+  name: "{{ .clusterPool.name }}"
+baseDomain: {{ .clusterPool.aws.baseDnsDomain }}
+controlPlane:
+  hyperthreading: Enabled
+  name: master
+  replicas: {{ if .clusterPool.master }}{{ .clusterPool.master.replicas }}{{ else }}3{{end}}
+  platform:
+    aws:
+{{- if .clusterPool.aws.master }}
+{{- if .clusterPool.aws.master.rootVolume }}
+      rootVolume:
+{{ toYaml .clusterPool.aws.master.rootVolume | indent 8}}
+{{- else }}
+      rootVolume: # see below the default values 
+        iops: 4000
+        size: 100
+        type: gp2
+{{- end -}}
+{{- else }}
+      rootVolume: # see below the default values 
+        iops: 4000
+        size: 100
+        type: gp2
+{{- end }}
+      type: {{ if .clusterPool.aws.master }}{{ default "m5.xlarge" .clusterPool.aws.master.type }}{{ else }}m5.xlarge{{end}}
+compute:
+- hyperthreading: Enabled
+  name: worker
+  replicas: {{ if .clusterPool.worker }}{{ .clusterPool.worker.replicas }}{{ else }}3{{end}}
+  platform:
+    aws:
+{{- if .clusterPool.aws.worker -}}
+{{- if .clusterPool.aws.worker.rootVolume }}
+      rootVolume:
+{{ toYaml .clusterPool.aws.worker.rootVolume | indent 8 -}}
+{{- else }}
+      rootVolume: # see below the default values 
+        iops: 2000
+        size: 100
+        type: gp2
+{{- end -}}
+{{- else }}
+      rootVolume: # see below the default values 
+        iops: 2000
+        size: 100
+        type: gp2
+{{- end }}
+      type: {{ if .clusterPool.aws.worker }}{{ default "m5.xlarge" .clusterPool.aws.worker.type }}{{ else }}m5.xlarge{{end}}
+networking:
+  clusterNetwork:
+  - cidr: 10.128.0.0/14
+    hostPrefix: 23
+  machineNetwork: 
+  - cidr: 10.0.0.0/16
+  networkType: OpenShiftSDN
+  serviceNetwork:
+  - 172.30.0.0/16
+platform:
+  aws:
+    region: {{ .clusterPool.aws.region }}
+pullSecret: "" # skip, hive will inject based on it's secrets
+sshKey: |-
+{{ .clusterPool.sshPublicKey | indent 4 }}

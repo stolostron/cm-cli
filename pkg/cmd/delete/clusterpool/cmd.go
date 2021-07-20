@@ -1,5 +1,5 @@
 // Copyright Contributors to the Open Cluster Management project
-package clusterclaim
+package clusterpool
 
 import (
 	"fmt"
@@ -16,20 +16,20 @@ import (
 )
 
 var example = `
-# Delete a clusterclaim in the current clusterpoolhost
-%[1]s delete clusterclaim|cc <clusterclaim_name>[,<clusterclaim_name>...] <options>
+# Delete a clusterpool in the current clusterpoolhost
+%[1]s delete clusterpool|cp <clusterpool_name>[,<clusterpool_name>...] <options>
 
-# Delete a clusterclaim on a given clusterpoolhost
-%[1]s delete clusterclaim|cc <clusterclaim_name>[,<clusterclaim_name>...] -cph <clusterpoolhost_name> <options>
+# Delete a clusterpool on a given clusterpoolhost
+%[1]s delete clusterpool|cp <clusterpool_name>[,<clusterpool_name>...] -cph <clusterpoolhost_name> <options>
 `
 
 // NewCmd ...
 func NewCmd(cmFlags *genericclioptionscm.CMFlags, streams genericclioptions.IOStreams) *cobra.Command {
 	o := newOptions(cmFlags, streams)
 	cmd := &cobra.Command{
-		Use:          "clusterclaim",
-		Aliases:      []string{"cc", "ccs", "clusterclaims"},
-		Short:        "Delete clusterclaims",
+		Use:          "clusterpool",
+		Aliases:      []string{"cp", "cps", "clusterpools"},
+		Short:        "Delete clusterpools",
 		Example:      fmt.Sprintf(example, helpers.GetExampleHeader()),
 		SilenceUsage: true,
 		PreRunE: func(cmd *cobra.Command, args []string) error {
