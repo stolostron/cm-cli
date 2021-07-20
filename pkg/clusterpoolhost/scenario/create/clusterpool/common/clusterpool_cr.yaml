@@ -1,0 +1,43 @@
+# Copyright Contributors to the Open Cluster Management project
+
+apiVersion: hive.openshift.io/v1
+kind: ClusterPool
+metadata:
+  name: "{{ .clusterPool.name }}"
+  namespace: "{{ .clusterPool.namespace }}"
+  labels:
+    cloud: {{ .clusterPool.cloud }}
+    vendor: {{ .clusterPool.vendor }}
+spec:
+  size: {{ .clusterPool.size }}
+{{- if (eq .clusterPool.cloud "aws") }}
+  baseDomain: {{ .clusterPool.aws.baseDnsDomain }}
+{{- end }}
+{{- if (eq .clusterPool.cloud "azure") }}
+  baseDomain: {{ .clusterPool.azure.baseDnsDomain }}
+{{- end }}
+{{- if (eq .clusterPool.cloud "gcp") }}
+  baseDomain: {{ .clusterPool.gcp.baseDnsDomain }}
+{{- end }}
+  installConfigSecretTemplateRef:
+    name: {{ .clusterPool.name }}-install-config
+  imageSetRef:
+    name: {{ include "ocpImage" . }}
+  pullSecretRef:
+    name: {{ .clusterPool.name }}-pull-secret
+  platform:
+{{- if (eq .clusterPool.cloud "aws") }}
+    aws:
+      region: {{ .clusterPool.aws.region }}
+{{- end }}
+{{- if (eq .clusterPool.cloud "azure") }}
+    azure:
+      baseDomainResourceGroupName: {{ .clusterPool.azure.baseDomainRGN }}
+      region: {{ .clusterPool.azure.region }}
+{{- end }}
+{{- if (eq .clusterPool.cloud "gcp") }}
+    gcp:
+      region: {{ .clusterPool.gcp.region }}
+{{- end }}
+      credentialsSecretRef:
+        name: "{{ .clusterPool.name }}-creds"

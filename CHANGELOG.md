@@ -11,6 +11,8 @@
 - `scale cp <clusterpool_name> --size <size>`
 - `get cps [<clusterpoolhost>|-A]` to get the list of clusterpools
 - `attach cc <clusterclaim>` [Needs for a cm attach clusterclaim --cluster <cluster_name>](https://github.com/open-cluster-management/cm-cli/issues/51)
+- `create cp <clusterpool>`, `delete cp <clusterpool>` [Create clusterpool](https://github.com/open-cluster-management/cm-cli/issues/38)
+
 ### Additions
 - Add the command `delete token` from [clusteradm](https://github.com/open-cluster-management-io/clusteradm)
 ### Breacking changes

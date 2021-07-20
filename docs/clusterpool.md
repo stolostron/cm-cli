@@ -25,6 +25,28 @@ Once the clusterpoolhost is created, the `~/.kube/config` is updated with a cont
 
 `cm use cph <clusterpoolhost_name>` updates the `~/.kube/config` to point to that cluster.
 
+## ClusterPools
+
+### Create a clusterpool
+
+```bash
+cm create cp <clusterpool_name> --values <values_yaml_path>
+```
+
+The template can be retreived by running 
+
+```bash
+cm create cp -h
+```
+
+it supports clusterpools for AWS, Azure and Google
+
+### Delete a clusterpool
+
+```bash
+cm delete cp <clusterpool_name>
+```
+
 ## ClusterClaims
 ### Use a cluster claim managed by a clusterpoolhost
 

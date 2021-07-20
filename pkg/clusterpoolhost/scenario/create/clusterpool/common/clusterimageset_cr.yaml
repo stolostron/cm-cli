@@ -1,0 +1,10 @@
+# Copyright Contributors to the Open Cluster Management project
+
+{{- if .clusterPool.ocpImage }}
+apiVersion: hive.openshift.io/v1
+kind: ClusterImageSet
+metadata:
+  name: {{ include "ocpImage" . }}
+spec:
+  releaseImage: {{  .clusterPool.ocpImage }}
+{{- end }}
