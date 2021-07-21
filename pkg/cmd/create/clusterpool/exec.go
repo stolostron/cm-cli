@@ -34,12 +34,12 @@ func (o *Options) complete(cmd *cobra.Command, args []string) (err error) {
 }
 
 func (o *Options) validate() (err error) {
-	imc, ok := o.values["clusterPool"]
-	if !ok || imc == nil {
+	icp, ok := o.values["clusterPool"]
+	if !ok || icp == nil {
 		return fmt.Errorf("clusterPool is missing")
 	}
-	mc := imc.(map[string]interface{})
-	icloud, ok := mc["cloud"]
+	cp := icp.(map[string]interface{})
+	icloud, ok := cp["cloud"]
 	if !ok || icloud == nil {
 		return fmt.Errorf("cloud type is missing")
 	}
@@ -49,8 +49,14 @@ func (o *Options) validate() (err error) {
 	}
 	o.cloud = cloud
 
+	_, ocpImageOk := cp["ocpImage"]
+	_, imageSetRef := cp["imageSetRef"]
+	if ocpImageOk && imageSetRef {
+		return fmt.Errorf("ocpImage and imageSetRef are mutually exclusive")
+	}
+
 	if o.ClusterPool == "" {
-		iname, ok := mc["name"]
+		iname, ok := cp["name"]
 		if !ok || iname == nil {
 			return fmt.Errorf("clusterPool name is missing")
 		}
@@ -60,7 +66,7 @@ func (o *Options) validate() (err error) {
 		}
 	}
 
-	mc["name"] = o.ClusterPool
+	cp["name"] = o.ClusterPool
 
 	return nil
 }

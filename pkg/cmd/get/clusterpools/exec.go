@@ -10,9 +10,9 @@ import (
 )
 
 func (o *Options) complete(cmd *cobra.Command, args []string) (err error) {
-	if len(args) > 0 {
-		o.ClusterPoolHost = args[0]
-	}
+	// if len(args) > 0 {
+	// 	o.ClusterPoolHost = args[0]
+	// }
 	return nil
 }
 

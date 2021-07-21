@@ -4,7 +4,7 @@ apiVersion: hive.openshift.io/v1
 kind: ClusterPool
 metadata:
   name: "{{ .clusterPool.name }}"
-  namespace: "{{ .clusterPool.namespace }}"
+  namespace: "{{ .namespace }}"
   labels:
     cloud: {{ .clusterPool.cloud }}
     vendor: {{ .clusterPool.vendor }}
@@ -22,7 +22,11 @@ spec:
   installConfigSecretTemplateRef:
     name: {{ .clusterPool.name }}-install-config
   imageSetRef:
+{{ if .clusterPool.imageSetRef }}
+    name: {{ .clusterPool.imageSetRef }}
+{{ else }}
     name: {{ include "ocpImage" . }}
+{{- end }}
   pullSecretRef:
     name: {{ .clusterPool.name }}-pull-secret
   platform:
