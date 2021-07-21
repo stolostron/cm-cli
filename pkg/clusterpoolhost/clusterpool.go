@@ -59,6 +59,8 @@ func CreateClusterPool(clusterPoolName, cloud string, values map[string]interfac
 	if err != nil {
 		return err
 	}
+	values["namespace"] = cph.Namespace
+
 	clusterPoolRestConfig, err := cph.GetGlobalRestConfig()
 	if err != nil {
 		return err
@@ -80,26 +82,6 @@ func CreateClusterPool(clusterPoolName, cloud string, values map[string]interfac
 	}
 
 	output := make([]string, 0)
-	pullSecret, err := kubeClient.CoreV1().Secrets("openshift-config").Get(
-		context.TODO(),
-		"pull-secret",
-		metav1.GetOptions{})
-	if err != nil {
-		return err
-	}
-
-	ps, err := yaml.Marshal(pullSecret)
-	if err != nil {
-		return err
-	}
-
-	valueps := make(map[string]interface{})
-	err = yaml.Unmarshal(ps, &valueps)
-	if err != nil {
-		return err
-	}
-
-	values["pullSecret"] = valueps
 
 	reader := scenario.GetScenarioResourcesReader()
 	applierBuilder := &clusteradmapply.ApplierBuilder{}
@@ -131,10 +113,17 @@ func CreateClusterPool(clusterPoolName, cloud string, values map[string]interfac
 		"create/clusterpool/common/creds_secret_cr.yaml",
 		"create/clusterpool/common/install_config_secret_cr.yaml",
 		"create/clusterpool/common/pull_secret_cr.yaml",
-		"create/clusterpool/common/clusterimageset_cr.yaml",
-		"create/clusterpool/common/clusterpool_cr.yaml",
 	}
 
+	cpi := values["clusterPool"]
+	cp := cpi.(map[string]interface{})
+	if _, ok := cp["imageSetRef"]; ok {
+		files = append(files,
+			"create/clusterpool/common/clusterpool_cr.yaml")
+	} else {
+		files = append(files, "create/clusterpool/common/clusterimageset_cr.yaml",
+			"create/clusterpool/common/clusterpool_cr.yaml")
+	}
 	out, err = applier.ApplyCustomResources(reader, values, dryRun, "create/clusterpool/common/_helpers.tpl", files...)
 	if err != nil {
 		return err
