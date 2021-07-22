@@ -17,10 +17,10 @@ import (
 
 var example = `
 # Scale clusterpool
-%[1]s scale clusterpool|cc <clusterpool_name> --size <size> <options>
+%[1]s scale cp <clusterpool_name> --size <size> <options>
 
 # Scale clusterpool on a given clusterpoolhost
-%[1]s scale clusterpool|cc <clusterpool_name> --size <size> <clusterpoolhost> <options>
+%[1]s scale cp <clusterpool_name> --size <size> --cph <clusterpoolhost> <options>
 `
 
 // NewCmd ...
@@ -46,6 +46,7 @@ func NewCmd(cmFlags *genericclioptionscm.CMFlags, streams genericclioptions.IOSt
 		},
 	}
 
+	cmd.Flags().StringVar(&o.ClusterPoolHost, "cph", "", "The clusterpoolhost to use")
 	cmd.Flags().Int32Var(&o.Size, "size", 1, "Set the size of a clusterpool")
 	return cmd
 }

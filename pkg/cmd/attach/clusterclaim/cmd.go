@@ -17,10 +17,10 @@ import (
 
 var example = `
 # Attach a cluster
-%[1]s attach clusterclaim --values values.yaml
+%[1]s attach cc --values values.yaml
 
-# Attach a cluster with overwritting the cluster name
-%[1]s attach clusterclaim --values values.yaml --cluster mycluster
+# Attach a clusterclaim using a given clusterpoolhost
+%[1]s attach cc --values values.yaml --cph <clusterpoolhost_name>
 `
 
 const (

@@ -14,7 +14,7 @@ import (
 
 var example = `
 # Initialize a clusterpool management cluster
-%[1]s create clusterpoolhost <clusterpool_name>
+%[1]s create cph <clusterpoolhosts_name> --apiserver-url <cluster_api_server_url> --console <cluster_console_url> --group <user_group> --namespace <namespace>
 `
 
 // var valuesDefaultPath = filepath.Join(scenarioDirectory, "values-default.yaml")

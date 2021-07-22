@@ -17,10 +17,10 @@ import (
 
 var example = `
 # Create clusterclaims in the current clusterpoolhost
-%[1]s create clusterclaim|cc <clusterpool> <clusterclaim_name>[,<clusterclaim_name>...] <options>
+%[1]s create cc <clusterpool> <clusterclaim_name>[,<clusterclaim_name>...] <options>
 
 # Create clusterclaims on a given clusterpoolhost
-%[1]s create clusterclaim|cc <clusterpool> <clusterclaim_name>[,<clusterclaim_name>...] <clusterpoolhost> <options>
+%[1]s create cc <clusterpool> <clusterclaim_name>[,<clusterclaim_name>...] --cph <clusterpoolhost> <options>
 `
 
 // NewCmd ...

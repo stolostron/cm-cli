@@ -15,7 +15,10 @@ import (
 
 var example = `
 # Use a cluster
-%[1]s use clusterclaim|cc <cluster_claim_name> [<cluster_pool_host_name>]
+%[1]s use cc <cluster_claim_name>
+
+# Use a cluster on a given clusterpoolhosts
+%[1]s use cc <cluster_claim_name> --cph <cluster_pool_host_name>
 `
 
 // NewCmd provides a cobra command for using a cluster claim
@@ -23,7 +26,7 @@ func NewCmd(cmFlags *genericclioptionscm.CMFlags, streams genericclioptions.IOSt
 	o := newOptions(cmFlags, streams)
 	cmd := &cobra.Command{
 		Use:          "clusterlclaim",
-		Aliases:      []string{"cc"},
+		Aliases:      []string{"clusterlclaims", "cc", "ccs"},
 		Short:        "use clusterclaim change the current context to a cluster claim",
 		Long:         "use clusterclaim change the current context to a cluster claim, optionally the cluster pool host can be provided to override the current one",
 		Example:      fmt.Sprintf(example, helpers.GetExampleHeader()),
