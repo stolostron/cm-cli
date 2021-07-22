@@ -16,10 +16,13 @@ import (
 const (
 	example = `
 	# get a clusterclaim in current clusterpoolhost
-	%[1]s clusterclaim|cc <cluster-name> --cph <clusterpoolhosts>
+	%[1]s cc <cluster-name> --cph <clusterpoolhosts>
 	
 	# get clusterclaims in current clusterpoolhost
-	%[1]s clusterclaims|ccs --cph <clusterpoolhosts>`
+	%[1]s cc --cph <clusterpoolhosts>
+	
+	# get clusterclaims across all clusterpoolhosts
+	%[1]s cc -A`
 )
 
 // NewCmd ...

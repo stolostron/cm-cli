@@ -17,10 +17,10 @@ import (
 
 var example = `
 # Delete a clusterpool in the current clusterpoolhost
-%[1]s delete clusterpool|cp <clusterpool_name>[,<clusterpool_name>...] <options>
+%[1]s delete cp <clusterpool_name>[,<clusterpool_name>...] <options>
 
 # Delete a clusterpool on a given clusterpoolhost
-%[1]s delete clusterpool|cp <clusterpool_name>[,<clusterpool_name>...] -cph <clusterpoolhost_name> <options>
+%[1]s delete cp <clusterpool_name>[,<clusterpool_name>...] -cph <clusterpoolhost_name> <options>
 `
 
 // NewCmd ...

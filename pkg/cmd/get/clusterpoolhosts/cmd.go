@@ -15,7 +15,10 @@ import (
 
 var example = `
 # Get cluster pool hosts
-%[1]s get clusterpoolhosts
+%[1]s get cph
+
+# Get cluster pool hosts in a raw format
+%[1]s get cph --raw
 `
 
 // NewCmd provides a cobra command wrapping NewCmdImportCluster
@@ -24,7 +27,7 @@ func NewCmd(cmFlags *genericclioptionscm.CMFlags, streams genericclioptions.IOSt
 
 	cmd := &cobra.Command{
 		Use:          "clusterpoolhosts",
-		Aliases:      []string{"cphs"},
+		Aliases:      []string{"clusterpoolhost", "cphs", "cph"},
 		Short:        "list the clusterpoolhosts",
 		Example:      fmt.Sprintf(example, helpers.GetExampleHeader()),
 		SilenceUsage: true,

@@ -14,9 +14,6 @@ func (o *Options) complete(cmd *cobra.Command, args []string) (err error) {
 		return fmt.Errorf("clusterclaim name is missing")
 	}
 	o.ClusterPool = args[0]
-	if len(args) > 1 {
-		o.ClusterPoolHost = args[1]
-	}
 	return nil
 }
 

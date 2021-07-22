@@ -7,31 +7,64 @@ The CLI has commands to manage clusterpools. It allows to manage multiple cluste
 These clusters are called here `clusterpoolhost`
 
 ## ClusterPoolHosts
-### Manage ClusterPoolHosts
+### Create ClusterPoolHosts
 
-A clusterpoolhost can be created using the command `cm create clusterpoolhost|cph <clusterpoolhost_name> <options>`. 
+A clusterpoolhost defines where clusterclaim can be created using the cm-cli.
 
-The list of clusterpoolhosts can be retreived by calling the command `cm get clusterpoolhosts|cphs <options>`.
+```bash
+cm create clusterpoolhost <clusterpoolhost_name> --api-server <api_server_url> --console <console_url> --namespace <my_namespace> [--group <my_user_group>]
+```
+
+The namespace is where the clusterclaim will be created on that clusterpoolhost.
+The group is user group that will be bind to roles in order to retreive the cluster credentials
+
+When you create a clusterpoolhosts it becomes the active one and all other commands will be done toward that clusterpoolhosts.
+
+Example:
+```
+cm create clusterpoolhost my_cluster_pool_host_name --api-server https://api.mycluster.my.domain:6443 --console https://console-openshift-console.apps.mycluster.my.domain --namespace my_namespace --group my_user_group
+```
+
+### Get ClusterPoolHosts
+
+```bash
+cm get clusterpoolhosts <options>
+```
 
 The list of clusterpoolhosts is maintained in the `~/.kube/known-cphs`.
 
-Delete a clusterpoolhosts can be acheived by runnig `cm delete clusterpoolhost|cph <clusterpoolhost_name>`.
+### Delete ClusterPoolHosts
 
-Set a clusterpoolhost active or current with `cm set cph <clusterpoolhost_name>`. Setting as active means the CLI will used it to find a cluster claims attached to that clusterpoolhost.
+```bash
+cm delete clusterpoolhost <clusterpoolhost_name>
+```
+### Set a clusterpoolhost as active
+
+```bash
+cm set clusterpoolhost <clusterpoolhost_name>
+```
+Setting as active means the CLI will used it to find a cluster claims attached to that clusterpoolhost.
 
 Once the clusterpoolhost is created, the `~/.kube/config` is updated with a context pointing to that cluster and the clusterpoolhost is set as the current one.
 
 ### Use a clusterpoolhost
 
-`cm use cph <clusterpoolhost_name>` updates the `~/.kube/config` to point to that cluster.
+If you want to run `oc` or `kubectl` toward a clusterpoolhost
+
+```bash
+cm use cph <clusterpoolhost_name>
+```
+
+It updates the current-context in `~/.kube/config` to point to that cluster.
 
 ## ClusterPools
-
 ### Create a clusterpool
 
 ```bash
-cm create cp <clusterpool_name> --values <values_yaml_path>
+cm create clusterpool [<clusterpool_name>] --values <values_yaml_path>
 ```
+
+if the clusterpool_name is specified then it overwrites the one in the values yaml.
 
 The template can be retreived by running 
 
@@ -41,19 +74,24 @@ cm create cp -h
 
 it supports clusterpools for AWS, Azure and Google
 
+
+### Get cluserpools
+
+```bash
+cm get clusterpool [--cph <clusterpoolhost>|-A]
+```
+### Scale a clusterpool
+
+```bash
+cm scale <clusterpool> --size <size> [--cph <clusterpoolhost>] 
+```
 ### Delete a clusterpool
 
 ```bash
-cm delete cp <clusterpool_name>
+cm delete clusterpool <clusterpool_name> [--cph <clusterpoolhost_name>]
 ```
 
 ## ClusterClaims
-### Use a cluster claim managed by a clusterpoolhost
-
-First, the clusterpoolhost which manage the cluster claim must be the current one. This can be done by using the command `cm use <clusterpoolhost_name>`
-
-Then use `cm use cc <cluster_claim_name>` to update the kubeconfig with a context toward that cluster. If the KUBECONFIG environment variable is set, the file specifed in the environment variable is updated with the context.
-
 ### Creeate clusterclaims
 
 To create clusterclaims on the active clusterpool, the command `cm create clusterclaim|cc <clusterpool_name> <clusterclaim_name>` can be executed. Multiple clusterclaims can be created simultaneously by providing a list (comma-separated) of clusterclaim name.
@@ -61,46 +99,56 @@ To create clusterclaims on the active clusterpool, the command `cm create cluste
 For example:
 
 ```bash
-cm create cc myclusterpool_name clusterclaim1,clusterclaim2
+cm create clusterclaim myclusterpool_name clusterclaim1,clusterclaim2
 ```
 
 NB: The comma-separated list must not contain space, if it does it should be surrounded by double-quotes.
 
-### Delete clusterclaims
+### Use a cluster claim managed by a clusterpoolhost
 
-In the same way clusterclaims can be created, they can be deleted by using `cm delete clusterclaim|cc <clusterclaim>[,<clusterclaim>...]`. 
+```bash
+cm use clusterclaim <clusterclaim_name> [--cph <clusterpoolhost_name>]
+```
 
-### Get clusterclaims
+It updates the kubeconfig with a context toward that cluster. If the KUBECONFIG environment variable is set, the file specifed in the environment variable is updated with the context.
 
-The command `cm get cc` can be used to retreive the list of available cc on the current context. A `cm use-cph <clusterpoolhost>` must be executed to set the current context.
+### Get the list of clusterclaims
 
+```bash
+cm get clusterclaim [--cph <clusterpoolhost_name>| -A]
+```
+
+### Get the credential for a clusterclaim
+```bash
+cm get clusterclaim <clusterclaim_name> [--cph <clusterpoolhost_name>]
+```
 ### Hibernate clusterclaims
 
 ```bash
-cm hibernate cc <clusterclaim>[,<clusterlcaim>...] [--skip-schedule]
+cm hibernate clusterclaim <clusterclaim>[,<clusterlcaim>...] [--skip-schedule]
 ```
+The option `--skip-schedule` will opt-out the clusterclaim from the cronjob hibernation.
 
 ### Run clusterclaims
 
 ```bash
-cm run cc <clusterclaim>[,<clusterlcaim>...] [--skip-schedule]
+cm run clusterclaim <clusterclaim>[,<clusterlcaim>...] [--skip-schedule]
 ```
+The option `--skip-schedule` will opt-out the clusterclaim from the cronjob hibernation.
 
 ### Attach clusterclaims
 
 ```bash
-cm attach cc <clusterclaim>
+cm attach clusterclaim <clusterclaim_name>
 ```
 
-## ClusterPools
-### Scale clusterpool
+### Detach a clusterclaim
 
 ```bash
-cm scale <clusterpool> [<clusterpoolhost>] --size <size>
+cm detach cluster <clusterclaim_name>
 ```
-
-### Get cluserpools
+### Delete clusterclaims
 
 ```bash
-cm get cps [<clusterpoolhost>|-A]
+cm delete clusterclaim <clusterclaim>[,<clusterclaim>...] [--cph <clusterpoolhost_name>]
 ```

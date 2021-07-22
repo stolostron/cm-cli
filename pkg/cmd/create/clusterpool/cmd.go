@@ -27,10 +27,10 @@ var valuesTemplatePath = filepath.Join(scenarioDirectory, "common/values-templat
 
 var example = `
 # Create a clusterpool
-%[1]s create clusterpool --values values.yaml
+%[1]s create cp --values values.yaml [--cph <clusterpool_name>]
 
 # Create a cluster with cluster name overwrite by args
-%[1]s create clusterpool mycluster --values values.yaml
+%[1]s create cp --values values.yaml [--cph <clusterpool_name>]
 `
 
 // NewCmd ...

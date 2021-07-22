@@ -17,10 +17,10 @@ import (
 
 var example = `
 # Hibernate clusterclaims
-%[1]s hibernate clusterclaim|cc <clusterclaim_name>[,<clusterclaim_name>...] <options>
+%[1]s hibernate cc <clusterclaim_name>[,<clusterclaim_name>...] <options>
 
 # run clusterclaims on a given clusterpoolhost
-%[1]s hibernate clusterclaim|cc <clusterclaim_name>[,<clusterclaim_name>...] <clusterpoolhost> <options>
+%[1]s hibernate cc <clusterclaim_name>[,<clusterclaim_name>...] --cph <clusterpoolhost> <options>
 `
 
 // NewCmd ...
@@ -28,7 +28,7 @@ func NewCmd(cmFlags *genericclioptionscm.CMFlags, streams genericclioptions.IOSt
 	o := newOptions(cmFlags, streams)
 	cmd := &cobra.Command{
 		Use:          "clusterclaim",
-		Aliases:      []string{"cc", "clusterclaims"},
+		Aliases:      []string{"clusterclaims", "cc", "ccs"},
 		Short:        "hibernate clusterclaims",
 		Example:      fmt.Sprintf(example, helpers.GetExampleHeader()),
 		SilenceUsage: true,
