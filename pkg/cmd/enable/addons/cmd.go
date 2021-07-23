@@ -41,7 +41,7 @@ func NewCmd(cmFlags *genericclioptionscm.CMFlags, streams genericclioptions.IOSt
 		PreRunE: func(c *cobra.Command, args []string) error {
 			clusteradmhelpers.DryRunMessage(cmFlags.DryRun)
 			if !helpers.IsRHACM(cmFlags.KubectlFactory) {
-				return fmt.Errorf("this command '%s attach cluster' is only available on RHACM", helpers.GetExampleHeader())
+				return fmt.Errorf("this command '%s enable addons' is only available on RHACM\n", helpers.GetExampleHeader())
 			}
 			return nil
 		},
