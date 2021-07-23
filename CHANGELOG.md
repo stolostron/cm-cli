@@ -6,4 +6,5 @@
 ### Additions
 ### Breacking changes
 ### Bug fixes
-
+- [Columns are not well aligned when running cm get cc and cp](https://github.com/open-cluster-management/cm-cli/issues/58)
+- [cm get cp -A incomplete when one cphs is hibernating](https://github.com/open-cluster-management/cm-cli/issues/57)
