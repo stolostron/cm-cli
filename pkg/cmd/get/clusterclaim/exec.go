@@ -2,7 +2,10 @@
 package clusterclaim
 
 import (
+	"fmt"
+
 	"github.com/open-cluster-management/cm-cli/pkg/clusterpoolhost"
+	"github.com/open-cluster-management/cm-cli/pkg/helpers"
 
 	"github.com/spf13/cobra"
 )
@@ -82,15 +85,20 @@ func (o *Options) getCCS(allcphs *clusterpoolhost.ClusterPoolHosts) (err error) 
 		}
 	}
 
+	allLines := make([]string, 0)
 	for k := range cphs.ClusterPoolHosts {
 		err = allcphs.SetActive(allcphs.ClusterPoolHosts[k])
 		if err != nil {
 			return err
 		}
-		err = clusterpoolhost.GetClusterClaims(o.AllClusterPoolHosts, o.CMFlags.DryRun)
+		clusterClaims, err := clusterpoolhost.GetClusterClaims(o.CMFlags.DryRun)
 		if err != nil {
-			return err
+			fmt.Printf("Error while retrieving clusterclaims from %s\n", cphs.ClusterPoolHosts[k].Name)
+			continue
 		}
+		allLines = append(allLines, clusterpoolhost.SprintClusterClaims(cphs.ClusterPoolHosts[k], "\t", clusterClaims)...)
+
 	}
+	helpers.PrintLines(allLines, "\t")
 	return nil
 }

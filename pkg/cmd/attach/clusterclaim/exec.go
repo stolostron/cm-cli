@@ -102,6 +102,18 @@ func (o *Options) run() (err error) {
 		return err
 	}
 
+	if len(o.ClusterPoolHost) != 0 {
+		cph, err := cphs.GetClusterPoolHost(o.ClusterPoolHost)
+		if err != nil {
+			return err
+		}
+
+		err = cphs.SetActive(cph)
+		if err != nil {
+			return err
+		}
+	}
+
 	err = o.attachClusterClaim(cphs)
 
 	if len(o.ClusterPoolHost) != 0 {

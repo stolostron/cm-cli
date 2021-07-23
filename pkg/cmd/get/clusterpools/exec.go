@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/open-cluster-management/cm-cli/pkg/clusterpoolhost"
+	"github.com/open-cluster-management/cm-cli/pkg/helpers"
 
 	"github.com/spf13/cobra"
 )
@@ -56,15 +57,20 @@ func (o *Options) run() (err error) {
 		}
 	}
 
+	allLines := make([]string, 0)
 	for k := range cphs.ClusterPoolHosts {
 		err = allcphs.SetActive(allcphs.ClusterPoolHosts[k])
 		if err != nil {
 			return err
 		}
-		err = clusterpoolhost.GetClusterPools(o.AllClusterPoolHosts, o.CMFlags.DryRun)
+		clusterPools, err := clusterpoolhost.GetClusterPools(o.AllClusterPoolHosts, o.CMFlags.DryRun)
 		if err != nil {
-			return err
+			fmt.Printf("Error while retrieving clusterpools from %s\n", cphs.ClusterPoolHosts[k].Name)
+			continue
 		}
+		allLines = append(allLines, clusterpoolhost.SprintClusterPools(cphs.ClusterPoolHosts[k], "\t", clusterPools)...)
+
 	}
+	helpers.PrintLines(allLines, "\t")
 	return allcphs.SetActive(currentCph)
 }

@@ -16,6 +16,7 @@ import (
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/client-go/dynamic"
 	"k8s.io/client-go/kubernetes"
+	"k8s.io/klog/v2"
 	clusteradmapply "open-cluster-management.io/clusteradm/pkg/helpers/apply"
 )
 
@@ -160,43 +161,56 @@ func DeleteClusterPools(clusterPoolNames string, dryRun bool, outputFile string)
 	return nil
 }
 
-func GetClusterPools(showCphName, dryRun bool) error {
+func GetClusterPools(showCphName, dryRun bool) (*hivev1.ClusterPoolList, error) {
+	clusterPools := &hivev1.ClusterPoolList{}
 	cph, err := GetCurrentClusterPoolHost()
 	if err != nil {
-		return err
+		return clusterPools, err
 	}
 	clusterPoolRestConfig, err := cph.GetGlobalRestConfig()
 	if err != nil {
-		return err
+		return clusterPools, err
 	}
 
 	dynamicClient, err := dynamic.NewForConfig(clusterPoolRestConfig)
 	if err != nil {
-		return err
+		return clusterPools, err
 	}
 
 	l, err := dynamicClient.Resource(helpers.GvrCP).Namespace(cph.Namespace).List(context.TODO(), metav1.ListOptions{})
 	if err != nil {
-		return err
+		return clusterPools, err
 	}
-	if showCphName {
-		fmt.Printf("%-20s\t%-32s\t%-4s\t%-5s\t%-12s\n", "CLUSTER_POOL_HOST", "CLUSTER_POOL", "SIZE", "READY", "ACTUAL_SIZE")
-	} else {
-		fmt.Printf("%-32s\t%-4s\t%-5s\t%-12s\n", "CLUSTER_POOL", "SIZE", "READY", "ACTUAL_SIZE")
-	}
-	if len(l.Items) == 0 {
-		fmt.Printf("No clusterpool found for clusterpoolhost %s\n", cph.Name)
-	}
+	// fmt.Printf("%-20s\t%-32s\t%-4s\t%-5s\t%-12s\n", "CLUSTER_POOL_HOST", "CLUSTER_POOL", "SIZE", "READY", "ACTUAL_SIZE")
 	for _, cpu := range l.Items {
 		cp := &hivev1.ClusterPool{}
 		if runtime.DefaultUnstructuredConverter.FromUnstructured(cpu.UnstructuredContent(), cp); err != nil {
-			return err
+			return clusterPools, err
 		}
-		if showCphName {
-			fmt.Printf("%-20s\t%-32s\t%-4d\t%-5d\t%-12d\n", cph.Name, cp.GetName(), cp.Spec.Size, cp.Status.Ready, cp.Status.Size)
-		} else {
-			fmt.Printf("%-32s\t%-4d\t%-5d\t%-12d\n", cp.GetName(), cp.Spec.Size, cp.Status.Ready, cp.Status.Size)
-		}
+		clusterPools.Items = append(clusterPools.Items, *cp)
+		// if showCphName {
+		// 	fmt.Printf("%-20s\t%-32s\t%-4d\t%-5d\t%-12d\n", cph.Name, cp.GetName(), cp.Spec.Size, cp.Status.Ready, cp.Status.Size)
+		// } else {
+		// 	fmt.Printf("%-32s\t%-4d\t%-5d\t%-12d\n", cp.GetName(), cp.Spec.Size, cp.Status.Ready, cp.Status.Size)
+		// }
 	}
-	return nil
+	return clusterPools, nil
+}
+
+func SprintClusterPools(cph *ClusterPoolHost, sep string, cps *hivev1.ClusterPoolList) []string {
+	lines := make([]string, 0)
+	lines = append(lines, fmt.Sprintf("%s%s%s%s%s%s%s%s%s", "CLUSTER_POOL_HOST", sep, "CLUSTER_POOL", sep, "SIZE", sep, "READY", sep, "ACTUAL_SIZE"))
+	if len(cps.Items) == 0 {
+		lines = append(lines, fmt.Sprintf("%s%s%s%s%s%s%s%s%s", cph.Name, sep, "no clusterpool found", sep, "", sep, "", sep, ""))
+	}
+	for _, cp := range cps.Items {
+		lines = append(lines, sprintClusterPool(cph, sep, &cp))
+	}
+	lines = append(lines, fmt.Sprintf("%s%s%s%s%s%s%s%s%s", "", sep, "", sep, "", sep, "", sep, ""))
+	klog.V(5).Infof("lines:%s\n", lines)
+	return lines
+}
+
+func sprintClusterPool(cph *ClusterPoolHost, sep string, cp *hivev1.ClusterPool) string {
+	return fmt.Sprintf("%s%s%s%s%4d%s%5d%s%11d", cph.Name, sep, cp.GetName(), sep, cp.Spec.Size, sep, cp.Status.Ready, sep, cp.Status.Size)
 }

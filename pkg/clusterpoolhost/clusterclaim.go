@@ -299,59 +299,34 @@ func DeleteClusterClaims(clusterClaimNames string, dryRun bool, outputFile strin
 	return nil
 }
 
-func GetClusterClaims(showCphName, dryRun bool) error {
+func GetClusterClaims(dryRun bool) (*hivev1.ClusterClaimList, error) {
+	clusterClaims := &hivev1.ClusterClaimList{}
 	cph, err := GetCurrentClusterPoolHost()
 	if err != nil {
-		return err
+		return clusterClaims, err
 	}
 	clusterPoolRestConfig, err := cph.GetGlobalRestConfig()
 	if err != nil {
-		return err
+		return clusterClaims, err
 	}
 
 	dynamicClient, err := dynamic.NewForConfig(clusterPoolRestConfig)
 	if err != nil {
-		return err
+		return clusterClaims, err
 	}
 
 	l, err := dynamicClient.Resource(helpers.GvrCC).Namespace(cph.Namespace).List(context.TODO(), metav1.ListOptions{})
 	if err != nil {
-		return err
-	}
-	if showCphName {
-		fmt.Printf("%-20s\t%-15s\t%-11s\t%-9s\t%-20s\n", "CLUSTER_POOL_HOST", "CLUSTER_CLAIM", "POWER_STATE", "HIBERNATE", "ID")
-	} else {
-		fmt.Printf("%-15s\t%-11s\t%-9s\t%-20s\n", "CLUSTER_CLAIM", "POWER_STATE", "HIBERNATE", "ID")
-	}
-	if len(l.Items) == 0 {
-		fmt.Printf("No clusterclaim found for clusterpoolhost %s\n", cph.Name)
+		return clusterClaims, err
 	}
 	for _, ccu := range l.Items {
 		cc := &hivev1.ClusterClaim{}
 		if runtime.DefaultUnstructuredConverter.FromUnstructured(ccu.UnstructuredContent(), cc); err != nil {
-			return err
+			return clusterClaims, err
 		}
-		c := getClusterClaimPendingStatus(cc)
-		if c != nil && c.Status == corev1.ConditionStatus(metav1.ConditionTrue) {
-			printClusterClaim(showCphName, true, cph, cc, nil)
-			continue
-		}
-		cdu, err := dynamicClient.Resource(helpers.GvrCD).Namespace(cc.Spec.Namespace).Get(context.TODO(), cc.Spec.Namespace, metav1.GetOptions{})
-		if err != nil {
-			if showCphName {
-				fmt.Printf("%s clusterdeployment %s\n", cc.GetName(), err.Error())
-			} else {
-				fmt.Printf("%s %s clusterdeployment %s\n", cph.Name, cc.GetName(), err.Error())
-			}
-			continue
-		}
-		cd := &hivev1.ClusterDeployment{}
-		if runtime.DefaultUnstructuredConverter.FromUnstructured(cdu.UnstructuredContent(), cd); err != nil {
-			return err
-		}
-		printClusterClaim(showCphName, false, cph, cc, cd)
+		clusterClaims.Items = append(clusterClaims.Items, *cc)
 	}
-	return nil
+	return clusterClaims, err
 }
 
 func getClusterClaimPendingStatus(cc *hivev1.ClusterClaim) *hivev1.ClusterClaimCondition {
@@ -363,21 +338,48 @@ func getClusterClaimPendingStatus(cc *hivev1.ClusterClaim) *hivev1.ClusterClaimC
 	return nil
 }
 
-func printClusterClaim(showCphName bool, pending bool, cph *ClusterPoolHost, cc *hivev1.ClusterClaim, cd *hivev1.ClusterDeployment) {
+func SprintClusterClaims(cph *ClusterPoolHost, sep string, ccs *hivev1.ClusterClaimList) []string {
+	lines := make([]string, 0)
+	lines = append(lines, fmt.Sprintf("%s%s%s%s%s%s%s%s%s", "CLUSTER_POOL_HOST", sep, "CLUSTER_CLAIM", sep, "POWER_STATE", sep, "HIBERNATE", sep, "ID"))
+	if len(ccs.Items) == 0 {
+		lines = append(lines, fmt.Sprintf("%s%s%s%s%s%s%s%s%s", cph.Name, sep, "no clusterclaim found", sep, "", sep, "", sep, ""))
+	}
+	for _, cc := range ccs.Items {
+		lines = append(lines, sprintClusterClaim(cph, sep, &cc))
+	}
+	lines = append(lines, fmt.Sprintf("%s%s%s%s%s%s%s%s%s", "", sep, "", sep, "", sep, "", sep, ""))
+	klog.V(5).Infof("lines:%s\n", lines)
+	return lines
+}
+
+func sprintClusterClaim(cph *ClusterPoolHost, sep string, cc *hivev1.ClusterClaim) string {
 	var powerState, hibernate, cdName string
+	clusterPoolRestConfig, err := cph.GetGlobalRestConfig()
+	if err != nil {
+		return fmt.Sprintf("%s%s%s%s%s%s%s%s%s", cph.Name, sep, sep, sep, sep, sep, sep, sep, err.Error())
+	}
+	dynamicClient, err := dynamic.NewForConfig(clusterPoolRestConfig)
+	if err != nil {
+		return fmt.Sprintf("%s%s%s%s%s%s%s%s%s", cph.Name, sep, sep, sep, sep, sep, sep, sep, err.Error())
+	}
+	cdu, err := dynamicClient.Resource(helpers.GvrCD).Namespace(cc.Spec.Namespace).Get(context.TODO(), cc.Spec.Namespace, metav1.GetOptions{})
+	if err != nil {
+		return fmt.Sprintf("%s%s%s%s%s%s%s%s%s", cph.Name, sep, sep, sep, sep, sep, sep, sep, err.Error())
+	}
+	cd := &hivev1.ClusterDeployment{}
+	if err := runtime.DefaultUnstructuredConverter.FromUnstructured(cdu.UnstructuredContent(), cd); err != nil {
+		return fmt.Sprintf("%s%s%s%s%s%s%s%s%s", cph.Name, sep, sep, sep, sep, sep, sep, sep, err.Error())
+	}
 	if cd != nil {
 		powerState = string(cd.Spec.PowerState)
 		hibernate = cd.Labels["hibernate"]
 		cdName = cd.Name
 	}
-	if pending {
+	c := getClusterClaimPendingStatus(cc)
+	if c != nil && c.Status == corev1.ConditionStatus(metav1.ConditionTrue) {
 		powerState = string(hivev1.ClusterClaimPendingCondition)
 	}
-	if showCphName {
-		fmt.Printf("%-20s\t%-15s\t%-11s\t%-9s\t%-20s\n", cph.Name, cc.GetName(), powerState, hibernate, cdName)
-	} else {
-		fmt.Printf("%-15s\t%-11s\t%-9s\t%-20s\n", cc.GetName(), powerState, hibernate, cdName)
-	}
+	return fmt.Sprintf("%s%s%s%s%s%s%s%s%s", cph.Name, sep, cc.GetName(), sep, powerState, sep, hibernate, sep, cdName)
 }
 
 func GetClusterClaim(clusterName string, timeout int, dryRun bool) error {
