@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"path/filepath"
 
-	"github.com/open-cluster-management/cm-cli/pkg/cmd/attach/cluster/scenario"
+	"github.com/open-cluster-management/cm-cli/pkg/cmd/enable/addons/scenario"
 	genericclioptionscm "github.com/open-cluster-management/cm-cli/pkg/genericclioptions"
 	"github.com/open-cluster-management/cm-cli/pkg/helpers"
 	clusteradmhelpers "open-cluster-management.io/clusteradm/pkg/helpers"

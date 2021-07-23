@@ -18,7 +18,7 @@ cm create clusterpoolhost <clusterpoolhost_name> --api-server <api_server_url> -
 The namespace is where the clusterclaim will be created on that clusterpoolhost.
 The group is user group that will be bind to roles in order to retreive the cluster credentials
 
-When you create a clusterpoolhosts it becomes the active one and all other commands will be done toward that clusterpoolhosts.
+When you create a clusterpoolhosts it becomes the active one and all other commands will be done toward that clusterpoolhosts. It could be cluster-admin if you have such permission.
 
 Example:
 ```
