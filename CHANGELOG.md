@@ -4,6 +4,7 @@
 - [Add examples in the clusterpool.md or in the help of the command for cm create cph](https://github.com/open-cluster-management/cm-cli/issues/59)
 - Add check on RHACM version when running `cm attach clusterclaim`
 - [open the clusterpoolhost console when adding a cph and not logged in](https://github.com/open-cluster-management/cm-cli/issues/55)
+- [Create a command to list the provider-connections](https://github.com/open-cluster-management/cm-cli/issues/42)
 
 ### Additions
 
