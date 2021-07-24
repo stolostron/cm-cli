@@ -2,21 +2,31 @@
 package clusterpoolhost
 
 import (
+	"bufio"
 	"context"
 	"fmt"
+	"os"
 	"strings"
 
+	"github.com/open-cluster-management/cm-cli/pkg/helpers"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
 	clientcmdapi "k8s.io/client-go/tools/clientcmd/api"
+	"k8s.io/klog/v2"
 )
 
 func (cph *ClusterPoolHost) VerifyClusterPoolContext(
 	dryRun bool,
 	outputFile string) error {
-	token, serviceAccountName, isGlobal, err := cph.getClusterPoolSAToken(dryRun, outputFile)
+	token, serviceAccountName, isGlobal, needLogin, err := cph.getClusterPoolSAToken(dryRun, outputFile)
 	if err != nil {
+		if needLogin {
+			fmt.Println(err)
+			if errOB := cph.openBrowser(); errOB != nil {
+				return errOB
+			}
+		}
 		return err
 	}
 	return cph.CreateClusterPoolContext(token, serviceAccountName, isGlobal)
@@ -24,7 +34,7 @@ func (cph *ClusterPoolHost) VerifyClusterPoolContext(
 
 func (cph *ClusterPoolHost) getClusterPoolSAToken(
 	dryRun bool,
-	outputFile string) (token, serviceAccountName string, isGlobal bool, err error) {
+	outputFile string) (token, serviceAccountName string, isGlobal, needLogin bool, err error) {
 	var clusterPoolRestConfig *rest.Config
 	isGlobal = true
 	err = SetCPHContext(cph.GetContextName())
@@ -32,11 +42,13 @@ func (cph *ClusterPoolHost) getClusterPoolSAToken(
 		clusterPoolRestConfig, err = GetCurrentRestConfig()
 		if err != nil {
 			if clusterPoolRestConfig == nil {
+				needLogin = true
 				err = fmt.Errorf("please login on %s", cph.APIServer)
 			}
 			return
 		}
 		if clusterPoolRestConfig.Host != cph.APIServer {
+			needLogin = true
 			err = fmt.Errorf("please login on %s", cph.APIServer)
 			return
 		}
@@ -47,6 +59,7 @@ func (cph *ClusterPoolHost) getClusterPoolSAToken(
 		}
 		_, err = kubeClient.CoreV1().Secrets(cph.Namespace).List(context.TODO(), metav1.ListOptions{})
 		if err != nil {
+			needLogin = true
 			err = fmt.Errorf("please login on %s", cph.APIServer)
 			return
 		}
@@ -87,6 +100,18 @@ func (cph *ClusterPoolHost) getClusterPoolSAToken(
 	// read the token
 	token, err = getTokenFromSA(kubeClient, serviceAccountName, cph.Namespace)
 	return
+}
+
+func (cph *ClusterPoolHost) openBrowser() error {
+	reader := bufio.NewReader(os.Stdin)
+	fmt.Printf("Open browser to %s (Y/N) (default Y): ", cph.Console)
+	answer, _ := reader.ReadString('\n')
+	answer = strings.TrimSuffix(answer, "\n")
+	klog.V(5).Infof("\nanswer:(%s)\n", answer)
+	if strings.ToUpper(answer) == "Y" || len(answer) == 0 {
+		return helpers.Openbrowser(cph.Console)
+	}
+	return nil
 }
 
 func (cph *ClusterPoolHost) CreateClusterPoolContext(token, serviceAccountName string, inGlobal bool) error {
