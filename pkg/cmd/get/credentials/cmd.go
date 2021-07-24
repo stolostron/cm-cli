@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	genericclioptionscm "github.com/open-cluster-management/cm-cli/pkg/genericclioptions"
+	"k8s.io/klog/v2"
 	"k8s.io/kubectl/pkg/cmd/get"
 	cmdutil "k8s.io/kubectl/pkg/cmd/util"
 
@@ -33,10 +34,17 @@ func NewCmd(cmFlags *genericclioptionscm.CMFlags, streams genericclioptions.IOSt
 		Example:               fmt.Sprintf(example, helpers.GetExampleHeader()),
 		Run: func(cmd *cobra.Command, args []string) {
 			args = append([]string{"secrets"}, args...)
-			o.LabelSelector = fmt.Sprintf("%v = %v", "cluster.open-cluster-management.io/credentials", "")
+			klog.V(5).Infof("LabelSelector: %s\n", o.LabelSelector)
+			if len(o.LabelSelector) != 0 {
+				o.LabelSelector = fmt.Sprintf("%s,", o.LabelSelector)
+			}
+			klog.V(5).Infof("LabelSelector: %s\n", o.LabelSelector)
+			o.LabelSelector = fmt.Sprintf("%s%v = %v", o.LabelSelector, "cluster.open-cluster-management.io/credentials", "")
+			klog.V(5).Infof("LabelSelector: %s\n", o.LabelSelector)
 			if len(cloudProvider) != 0 {
 				o.LabelSelector = fmt.Sprintf("%s,%v = %v", o.LabelSelector, "cluster.open-cluster-management.io/type", cloudProvider)
 			}
+			klog.V(5).Infof("LabelSelector: %s\n", o.LabelSelector)
 			cmdutil.CheckErr(o.Complete(cmFlags.KubectlFactory, cmd, args))
 			cmdutil.CheckErr(o.Validate(cmd))
 			cmdutil.CheckErr(o.Run(cmFlags.KubectlFactory, cmd, args))
@@ -46,6 +54,7 @@ func NewCmd(cmFlags *genericclioptionscm.CMFlags, streams genericclioptions.IOSt
 
 	o.PrintFlags.AddFlags(cmd)
 
+	cmd.Flags().StringVarP(&o.LabelSelector, "selector", "l", o.LabelSelector, "Selector (label query) to filter on, supports '=', '==', and '!='.(e.g. -l key1=value1,key2=value2)")
 	cmd.Flags().StringVar(&cloudProvider, "cloud-provider", "", "The cloud provider to filter on (aws,gcp,...)")
 	cmd.Flags().BoolVarP(&o.Watch, "watch", "w", o.Watch, "After listing/getting the requested object, watch for changes. Uninitialized objects are excluded if no object name is provided.")
 	cmd.Flags().BoolVar(&o.WatchOnly, "watch-only", o.WatchOnly, "Watch for changes to the requested object(s), without listing/getting first.")
