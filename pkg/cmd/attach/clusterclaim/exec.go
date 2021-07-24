@@ -195,6 +195,15 @@ func (o *Options) attachClusterClaim(cphs *clusterpoolhost.ClusterPoolHosts) err
 		return err
 	}
 
+	constraint := ">=2.3.0"
+	supported, err := helpers.IsSupported(kubeClient, constraint)
+	if err != nil {
+		return err
+	}
+	if !supported {
+		return fmt.Errorf("this command requires RHACM version %s", constraint)
+	}
+
 	dynamicClient, err := dynamic.NewForConfig(hubRestConfig)
 	if err != nil {
 		return err

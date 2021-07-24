@@ -23,6 +23,7 @@ import (
 
 	"github.com/open-cluster-management/cm-cli/pkg/cmd/accept"
 	"github.com/open-cluster-management/cm-cli/pkg/cmd/attach"
+	"github.com/open-cluster-management/cm-cli/pkg/cmd/console"
 	"github.com/open-cluster-management/cm-cli/pkg/cmd/create"
 	"github.com/open-cluster-management/cm-cli/pkg/cmd/delete"
 	"github.com/open-cluster-management/cm-cli/pkg/cmd/detach"
@@ -110,6 +111,7 @@ func main() {
 				set.NewCmd(cmFlags, streams),
 				run.NewCmd(cmFlags, streams),
 				hibernate.NewCmd(cmFlags, streams),
+				console.NewCmd(cmFlags, streams),
 			},
 		},
 	}
