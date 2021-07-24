@@ -340,14 +340,15 @@ func getClusterClaimPendingStatus(cc *hivev1.ClusterClaim) *hivev1.ClusterClaimC
 
 func SprintClusterClaims(cph *ClusterPoolHost, sep string, ccs *hivev1.ClusterClaimList) []string {
 	lines := make([]string, 0)
-	lines = append(lines, fmt.Sprintf("%s%s%s%s%s%s%s%s%s", "CLUSTER_POOL_HOST", sep, "CLUSTER_CLAIM", sep, "POWER_STATE", sep, "HIBERNATE", sep, "ID"))
-	if len(ccs.Items) == 0 {
-		lines = append(lines, fmt.Sprintf("%s%s%s%s%s%s%s%s%s", cph.Name, sep, "no clusterclaim found", sep, "", sep, "", sep, ""))
+	if len(ccs.Items) != 0 {
+		lines = append(lines, fmt.Sprintf("%s%s%s%s%s%s%s%s%s", "CLUSTER_POOL_HOST", sep, "CLUSTER_CLAIM", sep, "POWER_STATE", sep, "HIBERNATE", sep, "ID"))
 	}
 	for _, cc := range ccs.Items {
 		lines = append(lines, sprintClusterClaim(cph, sep, &cc))
 	}
-	lines = append(lines, fmt.Sprintf("%s%s%s%s%s%s%s%s%s", "", sep, "", sep, "", sep, "", sep, ""))
+	if len(ccs.Items) != 0 {
+		lines = append(lines, fmt.Sprintf("%s%s%s%s%s%s%s%s%s", "", sep, "", sep, "", sep, "", sep, ""))
+	}
 	klog.V(5).Infof("lines:%s\n", lines)
 	return lines
 }

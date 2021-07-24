@@ -97,7 +97,6 @@ func (o *Options) getCCS(allcphs *clusterpoolhost.ClusterPoolHosts) (err error) 
 			continue
 		}
 		allLines = append(allLines, clusterpoolhost.SprintClusterClaims(cphs.ClusterPoolHosts[k], "\t", clusterClaims)...)
-
 	}
 	helpers.PrintLines(allLines, "\t")
 	return nil
