@@ -1,0 +1,112 @@
+# Copyright Contributors to the Open Cluster Management project
+
+managedCluster:
+  master: 
+    replicas: {{ .installConfig.controlPlane.replicas }} #Number of master node, default 3
+  worker:
+    replicas: {{ with index .installConfig.compute 0 }} {{ .replicas }} {{ end }}#Number of worker node, default 3
+  name: {{ .clusterDeployment.metadata.name }} #<cluster-name>, this value is overwritten by the --cluster parameter
+  installAttemptsLimit: 1
+  labels: # map of custom labels, cloud and vendor labels will be overwritten by the cloud and vendor attribute below.
+    #mylabel: myvalue
+  cloud: {{ .clusterDeployment.metadata.labels.cloud }} # clouds values can be aws, azure, gcp, openstack, vsphere
+  vendor: {{ .clusterDeployment.metadata.labels.vendor }}
+  ocpImage: {{ .clusterImageSet.spec.releaseImage }} # ocp image (ie: quay.io/openshift-release-dev/ocp-release:4.3.40-x86_64)
+  addons:
+    applicationManager:
+      enabled: true
+      argocdCluster: false
+    policyController:
+      enabled: true
+    searchCollector:
+      enabled: true
+    certPolicyController:
+      enabled: true
+    iamPolicyController:
+      enabled: true
+  sshPublicKey: |-
+    {{ .installConfig.sshKey }}
+  sshPrivateKey: |-
+{{ .sshPrivateKey | indent 4 }}
+
+{{- if .clusterDeployment.spec.platform.aws }}
+  aws:
+    baseDnsDomain: {{ .installConfig.baseDomain }} # baseDomain of your cluster (ie: mycompany.com)
+    awsAccessKeyID: {{ .awsAccessKeyID }}
+    awsSecretAccessKeyID: {{ .awsSecretAccessKey }}
+    region: {{ .installConfig.platform.aws.region }} # Region (ie: us-east-1)
+    master:
+    {{- with .installConfig.controlPlane.platform.aws }}
+      type: {{ .type }}
+      {{- with .rootVolume }}
+      rootVolume: # see below the default values 
+        iops: {{ .iops }}
+        size: {{ .size}}
+        type: {{ .type}}
+      {{- end }}
+    {{- end }}
+    {{- with  index .installConfig.compute 0 }}
+    worker:
+      {{- with .platform.aws }}
+      type: {{ .type }}
+      rootVolume: # see below the default values 
+        {{- with .rootVolume }}
+        iops: {{ .iops }}
+        size: {{ .size }}
+        type: {{ .type }}
+        {{- end }}
+      {{- end }}
+    {{- end }}
+{{- end }}
+{{- if .clusterDeployment.spec.platform.azure }}
+  azure:
+    baseDnsDomain: # baseDomain of your cluster (ie: mycompany.com)
+    baseDomainRGN:
+    clientID:
+    clientSecret:
+    tenantID:
+    subscriptionID:
+    region:
+{{- end }}
+{{- if .clusterDeployment.spec.platform.gcp }}
+ gcp:
+    osServiceAccountJson: |-
+      {
+        your authentication
+      }
+    projectID:
+    baseDnsDomain:
+    region:
+{{- end }}
+{{- if .clusterDeployment.spec.platform.vsphere }}
+  vsphere:
+    username:
+    password:
+    vcenter:
+    cacertificate: |-
+      -----BEGIN CERTIFICATE-----
+      vSphere certificate
+      -----END CERTIFICATE-----
+    cluster:
+    datacenter:
+    datastore:
+    network:
+    baseDnsDomain: # baseDomain of your cluster (ie: mycompany.com)
+    apiVIP:
+    ingressVIP:
+{{- end }}
+{{- if .clusterDeployment.spec.platform.openstack }}
+  openstack:
+    baseDnsDomain: # baseDomain of your cluster (ie: mycompany.com)
+    cloudsYaml: |-
+      clouds:
+        openstack:
+          auth:
+    cloud:
+    externalNetwork:
+    apiFloatingIP:
+    ingressFloatingIP:
+    masterFlavor:
+    workerFlavor:
+    machineNetworkCIDR:  
+{{- end }}

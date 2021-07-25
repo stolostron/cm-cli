@@ -32,6 +32,12 @@ func NewCmd(cmFlags *genericclioptionscm.CMFlags, streams genericclioptions.IOSt
 		DisableFlagsInUseLine: true,
 		Short:                 "list the credentials of cloud providers",
 		Example:               fmt.Sprintf(example, helpers.GetExampleHeader()),
+		PreRunE: func(c *cobra.Command, args []string) error {
+			if !helpers.IsRHACM(cmFlags.KubectlFactory) {
+				return fmt.Errorf("this command '%s scale cluster' is only available on RHACM", helpers.GetExampleHeader())
+			}
+			return nil
+		},
 		Run: func(cmd *cobra.Command, args []string) {
 			args = append([]string{"secrets"}, args...)
 			klog.V(5).Infof("LabelSelector: %s\n", o.LabelSelector)

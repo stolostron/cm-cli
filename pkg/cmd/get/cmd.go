@@ -6,6 +6,7 @@ import (
 	"github.com/open-cluster-management/cm-cli/pkg/cmd/get/clusterpoolhosts"
 	"github.com/open-cluster-management/cm-cli/pkg/cmd/get/clusterpools"
 	"github.com/open-cluster-management/cm-cli/pkg/cmd/get/clusters"
+	"github.com/open-cluster-management/cm-cli/pkg/cmd/get/config"
 	"github.com/open-cluster-management/cm-cli/pkg/cmd/get/credentials"
 	"github.com/open-cluster-management/cm-cli/pkg/cmd/get/machinepools"
 	genericclioptionscm "github.com/open-cluster-management/cm-cli/pkg/genericclioptions"
@@ -30,6 +31,7 @@ func NewCmd(clusteradmFlags *genericclioptionsclusteradm.ClusteradmFlags, cmFlag
 	cmd.AddCommand(clusterpoolhosts.NewCmd(cmFlags, streams))
 	cmd.AddCommand(clusterclaim.NewCmd(cmFlags, streams))
 	cmd.AddCommand(clusterpools.NewCmd(cmFlags, streams))
+	cmd.AddCommand(config.NewCmd(clusteradmFlags, cmFlags, streams))
 
 	return cmd
 }
