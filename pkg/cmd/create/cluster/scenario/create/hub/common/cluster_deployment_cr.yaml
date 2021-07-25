@@ -65,9 +65,9 @@ spec:
     sshPrivateKeySecretRef:
       name: {{ .managedCluster.name }}-ssh-private-key
     imageSetRef:
-{{ if .managedCluster.imageSetRef }}
+{{- if .managedCluster.imageSetRef }}
       name: {{ .managedCluster.imageSetRef }}
-{{ else }}
+{{- else }}
       name: {{ include "ocpImage" . }}
 {{- end }}
   pullSecretRef:
