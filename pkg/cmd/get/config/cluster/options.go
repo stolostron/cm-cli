@@ -8,8 +8,9 @@ import (
 
 type Options struct {
 	//CMFlags: The generic optiosn from the cm cli-runtime.
-	CMFlags     *genericclioptionscm.CMFlags
-	ClusterName string
+	CMFlags            *genericclioptionscm.CMFlags
+	ClusterName        string
+	withoutCredentials bool
 	//The file to output the resources will be sent to the file.
 	outputFile string
 }

@@ -38,6 +38,7 @@ func NewCmd(cmFlags *genericclioptionscm.CMFlags, streams genericclioptions.IOSt
 	}
 
 	cmd.Flags().StringVar(&o.outputFile, "output-file", "", "The config will be copied in the specified file")
+	cmd.Flags().BoolVar(&o.withoutCredentials, "without-credentials", false, "If set the platform credentials will be not inserted in the config")
 
 	return cmd
 }

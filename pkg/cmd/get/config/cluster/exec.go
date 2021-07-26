@@ -3,6 +3,7 @@ package cluster
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"io/ioutil"
 
@@ -62,6 +63,23 @@ func (o *Options) runWithClient(kubeClient kubernetes.Interface,
 	}
 	values["clusterDeployment"] = cdu.Object
 
+	//Check if platform is supported.
+	var secretName string
+	switch {
+	case cd.Spec.Platform.AWS != nil:
+		secretName = cd.Spec.Platform.AWS.CredentialsSecretRef.Name
+	case cd.Spec.Platform.Azure != nil && o.CMFlags.Beta:
+		secretName = cd.Spec.Platform.Azure.CredentialsSecretRef.Name
+	case cd.Spec.Platform.GCP != nil && o.CMFlags.Beta:
+		secretName = cd.Spec.Platform.GCP.CredentialsSecretRef.Name
+	case cd.Spec.Platform.VSphere != nil && o.CMFlags.Beta:
+		secretName = cd.Spec.Platform.VSphere.CredentialsSecretRef.Name
+	case cd.Spec.Platform.OpenStack != nil && o.CMFlags.Beta:
+		secretName = cd.Spec.Platform.OpenStack.CredentialsSecretRef.Name
+	default:
+		return fmt.Errorf("unsupported platform %v", cd.Spec.Platform)
+	}
+
 	//Get install-config
 	ic, err := kubeClient.CoreV1().Secrets(o.ClusterName).Get(context.TODO(), cd.Spec.Provisioning.InstallConfigSecretRef.Name, metav1.GetOptions{})
 	if err != nil {
@@ -89,16 +107,50 @@ func (o *Options) runWithClient(kubeClient kubernetes.Interface,
 	values["sshPrivateKey"] = string(pk.Data["ssh-privatekey"])
 
 	//Get credentials
-	switch {
-	case cd.Spec.Platform.AWS != nil:
-		cred, err := kubeClient.CoreV1().Secrets(o.ClusterName).Get(context.TODO(), cd.Spec.Platform.AWS.CredentialsSecretRef.Name, metav1.GetOptions{})
+	if o.withoutCredentials {
+		values["awsAccessKeyID"] = "your_aws_access_key_id"
+		values["awsSecretAccessKey"] = "your_aws_secret_access_key"
+		values["osServicePrincipalJson"] = map[string]interface{}{
+			"clientID":       "your_clientID",
+			"clientSecret":   "your_clientSecret",
+			"tenantID":       "your_tenantID",
+			"subscriptionID": "your_subscriptionID",
+		}
+		values["osServiceAccountJson"] = "your_osServiceAccountJson"
+		values["vsphere_username"] = "your_username"
+		values["vsphere_password"] = "your_password"
+		values["openstack_cloudsYaml"] = "your_cloudsYaml"
+	} else {
+		cred, err := kubeClient.CoreV1().Secrets(o.ClusterName).Get(context.TODO(), secretName, metav1.GetOptions{})
 		if err != nil {
 			return err
 		}
-		values["awsAccessKeyID"] = string(cred.Data["aws_access_key_id"])
-		values["awsSecretAccessKey"] = string(cred.Data["aws_secret_access_key"])
-	default:
-		return fmt.Errorf("unsupported platform")
+		switch {
+		case cd.Spec.Platform.AWS != nil:
+			values["awsAccessKeyID"] = string(cred.Data["aws_access_key_id"])
+			values["awsSecretAccessKey"] = string(cred.Data["aws_secret_access_key"])
+		case cd.Spec.Platform.Azure != nil:
+			osServicePrincipal := cred.Data["osServicePrincipal.json"]
+			osServicePrincipalMap := make(map[string]interface{})
+			err = json.Unmarshal(osServicePrincipal, &osServicePrincipalMap)
+			if err != nil {
+				return err
+			}
+			values["osServicePrincipalJson"] = osServicePrincipalMap
+		case cd.Spec.Platform.GCP != nil:
+			values["osServiceAccountJson"] = string(cred.Data["osServiceAccount.json"])
+		case cd.Spec.Platform.VSphere != nil:
+			values["vsphere_username"] = string(cred.Data["username"])
+			values["vsphere_password"] = string(cred.Data["password"])
+			cert, err := kubeClient.CoreV1().Secrets(o.ClusterName).Get(context.TODO(), cd.Name+"-vsphere-certs", metav1.GetOptions{})
+			if err != nil {
+				return err
+			}
+			//Not sure if I have to decode or not as the secret template contains a encode statement.
+			values["vpshere_cert"] = string(cert.Data[".cacert"])
+		case cd.Spec.Platform.OpenStack != nil:
+			values["openstack_cloudsYaml"] = string(cred.Data["clouds.yaml"])
+		}
 	}
 
 	//Get clusterimageset

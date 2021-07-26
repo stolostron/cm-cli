@@ -4,7 +4,7 @@ managedCluster:
   master: 
     replicas: {{ .installConfig.controlPlane.replicas }} #Number of master node, default 3
   worker:
-    replicas: {{ with index .installConfig.compute 0 }} {{ .replicas }} {{ end }}#Number of worker node, default 3
+    replicas: {{ with index .installConfig.compute 0 }} {{ .replicas }} {{ end }} #Number of worker node, default 3
   name: {{ .clusterDeployment.metadata.name }} #<cluster-name>, this value is overwritten by the --cluster parameter
   installAttemptsLimit: 1
   labels: # map of custom labels, cloud and vendor labels will be overwritten by the cloud and vendor attribute below.
@@ -60,53 +60,47 @@ managedCluster:
 {{- end }}
 {{- if .clusterDeployment.spec.platform.azure }}
   azure:
-    baseDnsDomain: # baseDomain of your cluster (ie: mycompany.com)
-    baseDomainRGN:
-    clientID:
-    clientSecret:
-    tenantID:
-    subscriptionID:
-    region:
+    baseDnsDomain: {{ .installConfig.baseDomain }} # baseDomain of your cluster (ie: mycompany.com)
+    baseDomainRGN: {{ .installConfig.platform.azure.baseDomainResourceGroupName }}
+    clientID: {{ .osServicePrincipalJson.clientID }}
+    clientSecret: {{ .osServicePrincipalJson.clientSecret }}
+    tenantID: {{ .osServicePrincipalJson.tenantID }}
+    subscriptionID: {{ .osServicePrincipalJson.subscriptionID }}
+    region: {{ .installConfig.platform.azure.region }}
 {{- end }}
 {{- if .clusterDeployment.spec.platform.gcp }}
- gcp:
+  gcp:
     osServiceAccountJson: |-
-      {
-        your authentication
-      }
-    projectID:
-    baseDnsDomain:
-    region:
+{{ .osServiceAccountJson | indent 6 }}
+    projectID: {{ .installConfig.platform.gcp.projectID }}
+    baseDnsDomain: {{ .installConfig.baseDomain }}
+    region:  {{ .installConfig.platform.gcp.region }}
 {{- end }}
 {{- if .clusterDeployment.spec.platform.vsphere }}
   vsphere:
-    username:
-    password:
-    vcenter:
+    username: {{ .vpshere_username }}
+    password: {{ .vsphere_password }}
+    vcenter: {{ .installConfig.platform.vsphere.vCenter }}
     cacertificate: |-
-      -----BEGIN CERTIFICATE-----
-      vSphere certificate
-      -----END CERTIFICATE-----
-    cluster:
-    datacenter:
-    datastore:
-    network:
-    baseDnsDomain: # baseDomain of your cluster (ie: mycompany.com)
-    apiVIP:
-    ingressVIP:
+{{ .vsphere_cert | indent 6 }}
+    cluster: {{ .installConfig.platform.vsphere.cluster }}
+    datacenter: {{ .installConfig.platform.vsphere.datacenter }}
+    datastore: {{ .installConfig.platform.vsphere.defaultDatastore }}
+    network: {{ .installConfig.platform.vsphere.network }}
+    baseDnsDomain: {{ .installConfig.baseDomain }} # baseDomain of your cluster (ie: mycompany.com)
+    apiVIP: {{ .installConfig.platform.vsphere.apiVIP }}
+    ingressVIP: {{ .installConfig.platform.vsphere.ingressVIP }}
 {{- end }}
 {{- if .clusterDeployment.spec.platform.openstack }}
   openstack:
-    baseDnsDomain: # baseDomain of your cluster (ie: mycompany.com)
+    baseDnsDomain: {{ .installConfig.baseDomain }} # baseDomain of your cluster (ie: mycompany.com)
     cloudsYaml: |-
-      clouds:
-        openstack:
-          auth:
-    cloud:
-    externalNetwork:
-    apiFloatingIP:
-    ingressFloatingIP:
-    masterFlavor:
-    workerFlavor:
-    machineNetworkCIDR:  
+{{ .openstack_cloudsYaml | indent 6 }}
+    cloud: {{ .installConfig.platform.vsphere.cloud }}
+    externalNetwork: {{ .installConfig.platform.vsphere.exteralNetwork }}
+    apiFloatingIP: {{ .installConfig.platform.vsphere.apiFloatingIP }}
+    ingressFloatingIP: {{ .installConfig.platform.vsphere.ingressFloatingIP }}
+    masterFlavor: {{ .installConfig.controlPlane.platform.openstack.type }}
+    workerFlavor: {{ with index .installConfig.compute 0 }} {{ .platform.openstack.type }} {{ end }}
+    machineNetworkCIDR: {{ with index .installConfig.networking.machineNetwork 0 }} {{ .cidr }} {{ end }}
 {{- end }}

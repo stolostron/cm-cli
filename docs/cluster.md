@@ -75,7 +75,7 @@ The `create` will create a new managed cluster and attach it to the hub. Cloud p
 If the cluster was deployed with hive, this command will retreive the configuration in order to redeploy the cluster later or another cluster with another name.
 
 ```bash
-cm get config cluster <cluster_name> --output-file <config_file_name>
+cm get config cluster <cluster_name> [--output-file <config_file_name>] [--without-credentials]
 ```
 
 to redeploy the cluster:
