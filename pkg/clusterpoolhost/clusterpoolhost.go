@@ -10,6 +10,7 @@ import (
 	"path/filepath"
 
 	"github.com/ghodss/yaml"
+	"github.com/open-cluster-management/cm-cli/pkg/helpers"
 )
 
 const ClusterPoolHostsDir = ".kube"
@@ -120,7 +121,12 @@ func (cs *ClusterPoolHosts) ApplyClusterPoolHosts() error {
 	return ioutil.WriteFile(fileName, b, 0600)
 }
 
-//GetClusterPoolHost returns the clusterpoolhost
+//OpenClusterPoolHost returns the clusterpoolhost
+func OpenClusterPoolHost(consoleUrl string) error {
+	return helpers.Openbrowser(consoleUrl)
+}
+
+//GetClusterPoolHost opens a browzer on the clusterpoolhost console
 func (cs *ClusterPoolHosts) GetClusterPoolHost(name string) (*ClusterPoolHost, error) {
 	if c, ok := cs.ClusterPoolHosts[name]; ok {
 		return c, nil

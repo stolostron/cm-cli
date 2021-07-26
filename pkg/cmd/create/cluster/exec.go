@@ -64,6 +64,12 @@ func (o *Options) validate() (err error) {
 	}
 	o.cloud = cloud
 
+	_, ocpImageOk := mc["ocpImage"]
+	_, imageSetRef := mc["imageSetRef"]
+	if ocpImageOk && imageSetRef {
+		return fmt.Errorf("ocpImage and imageSetRef are mutually exclusive")
+	}
+
 	if o.clusterName == "" {
 		iname, ok := mc["name"]
 		if !ok || iname == nil {
@@ -147,10 +153,16 @@ func (o *Options) runWithClient(kubeClient kubernetes.Interface,
 		"create/hub/common/pull_secret_cr.yaml",
 		"create/hub/common/ssh_private_key_secret_cr.yaml",
 		"create/hub/common/vsphere_ca_cert_secret_cr.yaml",
-		"create/hub/common/clusterimageset_cr.yaml",
-		"create/hub/common/cluster_deployment_cr.yaml",
 	}
 
+	imc := o.values["managedCluster"]
+	mc := imc.(map[string]interface{})
+
+	if _, ok := mc["imageSetRef"]; !ok {
+		files = append(files, "create/hub/common/clusterimageset_cr.yaml")
+	}
+
+	files = append(files, "create/hub/common/cluster_deployment_cr.yaml")
 	out, err = applier.ApplyCustomResources(reader, o.values, o.CMFlags.DryRun, "create/hub/common/_helpers.tpl", files...)
 	if err != nil {
 		return err

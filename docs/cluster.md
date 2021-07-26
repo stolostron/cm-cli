@@ -70,6 +70,26 @@ cm create cluster --values <values_yaml_path>
 
 The `create` will create a new managed cluster and attach it to the hub. Cloud provider credentials must be given in the values.yaml.
 
+### Get Cluster config
+
+If the cluster was deployed with hive, this command will retreive the configuration in order to redeploy the cluster later or another cluster with another name.
+
+```bash
+cm get config cluster <cluster_name> [--output-file <config_file_name>] [--without-credentials]
+```
+
+to redeploy the cluster:
+
+```bash
+cm create cluster --values <config_file_name>
+```
+
+to redeploy with another name
+
+```bash
+cm create cluster <cluster_name>  --values <config_file_name>
+```
+
 ### Delete Cluster
 
 

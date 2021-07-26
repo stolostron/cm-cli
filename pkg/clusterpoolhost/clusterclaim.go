@@ -340,14 +340,15 @@ func getClusterClaimPendingStatus(cc *hivev1.ClusterClaim) *hivev1.ClusterClaimC
 
 func SprintClusterClaims(cph *ClusterPoolHost, sep string, ccs *hivev1.ClusterClaimList) []string {
 	lines := make([]string, 0)
-	lines = append(lines, fmt.Sprintf("%s%s%s%s%s%s%s%s%s", "CLUSTER_POOL_HOST", sep, "CLUSTER_CLAIM", sep, "POWER_STATE", sep, "HIBERNATE", sep, "ID"))
-	if len(ccs.Items) == 0 {
-		lines = append(lines, fmt.Sprintf("%s%s%s%s%s%s%s%s%s", cph.Name, sep, "no clusterclaim found", sep, "", sep, "", sep, ""))
+	if len(ccs.Items) != 0 {
+		lines = append(lines, fmt.Sprintf("%s%s%s%s%s%s%s%s%s", "CLUSTER_POOL_HOST", sep, "CLUSTER_CLAIM", sep, "POWER_STATE", sep, "HIBERNATE", sep, "ID"))
 	}
 	for _, cc := range ccs.Items {
 		lines = append(lines, sprintClusterClaim(cph, sep, &cc))
 	}
-	lines = append(lines, fmt.Sprintf("%s%s%s%s%s%s%s%s%s", "", sep, "", sep, "", sep, "", sep, ""))
+	if len(ccs.Items) != 0 {
+		lines = append(lines, fmt.Sprintf("%s%s%s%s%s%s%s%s%s", "", sep, "", sep, "", sep, "", sep, ""))
+	}
 	klog.V(5).Infof("lines:%s\n", lines)
 	return lines
 }
@@ -434,4 +435,45 @@ func GetClusterClaim(clusterName string, timeout int, dryRun bool) error {
 	fmt.Printf("api_url:     %s\n", cd.Status.APIURL)
 	fmt.Printf("console_url: %s\n", cd.Status.WebConsoleURL)
 	return nil
+}
+
+func OpenClusterClaim(clusterName string, timeout int) error {
+	cph, err := GetCurrentClusterPoolHost()
+	if err != nil {
+		return err
+	}
+	clusterPoolRestConfig, err := cph.GetGlobalRestConfig()
+	if err != nil {
+		return err
+	}
+
+	dynamicClient, err := dynamic.NewForConfig(clusterPoolRestConfig)
+	if err != nil {
+		return err
+	}
+	klog.V(3).Infof("Wait cc %s ready", clusterName)
+	if err = waitClusterClaimsRunning(dynamicClient, clusterName, "", cph.Namespace, timeout); err != nil {
+		return err
+	}
+
+	ccu, err := dynamicClient.Resource(helpers.GvrCC).Namespace(cph.Namespace).Get(context.TODO(), clusterName, metav1.GetOptions{})
+	if err != nil {
+		return err
+	}
+	cc := &hivev1.ClusterClaim{}
+	if runtime.DefaultUnstructuredConverter.FromUnstructured(ccu.UnstructuredContent(), cc); err != nil {
+		return err
+	}
+	cdu, err := dynamicClient.Resource(helpers.GvrCD).Namespace(cc.Spec.Namespace).Get(context.TODO(), cc.Spec.Namespace, metav1.GetOptions{})
+	if err != nil {
+		return err
+	}
+	cd := &hivev1.ClusterDeployment{}
+	if runtime.DefaultUnstructuredConverter.FromUnstructured(cdu.UnstructuredContent(), cd); err != nil {
+		return err
+	}
+	if cd.Spec.PowerState == hivev1.HibernatingClusterPowerState {
+		return fmt.Errorf("%s is hibernating, run a use command to resume it", cc.GetName())
+	}
+	return helpers.Openbrowser(*&cd.Status.WebConsoleURL)
 }

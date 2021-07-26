@@ -69,7 +69,6 @@ func (o *Options) run() (err error) {
 			continue
 		}
 		allLines = append(allLines, clusterpoolhost.SprintClusterPools(cphs.ClusterPoolHosts[k], "\t", clusterPools)...)
-
 	}
 	helpers.PrintLines(allLines, "\t")
 	return allcphs.SetActive(currentCph)

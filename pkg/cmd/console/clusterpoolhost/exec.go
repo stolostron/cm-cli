@@ -29,7 +29,7 @@ func (o *Options) run() (err error) {
 	if err != nil {
 		return err
 	}
-	err = cph.DeleteClusterPoolHost()
+	err = clusterpoolhost.OpenClusterPoolHost(cph.Console)
 	if err != nil {
 		return err
 	}

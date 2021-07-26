@@ -1,18 +1,16 @@
 // Copyright Contributors to the Open Cluster Management project
-package clusterpoolhost
+package clusterclaim
 
 import (
-	"fmt"
-
 	"github.com/open-cluster-management/cm-cli/pkg/clusterpoolhost"
+
 	"github.com/spf13/cobra"
 )
 
 func (o *Options) complete(cmd *cobra.Command, args []string) (err error) {
-	if len(args) < 1 {
-		return fmt.Errorf("clusterpoolcph name is missing")
+	if len(args) > 0 {
+		o.ClusterClaim = args[0]
 	}
-	o.ClusterPoolHost = args[0]
 	return nil
 }
 
@@ -25,13 +23,22 @@ func (o *Options) run() (err error) {
 	if err != nil {
 		return err
 	}
-	cph, err := cphs.GetClusterPoolHost(o.ClusterPoolHost)
+
+	currentCph, err := cphs.GetCurrentClusterPoolHost()
 	if err != nil {
 		return err
 	}
-	err = cph.DeleteClusterPoolHost()
+
+	err = clusterpoolhost.OpenClusterClaim(o.ClusterClaim, o.Timeout)
 	if err != nil {
 		return err
 	}
-	return nil
+
+	if len(o.ClusterPoolHost) != 0 {
+		if err := cphs.SetActive(currentCph); err != nil {
+			return err
+		}
+	}
+	return err
+
 }

@@ -1,5 +1,5 @@
 // Copyright Contributors to the Open Cluster Management project
-package clusterpoolhost
+package clusterclaim
 
 import (
 	genericclioptionscm "github.com/open-cluster-management/cm-cli/pkg/genericclioptions"
@@ -9,7 +9,9 @@ import (
 type Options struct {
 	//CMFlags: The generic optiosn from the cm cli-runtime.
 	CMFlags         *genericclioptionscm.CMFlags
+	ClusterClaim    string
 	ClusterPoolHost string
+	Timeout         int
 }
 
 func newOptions(cmFlags *genericclioptionscm.CMFlags, streams genericclioptions.IOStreams) *Options {

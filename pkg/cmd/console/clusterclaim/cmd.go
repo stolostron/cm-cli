@@ -15,14 +15,12 @@ import (
 
 const (
 	example = `
-	# get a clusterclaim in current clusterpoolhost
-	%[1]s get cc <clusterclaim_name> 
+	# open the console of clusterclaim in current clusterpoolhost
+	%[1]s console cc <cluster-name>
 	
-	# get clusterclaims on a specific clusterpoolhost
-	%[1]s get cc  <clusterclaim_name> --cph <clusterpoolhosts>
-	
-	# get clusterclaims across all clusterpoolhosts
-	%[1]s get cc -A`
+	# pen the console clusterclaims of a given clusterpoolhost
+	%[1]s concole cc <cluster-name> --cph <clusterpoolhosts>
+`
 )
 
 // NewCmd ...
@@ -33,7 +31,7 @@ func NewCmd(cmFlags *genericclioptionscm.CMFlags, streams genericclioptions.IOSt
 		Use:                   "clusterclaims",
 		Aliases:               []string{"cc", "ccs", "clusterclaim"},
 		DisableFlagsInUseLine: true,
-		Short:                 "Display clusterclaims",
+		Short:                 "Open console of a clusterclaim",
 		Example:               fmt.Sprintf(example, helpers.GetExampleHeader()),
 		PreRunE: func(cmd *cobra.Command, args []string) error {
 			return clusterpoolhost.BackupCurrentContexts()
@@ -49,7 +47,6 @@ func NewCmd(cmFlags *genericclioptionscm.CMFlags, streams genericclioptions.IOSt
 	}
 
 	cmd.Flags().StringVar(&o.ClusterPoolHost, "cph", "", "The clusterpoolhost to use")
-	cmd.Flags().BoolVarP(&o.AllClusterPoolHosts, "all-cphs", "A", o.AllClusterPoolHosts, "If the requested object does not exist the command will return exit code 0.")
 	cmd.Flags().IntVar(&o.Timeout, "timeout", 60, "Timeout to get the cluster claim running")
 
 	return cmd

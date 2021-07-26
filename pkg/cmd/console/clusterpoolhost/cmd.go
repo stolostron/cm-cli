@@ -1,40 +1,33 @@
 // Copyright Contributors to the Open Cluster Management project
-package clusterclaim
+package clusterpoolhost
 
 import (
 	"fmt"
 
 	"github.com/open-cluster-management/cm-cli/pkg/clusterpoolhost"
 	genericclioptionscm "github.com/open-cluster-management/cm-cli/pkg/genericclioptions"
+	"github.com/open-cluster-management/cm-cli/pkg/helpers"
 	cmdutil "k8s.io/kubectl/pkg/cmd/util"
 
-	"github.com/open-cluster-management/cm-cli/pkg/helpers"
 	"github.com/spf13/cobra"
 	"k8s.io/cli-runtime/pkg/genericclioptions"
 )
 
-const (
-	example = `
-	# get a clusterclaim in current clusterpoolhost
-	%[1]s get cc <clusterclaim_name> 
-	
-	# get clusterclaims on a specific clusterpoolhost
-	%[1]s get cc  <clusterclaim_name> --cph <clusterpoolhosts>
-	
-	# get clusterclaims across all clusterpoolhosts
-	%[1]s get cc -A`
-)
+var example = `
+# Open the console of cluster pool hosts
+%[1]s console cph <clusterpoolhost_name>
+`
 
-// NewCmd ...
+// NewCmd provides a cobra command wrapping NewCmdImportCluster
 func NewCmd(cmFlags *genericclioptionscm.CMFlags, streams genericclioptions.IOStreams) *cobra.Command {
-
 	o := newOptions(cmFlags, streams)
+
 	cmd := &cobra.Command{
-		Use:                   "clusterclaims",
-		Aliases:               []string{"cc", "ccs", "clusterclaim"},
-		DisableFlagsInUseLine: true,
-		Short:                 "Display clusterclaims",
-		Example:               fmt.Sprintf(example, helpers.GetExampleHeader()),
+		Use:          "clusterpoolhost",
+		Aliases:      []string{"clusterpoolhost", "cphs", "cph"},
+		Short:        "open the console of a clusterpoolhost",
+		Example:      fmt.Sprintf(example, helpers.GetExampleHeader()),
+		SilenceUsage: true,
 		PreRunE: func(cmd *cobra.Command, args []string) error {
 			return clusterpoolhost.BackupCurrentContexts()
 		},
@@ -49,8 +42,6 @@ func NewCmd(cmFlags *genericclioptionscm.CMFlags, streams genericclioptions.IOSt
 	}
 
 	cmd.Flags().StringVar(&o.ClusterPoolHost, "cph", "", "The clusterpoolhost to use")
-	cmd.Flags().BoolVarP(&o.AllClusterPoolHosts, "all-cphs", "A", o.AllClusterPoolHosts, "If the requested object does not exist the command will return exit code 0.")
-	cmd.Flags().IntVar(&o.Timeout, "timeout", 60, "Timeout to get the cluster claim running")
 
 	return cmd
 }
