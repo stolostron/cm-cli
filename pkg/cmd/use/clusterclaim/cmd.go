@@ -25,8 +25,8 @@ var example = `
 func NewCmd(cmFlags *genericclioptionscm.CMFlags, streams genericclioptions.IOStreams) *cobra.Command {
 	o := newOptions(cmFlags, streams)
 	cmd := &cobra.Command{
-		Use:          "clusterlclaim",
-		Aliases:      []string{"clusterlclaims", "cc", "ccs"},
+		Use:          "clusterclaim",
+		Aliases:      []string{"clusterclaims", "cc", "ccs"},
 		Short:        "use clusterclaim change the current context to a cluster claim",
 		Long:         "use clusterclaim change the current context to a cluster claim, optionally the cluster pool host can be provided to override the current one",
 		Example:      fmt.Sprintf(example, helpers.GetExampleHeader()),
