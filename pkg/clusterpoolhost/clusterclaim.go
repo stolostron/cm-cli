@@ -12,6 +12,7 @@ import (
 	hivev1 "github.com/openshift/hive/apis/hive/v1"
 	corev1 "k8s.io/api/core/v1"
 	apiextensionsclient "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset"
+	"k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/util/wait"
@@ -224,29 +225,33 @@ func checkClusterClaimsRunning(dynamicClient dynamic.Interface, clusterClaimName
 		running := false
 		if len(cc.Spec.Namespace) != 0 {
 			cdu, err := dynamicClient.Resource(helpers.GvrCD).Namespace(cc.Spec.Namespace).Get(context.TODO(), cc.Spec.Namespace, metav1.GetOptions{})
-			if err != nil {
-				allErrors[clusterClaimName] = err
-				fmt.Printf("Error: %s\n", err.Error())
-				continue
-			}
-			cd := &hivev1.ClusterDeployment{}
-			if runtime.DefaultUnstructuredConverter.FromUnstructured(cdu.UnstructuredContent(), cd); err != nil {
-				allErrors[clusterClaimName] = err
-				fmt.Printf("Error: %s\n", err.Error())
-				continue
-			}
-			if cd.Spec.PowerState == hivev1.HibernatingClusterPowerState {
-				allErrors[clusterClaimName] = fmt.Errorf("%s is hibernating, run a use command to resume it", cc.GetName())
-				fmt.Printf("Error: %s\n", allErrors[clusterClaimName])
-				continue
-			}
-			c := getClusterClaimRunningStatus(cc)
-			if len(cd.Spec.ClusterMetadata.AdminPasswordSecretRef.Name) != 0 &&
-				len(cd.Spec.BaseDomain) != 0 &&
-				len(cd.Status.APIURL) != 0 &&
-				c != nil && c.Status == corev1.ConditionStatus(metav1.ConditionTrue) {
-				running = true
-				fmt.Printf("clusterclaim %s is running with id %s (%d/%d)\n", clusterClaimName, cc.Spec.Namespace, i, timeout)
+			if statusError, isStatus := err.(*errors.StatusError); isStatus && statusError.Status().Reason == metav1.StatusReasonForbidden {
+				fmt.Printf("Permissions error when accessing claimed ClusterDeployment.  Permissions are likely still propagating. \nError: %s\n", err.Error())
+			} else {
+				if err != nil {
+					allErrors[clusterClaimName] = err
+					fmt.Printf("Error: %s\n", err.Error())
+					continue
+				}
+				cd := &hivev1.ClusterDeployment{}
+				if runtime.DefaultUnstructuredConverter.FromUnstructured(cdu.UnstructuredContent(), cd); err != nil {
+					allErrors[clusterClaimName] = err
+					fmt.Printf("Error: %s\n", err.Error())
+					continue
+				}
+				if cd.Spec.PowerState == hivev1.HibernatingClusterPowerState {
+					allErrors[clusterClaimName] = fmt.Errorf("%s is hibernating, run a use command to resume it", cc.GetName())
+					fmt.Printf("Error: %s\n", allErrors[clusterClaimName])
+					continue
+				}
+				c := getClusterClaimRunningStatus(cc)
+				if len(cd.Spec.ClusterMetadata.AdminPasswordSecretRef.Name) != 0 &&
+					len(cd.Spec.BaseDomain) != 0 &&
+					len(cd.Status.APIURL) != 0 &&
+					c != nil && c.Status == corev1.ConditionStatus(metav1.ConditionTrue) {
+					running = true
+					fmt.Printf("clusterclaim %s is running with id %s (%d/%d)\n", clusterClaimName, cc.Spec.Namespace, i, timeout)
+				}
 			}
 		}
 		if !running {
