@@ -3,7 +3,9 @@ package cluster
 
 import (
 	"fmt"
+	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/open-cluster-management/cm-cli/pkg/cmd/attach/cluster/scenario"
 	genericclioptionscm "github.com/open-cluster-management/cm-cli/pkg/genericclioptions"
@@ -44,7 +46,7 @@ func NewCmd(cmFlags *genericclioptionscm.CMFlags, streams genericclioptions.IOSt
 		PreRunE: func(c *cobra.Command, args []string) error {
 			clusteradmhelpers.DryRunMessage(cmFlags.DryRun)
 			if !helpers.IsRHACM(cmFlags.KubectlFactory) {
-				return fmt.Errorf("this command '%s attach cluster' is only available on RHACM", helpers.GetExampleHeader())
+				return fmt.Errorf("this command '%s %s' is only available on RHACM", helpers.GetExampleHeader(), strings.Join(os.Args[1:], " "))
 			}
 			return nil
 		},

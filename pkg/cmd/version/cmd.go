@@ -3,6 +3,8 @@ package version
 
 import (
 	"fmt"
+	"os"
+	"strings"
 
 	genericclioptionscm "github.com/open-cluster-management/cm-cli/pkg/genericclioptions"
 	"github.com/open-cluster-management/cm-cli/pkg/helpers"
@@ -26,7 +28,7 @@ func NewCmd(cmFlags *genericclioptionscm.CMFlags, streams genericclioptions.IOSt
 		SilenceUsage: true,
 		PreRunE: func(c *cobra.Command, args []string) error {
 			if !helpers.IsRHACM(cmFlags.KubectlFactory) {
-				return fmt.Errorf("this command '%s version' is only available on RHACM", helpers.GetExampleHeader())
+				return fmt.Errorf("this command '%s %s' is only available on RHACM", helpers.GetExampleHeader(), strings.Join(os.Args[1:], " "))
 			}
 			return nil
 		},
