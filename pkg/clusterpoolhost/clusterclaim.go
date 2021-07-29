@@ -362,19 +362,19 @@ func sprintClusterClaim(cph *ClusterPoolHost, sep string, cc *hivev1.ClusterClai
 	var powerState, hibernate, cdName string
 	clusterPoolRestConfig, err := cph.GetGlobalRestConfig()
 	if err != nil {
-		return fmt.Sprintf("%s%s%s%s%s%s%s%s%s", cph.Name, sep, sep, sep, sep, sep, sep, sep, err.Error())
+		return fmt.Sprintf("%s%s%s%s%s%s%s%s%s", cph.Name, sep, "", sep, "", sep, "", sep, err.Error())
 	}
 	dynamicClient, err := dynamic.NewForConfig(clusterPoolRestConfig)
 	if err != nil {
-		return fmt.Sprintf("%s%s%s%s%s%s%s%s%s", cph.Name, sep, sep, sep, sep, sep, sep, sep, err.Error())
+		return fmt.Sprintf("%s%s%s%s%s%s%s%s%s", cph.Name, sep, "", sep, "", sep, "", sep, err.Error())
 	}
 	cdu, err := dynamicClient.Resource(helpers.GvrCD).Namespace(cc.Spec.Namespace).Get(context.TODO(), cc.Spec.Namespace, metav1.GetOptions{})
 	if err != nil {
-		return fmt.Sprintf("%s%s%s%s%s%s%s%s%s", cph.Name, sep, sep, sep, sep, sep, sep, sep, err.Error())
+		return fmt.Sprintf("%s%s%s%s%s%s%s%s%s", cph.Name, sep, "", sep, "", sep, "", sep, err.Error())
 	}
 	cd := &hivev1.ClusterDeployment{}
 	if err := runtime.DefaultUnstructuredConverter.FromUnstructured(cdu.UnstructuredContent(), cd); err != nil {
-		return fmt.Sprintf("%s%s%s%s%s%s%s%s%s", cph.Name, sep, sep, sep, sep, sep, sep, sep, err.Error())
+		return fmt.Sprintf("%s%s%s%s%s%s%s%s%s", cph.Name, sep, "", sep, "", sep, "", sep, err.Error())
 	}
 	if cd != nil {
 		powerState = string(cd.Spec.PowerState)
