@@ -46,9 +46,6 @@ func (cph *ClusterPoolHost) getClusterClaimSAToken(
 	timeout int,
 	dryRun bool,
 	outputFile string) (token, serviceAccountName string, ccConfigAPI *clientcmdapi.Config, err error) {
-	if err = SetGlobalCurrentContext(cph.GetContextName()); err != nil {
-		return
-	}
 
 	clusterPoolRestConfig, err := cph.GetGlobalRestConfig()
 	if err != nil {
