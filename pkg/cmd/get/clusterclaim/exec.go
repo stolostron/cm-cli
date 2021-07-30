@@ -14,10 +14,16 @@ func (o *Options) complete(cmd *cobra.Command, args []string) (err error) {
 	if len(args) > 0 {
 		o.ClusterClaim = args[0]
 	}
+	if len(o.OutputFormat) == 0 {
+		o.OutputFormat = helpers.CustomColumnsFormat + clusterpoolhost.ClusterClaimsColumns
+	}
 	return nil
 }
 
 func (o *Options) validate() error {
+	if !helpers.IsOutputFormatSupported(o.OutputFormat) {
+		return fmt.Errorf("invalid output format %s", helpers.SupportedOutputFormat)
+	}
 	return nil
 }
 
@@ -57,7 +63,24 @@ func (o *Options) getCC(cphs *clusterpoolhost.ClusterPoolHosts) (err error) {
 			return err
 		}
 	}
-	return clusterpoolhost.GetClusterClaim(o.ClusterClaim, o.Timeout, o.CMFlags.DryRun)
+	cc, err := clusterpoolhost.GetClusterClaim(o.ClusterClaim, o.Timeout, o.CMFlags.DryRun)
+	if err != nil {
+		return err
+	}
+	cred, err := clusterpoolhost.GetClusterClaimCred(cc)
+	if err != nil {
+		return err
+	}
+	if o.OutputFormat == helpers.CustomColumnsFormat+clusterpoolhost.ClusterClaimsColumns {
+		fmt.Printf("username:    %s\n", cred.User)
+		fmt.Printf("password:    %s\n", cred.Password)
+		fmt.Printf("basedomain:  %s\n", cred.Basedomain)
+		fmt.Printf("api_url:     %s\n", cred.ApiUrl)
+		fmt.Printf("console_url: %s\n", cred.ConsoleUrl)
+		return nil
+	}
+	return helpers.Print(cred, o.OutputFormat, o.NoHeaders, nil)
+
 }
 
 func (o *Options) getCCS(allcphs *clusterpoolhost.ClusterPoolHosts) (err error) {
@@ -85,7 +108,7 @@ func (o *Options) getCCS(allcphs *clusterpoolhost.ClusterPoolHosts) (err error) 
 		}
 	}
 
-	allLines := make([]string, 0)
+	clusterClaimsClaimsP := make([]clusterpoolhost.PrintClusterClaim, 0)
 	for k := range cphs.ClusterPoolHosts {
 		err = allcphs.SetActive(allcphs.ClusterPoolHosts[k])
 		if err != nil {
@@ -96,8 +119,8 @@ func (o *Options) getCCS(allcphs *clusterpoolhost.ClusterPoolHosts) (err error) 
 			fmt.Printf("Error while retrieving clusterclaims from %s\n", cphs.ClusterPoolHosts[k].Name)
 			continue
 		}
-		allLines = append(allLines, clusterpoolhost.SprintClusterClaims(cphs.ClusterPoolHosts[k], "\t", clusterClaims)...)
+		clusterClaimsClaimsP = append(clusterClaimsClaimsP, clusterpoolhost.PrintClusterClaimObj(cphs.ClusterPoolHosts[k], clusterClaims)...)
 	}
-	helpers.PrintLines(allLines, "\t")
+	helpers.Print(clusterClaimsClaimsP, o.OutputFormat, o.NoHeaders, clusterpoolhost.ConvertClustClaimsForPrint)
 	return nil
 }

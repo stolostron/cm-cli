@@ -16,7 +16,6 @@ import (
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/client-go/dynamic"
 	"k8s.io/client-go/kubernetes"
-	"k8s.io/klog/v2"
 	clusteradmapply "open-cluster-management.io/clusteradm/pkg/helpers/apply"
 )
 
@@ -191,21 +190,37 @@ func GetClusterPools(showCphName, dryRun bool) (*hivev1.ClusterPoolList, error) 
 	return clusterPools, nil
 }
 
-func SprintClusterPools(cph *ClusterPoolHost, sep string, cps *hivev1.ClusterPoolList) []string {
-	lines := make([]string, 0)
-	if len(cps.Items) != 0 {
-		lines = append(lines, fmt.Sprintf("%s%s%s%s%s%s%s%s%s", "CLUSTER_POOL_HOST", sep, "CLUSTER_POOL", sep, "SIZE", sep, "READY", sep, "ACTUAL_SIZE"))
-	}
-	for _, cp := range cps.Items {
-		lines = append(lines, sprintClusterPool(cph, sep, &cp))
-	}
-	if len(cps.Items) != 0 {
-		lines = append(lines, fmt.Sprintf("%s%s%s%s%s%s%s%s%s", "", sep, "", sep, "", sep, "", sep, ""))
-	}
-	klog.V(5).Infof("lines:%s\n", lines)
-	return lines
+type PrintClusterPool struct {
+	ClusterPoolHost *ClusterPoolHost    `json:"clusterPoolHost"`
+	ClusterPool     *hivev1.ClusterPool `json:"clusterPool"`
 }
 
-func sprintClusterPool(cph *ClusterPoolHost, sep string, cp *hivev1.ClusterPool) string {
-	return fmt.Sprintf("%s%s%s%s%4d%s%5d%s%11d", cph.Name, sep, cp.GetName(), sep, cp.Spec.Size, sep, cp.Status.Ready, sep, cp.Status.Size)
+const (
+	ClusterPoolsColumns string = "CLUSTER_POOL_HOST,CLUSTER_POOL,SIZE,READY,ACTUAL_SIZE"
+)
+
+func PrintClusterPoolObj(clusterPoolHost *ClusterPoolHost, cpl *hivev1.ClusterPoolList) []PrintClusterPool {
+	pcps := make([]PrintClusterPool, 0)
+	for i := range cpl.Items {
+		pcp := PrintClusterPool{
+			ClusterPoolHost: clusterPoolHost,
+			ClusterPool:     &cpl.Items[i],
+		}
+		pcps = append(pcps, pcp)
+	}
+	return pcps
+}
+
+func ConvertClusterPoolsForPrint(pcps interface{}) ([]map[string]string, error) {
+	a := make([]map[string]string, 0)
+	for _, pcp := range pcps.([]PrintClusterPool) {
+		m := make(map[string]string)
+		m["CLUSTER_POOL_HOST"] = pcp.ClusterPoolHost.Name
+		m["CLUSTER_POOL"] = pcp.ClusterPool.Name
+		m["SIZE"] = fmt.Sprintf("%4d", pcp.ClusterPool.Spec.Size)
+		m["READY"] = fmt.Sprintf("%5d", pcp.ClusterPool.Status.Ready)
+		m["ACTUAL_SIZE"] = fmt.Sprintf("%11d", pcp.ClusterPool.Status.Size)
+		a = append(a, m)
+	}
+	return a, nil
 }

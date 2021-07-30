@@ -134,16 +134,6 @@ func (cs *ClusterPoolHosts) GetClusterPoolHost(name string) (*ClusterPoolHost, e
 	return nil, fmt.Errorf("cluster pool host %s not found", name)
 }
 
-//RawPrint prints the clusterpoolhosts
-func (cs *ClusterPoolHosts) RawPrint() error {
-	b, err := yaml.Marshal(cs)
-	if err != nil {
-		return err
-	}
-	fmt.Println(string(b))
-	return nil
-}
-
 //Print prints a summary of the clusterpoolhosts
 func (cs *ClusterPoolHosts) Print() {
 	fmt.Printf("%-1s%-20s\t%-30s\t%-60s\n", " ", "CLUSTER_POOL_HOST", "NAMESPACE", "API_URL")
@@ -154,6 +144,27 @@ func (cs *ClusterPoolHosts) Print() {
 		}
 		fmt.Printf("%-1s%-20s\t%-30s\t%-60s\n", star, c.Name, c.Namespace, c.APIServer)
 	}
+}
+
+const (
+	ClusterPoolHostsColumns string = " ,CLUSTER_POOL_HOST,NAMESPACE,API_SERVER,CONSOLE"
+)
+
+func ConvertClusterPoolHostsForPrint(cphs interface{}) ([]map[string]string, error) {
+	a := make([]map[string]string, 0)
+	for _, cph := range cphs.(*ClusterPoolHosts).ClusterPoolHosts {
+		m := make(map[string]string)
+		m[" "] = " "
+		if cph.Active {
+			m[" "] = "*"
+		}
+		m["CLUSTER_POOL_HOST"] = cph.Name
+		m["NAMESPACE"] = cph.Namespace
+		m["API_SERVER"] = cph.APIServer
+		m["CONSOLE"] = cph.Console
+		a = append(a, m)
+	}
+	return a, nil
 }
 
 //UnActiveAll unactives all clusterpoolhosts

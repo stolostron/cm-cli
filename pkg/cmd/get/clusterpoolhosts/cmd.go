@@ -17,8 +17,8 @@ var example = `
 # Get cluster pool hosts
 %[1]s get cph
 
-# Get cluster pool hosts in a raw format
-%[1]s get cph --raw
+# Get cluster pool hosts
+%[1]s get cph -oyaml|json|columns=%[2]s
 `
 
 // NewCmd provides a cobra command wrapping NewCmdImportCluster
@@ -29,7 +29,7 @@ func NewCmd(cmFlags *genericclioptionscm.CMFlags, streams genericclioptions.IOSt
 		Use:          "clusterpoolhosts",
 		Aliases:      []string{"clusterpoolhost", "cphs", "cph"},
 		Short:        "list the clusterpoolhosts",
-		Example:      fmt.Sprintf(example, helpers.GetExampleHeader()),
+		Example:      fmt.Sprintf(example, helpers.GetExampleHeader(), clusterpoolhost.ClusterPoolHostsColumns),
 		SilenceUsage: true,
 		PreRunE: func(cmd *cobra.Command, args []string) error {
 			return clusterpoolhost.BackupCurrentContexts()
@@ -44,6 +44,7 @@ func NewCmd(cmFlags *genericclioptionscm.CMFlags, streams genericclioptions.IOSt
 		},
 	}
 
-	cmd.Flags().BoolVar(&o.raw, "raw", false, "If set return a raw display")
+	cmd.Flags().StringVarP(&o.OutputFormat, "output", "o", "", "Output format. One of: json|yaml|columns=c1,c2,...")
+	cmd.Flags().BoolVar(&o.NoHeaders, "no-headers", false, "When using the default or custom-column output format, don't print headers (default print headers).")
 	return cmd
 }

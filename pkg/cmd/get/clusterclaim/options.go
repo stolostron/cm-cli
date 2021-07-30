@@ -10,6 +10,8 @@ type Options struct {
 	//CMFlags: The generic optiosn from the cm cli-runtime.
 	CMFlags             *genericclioptionscm.CMFlags
 	ClusterClaim        string
+	OutputFormat        string
+	NoHeaders           bool
 	AllClusterPoolHosts bool
 	ClusterPoolHost     string
 	Timeout             int

@@ -343,103 +343,144 @@ func getClusterClaimPendingStatus(cc *hivev1.ClusterClaim) *hivev1.ClusterClaimC
 	return nil
 }
 
-func SprintClusterClaims(cph *ClusterPoolHost, sep string, ccs *hivev1.ClusterClaimList) []string {
-	lines := make([]string, 0)
-	if len(ccs.Items) != 0 {
-		lines = append(lines, fmt.Sprintf("%s%s%s%s%s%s%s%s%s", "CLUSTER_POOL_HOST", sep, "CLUSTER_CLAIM", sep, "POWER_STATE", sep, "HIBERNATE", sep, "ID"))
-	}
-	for _, cc := range ccs.Items {
-		lines = append(lines, sprintClusterClaim(cph, sep, &cc))
-	}
-	if len(ccs.Items) != 0 {
-		lines = append(lines, fmt.Sprintf("%s%s%s%s%s%s%s%s%s", "", sep, "", sep, "", sep, "", sep, ""))
-	}
-	klog.V(5).Infof("lines:%s\n", lines)
-	return lines
+type PrintClusterClaim struct {
+	ClusterPoolHost *ClusterPoolHost     `json:"clusterPoolHost"`
+	ClusterClaim    *hivev1.ClusterClaim `json:"clusterClaim"`
 }
 
-func sprintClusterClaim(cph *ClusterPoolHost, sep string, cc *hivev1.ClusterClaim) string {
-	var powerState, hibernate, cdName string
-	clusterPoolRestConfig, err := cph.GetGlobalRestConfig()
-	if err != nil {
-		return fmt.Sprintf("%s%s%s%s%s%s%s%s%s", cph.Name, sep, "", sep, "", sep, "", sep, err.Error())
+const (
+	ClusterClaimsColumns string = "CLUSTER_POOL_HOST,CLUSTER_CLAIM,POWER_STATE,HIBERNATE,ID"
+)
+
+func PrintClusterClaimObj(cph *ClusterPoolHost, ccl *hivev1.ClusterClaimList) []PrintClusterClaim {
+	pccs := make([]PrintClusterClaim, 0)
+	for i := range ccl.Items {
+		pcc := PrintClusterClaim{
+			ClusterPoolHost: cph,
+			ClusterClaim:    &ccl.Items[i],
+		}
+		pccs = append(pccs, pcc)
 	}
-	dynamicClient, err := dynamic.NewForConfig(clusterPoolRestConfig)
-	if err != nil {
-		return fmt.Sprintf("%s%s%s%s%s%s%s%s%s", cph.Name, sep, "", sep, "", sep, "", sep, err.Error())
-	}
-	cdu, err := dynamicClient.Resource(helpers.GvrCD).Namespace(cc.Spec.Namespace).Get(context.TODO(), cc.Spec.Namespace, metav1.GetOptions{})
-	if err != nil {
-		return fmt.Sprintf("%s%s%s%s%s%s%s%s%s", cph.Name, sep, "", sep, "", sep, "", sep, err.Error())
-	}
-	cd := &hivev1.ClusterDeployment{}
-	if err := runtime.DefaultUnstructuredConverter.FromUnstructured(cdu.UnstructuredContent(), cd); err != nil {
-		return fmt.Sprintf("%s%s%s%s%s%s%s%s%s", cph.Name, sep, "", sep, "", sep, "", sep, err.Error())
-	}
-	if cd != nil {
-		powerState = string(cd.Spec.PowerState)
-		hibernate = cd.Labels["hibernate"]
-		cdName = cd.Name
-	}
-	c := getClusterClaimPendingStatus(cc)
-	if c != nil && c.Status == corev1.ConditionStatus(metav1.ConditionTrue) {
-		powerState = string(hivev1.ClusterClaimPendingCondition)
-	}
-	return fmt.Sprintf("%s%s%s%s%s%s%s%s%s", cph.Name, sep, cc.GetName(), sep, powerState, sep, hibernate, sep, cdName)
+	return pccs
 }
 
-func GetClusterClaim(clusterName string, timeout int, dryRun bool) error {
+func ConvertClustClaimsForPrint(pccs interface{}) ([]map[string]string, error) {
+	a := make([]map[string]string, 0)
+	for _, pcc := range pccs.([]PrintClusterClaim) {
+		var powerState, hibernate, cdName string
+		clusterPoolRestConfig, err := pcc.ClusterPoolHost.GetGlobalRestConfig()
+		if err != nil {
+			return nil, err
+		}
+		dynamicClient, err := dynamic.NewForConfig(clusterPoolRestConfig)
+		if err != nil {
+			return nil, err
+		}
+		cdu, err := dynamicClient.Resource(helpers.GvrCD).Namespace(pcc.ClusterClaim.Spec.Namespace).Get(context.TODO(), pcc.ClusterClaim.Spec.Namespace, metav1.GetOptions{})
+		if err != nil {
+			return nil, err
+		}
+		cd := &hivev1.ClusterDeployment{}
+		if err := runtime.DefaultUnstructuredConverter.FromUnstructured(cdu.UnstructuredContent(), cd); err != nil {
+			return nil, err
+		}
+		if cd != nil {
+			powerState = string(cd.Spec.PowerState)
+			hibernate = cd.Labels["hibernate"]
+			cdName = cd.Name
+		}
+		c := getClusterClaimPendingStatus(pcc.ClusterClaim)
+		if c != nil && c.Status == corev1.ConditionStatus(metav1.ConditionTrue) {
+			powerState = string(hivev1.ClusterClaimPendingCondition)
+		}
+		m := make(map[string]string)
+		m["CLUSTER_POOL_HOST"] = pcc.ClusterPoolHost.Name
+		m["CLUSTER_CLAIM"] = pcc.ClusterClaim.Name
+		m["HIBERNATE"] = hibernate
+		m["POWER_STATE"] = powerState
+		m["ID"] = cdName
+		a = append(a, m)
+	}
+	return a, nil
+}
+
+func GetClusterClaim(clusterName string, timeout int, dryRun bool) (*hivev1.ClusterClaim, error) {
 	cph, err := GetCurrentClusterPoolHost()
 	if err != nil {
-		return err
+		return nil, err
 	}
 	clusterPoolRestConfig, err := cph.GetGlobalRestConfig()
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	dynamicClient, err := dynamic.NewForConfig(clusterPoolRestConfig)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	klog.V(3).Infof("Wait cc %s ready", clusterName)
 	if err = waitClusterClaimsRunning(dynamicClient, clusterName, "", cph.Namespace, timeout); err != nil {
-		return err
+		return nil, err
 	}
 
-	kubeClient, err := kubernetes.NewForConfig(clusterPoolRestConfig)
-	if err != nil {
-		return err
-	}
 	ccu, err := dynamicClient.Resource(helpers.GvrCC).Namespace(cph.Namespace).Get(context.TODO(), clusterName, metav1.GetOptions{})
 	if err != nil {
-		return err
+		return nil, err
 	}
 	cc := &hivev1.ClusterClaim{}
 	if runtime.DefaultUnstructuredConverter.FromUnstructured(ccu.UnstructuredContent(), cc); err != nil {
-		return err
+		return nil, err
+	}
+	return cc, nil
+}
+
+type ClusterClaimCred struct {
+	User       string `json:"user"`
+	Password   string `json:"pasword"`
+	Basedomain string `json:"baseDomain"`
+	ApiUrl     string `json:"apiServer"`
+	ConsoleUrl string `json:"console"`
+}
+
+func GetClusterClaimCred(cc *hivev1.ClusterClaim) (*ClusterClaimCred, error) {
+	cph, err := GetCurrentClusterPoolHost()
+	if err != nil {
+		return nil, err
+	}
+	clusterPoolRestConfig, err := cph.GetGlobalRestConfig()
+	if err != nil {
+		return nil, err
+	}
+	dynamicClient, err := dynamic.NewForConfig(clusterPoolRestConfig)
+	if err != nil {
+		return nil, err
 	}
 	cdu, err := dynamicClient.Resource(helpers.GvrCD).Namespace(cc.Spec.Namespace).Get(context.TODO(), cc.Spec.Namespace, metav1.GetOptions{})
 	if err != nil {
-		return err
+		return nil, err
 	}
 	cd := &hivev1.ClusterDeployment{}
 	if runtime.DefaultUnstructuredConverter.FromUnstructured(cdu.UnstructuredContent(), cd); err != nil {
-		return err
+		return nil, err
 	}
 	if cd.Spec.PowerState == hivev1.HibernatingClusterPowerState {
-		return fmt.Errorf("%s is hibernating, run a use command to resume it", cc.GetName())
+		return nil, fmt.Errorf("%s is hibernating, run a use command to resume it", cc.GetName())
+	}
+	kubeClient, err := kubernetes.NewForConfig(clusterPoolRestConfig)
+	if err != nil {
+		return nil, err
 	}
 	s, err := kubeClient.CoreV1().Secrets(cd.Namespace).Get(context.TODO(), cd.Spec.ClusterMetadata.AdminPasswordSecretRef.Name, metav1.GetOptions{})
 	if err != nil {
-		return err
+		return nil, err
 	}
-	fmt.Printf("username:    %s\n", s.Data["username"])
-	fmt.Printf("password:    %s\n", s.Data["password"])
-	fmt.Printf("basedomain:  %s\n", cd.Spec.BaseDomain)
-	fmt.Printf("api_url:     %s\n", cd.Status.APIURL)
-	fmt.Printf("console_url: %s\n", cd.Status.WebConsoleURL)
-	return nil
+	return &ClusterClaimCred{
+		User:       string(s.Data["username"]),
+		Password:   string(s.Data["password"]),
+		Basedomain: cd.Spec.BaseDomain,
+		ApiUrl:     cd.Status.APIURL,
+		ConsoleUrl: cd.Status.WebConsoleURL,
+	}, nil
 }
 
 func OpenClusterClaim(clusterName string, timeout int) error {
