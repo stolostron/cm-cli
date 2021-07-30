@@ -363,6 +363,7 @@ func PrintClusterClaimObj(cph *ClusterPoolHost, ccl *hivev1.ClusterClaimList) []
 			ClusterPoolHost: cph,
 			ClusterClaim:    &ccl.Items[i],
 		}
+		pccs = append(pccs, pcc)
 		clusterPoolRestConfig, err := pcc.ClusterPoolHost.GetGlobalRestConfig()
 		if err != nil {
 			pcc.ErrorMessage = err.Error()
@@ -392,7 +393,6 @@ func PrintClusterClaimObj(cph *ClusterPoolHost, ccl *hivev1.ClusterClaimList) []
 		if c != nil && c.Status == corev1.ConditionStatus(metav1.ConditionTrue) {
 			pcc.PowerState = string(hivev1.ClusterClaimPendingCondition)
 		}
-		pccs = append(pccs, pcc)
 	}
 	return pccs
 }
