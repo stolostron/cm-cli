@@ -9,6 +9,7 @@ import (
 type Options struct {
 	//CMFlags: The generic optiosn from the cm cli-runtime.
 	CMFlags             *genericclioptionscm.CMFlags
+	NoHeaders           bool
 	OutputFormat        string
 	AllClusterPoolHosts bool
 	ClusterPoolHost     string

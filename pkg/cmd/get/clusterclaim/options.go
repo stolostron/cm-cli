@@ -11,6 +11,7 @@ type Options struct {
 	CMFlags             *genericclioptionscm.CMFlags
 	ClusterClaim        string
 	OutputFormat        string
+	NoHeaders           bool
 	AllClusterPoolHosts bool
 	ClusterPoolHost     string
 	Timeout             int

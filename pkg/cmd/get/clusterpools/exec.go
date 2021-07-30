@@ -73,6 +73,6 @@ func (o *Options) run() (err error) {
 		}
 		clusterPoolHostsCPs = append(clusterPoolHostsCPs, clusterpoolhost.PrintClusterPoolObj(cphs.ClusterPoolHosts[k], clusterPools)...)
 	}
-	helpers.Print(clusterPoolHostsCPs, o.OutputFormat, clusterpoolhost.ConvertClusterPoolsForPrint)
+	helpers.Print(clusterPoolHostsCPs, o.OutputFormat, o.NoHeaders, clusterpoolhost.ConvertClusterPoolsForPrint)
 	return allcphs.SetActive(currentCph)
 }

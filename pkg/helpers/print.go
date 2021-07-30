@@ -13,9 +13,8 @@ import (
 const (
 	YamlFormat            string = "yaml"
 	JsonFormat            string = "json"
-	CustomColumnsFormat   string = "custom-columns="
-	ColumnsSeparator      string = "|"
-	ColumnsNameSeparator  string = ":"
+	CustomColumnsFormat   string = "columns="
+	ColumnsSeparator      string = ","
 	SupportedOutputFormat string = YamlFormat + "|" + JsonFormat + "|" + CustomColumnsFormat + "..."
 )
 
@@ -26,7 +25,7 @@ func IsOutputFormatSupported(format string) bool {
 		strings.ToLower(format) == JsonFormat
 }
 
-func Print(o interface{}, format string, f func(interface{}) ([]map[string]string, error)) error {
+func Print(o interface{}, format string, noHeaders bool, f func(interface{}) ([]map[string]string, error)) error {
 	switch strings.ToLower(format) {
 	case YamlFormat:
 		return printYaml(o)
@@ -37,7 +36,7 @@ func Print(o interface{}, format string, f func(interface{}) ([]map[string]strin
 		if err != nil {
 			return err
 		}
-		return printText(m, format)
+		return printText(m, format, noHeaders)
 	}
 }
 
@@ -59,9 +58,9 @@ func printJson(o interface{}) error {
 	return nil
 }
 
-func printText(o []map[string]string, format string) error {
+func printText(o []map[string]string, format string, noHeaders bool) error {
 	format = strings.TrimPrefix(format, CustomColumnsFormat)
-	lines, err := printArrayColumns(o, format)
+	lines, err := printArrayColumns(o, format, noHeaders)
 	if err != nil {
 		return err
 	}
@@ -69,13 +68,15 @@ func printText(o []map[string]string, format string) error {
 	return nil
 }
 
-func printArrayColumns(o []map[string]string, format string) ([]string, error) {
+func printArrayColumns(o []map[string]string, format string, noHeaders bool) ([]string, error) {
 	lines := make([]string, 0)
-	line, err := generateLine(o, format, true)
-	if err != nil {
-		return nil, err
+	if !noHeaders {
+		line, err := generateLine(o, format, true)
+		if err != nil {
+			return nil, err
+		}
+		lines = append(lines, line)
 	}
-	lines = append(lines, line)
 	for _, elem := range o {
 		line, err := generateLine(elem, format, false)
 		if err != nil {

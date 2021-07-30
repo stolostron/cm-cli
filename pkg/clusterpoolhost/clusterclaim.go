@@ -349,7 +349,7 @@ type PrintClusterClaim struct {
 }
 
 const (
-	ClusterClaimsColumns string = "CLUSTER_POOL_HOST|CLUSTER_CLAIM|POWER_STATE|HIBERNATE|ID"
+	ClusterClaimsColumns string = "CLUSTER_POOL_HOST,CLUSTER_CLAIM,POWER_STATE,HIBERNATE,ID"
 )
 
 func PrintClusterClaimObj(cph *ClusterPoolHost, ccl *hivev1.ClusterClaimList) []PrintClusterClaim {

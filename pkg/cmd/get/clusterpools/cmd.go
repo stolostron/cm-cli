@@ -51,7 +51,8 @@ func NewCmd(cmFlags *genericclioptionscm.CMFlags, streams genericclioptions.IOSt
 			return clusterpoolhost.RestoreCurrentContexts()
 		},
 	}
-	cmd.Flags().StringVarP(&o.OutputFormat, "output", "o", "", "Output format. One of: json|yaml|custom-columns=c1|c2|...")
+	cmd.Flags().StringVarP(&o.OutputFormat, "output", "o", "", "Output format. One of: json|yaml|columns=c1,c2,...")
+	cmd.Flags().BoolVar(&o.NoHeaders, "no-headers", false, "When using the default or custom-column output format, don't print headers (default print headers).")
 	cmd.Flags().StringVar(&o.ClusterPoolHost, "cph", "", "The clusterpoolhost to use")
 	cmd.Flags().BoolVarP(&o.AllClusterPoolHosts, "all-cphs", "A", o.AllClusterPoolHosts, "If the requested object does not exist the command will return exit code 0.")
 

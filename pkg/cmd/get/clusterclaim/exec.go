@@ -79,7 +79,7 @@ func (o *Options) getCC(cphs *clusterpoolhost.ClusterPoolHosts) (err error) {
 		fmt.Printf("console_url: %s\n", cred.ConsoleUrl)
 		return nil
 	}
-	return helpers.Print(cred, o.OutputFormat, nil)
+	return helpers.Print(cred, o.OutputFormat, o.NoHeaders, nil)
 
 }
 
@@ -121,6 +121,6 @@ func (o *Options) getCCS(allcphs *clusterpoolhost.ClusterPoolHosts) (err error) 
 		}
 		clusterClaimsClaimsP = append(clusterClaimsClaimsP, clusterpoolhost.PrintClusterClaimObj(cphs.ClusterPoolHosts[k], clusterClaims)...)
 	}
-	helpers.Print(clusterClaimsClaimsP, o.OutputFormat, clusterpoolhost.ConvertClustClaimsForPrint)
+	helpers.Print(clusterClaimsClaimsP, o.OutputFormat, o.NoHeaders, clusterpoolhost.ConvertClustClaimsForPrint)
 	return nil
 }

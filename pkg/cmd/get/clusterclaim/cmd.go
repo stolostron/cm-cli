@@ -19,7 +19,7 @@ const (
 	%[1]s get cc <clusterclaim_name> 
 	
 	# get a clusterclaim in current clusterpoolhost
-	%[1]s get cc <clusterclaim_name> -oyaml|json|custom-columns=%[2]s
+	%[1]s get cc <clusterclaim_name> -oyaml|json|columns=%[2]s
 	
 	# get clusterclaims on a specific clusterpoolhost
 	%[1]s get cc  <clusterclaim_name> --cph <clusterpoolhosts>
@@ -52,7 +52,8 @@ func NewCmd(cmFlags *genericclioptionscm.CMFlags, streams genericclioptions.IOSt
 	}
 
 	cmd.Flags().StringVar(&o.ClusterPoolHost, "cph", "", "The clusterpoolhost to use")
-	cmd.Flags().StringVarP(&o.OutputFormat, "output", "o", "", "Output format. One of: json|yaml|custom-columns=c1|c2|...")
+	cmd.Flags().StringVarP(&o.OutputFormat, "output", "o", "", "Output format. One of: json|yaml|columns=c1,c2,...")
+	cmd.Flags().BoolVar(&o.NoHeaders, "no-headers", false, "When using the default or custom-column output format, don't print headers (default print headers).")
 	cmd.Flags().BoolVarP(&o.AllClusterPoolHosts, "all-cphs", "A", o.AllClusterPoolHosts, "If the requested object does not exist the command will return exit code 0.")
 	cmd.Flags().IntVar(&o.Timeout, "timeout", 60, "Timeout to get the cluster claim running")
 

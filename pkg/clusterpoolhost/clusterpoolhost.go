@@ -147,7 +147,7 @@ func (cs *ClusterPoolHosts) Print() {
 }
 
 const (
-	ClusterPoolHostsColumns string = " |CLUSTER_POOL_HOST|NAMESPACE|API_SERVER|CONSOLE"
+	ClusterPoolHostsColumns string = " ,CLUSTER_POOL_HOST,NAMESPACE,API_SERVER,CONSOLE"
 )
 
 func ConvertClusterPoolHostsForPrint(cphs interface{}) ([]map[string]string, error) {

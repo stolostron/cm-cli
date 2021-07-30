@@ -11,7 +11,7 @@ import (
 
 func (o *Options) complete(cmd *cobra.Command, args []string) (err error) {
 	if len(o.OutputFormat) == 0 {
-		o.OutputFormat = helpers.CustomColumnsFormat + " |CLUSTER_POOL_HOST|NAMESPACE|API_SERVER"
+		o.OutputFormat = helpers.CustomColumnsFormat + " ,CLUSTER_POOL_HOST,NAMESPACE,API_SERVER"
 	}
 	return nil
 }
@@ -28,6 +28,6 @@ func (o *Options) run() (err error) {
 	if err != nil {
 		return err
 	}
-	helpers.Print(cphs, o.OutputFormat, clusterpoolhost.ConvertClusterPoolHostsForPrint)
+	helpers.Print(cphs, o.OutputFormat, o.NoHeaders, clusterpoolhost.ConvertClusterPoolHostsForPrint)
 	return nil
 }

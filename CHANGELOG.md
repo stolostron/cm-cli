@@ -2,6 +2,7 @@
 # Release Content
 
 ### Additions
+- [Add -o [yaml|json] for all get cmds #77](https://github.com/open-cluster-management/cm-cli/issues/77)
 
 ### Breacking changes
 ### Bug fixes

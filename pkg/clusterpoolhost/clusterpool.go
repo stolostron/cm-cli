@@ -196,7 +196,7 @@ type PrintClusterPool struct {
 }
 
 const (
-	ClusterPoolsColumns string = "CLUSTER_POOL_HOST|CLUSTER_POOL|SIZE|READY|ACTUAL_SIZE"
+	ClusterPoolsColumns string = "CLUSTER_POOL_HOST,CLUSTER_POOL,SIZE,READY,ACTUAL_SIZE"
 )
 
 func PrintClusterPoolObj(clusterPoolHost *ClusterPoolHost, cpl *hivev1.ClusterPoolList) []PrintClusterPool {
