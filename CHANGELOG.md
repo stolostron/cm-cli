@@ -3,6 +3,7 @@
 
 ### Additions
 - [Add -o [yaml|json] for all get cmds #77](https://github.com/open-cluster-management/cm-cli/issues/77)
+- Add -ocolumns and --no-headers
 
 ### Breacking changes
 ### Bug fixes
@@ -11,3 +12,4 @@
 - [Crash for "cm get cc" #74](https://github.com/open-cluster-management/cm-cli/issues/74)
 - [Creating a ClusterClaim results in a "Forbidden" error even though permissions eventually propogate #72](https://github.com/open-cluster-management/cm-cli/issues/72)
 - [Copy/paste errors in command output #69](https://github.com/open-cluster-management/cm-cli/issues/69)
+- [Handle ClusterClaims for which the user cannot view Deployments more elegantly #81](https://github.com/open-cluster-management/cm-cli/issues/81)
