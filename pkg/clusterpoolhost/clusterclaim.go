@@ -363,25 +363,28 @@ func PrintClusterClaimObj(cph *ClusterPoolHost, ccl *hivev1.ClusterClaimList) []
 			ClusterPoolHost: cph,
 			ClusterClaim:    &ccl.Items[i],
 		}
-		pccs = append(pccs, pcc)
 		clusterPoolRestConfig, err := pcc.ClusterPoolHost.GetGlobalRestConfig()
 		if err != nil {
 			pcc.ErrorMessage = err.Error()
+			pccs = append(pccs, pcc)
 			continue
 		}
 		dynamicClient, err := dynamic.NewForConfig(clusterPoolRestConfig)
 		if err != nil {
 			pcc.ErrorMessage = err.Error()
+			pccs = append(pccs, pcc)
 			continue
 		}
 		cdu, err := dynamicClient.Resource(helpers.GvrCD).Namespace(pcc.ClusterClaim.Spec.Namespace).Get(context.TODO(), pcc.ClusterClaim.Spec.Namespace, metav1.GetOptions{})
 		if err != nil {
 			pcc.ErrorMessage = err.Error()
+			pccs = append(pccs, pcc)
 			continue
 		}
 		cd := &hivev1.ClusterDeployment{}
 		if err := runtime.DefaultUnstructuredConverter.FromUnstructured(cdu.UnstructuredContent(), cd); err != nil {
 			pcc.ErrorMessage = err.Error()
+			pccs = append(pccs, pcc)
 			continue
 		}
 		if cd != nil {
@@ -393,6 +396,7 @@ func PrintClusterClaimObj(cph *ClusterPoolHost, ccl *hivev1.ClusterClaimList) []
 		if c != nil && c.Status == corev1.ConditionStatus(metav1.ConditionTrue) {
 			pcc.PowerState = string(hivev1.ClusterClaimPendingCondition)
 		}
+		pccs = append(pccs, pcc)
 	}
 	return pccs
 }
