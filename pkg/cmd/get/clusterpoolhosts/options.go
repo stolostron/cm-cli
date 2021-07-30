@@ -8,8 +8,8 @@ import (
 
 type Options struct {
 	//CMFlags: The generic optiosn from the cm cli-runtime.
-	CMFlags *genericclioptionscm.CMFlags
-	raw     bool
+	CMFlags      *genericclioptionscm.CMFlags
+	OutputFormat string
 }
 
 func newOptions(cmFlags *genericclioptionscm.CMFlags, streams genericclioptions.IOStreams) *Options {

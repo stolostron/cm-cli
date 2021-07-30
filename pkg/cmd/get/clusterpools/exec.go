@@ -11,15 +11,18 @@ import (
 )
 
 func (o *Options) complete(cmd *cobra.Command, args []string) (err error) {
-	// if len(args) > 0 {
-	// 	o.ClusterPoolHost = args[0]
-	// }
+	if len(o.OutputFormat) == 0 {
+		o.OutputFormat = helpers.CustomColumnsFormat + clusterpoolhost.ClusterPoolsColumns
+	}
 	return nil
 }
 
 func (o *Options) validate() error {
 	if o.ClusterPoolHost != "" && o.AllClusterPoolHosts {
 		return fmt.Errorf("clusterpoolhost and all-cphs are imcompatible")
+	}
+	if !helpers.IsOutputFormatSupported(o.OutputFormat) {
+		return fmt.Errorf("invalid output format %s", helpers.SupportedOutputFormat)
 	}
 	return nil
 }
@@ -57,7 +60,7 @@ func (o *Options) run() (err error) {
 		}
 	}
 
-	allLines := make([]string, 0)
+	clusterPoolHostsCPs := make([]clusterpoolhost.PrintClusterPool, 0)
 	for k := range cphs.ClusterPoolHosts {
 		err = allcphs.SetActive(allcphs.ClusterPoolHosts[k])
 		if err != nil {
@@ -68,8 +71,8 @@ func (o *Options) run() (err error) {
 			fmt.Printf("Error while retrieving clusterpools from %s\n", cphs.ClusterPoolHosts[k].Name)
 			continue
 		}
-		allLines = append(allLines, clusterpoolhost.SprintClusterPools(cphs.ClusterPoolHosts[k], "\t", clusterPools)...)
+		clusterPoolHostsCPs = append(clusterPoolHostsCPs, clusterpoolhost.PrintClusterPoolObj(cphs.ClusterPoolHosts[k], clusterPools)...)
 	}
-	helpers.PrintLines(allLines, "\t")
+	helpers.Print(clusterPoolHostsCPs, o.OutputFormat, clusterpoolhost.ConvertClusterPoolsForPrint)
 	return allcphs.SetActive(currentCph)
 }
