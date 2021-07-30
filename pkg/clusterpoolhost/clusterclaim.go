@@ -346,10 +346,14 @@ func getClusterClaimPendingStatus(cc *hivev1.ClusterClaim) *hivev1.ClusterClaimC
 type PrintClusterClaim struct {
 	ClusterPoolHost *ClusterPoolHost     `json:"clusterPoolHost"`
 	ClusterClaim    *hivev1.ClusterClaim `json:"clusterClaim"`
+	Hibernate       string               `json:"hibernate"`
+	PowerState      string               `json:"powerState"`
+	ID              string               `json:"id"`
+	ErrorMessage    string               `json:"error"`
 }
 
 const (
-	ClusterClaimsColumns string = "CLUSTER_POOL_HOST,CLUSTER_CLAIM,POWER_STATE,HIBERNATE,ID"
+	ClusterClaimsColumns string = "CLUSTER_POOL_HOST,CLUSTER_CLAIM,POWER_STATE,HIBERNATE,ID,ERROR"
 )
 
 func PrintClusterClaimObj(cph *ClusterPoolHost, ccl *hivev1.ClusterClaimList) []PrintClusterClaim {
@@ -359,6 +363,39 @@ func PrintClusterClaimObj(cph *ClusterPoolHost, ccl *hivev1.ClusterClaimList) []
 			ClusterPoolHost: cph,
 			ClusterClaim:    &ccl.Items[i],
 		}
+		clusterPoolRestConfig, err := pcc.ClusterPoolHost.GetGlobalRestConfig()
+		if err != nil {
+			pcc.ErrorMessage = err.Error()
+			pccs = append(pccs, pcc)
+			continue
+		}
+		dynamicClient, err := dynamic.NewForConfig(clusterPoolRestConfig)
+		if err != nil {
+			pcc.ErrorMessage = err.Error()
+			pccs = append(pccs, pcc)
+			continue
+		}
+		cdu, err := dynamicClient.Resource(helpers.GvrCD).Namespace(pcc.ClusterClaim.Spec.Namespace).Get(context.TODO(), pcc.ClusterClaim.Spec.Namespace, metav1.GetOptions{})
+		if err != nil {
+			pcc.ErrorMessage = err.Error()
+			pccs = append(pccs, pcc)
+			continue
+		}
+		cd := &hivev1.ClusterDeployment{}
+		if err := runtime.DefaultUnstructuredConverter.FromUnstructured(cdu.UnstructuredContent(), cd); err != nil {
+			pcc.ErrorMessage = err.Error()
+			pccs = append(pccs, pcc)
+			continue
+		}
+		if cd != nil {
+			pcc.PowerState = string(cd.Spec.PowerState)
+			pcc.Hibernate = cd.Labels["hibernate"]
+			pcc.ID = cd.Name
+		}
+		c := getClusterClaimPendingStatus(pcc.ClusterClaim)
+		if c != nil && c.Status == corev1.ConditionStatus(metav1.ConditionTrue) {
+			pcc.PowerState = string(hivev1.ClusterClaimPendingCondition)
+		}
 		pccs = append(pccs, pcc)
 	}
 	return pccs
@@ -367,38 +404,13 @@ func PrintClusterClaimObj(cph *ClusterPoolHost, ccl *hivev1.ClusterClaimList) []
 func ConvertClustClaimsForPrint(pccs interface{}) ([]map[string]string, error) {
 	a := make([]map[string]string, 0)
 	for _, pcc := range pccs.([]PrintClusterClaim) {
-		var powerState, hibernate, cdName string
-		clusterPoolRestConfig, err := pcc.ClusterPoolHost.GetGlobalRestConfig()
-		if err != nil {
-			return nil, err
-		}
-		dynamicClient, err := dynamic.NewForConfig(clusterPoolRestConfig)
-		if err != nil {
-			return nil, err
-		}
-		cdu, err := dynamicClient.Resource(helpers.GvrCD).Namespace(pcc.ClusterClaim.Spec.Namespace).Get(context.TODO(), pcc.ClusterClaim.Spec.Namespace, metav1.GetOptions{})
-		if err != nil {
-			return nil, err
-		}
-		cd := &hivev1.ClusterDeployment{}
-		if err := runtime.DefaultUnstructuredConverter.FromUnstructured(cdu.UnstructuredContent(), cd); err != nil {
-			return nil, err
-		}
-		if cd != nil {
-			powerState = string(cd.Spec.PowerState)
-			hibernate = cd.Labels["hibernate"]
-			cdName = cd.Name
-		}
-		c := getClusterClaimPendingStatus(pcc.ClusterClaim)
-		if c != nil && c.Status == corev1.ConditionStatus(metav1.ConditionTrue) {
-			powerState = string(hivev1.ClusterClaimPendingCondition)
-		}
 		m := make(map[string]string)
 		m["CLUSTER_POOL_HOST"] = pcc.ClusterPoolHost.Name
 		m["CLUSTER_CLAIM"] = pcc.ClusterClaim.Name
-		m["HIBERNATE"] = hibernate
-		m["POWER_STATE"] = powerState
-		m["ID"] = cdName
+		m["HIBERNATE"] = pcc.Hibernate
+		m["POWER_STATE"] = pcc.PowerState
+		m["ID"] = pcc.ID
+		m["ERROR"] = pcc.ErrorMessage
 		a = append(a, m)
 	}
 	return a, nil
