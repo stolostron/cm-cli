@@ -366,18 +366,22 @@ func PrintClusterClaimObj(cph *ClusterPoolHost, ccl *hivev1.ClusterClaimList) []
 		clusterPoolRestConfig, err := pcc.ClusterPoolHost.GetGlobalRestConfig()
 		if err != nil {
 			pcc.ErrorMessage = err.Error()
+			continue
 		}
 		dynamicClient, err := dynamic.NewForConfig(clusterPoolRestConfig)
 		if err != nil {
 			pcc.ErrorMessage = err.Error()
+			continue
 		}
 		cdu, err := dynamicClient.Resource(helpers.GvrCD).Namespace(pcc.ClusterClaim.Spec.Namespace).Get(context.TODO(), pcc.ClusterClaim.Spec.Namespace, metav1.GetOptions{})
 		if err != nil {
 			pcc.ErrorMessage = err.Error()
+			continue
 		}
 		cd := &hivev1.ClusterDeployment{}
 		if err := runtime.DefaultUnstructuredConverter.FromUnstructured(cdu.UnstructuredContent(), cd); err != nil {
 			pcc.ErrorMessage = err.Error()
+			continue
 		}
 		if cd != nil {
 			pcc.PowerState = string(cd.Spec.PowerState)
