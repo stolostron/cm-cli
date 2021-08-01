@@ -3,6 +3,7 @@ package config
 
 import (
 	"github.com/open-cluster-management/cm-cli/pkg/cmd/get/config/cluster"
+	"github.com/open-cluster-management/cm-cli/pkg/cmd/get/config/clusterpool"
 	genericclioptionscm "github.com/open-cluster-management/cm-cli/pkg/genericclioptions"
 	genericclioptionsclusteradm "open-cluster-management.io/clusteradm/pkg/genericclioptions"
 
@@ -18,6 +19,7 @@ func NewCmd(clusteradmFlags *genericclioptionsclusteradm.ClusteradmFlags, cmFlag
 	}
 
 	cmd.AddCommand(cluster.NewCmd(cmFlags, streams))
+	cmd.AddCommand(clusterpool.NewCmd(cmFlags, streams))
 
 	return cmd
 }

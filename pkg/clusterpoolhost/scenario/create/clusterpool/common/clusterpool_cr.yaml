@@ -6,8 +6,12 @@ metadata:
   name: "{{ .clusterPool.name }}"
   namespace: "{{ .namespace }}"
   labels:
+{{- if .clusterPool.cloud }}
     cloud: {{ .clusterPool.cloud }}
+{{- end }}
+{{- if .clusterPool.vendor }}
     vendor: {{ .clusterPool.vendor }}
+{{- end }}
 spec:
   size: {{ .clusterPool.size }}
 {{- if (eq .clusterPool.cloud "aws") }}

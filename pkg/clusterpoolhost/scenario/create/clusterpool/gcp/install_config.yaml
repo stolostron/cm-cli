@@ -31,5 +31,7 @@ platform:
     projectID: {{ .clusterPool.gcp.projectID }}
     region: {{ .clusterPool.gcp.region }}
 pullSecret: "" # skip, hive will inject based on it's secrets
+{{- if .clusterPool.sshPublicKey }}
 sshKey: |-
-  {{ .clusterPool.sshPublicKey | indent 4 }}
+{{ .clusterPool.sshPublicKey | indent 4 }}
+{{- end }}

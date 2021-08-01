@@ -7,6 +7,7 @@ import (
 	"os"
 	"strings"
 
+	"github.com/open-cluster-management/cm-cli/pkg/helpers"
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd"
 	clientcmdapi "k8s.io/client-go/tools/clientcmd/api"
@@ -274,7 +275,16 @@ func (cph *ClusterPoolHost) getRestConfig(globalKubeConfig bool) (*rest.Config, 
 		return nil, err
 	}
 	clientConfig := clientcmd.NewDefaultClientConfig(*configapi, &clientcmd.ConfigOverrides{CurrentContext: cph.GetContextName()})
-	return clientConfig.ClientConfig()
+	config, err := clientConfig.ClientConfig()
+	if err != nil {
+		return nil, err
+	}
+
+	config.QPS = helpers.QPS
+	config.Burst = helpers.Burst
+
+	return config, nil
+
 }
 
 //SetCPHContext sets the clusterpoolhost context as current
