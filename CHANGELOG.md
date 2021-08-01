@@ -1,15 +1,10 @@
 [comment]: # ( Copyright Contributors to the Open Cluster Management project )
 # Release Content
+## Additions
 
-### Additions
-- [Add -o [yaml|json] for all get cmds #77](https://github.com/open-cluster-management/cm-cli/issues/77)
-- Add -ocolumns and --no-headers
+- [Create a cmd which generate a config to create a clusterpool based on an existing clusterpool #66](https://github.com/open-cluster-management/cm-cli/issues/66)
 
-### Breacking changes
-### Bug fixes
+## Breacking changes
+## Bug fixes
 
-- [Add -o [yaml|json] for all get cmds #77](https://github.com/open-cluster-management/cm-cli/issues/77)
-- [Crash for "cm get cc" #74](https://github.com/open-cluster-management/cm-cli/issues/74)
-- [Creating a ClusterClaim results in a "Forbidden" error even though permissions eventually propogate #72](https://github.com/open-cluster-management/cm-cli/issues/72)
-- [Copy/paste errors in command output #69](https://github.com/open-cluster-management/cm-cli/issues/69)
-- [Handle ClusterClaims for which the user cannot view Deployments more elegantly #81](https://github.com/open-cluster-management/cm-cli/issues/81)
+- [Increase QPS as lots of throttling message #68](https://github.com/open-cluster-management/cm-cli/issues/68)
