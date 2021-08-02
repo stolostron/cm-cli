@@ -66,7 +66,7 @@ func (o *Options) getCC(cphs *clusterpoolhost.ClusterPoolHosts) (err error) {
 			return err
 		}
 	}
-	cc, err := clusterpoolhost.GetClusterClaim(o.ClusterClaim, o.Timeout, o.CMFlags.DryRun)
+	cc, err := clusterpoolhost.GetClusterClaim(o.ClusterClaim, o.Timeout, o.CMFlags.DryRun, o.PrintFlags)
 	if err != nil {
 		return err
 	}
