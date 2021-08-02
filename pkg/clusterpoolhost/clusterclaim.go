@@ -20,6 +20,7 @@ import (
 	"k8s.io/client-go/dynamic"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/klog/v2"
+	"k8s.io/kubectl/pkg/cmd/get"
 	clusteradmapply "open-cluster-management.io/clusteradm/pkg/helpers/apply"
 )
 
@@ -85,7 +86,7 @@ func CreateClusterClaims(clusterClaimNames, clusterPoolName string, skipSchedule
 	}
 
 	if !dryRun {
-		if err := waitClusterClaimsRunning(dynamicClient, clusterClaimNames, clusterPoolName, cph.Namespace, timeout); err != nil {
+		if err := waitClusterClaimsRunning(dynamicClient, clusterClaimNames, clusterPoolName, cph.Namespace, timeout, nil); err != nil {
 			return err
 		}
 	}
@@ -114,7 +115,7 @@ func RunClusterClaims(clusterClaimNames string, skipSchedule bool, timeout int, 
 		if err != nil {
 			return err
 		}
-		return waitClusterClaimsRunning(dynamicClient, clusterClaimNames, "", cph.Namespace, timeout)
+		return waitClusterClaimsRunning(dynamicClient, clusterClaimNames, "", cph.Namespace, timeout, nil)
 	}
 	return nil
 }
@@ -183,15 +184,15 @@ func (cph *ClusterPoolHost) setHibernateClusterClaims(clusterClaimNames string, 
 	return nil
 }
 
-func waitClusterClaimsRunning(dynamicClient dynamic.Interface, clusterClaimNames, clusterPoolName, namespace string, timeout int) error {
+func waitClusterClaimsRunning(dynamicClient dynamic.Interface, clusterClaimNames, clusterPoolName, namespace string, timeout int, printFlags *get.PrintFlags) error {
 	i := 0
 	return wait.PollImmediate(1*time.Minute, time.Duration(timeout)*time.Minute, func() (bool, error) {
 		i += 1
-		return checkClusterClaimsRunning(dynamicClient, clusterClaimNames, clusterPoolName, namespace, i, timeout)
+		return checkClusterClaimsRunning(dynamicClient, clusterClaimNames, clusterPoolName, namespace, i, timeout, printFlags)
 	})
 
 }
-func checkClusterClaimsRunning(dynamicClient dynamic.Interface, clusterClaimNames, clusterPoolName, namespace string, i, timeout int) (bool, error) {
+func checkClusterClaimsRunning(dynamicClient dynamic.Interface, clusterClaimNames, clusterPoolName, namespace string, i, timeout int, printFlags *get.PrintFlags) (bool, error) {
 	if len(clusterPoolName) != 0 {
 		cpu, err := dynamicClient.Resource(helpers.GvrCP).Namespace(namespace).Get(context.TODO(), clusterPoolName, metav1.GetOptions{})
 		if err != nil {
@@ -251,7 +252,9 @@ func checkClusterClaimsRunning(dynamicClient dynamic.Interface, clusterClaimName
 					len(cd.Status.APIURL) != 0 &&
 					c != nil && c.Status == corev1.ConditionStatus(metav1.ConditionTrue) {
 					running = true
-					fmt.Printf("clusterclaim %s is running with id %s (%d/%d)\n", clusterClaimName, cc.Spec.Namespace, i, timeout)
+					if printFlags.OutputFormat == nil || strings.HasPrefix(*printFlags.OutputFormat, "custom-columns=") {
+						fmt.Printf("clusterclaim %s is running with id %s (%d/%d)\n", clusterClaimName, cc.Spec.Namespace, i, timeout)
+					}
 				}
 			}
 		}
@@ -400,7 +403,7 @@ func PrintClusterClaimObj(cph *ClusterPoolHost, ccl *hivev1.ClusterClaimList) *p
 	return pccs
 }
 
-func GetClusterClaim(clusterName string, timeout int, dryRun bool) (*hivev1.ClusterClaim, error) {
+func GetClusterClaim(clusterName string, timeout int, dryRun bool, printFlags *get.PrintFlags) (*hivev1.ClusterClaim, error) {
 	cph, err := GetCurrentClusterPoolHost()
 	if err != nil {
 		return nil, err
@@ -415,7 +418,7 @@ func GetClusterClaim(clusterName string, timeout int, dryRun bool) (*hivev1.Clus
 		return nil, err
 	}
 	klog.V(3).Infof("Wait cc %s ready", clusterName)
-	if err = waitClusterClaimsRunning(dynamicClient, clusterName, "", cph.Namespace, timeout); err != nil {
+	if err = waitClusterClaimsRunning(dynamicClient, clusterName, "", cph.Namespace, timeout, printFlags); err != nil {
 		return nil, err
 	}
 
@@ -492,7 +495,7 @@ func OpenClusterClaim(clusterName string, timeout int) error {
 		return err
 	}
 	klog.V(3).Infof("Wait cc %s ready", clusterName)
-	if err = waitClusterClaimsRunning(dynamicClient, clusterName, "", cph.Namespace, timeout); err != nil {
+	if err = waitClusterClaimsRunning(dynamicClient, clusterName, "", cph.Namespace, timeout, nil); err != nil {
 		return err
 	}
 
