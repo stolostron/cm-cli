@@ -2,24 +2,21 @@
 package clusterpoolhosts
 
 import (
-	"fmt"
-
+	printclusterpoolv1alpha1 "github.com/open-cluster-management/cm-cli/api/cm-cli/v1alpha1"
 	"github.com/open-cluster-management/cm-cli/pkg/clusterpoolhost"
 	"github.com/open-cluster-management/cm-cli/pkg/helpers"
 	"github.com/spf13/cobra"
+	"k8s.io/apimachinery/pkg/runtime/schema"
 )
 
 func (o *Options) complete(cmd *cobra.Command, args []string) (err error) {
-	if len(o.OutputFormat) == 0 {
-		o.OutputFormat = helpers.CustomColumnsFormat + " ,CLUSTER_POOL_HOST,NAMESPACE,API_SERVER"
+	if len(*o.PrintFlags.OutputFormat) == 0 {
+		o.PrintFlags.OutputFormat = &clusterpoolhost.ClusterPoolHostsColumns
 	}
 	return nil
 }
 
 func (o *Options) validate() error {
-	if !helpers.IsOutputFormatSupported(o.OutputFormat) {
-		return fmt.Errorf("invalid output format %s", helpers.SupportedOutputFormat)
-	}
 	return nil
 }
 
@@ -28,6 +25,13 @@ func (o *Options) run() (err error) {
 	if err != nil {
 		return err
 	}
-	helpers.Print(cphs, o.OutputFormat, o.NoHeaders, clusterpoolhost.ConvertClusterPoolHostsForPrint)
+	pcphs := clusterpoolhost.ConvertToPrintClusterPoolHostList(cphs)
+	pcphs.GetObjectKind().
+		SetGroupVersionKind(
+			schema.GroupVersionKind{
+				Group:   printclusterpoolv1alpha1.GroupName,
+				Kind:    "PrintClusterPoolHosts",
+				Version: printclusterpoolv1alpha1.GroupVersion.Version})
+	helpers.Print(pcphs, o.PrintFlags)
 	return nil
 }

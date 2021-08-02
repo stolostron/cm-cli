@@ -4,6 +4,11 @@ package helpers
 
 import "k8s.io/apimachinery/pkg/runtime/schema"
 
+const (
+	QPS   = 200
+	Burst = 200
+)
+
 var (
 	GvrCC  schema.GroupVersionResource = schema.GroupVersionResource{Group: "hive.openshift.io", Version: "v1", Resource: "clusterclaims"}
 	GvrCP  schema.GroupVersionResource = schema.GroupVersionResource{Group: "hive.openshift.io", Version: "v1", Resource: "clusterpools"}

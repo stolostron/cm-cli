@@ -9,6 +9,7 @@ import (
 	"github.com/open-cluster-management/cm-cli/pkg/clusterpoolhost"
 	genericclioptionscm "github.com/open-cluster-management/cm-cli/pkg/genericclioptions"
 	"github.com/open-cluster-management/cm-cli/pkg/helpers"
+	"k8s.io/kubectl/pkg/cmd/get"
 	cmdutil "k8s.io/kubectl/pkg/cmd/util"
 
 	"github.com/spf13/cobra"
@@ -18,9 +19,6 @@ import (
 var example = `
 # Get clusterpool
 %[1]s get cp <clusterpool_name>
-
-# Get clusterpool
-%[1]s get cp <clusterpool_name> -oyaml|json|custom-columns=%[2]s
 
 # Get clusterpool on a given clusterpoolhost
 %[1]s get cp <clusterpool_name> --cph <clusterpoolhost>
@@ -51,8 +49,10 @@ func NewCmd(cmFlags *genericclioptionscm.CMFlags, streams genericclioptions.IOSt
 			return clusterpoolhost.RestoreCurrentContexts()
 		},
 	}
-	cmd.Flags().StringVarP(&o.OutputFormat, "output", "o", "", "Output format. One of: json|yaml|columns=c1,c2,...")
-	cmd.Flags().BoolVar(&o.NoHeaders, "no-headers", false, "When using the default or custom-column output format, don't print headers (default print headers).")
+
+	o.PrintFlags = get.NewGetPrintFlags()
+
+	o.PrintFlags.AddFlags(cmd)
 	cmd.Flags().StringVar(&o.ClusterPoolHost, "cph", "", "The clusterpoolhost to use")
 	cmd.Flags().BoolVarP(&o.AllClusterPoolHosts, "all-cphs", "A", o.AllClusterPoolHosts, "If the requested object does not exist the command will return exit code 0.")
 

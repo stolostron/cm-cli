@@ -9,7 +9,9 @@ import (
 	"github.com/spf13/cobra"
 
 	genericclioptionscm "github.com/open-cluster-management/cm-cli/pkg/genericclioptions"
+	"github.com/open-cluster-management/cm-cli/pkg/helpers"
 	"k8s.io/cli-runtime/pkg/genericclioptions"
+	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd"
 	cliflag "k8s.io/component-base/cli/flag"
 	"k8s.io/klog/v2"
@@ -52,6 +54,7 @@ func main() {
 	flags.SetNormalizeFunc(cliflag.WordSepNormalizeFunc)
 
 	kubeConfigFlags := genericclioptions.NewConfigFlags(true).WithDeprecatedPasswordFlag()
+	kubeConfigFlags.WrapConfigFn = setQPS
 	kubeConfigFlags.AddFlags(flags)
 	matchVersionKubeConfigFlags := cmdutil.NewMatchVersionFlags(kubeConfigFlags)
 
@@ -124,4 +127,10 @@ func main() {
 	if err != nil {
 		os.Exit(1)
 	}
+}
+
+func setQPS(r *rest.Config) *rest.Config {
+	r.QPS = helpers.QPS
+	r.Burst = helpers.Burst
+	return r
 }

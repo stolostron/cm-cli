@@ -7,6 +7,7 @@ import (
 	"strings"
 	"time"
 
+	printclusterpoolv1alpha1 "github.com/open-cluster-management/cm-cli/api/cm-cli/v1alpha1"
 	"github.com/open-cluster-management/cm-cli/pkg/clusterpoolhost/scenario"
 	"github.com/open-cluster-management/cm-cli/pkg/helpers"
 	hivev1 "github.com/openshift/hive/apis/hive/v1"
@@ -343,77 +344,60 @@ func getClusterClaimPendingStatus(cc *hivev1.ClusterClaim) *hivev1.ClusterClaimC
 	return nil
 }
 
-type PrintClusterClaim struct {
-	ClusterPoolHost *ClusterPoolHost     `json:"clusterPoolHost"`
-	ClusterClaim    *hivev1.ClusterClaim `json:"clusterClaim"`
-	Hibernate       string               `json:"hibernate"`
-	PowerState      string               `json:"powerState"`
-	ID              string               `json:"id"`
-	ErrorMessage    string               `json:"error"`
-}
-
-const (
-	ClusterClaimsColumns string = "CLUSTER_POOL_HOST,CLUSTER_CLAIM,POWER_STATE,HIBERNATE,ID,ERROR"
+var (
+	ClusterClaimsColumns            string = "custom-columns=CLUSTER_POOL_HOST:.spec.clusterPoolHostName,CLUSTER_CLAIM:.spec.clusterClaim.Name,POWER_STATE:.spec.powerState,HIBERNATE:.spec.hibernate,ID:.spec.ID,ERROR:.spec.errorMessage"
+	ClusterClaimsCredentialsColumns string = "custom-columns=USER:.spec.user,PASSWORD:.spec.pasword,BASE_DOMAIN:.spec.baseDomain,API_SERVER:.spec.apiServer,CONSOLE:.spec.console"
 )
 
-func PrintClusterClaimObj(cph *ClusterPoolHost, ccl *hivev1.ClusterClaimList) []PrintClusterClaim {
-	pccs := make([]PrintClusterClaim, 0)
+func PrintClusterClaimObj(cph *ClusterPoolHost, ccl *hivev1.ClusterClaimList) *printclusterpoolv1alpha1.PrintClusterClaimList {
+	pccs := &printclusterpoolv1alpha1.PrintClusterClaimList{}
 	for i := range ccl.Items {
-		pcc := PrintClusterClaim{
-			ClusterPoolHost: cph,
-			ClusterClaim:    &ccl.Items[i],
+		pcc := printclusterpoolv1alpha1.PrintClusterClaim{
+			ObjectMeta: metav1.ObjectMeta{
+				Name:      ccl.Items[i].Spec.Namespace,
+				Namespace: ccl.Items[i].Spec.Namespace,
+			},
+			Spec: printclusterpoolv1alpha1.PrintClusterClaimSpec{
+				ClusterPoolHostName: cph.Name,
+				ClusterClaim:        &ccl.Items[i],
+			},
 		}
-		clusterPoolRestConfig, err := pcc.ClusterPoolHost.GetGlobalRestConfig()
+		clusterPoolRestConfig, err := cph.GetGlobalRestConfig()
 		if err != nil {
-			pcc.ErrorMessage = err.Error()
-			pccs = append(pccs, pcc)
+			pcc.Spec.ErrorMessage = err.Error()
+			pccs.Items = append(pccs.Items, pcc)
 			continue
 		}
 		dynamicClient, err := dynamic.NewForConfig(clusterPoolRestConfig)
 		if err != nil {
-			pcc.ErrorMessage = err.Error()
-			pccs = append(pccs, pcc)
+			pcc.Spec.ErrorMessage = err.Error()
+			pccs.Items = append(pccs.Items, pcc)
 			continue
 		}
-		cdu, err := dynamicClient.Resource(helpers.GvrCD).Namespace(pcc.ClusterClaim.Spec.Namespace).Get(context.TODO(), pcc.ClusterClaim.Spec.Namespace, metav1.GetOptions{})
+		cdu, err := dynamicClient.Resource(helpers.GvrCD).Namespace(pcc.Spec.ClusterClaim.Spec.Namespace).Get(context.TODO(), pcc.Spec.ClusterClaim.Spec.Namespace, metav1.GetOptions{})
 		if err != nil {
-			pcc.ErrorMessage = err.Error()
-			pccs = append(pccs, pcc)
+			pcc.Spec.ErrorMessage = err.Error()
+			pccs.Items = append(pccs.Items, pcc)
 			continue
 		}
 		cd := &hivev1.ClusterDeployment{}
 		if err := runtime.DefaultUnstructuredConverter.FromUnstructured(cdu.UnstructuredContent(), cd); err != nil {
-			pcc.ErrorMessage = err.Error()
-			pccs = append(pccs, pcc)
+			pcc.Spec.ErrorMessage = err.Error()
+			pccs.Items = append(pccs.Items, pcc)
 			continue
 		}
 		if cd != nil {
-			pcc.PowerState = string(cd.Spec.PowerState)
-			pcc.Hibernate = cd.Labels["hibernate"]
-			pcc.ID = cd.Name
+			pcc.Spec.PowerState = string(cd.Spec.PowerState)
+			pcc.Spec.Hibernate = cd.Labels["hibernate"]
+			pcc.Spec.ID = cd.Name
 		}
-		c := getClusterClaimPendingStatus(pcc.ClusterClaim)
+		c := getClusterClaimPendingStatus(pcc.Spec.ClusterClaim)
 		if c != nil && c.Status == corev1.ConditionStatus(metav1.ConditionTrue) {
-			pcc.PowerState = string(hivev1.ClusterClaimPendingCondition)
+			pcc.Spec.PowerState = string(hivev1.ClusterClaimPendingCondition)
 		}
-		pccs = append(pccs, pcc)
+		pccs.Items = append(pccs.Items, pcc)
 	}
 	return pccs
-}
-
-func ConvertClustClaimsForPrint(pccs interface{}) ([]map[string]string, error) {
-	a := make([]map[string]string, 0)
-	for _, pcc := range pccs.([]PrintClusterClaim) {
-		m := make(map[string]string)
-		m["CLUSTER_POOL_HOST"] = pcc.ClusterPoolHost.Name
-		m["CLUSTER_CLAIM"] = pcc.ClusterClaim.Name
-		m["HIBERNATE"] = pcc.Hibernate
-		m["POWER_STATE"] = pcc.PowerState
-		m["ID"] = pcc.ID
-		m["ERROR"] = pcc.ErrorMessage
-		a = append(a, m)
-	}
-	return a, nil
 }
 
 func GetClusterClaim(clusterName string, timeout int, dryRun bool) (*hivev1.ClusterClaim, error) {
@@ -446,15 +430,7 @@ func GetClusterClaim(clusterName string, timeout int, dryRun bool) (*hivev1.Clus
 	return cc, nil
 }
 
-type ClusterClaimCred struct {
-	User       string `json:"user"`
-	Password   string `json:"pasword"`
-	Basedomain string `json:"baseDomain"`
-	ApiUrl     string `json:"apiServer"`
-	ConsoleUrl string `json:"console"`
-}
-
-func GetClusterClaimCred(cc *hivev1.ClusterClaim) (*ClusterClaimCred, error) {
+func GetClusterClaimCred(cc *hivev1.ClusterClaim) (*printclusterpoolv1alpha1.PrintClusterClaimCredential, error) {
 	cph, err := GetCurrentClusterPoolHost()
 	if err != nil {
 		return nil, err
@@ -486,12 +462,18 @@ func GetClusterClaimCred(cc *hivev1.ClusterClaim) (*ClusterClaimCred, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &ClusterClaimCred{
-		User:       string(s.Data["username"]),
-		Password:   string(s.Data["password"]),
-		Basedomain: cd.Spec.BaseDomain,
-		ApiUrl:     cd.Status.APIURL,
-		ConsoleUrl: cd.Status.WebConsoleURL,
+	return &printclusterpoolv1alpha1.PrintClusterClaimCredential{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      cc.Name,
+			Namespace: cc.Namespace,
+		},
+		Spec: printclusterpoolv1alpha1.PrintClusterClaimCredentialSpec{
+			User:       string(s.Data["username"]),
+			Password:   string(s.Data["password"]),
+			Basedomain: cd.Spec.BaseDomain,
+			ApiUrl:     cd.Status.APIURL,
+			ConsoleUrl: cd.Status.WebConsoleURL,
+		},
 	}, nil
 }
 

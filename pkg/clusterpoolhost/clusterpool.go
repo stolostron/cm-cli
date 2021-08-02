@@ -3,19 +3,24 @@ package clusterpoolhost
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"path/filepath"
 	"strings"
 
 	"github.com/ghodss/yaml"
+	printclusterpoolv1alpha1 "github.com/open-cluster-management/cm-cli/api/cm-cli/v1alpha1"
 	"github.com/open-cluster-management/cm-cli/pkg/clusterpoolhost/scenario"
 	"github.com/open-cluster-management/cm-cli/pkg/helpers"
 	hivev1 "github.com/openshift/hive/apis/hive/v1"
 	apiextensionsclient "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/client-go/dynamic"
 	"k8s.io/client-go/kubernetes"
+	"k8s.io/klog/v2"
 	clusteradmapply "open-cluster-management.io/clusteradm/pkg/helpers/apply"
 )
 
@@ -190,37 +195,160 @@ func GetClusterPools(showCphName, dryRun bool) (*hivev1.ClusterPoolList, error) 
 	return clusterPools, nil
 }
 
-type PrintClusterPool struct {
-	ClusterPoolHost *ClusterPoolHost    `json:"clusterPoolHost"`
-	ClusterPool     *hivev1.ClusterPool `json:"clusterPool"`
-}
-
-const (
-	ClusterPoolsColumns string = "CLUSTER_POOL_HOST,CLUSTER_POOL,SIZE,READY,ACTUAL_SIZE"
+var (
+	ClusterPoolsColumns string = "custom-columns=CLUSTER_POOL_HOST:.spec.clusterPoolHostName,CLUSTER_POOL:.metadata.name,SIZE:.spec.clusterPool.spec.size,READY:.spec.clusterPool.status.ready,ACTUAL_SIZE:.spec.clusterPool.status.size"
 )
 
-func PrintClusterPoolObj(clusterPoolHost *ClusterPoolHost, cpl *hivev1.ClusterPoolList) []PrintClusterPool {
-	pcps := make([]PrintClusterPool, 0)
+func ConvertToPrintClusterPoolList(clusterPoolHost *ClusterPoolHost, cpl *hivev1.ClusterPoolList) *printclusterpoolv1alpha1.PrintClusterPoolList {
+	pcps := &printclusterpoolv1alpha1.PrintClusterPoolList{}
 	for i := range cpl.Items {
-		pcp := PrintClusterPool{
-			ClusterPoolHost: clusterPoolHost,
-			ClusterPool:     &cpl.Items[i],
+		pcp := printclusterpoolv1alpha1.PrintClusterPool{
+			ObjectMeta: metav1.ObjectMeta{
+				Name:      cpl.Items[i].Name,
+				Namespace: cpl.Items[i].Namespace,
+			},
+			Spec: printclusterpoolv1alpha1.PrintClusterPoolSpec{
+				ClusterPoolHostName: clusterPoolHost.Name,
+				ClusterPool:         &cpl.Items[i],
+			},
 		}
-		pcps = append(pcps, pcp)
+		pcps.Items = append(pcps.Items, pcp)
 	}
 	return pcps
 }
 
-func ConvertClusterPoolsForPrint(pcps interface{}) ([]map[string]string, error) {
-	a := make([]map[string]string, 0)
-	for _, pcp := range pcps.([]PrintClusterPool) {
-		m := make(map[string]string)
-		m["CLUSTER_POOL_HOST"] = pcp.ClusterPoolHost.Name
-		m["CLUSTER_POOL"] = pcp.ClusterPool.Name
-		m["SIZE"] = fmt.Sprintf("%4d", pcp.ClusterPool.Spec.Size)
-		m["READY"] = fmt.Sprintf("%5d", pcp.ClusterPool.Status.Ready)
-		m["ACTUAL_SIZE"] = fmt.Sprintf("%11d", pcp.ClusterPool.Status.Size)
-		a = append(a, m)
+func GetClusterPoolConfig(clusterPoolName string, withoutCredentials bool, beta bool, outputFile string) error {
+	values := make(map[string]interface{})
+	reader := scenario.GetScenarioResourcesReader()
+	cph, err := GetCurrentClusterPoolHost()
+	if err != nil {
+		return err
 	}
-	return a, nil
+
+	clusterPoolRestConfig, err := cph.GetGlobalRestConfig()
+	if err != nil {
+		return err
+	}
+
+	kubeClient, err := kubernetes.NewForConfig(clusterPoolRestConfig)
+	if err != nil {
+		return err
+	}
+
+	dynamicClient, err := dynamic.NewForConfig(clusterPoolRestConfig)
+	if err != nil {
+		return err
+	}
+
+	apiExtensionsClient, err := apiextensionsclient.NewForConfig(clusterPoolRestConfig)
+	if err != nil {
+		return err
+	}
+
+	//Get clusterDeployment
+	cpu, err := dynamicClient.Resource(helpers.GvrCP).Namespace(cph.Namespace).Get(context.TODO(), clusterPoolName, metav1.GetOptions{})
+	if err != nil {
+		return err
+	}
+	cp := &hivev1.ClusterPool{}
+	err = runtime.DefaultUnstructuredConverter.FromUnstructured(cpu.UnstructuredContent(), cp)
+	if err != nil {
+		return err
+	}
+	values["clusterPool"] = cpu.Object
+
+	//Check if platform is supported.
+	var secretName string
+	switch {
+	case cp.Spec.Platform.AWS != nil:
+		secretName = cp.Spec.Platform.AWS.CredentialsSecretRef.Name
+	case cp.Spec.Platform.Azure != nil && beta:
+		secretName = cp.Spec.Platform.Azure.CredentialsSecretRef.Name
+	case cp.Spec.Platform.GCP != nil && beta:
+		secretName = cp.Spec.Platform.GCP.CredentialsSecretRef.Name
+	default:
+		return fmt.Errorf("unsupported platform %v", cp.Spec.Platform)
+	}
+
+	//Get install-config
+	ic, err := kubeClient.CoreV1().Secrets(cph.Namespace).Get(context.TODO(), cp.Spec.InstallConfigSecretTemplateRef.Name, metav1.GetOptions{})
+	if err != nil {
+		return err
+	}
+	j, err := yaml.YAMLToJSON(ic.Data["install-config.yaml"])
+	if err != nil {
+		return err
+	}
+
+	u := &unstructured.Unstructured{}
+	_, _, err = unstructured.UnstructuredJSONScheme.Decode(j, nil, u)
+	if err != nil {
+		if !runtime.IsMissingKind(err) {
+			return err
+		}
+	}
+	values["installConfig"] = u.Object
+
+	//Get pull secret
+	pk, err := kubeClient.CoreV1().Secrets(cph.Namespace).Get(context.TODO(), cp.Spec.PullSecretRef.Name, metav1.GetOptions{})
+	if err != nil {
+		return err
+	}
+	values["imagePullSecret"] = string(pk.Data[".dockerconfigjson"])
+
+	//Get credentials
+	if withoutCredentials {
+		values["awsAccessKeyID"] = "your_aws_access_key_id"
+		values["awsSecretAccessKey"] = "your_aws_secret_access_key"
+		values["osServicePrincipalJson"] = map[string]interface{}{
+			"clientID":       "your_clientID",
+			"clientSecret":   "your_clientSecret",
+			"tenantID":       "your_tenantID",
+			"subscriptionID": "your_subscriptionID",
+		}
+		values["osServiceAccountJson"] = "your_osServiceAccountJson"
+		values["vsphere_username"] = "your_username"
+		values["vsphere_password"] = "your_password"
+		values["openstack_cloudsYaml"] = "your_cloudsYaml"
+	} else {
+		cred, err := kubeClient.CoreV1().Secrets(cph.Namespace).Get(context.TODO(), secretName, metav1.GetOptions{})
+		if err != nil {
+			return err
+		}
+		switch {
+		case cp.Spec.Platform.AWS != nil:
+			values["cloud"] = "aws"
+			values["awsAccessKeyID"] = string(cred.Data["aws_access_key_id"])
+			values["awsSecretAccessKey"] = string(cred.Data["aws_secret_access_key"])
+		case cp.Spec.Platform.Azure != nil:
+			values["cloud"] = "azure"
+			osServicePrincipal := cred.Data["osServicePrincipal.json"]
+			osServicePrincipalMap := make(map[string]interface{})
+			err = json.Unmarshal(osServicePrincipal, &osServicePrincipalMap)
+			if err != nil {
+				return err
+			}
+			values["osServicePrincipalJson"] = osServicePrincipalMap
+		case cp.Spec.Platform.GCP != nil:
+			values["cloud"] = "gcp"
+			values["osServiceAccountJson"] = string(cred.Data["osServiceAccount.json"])
+		}
+	}
+
+	//Get clusterimageset
+	klog.V(5).Infof("ImageSetRef:%s", cp.Spec.ImageSetRef.Name)
+	values["imageSetRef"] = cp.Spec.ImageSetRef.Name
+
+	klog.V(5).Infof("%v\n", values)
+	applierBuilder := &clusteradmapply.ApplierBuilder{}
+	applier := applierBuilder.WithClient(kubeClient, apiExtensionsClient, dynamicClient)
+	b, err := applier.MustTempalteAsset(reader, values, "", "config/clusterpool/config.yaml")
+	if err != nil {
+		return err
+	}
+	if len(outputFile) != 0 {
+		return ioutil.WriteFile(outputFile, b, 0600)
+	}
+	fmt.Printf("%s\n", string(b))
+	return nil
 }

@@ -50,15 +50,14 @@ cm <verb> [subcmd...] [flags]
 - Each command package contains its own resources in the scenario package. The scenario package contains one go file which provides the `go:embed` `embed.FS` files. For example [resources.go](pkg/cmd/create/cluster/scenario/resources.go).
 - All resources must be accessed using unstrusctured, the project must not have api dependencies.
 
-## Client
+## build
 
-- The [helpers](pkg/helpers/client.go) package contains methods to get a client. For the time being only a `sigs.k8s.io/controller-runtime/pkg/client` is used as it is the one needed for the applier, but if you would like to use another client for other goals, please add the method to create client in that package. The most important to to get the config from:
-
-```Go
-config, err := configFlags.ToRESTConfig()
+```bash
+make build
 ```
+## API
 
-as it uses also the parameters like `--server` or `--kubeconfig` to generate the client.
+This project contains some API and these are used in order to leverage the ["github.com/kubernetes/cli-runtime/blob/master/pkg/printers/interface.go](https://github.com/kubernetes/cli-runtime/blob/master/pkg/printers/interface.go). To generate the zz_files for it run `make generate`
 
 ## Unit tests
 
