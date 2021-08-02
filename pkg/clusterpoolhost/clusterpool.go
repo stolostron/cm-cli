@@ -10,6 +10,7 @@ import (
 	"strings"
 
 	"github.com/ghodss/yaml"
+	printclusterpoolv1alpha1 "github.com/open-cluster-management/cm-cli/api/cm-cli/v1alpha1"
 	"github.com/open-cluster-management/cm-cli/pkg/clusterpoolhost/scenario"
 	"github.com/open-cluster-management/cm-cli/pkg/helpers"
 	hivev1 "github.com/openshift/hive/apis/hive/v1"
@@ -194,39 +195,26 @@ func GetClusterPools(showCphName, dryRun bool) (*hivev1.ClusterPoolList, error) 
 	return clusterPools, nil
 }
 
-type PrintClusterPool struct {
-	ClusterPoolHost *ClusterPoolHost    `json:"clusterPoolHost"`
-	ClusterPool     *hivev1.ClusterPool `json:"clusterPool"`
-}
-
-const (
-	ClusterPoolsColumns string = "CLUSTER_POOL_HOST,CLUSTER_POOL,SIZE,READY,ACTUAL_SIZE"
+var (
+	ClusterPoolsColumns string = "custom-columns=CLUSTER_POOL_HOST:.spec.clusterPoolHostName,CLUSTER_POOL:.metadata.name,SIZE:.spec.clusterPool.spec.size,READY:.spec.clusterPool.status.ready,ACTUAL_SIZE:.spec.clusterPool.status.size"
 )
 
-func PrintClusterPoolObj(clusterPoolHost *ClusterPoolHost, cpl *hivev1.ClusterPoolList) []PrintClusterPool {
-	pcps := make([]PrintClusterPool, 0)
+func ConvertToPrintClusterPoolList(clusterPoolHost *ClusterPoolHost, cpl *hivev1.ClusterPoolList) *printclusterpoolv1alpha1.PrintClusterPoolList {
+	pcps := &printclusterpoolv1alpha1.PrintClusterPoolList{}
 	for i := range cpl.Items {
-		pcp := PrintClusterPool{
-			ClusterPoolHost: clusterPoolHost,
-			ClusterPool:     &cpl.Items[i],
+		pcp := printclusterpoolv1alpha1.PrintClusterPool{
+			ObjectMeta: metav1.ObjectMeta{
+				Name:      cpl.Items[i].Name,
+				Namespace: cpl.Items[i].Namespace,
+			},
+			Spec: printclusterpoolv1alpha1.PrintClusterPoolSpec{
+				ClusterPoolHostName: clusterPoolHost.Name,
+				ClusterPool:         &cpl.Items[i],
+			},
 		}
-		pcps = append(pcps, pcp)
+		pcps.Items = append(pcps.Items, pcp)
 	}
 	return pcps
-}
-
-func ConvertClusterPoolsForPrint(pcps interface{}) ([]map[string]string, error) {
-	a := make([]map[string]string, 0)
-	for _, pcp := range pcps.([]PrintClusterPool) {
-		m := make(map[string]string)
-		m["CLUSTER_POOL_HOST"] = pcp.ClusterPoolHost.Name
-		m["CLUSTER_POOL"] = pcp.ClusterPool.Name
-		m["SIZE"] = fmt.Sprintf("%4d", pcp.ClusterPool.Spec.Size)
-		m["READY"] = fmt.Sprintf("%5d", pcp.ClusterPool.Status.Ready)
-		m["ACTUAL_SIZE"] = fmt.Sprintf("%11d", pcp.ClusterPool.Status.Size)
-		a = append(a, m)
-	}
-	return a, nil
 }
 
 func GetClusterPoolConfig(clusterPoolName string, withoutCredentials bool, beta bool, outputFile string) error {

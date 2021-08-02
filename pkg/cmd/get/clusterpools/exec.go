@@ -4,15 +4,17 @@ package clusterpools
 import (
 	"fmt"
 
+	printclusterpoolv1alpha1 "github.com/open-cluster-management/cm-cli/api/cm-cli/v1alpha1"
 	"github.com/open-cluster-management/cm-cli/pkg/clusterpoolhost"
 	"github.com/open-cluster-management/cm-cli/pkg/helpers"
+	"k8s.io/apimachinery/pkg/runtime/schema"
 
 	"github.com/spf13/cobra"
 )
 
 func (o *Options) complete(cmd *cobra.Command, args []string) (err error) {
-	if len(o.OutputFormat) == 0 {
-		o.OutputFormat = helpers.CustomColumnsFormat + clusterpoolhost.ClusterPoolsColumns
+	if len(*o.PrintFlags.OutputFormat) == 0 {
+		o.PrintFlags.OutputFormat = &clusterpoolhost.ClusterPoolsColumns
 	}
 	return nil
 }
@@ -20,9 +22,6 @@ func (o *Options) complete(cmd *cobra.Command, args []string) (err error) {
 func (o *Options) validate() error {
 	if o.ClusterPoolHost != "" && o.AllClusterPoolHosts {
 		return fmt.Errorf("clusterpoolhost and all-cphs are imcompatible")
-	}
-	if !helpers.IsOutputFormatSupported(o.OutputFormat) {
-		return fmt.Errorf("invalid output format %s", helpers.SupportedOutputFormat)
 	}
 	return nil
 }
@@ -60,7 +59,13 @@ func (o *Options) run() (err error) {
 		}
 	}
 
-	clusterPoolHostsCPs := make([]clusterpoolhost.PrintClusterPool, 0)
+	printClusterPoolLists := &printclusterpoolv1alpha1.PrintClusterPoolList{}
+	printClusterPoolLists.GetObjectKind().
+		SetGroupVersionKind(
+			schema.GroupVersionKind{
+				Group:   printclusterpoolv1alpha1.GroupName,
+				Kind:    "PrintClusterPool",
+				Version: printclusterpoolv1alpha1.GroupVersion.Version})
 	for k := range cphs.ClusterPoolHosts {
 		err = allcphs.SetActive(allcphs.ClusterPoolHosts[k])
 		if err != nil {
@@ -71,8 +76,13 @@ func (o *Options) run() (err error) {
 			fmt.Printf("Error while retrieving clusterpools from %s\n", cphs.ClusterPoolHosts[k].Name)
 			continue
 		}
-		clusterPoolHostsCPs = append(clusterPoolHostsCPs, clusterpoolhost.PrintClusterPoolObj(cphs.ClusterPoolHosts[k], clusterPools)...)
+		printClusterPoolList := clusterpoolhost.ConvertToPrintClusterPoolList(cphs.ClusterPoolHosts[k], clusterPools)
+		printClusterPoolLists.Items = append(printClusterPoolLists.Items, printClusterPoolList.Items...)
 	}
-	helpers.Print(clusterPoolHostsCPs, o.OutputFormat, o.NoHeaders, clusterpoolhost.ConvertClusterPoolsForPrint)
-	return allcphs.SetActive(currentCph)
+	err = helpers.Print(printClusterPoolLists, o.PrintFlags)
+	allcphs.SetActive(currentCph)
+	if err != nil {
+		return err
+	}
+	return nil
 }

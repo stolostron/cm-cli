@@ -10,7 +10,9 @@ import (
 	"path/filepath"
 
 	"github.com/ghodss/yaml"
+	printclusterpoolv1alpha1 "github.com/open-cluster-management/cm-cli/api/cm-cli/v1alpha1"
 	"github.com/open-cluster-management/cm-cli/pkg/helpers"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 const ClusterPoolHostsDir = ".kube"
@@ -134,37 +136,28 @@ func (cs *ClusterPoolHosts) GetClusterPoolHost(name string) (*ClusterPoolHost, e
 	return nil, fmt.Errorf("cluster pool host %s not found", name)
 }
 
-//Print prints a summary of the clusterpoolhosts
-func (cs *ClusterPoolHosts) Print() {
-	fmt.Printf("%-1s%-20s\t%-30s\t%-60s\n", " ", "CLUSTER_POOL_HOST", "NAMESPACE", "API_URL")
-	for _, c := range cs.ClusterPoolHosts {
-		star := " "
-		if c.IsActive() {
-			star = "*"
-		}
-		fmt.Printf("%-1s%-20s\t%-30s\t%-60s\n", star, c.Name, c.Namespace, c.APIServer)
-	}
-}
-
-const (
-	ClusterPoolHostsColumns string = " ,CLUSTER_POOL_HOST,NAMESPACE,API_SERVER,CONSOLE"
+var (
+	ClusterPoolHostsColumns string = "custom-columns=CLUSTER_POOL_HOST:.spec.clusterPoolHostName,NAMESPACE:.spec.namespace,API_SERVER:.spec.apiServer,CONSOLE:.spec.console"
 )
 
-func ConvertClusterPoolHostsForPrint(cphs interface{}) ([]map[string]string, error) {
-	a := make([]map[string]string, 0)
-	for _, cph := range cphs.(*ClusterPoolHosts).ClusterPoolHosts {
-		m := make(map[string]string)
-		m[" "] = " "
-		if cph.Active {
-			m[" "] = "*"
+func ConvertToPrintClusterPoolHostList(cphs *ClusterPoolHosts) *printclusterpoolv1alpha1.PrintClusterPoolHostList {
+	pcps := &printclusterpoolv1alpha1.PrintClusterPoolHostList{}
+	for i := range cphs.ClusterPoolHosts {
+		pcp := printclusterpoolv1alpha1.PrintClusterPoolHost{
+			ObjectMeta: metav1.ObjectMeta{
+				Name:      cphs.ClusterPoolHosts[i].Name,
+				Namespace: cphs.ClusterPoolHosts[i].Namespace,
+			},
+			Spec: printclusterpoolv1alpha1.PrintClusterPoolHostSpec{
+				Name:      cphs.ClusterPoolHosts[i].Name,
+				Namespace: cphs.ClusterPoolHosts[i].Namespace,
+				APIServer: cphs.ClusterPoolHosts[i].APIServer,
+				Console:   cphs.ClusterPoolHosts[i].Console,
+			},
 		}
-		m["CLUSTER_POOL_HOST"] = cph.Name
-		m["NAMESPACE"] = cph.Namespace
-		m["API_SERVER"] = cph.APIServer
-		m["CONSOLE"] = cph.Console
-		a = append(a, m)
+		pcps.Items = append(pcps.Items, pcp)
 	}
-	return a, nil
+	return pcps
 }
 
 //UnActiveAll unactives all clusterpoolhosts

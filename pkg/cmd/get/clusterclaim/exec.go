@@ -4,8 +4,10 @@ package clusterclaim
 import (
 	"fmt"
 
+	printclusterpoolv1alpha1 "github.com/open-cluster-management/cm-cli/api/cm-cli/v1alpha1"
 	"github.com/open-cluster-management/cm-cli/pkg/clusterpoolhost"
 	"github.com/open-cluster-management/cm-cli/pkg/helpers"
+	"k8s.io/apimachinery/pkg/runtime/schema"
 
 	"github.com/spf13/cobra"
 )
@@ -14,16 +16,17 @@ func (o *Options) complete(cmd *cobra.Command, args []string) (err error) {
 	if len(args) > 0 {
 		o.ClusterClaim = args[0]
 	}
-	if len(o.OutputFormat) == 0 {
-		o.OutputFormat = helpers.CustomColumnsFormat + clusterpoolhost.ClusterClaimsColumns
+	if len(*o.PrintFlags.OutputFormat) == 0 {
+		if len(o.ClusterClaim) == 0 {
+			o.PrintFlags.OutputFormat = &clusterpoolhost.ClusterClaimsColumns
+		} else {
+			o.PrintFlags.OutputFormat = &clusterpoolhost.ClusterClaimsCredentialsColumns
+		}
 	}
 	return nil
 }
 
 func (o *Options) validate() error {
-	if !helpers.IsOutputFormatSupported(o.OutputFormat) {
-		return fmt.Errorf("invalid output format %s", helpers.SupportedOutputFormat)
-	}
 	return nil
 }
 
@@ -71,16 +74,13 @@ func (o *Options) getCC(cphs *clusterpoolhost.ClusterPoolHosts) (err error) {
 	if err != nil {
 		return err
 	}
-	if o.OutputFormat == helpers.CustomColumnsFormat+clusterpoolhost.ClusterClaimsColumns {
-		fmt.Printf("username:    %s\n", cred.User)
-		fmt.Printf("password:    %s\n", cred.Password)
-		fmt.Printf("basedomain:  %s\n", cred.Basedomain)
-		fmt.Printf("api_url:     %s\n", cred.ApiUrl)
-		fmt.Printf("console_url: %s\n", cred.ConsoleUrl)
-		return nil
-	}
-	return helpers.Print(cred, o.OutputFormat, o.NoHeaders, nil)
-
+	cred.GetObjectKind().
+		SetGroupVersionKind(
+			schema.GroupVersionKind{
+				Group:   printclusterpoolv1alpha1.GroupName,
+				Kind:    "PrintClusterClaim",
+				Version: printclusterpoolv1alpha1.GroupVersion.Version})
+	return helpers.Print(cred, o.PrintFlags)
 }
 
 func (o *Options) getCCS(allcphs *clusterpoolhost.ClusterPoolHosts) (err error) {
@@ -108,7 +108,13 @@ func (o *Options) getCCS(allcphs *clusterpoolhost.ClusterPoolHosts) (err error) 
 		}
 	}
 
-	clusterClaimsClaimsP := make([]clusterpoolhost.PrintClusterClaim, 0)
+	printClusterClaimLists := &printclusterpoolv1alpha1.PrintClusterClaimList{}
+	printClusterClaimLists.GetObjectKind().
+		SetGroupVersionKind(
+			schema.GroupVersionKind{
+				Group:   printclusterpoolv1alpha1.GroupName,
+				Kind:    "PrintClusterClaim",
+				Version: printclusterpoolv1alpha1.GroupVersion.Version})
 	for k := range cphs.ClusterPoolHosts {
 		err = allcphs.SetActive(allcphs.ClusterPoolHosts[k])
 		if err != nil {
@@ -119,8 +125,9 @@ func (o *Options) getCCS(allcphs *clusterpoolhost.ClusterPoolHosts) (err error) 
 			fmt.Printf("Error while retrieving clusterclaims from %s\n", cphs.ClusterPoolHosts[k].Name)
 			continue
 		}
-		clusterClaimsClaimsP = append(clusterClaimsClaimsP, clusterpoolhost.PrintClusterClaimObj(cphs.ClusterPoolHosts[k], clusterClaims)...)
+		printClusterClaimsList := clusterpoolhost.PrintClusterClaimObj(cphs.ClusterPoolHosts[k], clusterClaims)
+		printClusterClaimLists.Items = append(printClusterClaimLists.Items, printClusterClaimsList.Items...)
 	}
-	helpers.Print(clusterClaimsClaimsP, o.OutputFormat, o.NoHeaders, clusterpoolhost.ConvertClustClaimsForPrint)
+	helpers.Print(printClusterClaimLists, o.PrintFlags)
 	return nil
 }

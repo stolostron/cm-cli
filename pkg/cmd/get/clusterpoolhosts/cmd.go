@@ -7,6 +7,7 @@ import (
 	"github.com/open-cluster-management/cm-cli/pkg/clusterpoolhost"
 	genericclioptionscm "github.com/open-cluster-management/cm-cli/pkg/genericclioptions"
 	"github.com/open-cluster-management/cm-cli/pkg/helpers"
+	"k8s.io/kubectl/pkg/cmd/get"
 	cmdutil "k8s.io/kubectl/pkg/cmd/util"
 
 	"github.com/spf13/cobra"
@@ -44,7 +45,8 @@ func NewCmd(cmFlags *genericclioptionscm.CMFlags, streams genericclioptions.IOSt
 		},
 	}
 
-	cmd.Flags().StringVarP(&o.OutputFormat, "output", "o", "", "Output format. One of: json|yaml|columns=c1,c2,...")
-	cmd.Flags().BoolVar(&o.NoHeaders, "no-headers", false, "When using the default or custom-column output format, don't print headers (default print headers).")
+	o.PrintFlags = get.NewGetPrintFlags()
+
+	o.PrintFlags.AddFlags(cmd)
 	return cmd
 }
