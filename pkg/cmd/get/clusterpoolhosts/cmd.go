@@ -17,9 +17,6 @@ import (
 var example = `
 # Get cluster pool hosts
 %[1]s get cph
-
-# Get cluster pool hosts
-%[1]s get cph -oyaml|json|columns=%[2]s
 `
 
 // NewCmd provides a cobra command wrapping NewCmdImportCluster

@@ -19,9 +19,6 @@ const (
 	# get a clusterclaim in current clusterpoolhost
 	%[1]s get cc <clusterclaim_name> 
 	
-	# get a clusterclaim in current clusterpoolhost
-	%[1]s get cc <clusterclaim_name> -oyaml|json|columns=%[2]s
-	
 	# get clusterclaims on a specific clusterpoolhost
 	%[1]s get cc  <clusterclaim_name> --cph <clusterpoolhosts>
 	

@@ -20,9 +20,6 @@ var example = `
 # Get clusterpool
 %[1]s get cp <clusterpool_name>
 
-# Get clusterpool
-%[1]s get cp <clusterpool_name> -oyaml|json|custom-columns=%[2]s
-
 # Get clusterpool on a given clusterpoolhost
 %[1]s get cp <clusterpool_name> --cph <clusterpoolhost>
 
