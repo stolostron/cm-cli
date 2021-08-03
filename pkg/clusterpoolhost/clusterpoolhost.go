@@ -137,7 +137,7 @@ func (cs *ClusterPoolHosts) GetClusterPoolHost(name string) (*ClusterPoolHost, e
 }
 
 var (
-	ClusterPoolHostsColumns string = "custom-columns=ACTIVE:.spec.active,CLUSTER_POOL_HOST:.metadata.name,NAMESPACE:.spec.namespace,API_SERVER:.spec.apiServer,CONSOLE:.spec.console"
+	ClusterPoolHostsColumns string = "custom-columns=CLUSTER_POOL_HOST:.metadata.name,ACTIVE:.spec.active,NAMESPACE:.spec.namespace,API_SERVER:.spec.apiServer,CONSOLE:.spec.console"
 )
 
 func ConvertToPrintClusterPoolHostList(cphs *ClusterPoolHosts) *printclusterpoolv1alpha1.PrintClusterPoolHostList {
