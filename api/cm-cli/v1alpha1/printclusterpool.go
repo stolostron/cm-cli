@@ -19,9 +19,17 @@ type PrintClusterPoolSpec struct {
 	ClusterPool         *hivev1.ClusterPool `json:"clusterPool"`
 }
 
-// +kubebuilder:object:root=true
+//	ClusterPoolsColumns string = "custom-columns=CLUSTER_POOL_HOST:.spec.clusterPoolHostName,CLUSTER_POOL:.metadata.name,SIZE:.spec.clusterPool.spec.size,READY:.spec.clusterPool.status.ready,ACTUAL_SIZE:.spec.clusterPool.status.size"
 
 // PrintClusterPool is the Schema for the authrealms API
+// +kubebuilder:object:root=true
+// +kubebuilder:resource:path=printclusterpools
+// +kubebuilder:printcolumn:name="Cluster_Pool_Host",type="string",JSONPath=".spec.clusterPoolHostName"
+// +kubebuilder:printcolumn:name="Cluster_Pool",type="string",JSONPath=".metadata.name"
+// +kubebuilder:printcolumn:name="Size",type="int",JSONPath=".spec.clusterPool.spec.size"
+// +kubebuilder:printcolumn:name="Ready",type="int",JSONPath=".spec.clusterPool.status.ready"
+// +kubebuilder:printcolumn:name="Actual_Size",type="int",JSONPath=".spec.clusterPool.status.size"
+
 type PrintClusterPool struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`

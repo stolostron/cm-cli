@@ -27,9 +27,15 @@ type PrintClusterPoolHostSpec struct {
 	Group string `json:"group"`
 }
 
-// +kubebuilder:object:root=true
-
 // PrintClusterPoolHost is the Schema for the authrealms API
+// +kubebuilder:object:root=true
+// +kubebuilder:resource:path=printclusterpoolhosts
+// +kubebuilder:printcolumn:name="Name",type="string",JSONPath=".spec.name"
+// +kubebuilder:printcolumn:name="Active",type="string",JSONPath=".spec.active"
+// +kubebuilder:printcolumn:name="Namespace",type="string",JSONPath=".spec.Namespace"
+// +kubebuilder:printcolumn:name="Api_server",type="string",JSONPath=".spec.APIServer"
+// +kubebuilder:printcolumn:name="Console",type="string",JSONPath=".spec.Console"
+
 type PrintClusterPoolHost struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`

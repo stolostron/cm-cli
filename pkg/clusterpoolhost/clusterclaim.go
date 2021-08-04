@@ -347,12 +347,7 @@ func getClusterClaimPendingStatus(cc *hivev1.ClusterClaim) *hivev1.ClusterClaimC
 	return nil
 }
 
-var (
-	ClusterClaimsColumns            string = "custom-columns=CLUSTER_POOL_HOST:.spec.clusterPoolHostName,CLUSTER_CLAIM:.spec.clusterClaim.Name,POWER_STATE:.spec.powerState,HIBERNATE:.spec.hibernate,ID:.spec.ID,ERROR:.spec.errorMessage"
-	ClusterClaimsCredentialsColumns string = "custom-columns=USER:.spec.user,PASSWORD:.spec.pasword,BASE_DOMAIN:.spec.baseDomain,API_SERVER:.spec.apiServer,CONSOLE:.spec.console"
-)
-
-func PrintClusterClaimObj(cph *ClusterPoolHost, ccl *hivev1.ClusterClaimList) *printclusterpoolv1alpha1.PrintClusterClaimList {
+func ConvertToPrintClusterClaimList(cph *ClusterPoolHost, ccl *hivev1.ClusterClaimList) *printclusterpoolv1alpha1.PrintClusterClaimList {
 	pccs := &printclusterpoolv1alpha1.PrintClusterClaimList{}
 	for i := range ccl.Items {
 		pcc := printclusterpoolv1alpha1.PrintClusterClaim{
@@ -363,6 +358,7 @@ func PrintClusterClaimObj(cph *ClusterPoolHost, ccl *hivev1.ClusterClaimList) *p
 			Spec: printclusterpoolv1alpha1.PrintClusterClaimSpec{
 				ClusterPoolHostName: cph.Name,
 				ClusterClaim:        &ccl.Items[i],
+				Age:                 helpers.TimeDiff(ccl.Items[i].CreationTimestamp.Time, time.Second),
 			},
 		}
 		clusterPoolRestConfig, err := cph.GetGlobalRestConfig()
@@ -518,5 +514,5 @@ func OpenClusterClaim(clusterName string, timeout int) error {
 	if cd.Spec.PowerState == hivev1.HibernatingClusterPowerState {
 		return fmt.Errorf("%s is hibernating, run a use command to resume it", cc.GetName())
 	}
-	return helpers.Openbrowser(*&cd.Status.WebConsoleURL)
+	return helpers.Openbrowser(cd.Status.WebConsoleURL)
 }

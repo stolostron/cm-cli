@@ -14,15 +14,23 @@ type PrintClusterClaimCredentialSpec struct {
 	// INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
 	// Important: Run "make" to regenerate code after modifying this file
 	User       string `json:"user"`
-	Password   string `json:"pasword"`
+	Password   string `json:"password"`
 	Basedomain string `json:"baseDomain"`
 	ApiUrl     string `json:"apiServer"`
 	ConsoleUrl string `json:"console"`
 }
 
-// +kubebuilder:object:root=true
+//	ClusterClaimsCredentialsColumns string = "custom-columns=USER:.spec.user,PASSWORD:.spec.password,BASE_DOMAIN:.spec.baseDomain,API_SERVER:.spec.apiServer,CONSOLE:.spec.console"
 
 // PrintClusterClaimCredential is the Schema for the authrealms API
+// +kubebuilder:object:root=true
+// +kubebuilder:resource:path=printclusterclaimcredentials
+// +kubebuilder:printcolumn:name="User",type="string",JSONPath=".spec.user"
+// +kubebuilder:printcolumn:name="Password",type="string",JSONPath=".spec.password"
+// +kubebuilder:printcolumn:name="Base_Domain",type="string",JSONPath=".spec.baseDomain"
+// +kubebuilder:printcolumn:name="Api_Server",type="string",JSONPath=".spec.apiServer"
+// +kubebuilder:printcolumn:name="Console",type="string",JSONPath=".spec.console"
+
 type PrintClusterClaimCredential struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`

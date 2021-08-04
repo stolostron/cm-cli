@@ -10,11 +10,12 @@ import (
 type Options struct {
 	//CMFlags: The generic optiosn from the cm cli-runtime.
 	CMFlags    *genericclioptionscm.CMFlags
-	PrintFlags *get.PrintFlags
+	GetOptions *get.GetOptions
 }
 
 func newOptions(cmFlags *genericclioptionscm.CMFlags, streams genericclioptions.IOStreams) *Options {
 	return &Options{
-		CMFlags: cmFlags,
+		CMFlags:    cmFlags,
+		GetOptions: get.NewGetOptions("cm", streams),
 	}
 }

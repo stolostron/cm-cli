@@ -136,10 +136,6 @@ func (cs *ClusterPoolHosts) GetClusterPoolHost(name string) (*ClusterPoolHost, e
 	return nil, fmt.Errorf("cluster pool host %s not found", name)
 }
 
-var (
-	ClusterPoolHostsColumns string = "custom-columns=CLUSTER_POOL_HOST:.metadata.name,ACTIVE:.spec.active,NAMESPACE:.spec.namespace,API_SERVER:.spec.apiServer,CONSOLE:.spec.console"
-)
-
 func ConvertToPrintClusterPoolHostList(cphs *ClusterPoolHosts) *printclusterpoolv1alpha1.PrintClusterPoolHostList {
 	pcps := &printclusterpoolv1alpha1.PrintClusterPoolHostList{}
 	for i := range cphs.ClusterPoolHosts {
