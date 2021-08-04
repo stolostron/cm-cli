@@ -23,6 +23,9 @@ spec:
     - jsonPath: .spec.clusterClaim.Name
       name: Cluster_Claim
       type: string
+    - jsonPath: .spec.clusterClaim.spec.clusterPoolName
+      name: Cluster_Pool
+      type: string
     - jsonPath: .spec.powerState
       name: Power_State
       type: string

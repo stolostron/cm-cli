@@ -29,6 +29,7 @@ type PrintClusterClaimSpec struct {
 // +kubebuilder:resource:path=printclusterclaims
 // +kubebuilder:printcolumn:name="Cluster_Pool_Host",type="string",JSONPath=".spec.clusterPoolHostName"
 // +kubebuilder:printcolumn:name="Cluster_Claim",type="string",JSONPath=".spec.clusterClaim.Name"
+// +kubebuilder:printcolumn:name="Cluster_Pool",type="string",JSONPath=".spec.clusterClaim.spec.clusterPoolName"
 // +kubebuilder:printcolumn:name="Power_State",type="string",JSONPath=".spec.powerState"
 // +kubebuilder:printcolumn:name="Hibernate",type="string",JSONPath=".spec.hibernate"
 // +kubebuilder:printcolumn:name="Id",type="string",JSONPath=".spec.id"
