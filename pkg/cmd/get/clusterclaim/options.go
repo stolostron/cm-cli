@@ -11,7 +11,7 @@ type Options struct {
 	//CMFlags: The generic optiosn from the cm cli-runtime.
 	CMFlags             *genericclioptionscm.CMFlags
 	ClusterClaim        string
-	PrintFlags          *get.PrintFlags
+	GetOptions          *get.GetOptions
 	AllClusterPoolHosts bool
 	ClusterPoolHost     string
 	Timeout             int
@@ -19,6 +19,7 @@ type Options struct {
 
 func newOptions(cmFlags *genericclioptionscm.CMFlags, streams genericclioptions.IOStreams) *Options {
 	return &Options{
-		CMFlags: cmFlags,
+		CMFlags:    cmFlags,
+		GetOptions: get.NewGetOptions("cm", streams),
 	}
 }

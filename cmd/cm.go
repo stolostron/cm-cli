@@ -96,7 +96,7 @@ func main() {
 				delete.NewCmd(clusteradmFlags, cmFlags, streams),
 				scale.NewCmd(cmFlags, streams),
 				enable.NewCmd(cmFlags, streams),
-				get.NewCmd(clusteradmFlags, cmFlags, streams),
+				get.NewCmd(f, clusteradmFlags, cmFlags, streams),
 				initialization.NewCmd(clusteradmFlags, cmFlags, streams),
 			},
 		},

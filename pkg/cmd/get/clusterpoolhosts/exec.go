@@ -10,9 +10,6 @@ import (
 )
 
 func (o *Options) complete(cmd *cobra.Command, args []string) (err error) {
-	if len(*o.PrintFlags.OutputFormat) == 0 {
-		o.PrintFlags.OutputFormat = &clusterpoolhost.ClusterPoolHostsColumns
-	}
 	return nil
 }
 
@@ -30,8 +27,8 @@ func (o *Options) run() (err error) {
 		SetGroupVersionKind(
 			schema.GroupVersionKind{
 				Group:   printclusterpoolv1alpha1.GroupName,
-				Kind:    "PrintClusterPoolHosts",
+				Kind:    "PrintClusterPoolHost",
 				Version: printclusterpoolv1alpha1.GroupVersion.Version})
-	helpers.Print(pcphs, o.PrintFlags)
+	helpers.Print(pcphs, o.GetOptions.PrintFlags)
 	return nil
 }

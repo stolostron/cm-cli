@@ -13,9 +13,6 @@ import (
 )
 
 func (o *Options) complete(cmd *cobra.Command, args []string) (err error) {
-	if len(*o.PrintFlags.OutputFormat) == 0 {
-		o.PrintFlags.OutputFormat = &clusterpoolhost.ClusterPoolsColumns
-	}
 	return nil
 }
 
@@ -79,7 +76,7 @@ func (o *Options) run() (err error) {
 		printClusterPoolList := clusterpoolhost.ConvertToPrintClusterPoolList(cphs.ClusterPoolHosts[k], clusterPools)
 		printClusterPoolLists.Items = append(printClusterPoolLists.Items, printClusterPoolList.Items...)
 	}
-	err = helpers.Print(printClusterPoolLists, o.PrintFlags)
+	err = helpers.Print(printClusterPoolLists, o.GetOptions.PrintFlags)
 	allcphs.SetActive(currentCph)
 	if err != nil {
 		return err

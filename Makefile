@@ -9,6 +9,8 @@ INSTALL_DEPENDENCIES ?= ${SCRIPTS_PATH}/install-dependencies.sh
 
 GOPATH := ${shell go env GOPATH}
 
+CRD_OPTIONS ?= "crd:crdVersions=v1"
+
 export PROJECT_DIR            = $(shell 'pwd')
 export PROJECT_NAME			  = $(shell basename ${PROJECT_DIR})
 
@@ -69,8 +71,12 @@ clean-test:
 functional-test-full: deps install
 	@build/run-functional-tests.sh
 
+.PHONY: manifests
+manifests:
+	$(CONTROLLER_GEN) $(CRD_OPTIONS) rbac:roleName=manager-role webhook paths="./..." output:crd:artifacts:config=api/cm-cli/v1alpha1/crd
+
 .PHONY: generate
-generate: controller-gen
+generate: manifests controller-gen
 	$(CONTROLLER_GEN) object:headerFile="hack/boilerplate.go.txt" paths="./..."
 	@hack/update-codegen.sh
 

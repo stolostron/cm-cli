@@ -195,10 +195,6 @@ func GetClusterPools(showCphName, dryRun bool) (*hivev1.ClusterPoolList, error) 
 	return clusterPools, nil
 }
 
-var (
-	ClusterPoolsColumns string = "custom-columns=CLUSTER_POOL_HOST:.spec.clusterPoolHostName,CLUSTER_POOL:.metadata.name,SIZE:.spec.clusterPool.spec.size,READY:.spec.clusterPool.status.ready,ACTUAL_SIZE:.spec.clusterPool.status.size"
-)
-
 func ConvertToPrintClusterPoolList(clusterPoolHost *ClusterPoolHost, cpl *hivev1.ClusterPoolList) *printclusterpoolv1alpha1.PrintClusterPoolList {
 	pcps := &printclusterpoolv1alpha1.PrintClusterPoolList{}
 	for i := range cpl.Items {

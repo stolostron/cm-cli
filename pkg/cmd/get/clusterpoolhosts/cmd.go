@@ -20,20 +20,21 @@ var example = `
 `
 
 // NewCmd provides a cobra command wrapping NewCmdImportCluster
-func NewCmd(cmFlags *genericclioptionscm.CMFlags, streams genericclioptions.IOStreams) *cobra.Command {
+func NewCmd(f cmdutil.Factory, cmFlags *genericclioptionscm.CMFlags, streams genericclioptions.IOStreams) *cobra.Command {
 	o := newOptions(cmFlags, streams)
 
 	cmd := &cobra.Command{
 		Use:          "clusterpoolhosts",
 		Aliases:      []string{"clusterpoolhost", "cphs", "cph"},
 		Short:        "list the clusterpoolhosts",
-		Example:      fmt.Sprintf(example, helpers.GetExampleHeader(), clusterpoolhost.ClusterPoolHostsColumns),
+		Example:      fmt.Sprintf(example, helpers.GetExampleHeader()),
 		SilenceUsage: true,
 		PreRunE: func(cmd *cobra.Command, args []string) error {
 			return clusterpoolhost.BackupCurrentContexts()
 		},
 		Run: func(cmd *cobra.Command, args []string) {
 			cmdutil.CheckErr(o.complete(cmd, args))
+			cmdutil.CheckErr(o.GetOptions.Complete(f, cmd, []string{"printclusterpoolhost"}))
 			cmdutil.CheckErr(o.validate())
 			cmdutil.CheckErr(o.run())
 		},
@@ -42,8 +43,8 @@ func NewCmd(cmFlags *genericclioptionscm.CMFlags, streams genericclioptions.IOSt
 		},
 	}
 
-	o.PrintFlags = get.NewGetPrintFlags()
+	o.GetOptions.PrintFlags = get.NewGetPrintFlags()
 
-	o.PrintFlags.AddFlags(cmd)
+	o.GetOptions.PrintFlags.AddFlags(cmd)
 	return cmd
 }

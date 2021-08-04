@@ -16,13 +16,6 @@ func (o *Options) complete(cmd *cobra.Command, args []string) (err error) {
 	if len(args) > 0 {
 		o.ClusterClaim = args[0]
 	}
-	if len(*o.PrintFlags.OutputFormat) == 0 {
-		if len(o.ClusterClaim) == 0 {
-			o.PrintFlags.OutputFormat = &clusterpoolhost.ClusterClaimsColumns
-		} else {
-			o.PrintFlags.OutputFormat = &clusterpoolhost.ClusterClaimsCredentialsColumns
-		}
-	}
 	return nil
 }
 
@@ -66,7 +59,7 @@ func (o *Options) getCC(cphs *clusterpoolhost.ClusterPoolHosts) (err error) {
 			return err
 		}
 	}
-	cc, err := clusterpoolhost.GetClusterClaim(o.ClusterClaim, o.Timeout, o.CMFlags.DryRun, o.PrintFlags)
+	cc, err := clusterpoolhost.GetClusterClaim(o.ClusterClaim, o.Timeout, o.CMFlags.DryRun, o.GetOptions.PrintFlags)
 	if err != nil {
 		return err
 	}
@@ -78,9 +71,9 @@ func (o *Options) getCC(cphs *clusterpoolhost.ClusterPoolHosts) (err error) {
 		SetGroupVersionKind(
 			schema.GroupVersionKind{
 				Group:   printclusterpoolv1alpha1.GroupName,
-				Kind:    "PrintClusterClaim",
+				Kind:    "PrintClusterClaimCredential",
 				Version: printclusterpoolv1alpha1.GroupVersion.Version})
-	return helpers.Print(cred, o.PrintFlags)
+	return helpers.Print(cred, o.GetOptions.PrintFlags)
 }
 
 func (o *Options) getCCS(allcphs *clusterpoolhost.ClusterPoolHosts) (err error) {
@@ -125,9 +118,9 @@ func (o *Options) getCCS(allcphs *clusterpoolhost.ClusterPoolHosts) (err error) 
 			fmt.Printf("Error while retrieving clusterclaims from %s\n", cphs.ClusterPoolHosts[k].Name)
 			continue
 		}
-		printClusterClaimsList := clusterpoolhost.PrintClusterClaimObj(cphs.ClusterPoolHosts[k], clusterClaims)
+		printClusterClaimsList := clusterpoolhost.ConvertToPrintClusterClaimList(cphs.ClusterPoolHosts[k], clusterClaims)
 		printClusterClaimLists.Items = append(printClusterClaimLists.Items, printClusterClaimsList.Items...)
 	}
-	helpers.Print(printClusterClaimLists, o.PrintFlags)
+	helpers.Print(printClusterClaimLists, o.GetOptions.PrintFlags)
 	return nil
 }

@@ -1,0 +1,94 @@
+
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.6.0
+  creationTimestamp: null
+  name: printclusterpoolhosts.cm-cli.open-cluster-management.io
+spec:
+  group: cm-cli.open-cluster-management.io
+  names:
+    kind: PrintClusterPoolHost
+    listKind: PrintClusterPoolHostList
+    plural: printclusterpoolhosts
+    singular: printclusterpoolhost
+  scope: Namespaced
+  versions:
+  - additionalPrinterColumns:
+    - jsonPath: .spec.name
+      name: Name
+      type: string
+    - jsonPath: .spec.active
+      name: Active
+      type: string
+    - jsonPath: .spec.Namespace
+      name: Namespace
+      type: string
+    - jsonPath: .spec.APIServer
+      name: Api_server
+      type: string
+    - jsonPath: .spec.Console
+      name: Console
+      type: string
+    name: v1alpha1
+    schema:
+      openAPIV3Schema:
+        properties:
+          apiVersion:
+            description: 'APIVersion defines the versioned schema of this representation
+              of an object. Servers should convert recognized schemas to the latest
+              internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+            type: string
+          kind:
+            description: 'Kind is a string value representing the REST resource this
+              object represents. Servers may infer this from the endpoint the client
+              submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+            type: string
+          metadata:
+            type: object
+          spec:
+            description: PrintClusterPoolHostSpec defines the desired state of PrintClusterPool
+            properties:
+              active:
+                description: true if this cluster pool is the Active one
+                type: boolean
+              apiServer:
+                description: The API address of the cluster where your `ClusterPools`
+                  are defined. Also referred to as the "ClusterPool host"
+                type: string
+              console:
+                description: The URL of the OpenShift console for the ClusterPool
+                  host
+                type: string
+              group:
+                description: Name of a `Group` (`user.openshift.io/v1`) that should
+                  be added to each `ClusterClaim` for team access
+                type: string
+              name:
+                description: 'INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
+                  Important: Run "make" to regenerate code after modifying this file
+                  Name of the cluster pool'
+                type: string
+              namespace:
+                description: Namespace where `ClusterPools` are defined
+                type: string
+            required:
+            - active
+            - apiServer
+            - console
+            - group
+            - name
+            - namespace
+            type: object
+        type: object
+    served: true
+    storage: true
+    subresources: {}
+status:
+  acceptedNames:
+    kind: ""
+    plural: ""
+  conditions: []
+  storedVersions: []
