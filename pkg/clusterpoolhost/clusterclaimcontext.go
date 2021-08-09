@@ -23,22 +23,21 @@ const (
 	DefaultNamespace string = "default"
 )
 
-func UseClusterClaimContext(
+func (cph *ClusterPoolHost) SetClusterClaimContext(
 	clusterName string,
+	setAsCurrent bool,
 	timeout int,
 	dryRun bool,
 	outputFile string) error {
 
-	cph, err := GetCurrentClusterPoolHost()
-	if err != nil {
-		return err
-	}
 	token, serviceAccountName, ccConfigAPI, err := cph.getClusterClaimSAToken(clusterName, timeout, dryRun, outputFile)
 	if err != nil {
 		return err
 	}
 
-	return CreateClusterClaimContext(ccConfigAPI, token, clusterName, serviceAccountName)
+	contextName := cph.GetClusterContextName(clusterName)
+
+	return CreateClusterClaimContext(ccConfigAPI, token, contextName, serviceAccountName, setAsCurrent)
 }
 
 func (cph *ClusterPoolHost) getClusterClaimSAToken(
@@ -139,8 +138,8 @@ func (cph *ClusterPoolHost) getClusterClaimSAToken(
 	return
 }
 
-func CreateClusterClaimContext(configAPI *clientcmdapi.Config, token, clusterName, user string) error {
-	return CreateContextFronConfigAPI(configAPI, token, clusterName, DefaultNamespace, user)
+func CreateClusterClaimContext(configAPI *clientcmdapi.Config, token, contextName, user string, setAsCurrent bool) error {
+	return CreateContextFronConfigAPI(configAPI, token, contextName, DefaultNamespace, user, setAsCurrent)
 }
 
 func (cph *ClusterPoolHost) getClusterClaimConfigAPI(clusterName string, clusterPoolRestConfig *rest.Config) (*clientcmdapi.Config, error) {
