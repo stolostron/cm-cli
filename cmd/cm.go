@@ -108,13 +108,19 @@ func main() {
 			},
 		},
 		{
-			Message: "cluster pools commands:",
+			Message: "Cluster pools commands:",
 			Commands: []*cobra.Command{
 				use.NewCmd(cmFlags, streams),
 				set.NewCmd(cmFlags, streams),
 				run.NewCmd(cmFlags, streams),
 				hibernate.NewCmd(cmFlags, streams),
 				console.NewCmd(cmFlags, streams),
+			},
+		},
+		{
+			Message: "Governance/policy commands:",
+			Commands: []*cobra.Command{
+				get.NewCmd(f, clusteradmFlags, cmFlags, streams),
 			},
 		},
 	}

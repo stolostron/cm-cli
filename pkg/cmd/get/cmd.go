@@ -9,6 +9,7 @@ import (
 	"github.com/open-cluster-management/cm-cli/pkg/cmd/get/config"
 	"github.com/open-cluster-management/cm-cli/pkg/cmd/get/credentials"
 	"github.com/open-cluster-management/cm-cli/pkg/cmd/get/machinepools"
+	"github.com/open-cluster-management/cm-cli/pkg/cmd/get/policies"
 	genericclioptionscm "github.com/open-cluster-management/cm-cli/pkg/genericclioptions"
 	cmdutil "k8s.io/kubectl/pkg/cmd/util"
 	clusteradmgettoken "open-cluster-management.io/clusteradm/pkg/cmd/get/token"
@@ -33,6 +34,7 @@ func NewCmd(f cmdutil.Factory, clusteradmFlags *genericclioptionsclusteradm.Clus
 	cmd.AddCommand(clusterclaim.NewCmd(f, cmFlags, streams))
 	cmd.AddCommand(clusterpools.NewCmd(f, cmFlags, streams))
 	cmd.AddCommand(config.NewCmd(clusteradmFlags, cmFlags, streams))
+	cmd.AddCommand(policies.NewCmd(f, cmFlags, streams))
 
 	return cmd
 }
