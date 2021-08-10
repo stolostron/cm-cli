@@ -13,4 +13,5 @@
 ## Bug fixes
 
 - [Increase QPS as lots of throttling message #68](https://github.com/open-cluster-management/cm-cli/issues/68)
-- When `-o wide` is specified for resources using a printer CRD only Name and Age columns display
+- When `-o wide` was specified for resources using a printer CRD only Name and Age columns display
+- [cm console cc doesn't take into account the --cph #95](https://github.com/open-cluster-management/cm-cli/issues/95)

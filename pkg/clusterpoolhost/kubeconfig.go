@@ -177,7 +177,7 @@ func MoveContextToDefault(contextName, clusterPoolContextName, defaultNamespace,
 }
 
 //CreateContextFronConfigAPI creates a new context in the global file
-func CreateContextFronConfigAPI(configAPI *clientcmdapi.Config, token, contextName, defaultNamespace, user string) error {
+func CreateContextFronConfigAPI(configAPI *clientcmdapi.Config, token, contextName, defaultNamespace, user string, setAsCurrent bool) error {
 	if len(contextName) == 0 {
 		return fmt.Errorf("context name is empty")
 	}
@@ -203,7 +203,9 @@ func CreateContextFronConfigAPI(configAPI *clientcmdapi.Config, token, contextNa
 	config.Contexts[contextName] = configAPI.Contexts["admin"]
 	config.Contexts[contextName].AuthInfo = contextName
 	config.Contexts[contextName].Cluster = contextName
-	config.CurrentContext = contextName
+	if setAsCurrent {
+		config.CurrentContext = contextName
+	}
 
 	clientConfig := clientcmdapi.Config{
 		Kind:           "Config",

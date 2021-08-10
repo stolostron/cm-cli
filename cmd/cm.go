@@ -39,6 +39,7 @@ import (
 	"github.com/open-cluster-management/cm-cli/pkg/cmd/set"
 	"github.com/open-cluster-management/cm-cli/pkg/cmd/use"
 	"github.com/open-cluster-management/cm-cli/pkg/cmd/version"
+	"github.com/open-cluster-management/cm-cli/pkg/cmd/with"
 )
 
 func main() {
@@ -115,6 +116,7 @@ func main() {
 				run.NewCmd(cmFlags, streams),
 				hibernate.NewCmd(cmFlags, streams),
 				console.NewCmd(cmFlags, streams),
+				with.NewCmd(cmFlags, streams),
 			},
 		},
 		{

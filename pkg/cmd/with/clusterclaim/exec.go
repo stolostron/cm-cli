@@ -3,8 +3,10 @@ package clusterclaim
 
 import (
 	"fmt"
+	"os"
 
 	"github.com/open-cluster-management/cm-cli/pkg/clusterpoolhost"
+	"github.com/open-cluster-management/cm-cli/pkg/helpers"
 	"github.com/spf13/cobra"
 )
 
@@ -42,7 +44,7 @@ func (o *Options) run() (err error) {
 			return err
 		}
 	}
-	err = o.useClusterClaimContext(cphs)
+	err = o.executeCommand(cphs)
 
 	if len(o.ClusterPoolHost) != 0 {
 		if err := cphs.SetActive(currentCph); err != nil {
@@ -52,7 +54,7 @@ func (o *Options) run() (err error) {
 	return err
 }
 
-func (o *Options) useClusterClaimContext(cphs *clusterpoolhost.ClusterPoolHosts) (err error) {
+func (o *Options) executeCommand(cphs *clusterpoolhost.ClusterPoolHosts) (err error) {
 	if len(o.ClusterPoolHost) != 0 {
 		cph, err := cphs.GetClusterPoolHost(o.ClusterPoolHost)
 		if err != nil {
@@ -68,5 +70,10 @@ func (o *Options) useClusterClaimContext(cphs *clusterpoolhost.ClusterPoolHosts)
 	if err != nil {
 		return err
 	}
-	return cph.SetClusterClaimContext(o.Cluster, true, o.Timeout, o.CMFlags.DryRun, o.outputFile)
+	err = cph.SetClusterClaimContext(o.Cluster, false, o.Timeout, o.CMFlags.DryRun, o.outputFile)
+	if err != nil {
+		return err
+	}
+	context := cph.GetClusterContextName(o.Cluster)
+	return helpers.ExecuteWithContext(context, os.Args, o.CMFlags.DryRun, o.streams, o.outputFile)
 }
