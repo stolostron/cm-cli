@@ -28,9 +28,9 @@ type PrintPoliciesSpec struct {
 // +kubebuilder:printcolumn:name="Remediation Action",type="string",JSONPath=".spec.policy.spec.remediationAction"
 // +kubebuilder:printcolumn:name="Disabled",type="bool",JSONPath=".spec.policy.spec.disabled"
 // +kubebuilder:printcolumn:name="Age",type="date",JSONPath=".spec.age"
-// +kubebuilder:printcolumn:name="Standards",type="string",JSONPath=".spec.policy.metadata.annotations.policy.open-cluster-management.io/standards",priority=1
-// +kubebuilder:printcolumn:name="Categories",type="string",JSONPath=".spec.policy.metadata.annotations.policy.open-cluster-management.io/categories",priority=1
-// +kubebuilder:printcolumn:name="Controls",type="string",JSONPath=".spec.policy.metadata.annotations.policy.open-cluster-management.io/controls",priority=1
+// +kubebuilder:printcolumn:name="Standards",type="string",JSONPath=".spec.policy.metadata.annotations.policy\\.open-cluster-management\\.io/standards",priority=1
+// +kubebuilder:printcolumn:name="Categories",type="string",JSONPath=".spec.policy.metadata.annotations.policy\\.open-cluster-management\\.io/categories",priority=1
+// +kubebuilder:printcolumn:name="Controls",type="string",JSONPath=".spec.policy.metadata.annotations.policy\\.open-cluster-management\\.io/controls",priority=1
 
 type PrintPolicies struct {
 	metav1.TypeMeta   `json:",inline"`
