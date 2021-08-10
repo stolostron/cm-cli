@@ -24,6 +24,10 @@ import (
 	clusteradmapply "open-cluster-management.io/clusteradm/pkg/helpers/apply"
 )
 
+func (cph *ClusterPoolHost) GetClusterContextName(clusterName string) string {
+	return fmt.Sprintf("%s/%s", cph.Name, clusterName)
+}
+
 func CreateClusterClaims(clusterClaimNames, clusterPoolName string, skipSchedule bool, timeout int, dryRun bool, outputFile string) error {
 	cph, err := GetCurrentClusterPoolHost()
 	if err != nil {

@@ -10,3 +10,4 @@
 ## Bug fixes
 
 - [Increase QPS as lots of throttling message #68](https://github.com/open-cluster-management/cm-cli/issues/68)
+- [cm console cc doesn't take into account the --cph #95](https://github.com/open-cluster-management/cm-cli/issues/95)
