@@ -52,6 +52,8 @@ func addKnownTypes(scheme *runtime.Scheme) error {
 		&PrintClusterPoolHost{},
 		&PrintClusterPoolHostList{},
 		&PrintClusterPoolList{},
+		&PrintPolicies{},
+		&PrintPoliciesList{},
 	)
 	// AddToGroupVersion allows the serialization of client types like ListOptions.
 	v1.AddToGroupVersion(scheme, SchemeGroupVersion)
