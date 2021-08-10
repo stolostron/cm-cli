@@ -8,6 +8,7 @@ SCRIPTS_PATH ?= build
 INSTALL_DEPENDENCIES ?= ${SCRIPTS_PATH}/install-dependencies.sh
 
 GOPATH := ${shell go env GOPATH}
+GOBIN ?= ${GOPATH}/bin
 
 CRD_OPTIONS ?= "crd:crdVersions=v1"
 
@@ -76,7 +77,7 @@ manifests:
 	$(CONTROLLER_GEN) $(CRD_OPTIONS) rbac:roleName=manager-role webhook paths="./..." output:crd:artifacts:config=api/cm-cli/v1alpha1/crd
 
 .PHONY: generate
-generate: manifests controller-gen
+generate: controller-gen manifests
 	$(CONTROLLER_GEN) object:headerFile="hack/boilerplate.go.txt" paths="./..."
 	@hack/update-codegen.sh
 
