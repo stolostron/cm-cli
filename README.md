@@ -44,3 +44,5 @@ See our [Contributing Document](CONTRIBUTING.md) for more information.
 [cluster commands](docs/cluster.md)
 
 [clusterpool commands](docs/clusterpool.md)
+
+[policies commands](docs/policies.md)
