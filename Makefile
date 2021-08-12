@@ -85,7 +85,7 @@ manifests:
 	$(CONTROLLER_GEN) $(CRD_OPTIONS) rbac:roleName=manager-role webhook paths="./..." output:crd:artifacts:config=api/cm-cli/v1alpha1/crd
 
 .PHONY: generate
-generate: controller-gen manifests
+generate: manifests controller-gen
 	$(CONTROLLER_GEN) object:headerFile="hack/boilerplate.go.txt" paths="./..."
 	@hack/update-codegen.sh
 
