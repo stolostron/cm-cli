@@ -10,6 +10,8 @@ The CLI has commands to general commands.
 cm -h
 ```
 
+or [cm.md](help/cm.md) 
+
 ## Commands
 
 ### Version

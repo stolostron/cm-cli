@@ -29,6 +29,8 @@ jobs:
         with:
           body_path: CHANGELOG.md
           files: |
+            docs/help.tar.gz
+            docs/help.zip
             bin/cm_darwin_amd64.tar.gz
             bin/cm_linux_amd64.tar.gz
             bin/cm_linux_arm64.tar.gz
