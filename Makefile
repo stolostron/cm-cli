@@ -46,7 +46,7 @@ build-bin: doc-help
 ,PHONY: doc-help
 doc-help:
 	@echo "Generate help markdown in docs/help"
-	@go build -o docs/tools/cm docs/tools/cm.go && cd docs/tools && export PATH=$$PATH:docs/tools && cm && rm cm
+	@go build -o docs/tools/cm docs/tools/cm.go && cd docs/tools && export PATH=docs/tools:$$PATH && cm && rm cm
 	@echo "Markdown generated"
 
 .PHONY: install
