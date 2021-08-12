@@ -8,7 +8,6 @@ SCRIPTS_PATH ?= build
 INSTALL_DEPENDENCIES ?= ${SCRIPTS_PATH}/install-dependencies.sh
 
 GOPATH := ${shell go env GOPATH}
-GOBIN ?= ${GOPATH}/bin
 
 CRD_OPTIONS ?= "crd:crdVersions=v1"
 
