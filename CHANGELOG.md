@@ -3,6 +3,7 @@
 ## Additions
 
 - [Create a cmd which generate a config to create a clusterpool based on an existing clusterpool #66](https://github.com/open-cluster-management/cm-cli/issues/66)
+- Create help.tar.gz and help.zip files contains command-line markdown help
 
 ## Breacking changes
 

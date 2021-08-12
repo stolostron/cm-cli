@@ -14,7 +14,9 @@ test/unit/coverage
 test/unit/tmp
 test/functional/tmp
 test/out
-
+/docs/tools/cm
+/docs/help.tar.gz
+/docs/help.zip
 # Output of the go coverage tool, specifically when used with LiteIDE
 *.out
 
