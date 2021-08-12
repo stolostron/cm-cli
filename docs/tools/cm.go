@@ -12,7 +12,7 @@ import (
 )
 
 const (
-	docpath = "../help"
+	docpath = "docs/help"
 )
 
 func main() {
