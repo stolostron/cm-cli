@@ -24,33 +24,20 @@ func (o *Options) run() (err error) {
 		return err
 	}
 
-	currentCph, err := cphs.GetCurrentClusterPoolHost()
+	cph, err := cphs.GetCurrentClusterPoolHost()
 	if err != nil {
 		return err
 	}
 
-	err = o.openClusterClaim(cphs)
-
 	if len(o.ClusterPoolHost) != 0 {
-		if err := cphs.SetActive(currentCph); err != nil {
+		cph, err = cphs.GetClusterPoolHost(o.ClusterPoolHost)
+		if err != nil {
 			return err
 		}
 	}
+
+	err = cph.OpenClusterClaim(o.ClusterClaim, o.Timeout)
+
 	return err
 
-}
-
-func (o *Options) openClusterClaim(cphs *clusterpoolhost.ClusterPoolHosts) (err error) {
-	if len(o.ClusterPoolHost) != 0 {
-		cph, err := cphs.GetClusterPoolHost(o.ClusterPoolHost)
-		if err != nil {
-			return err
-		}
-
-		err = cphs.SetActive(cph)
-		if err != nil {
-			return err
-		}
-	}
-	return clusterpoolhost.OpenClusterClaim(o.ClusterClaim, o.Timeout)
 }

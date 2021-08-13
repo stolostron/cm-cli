@@ -31,32 +31,16 @@ func (o *Options) run() (err error) {
 		return err
 	}
 
-	currentCph, err := cphs.GetCurrentClusterPoolHost()
+	cph, err := cphs.GetCurrentClusterPoolHost()
 	if err != nil {
 		return err
 	}
 
-	err = o.createClusterClaims(cphs)
-
 	if len(o.ClusterPoolHost) != 0 {
-		if err := cphs.SetActive(currentCph); err != nil {
-			return err
-		}
-	}
-	return err
-}
-
-func (o *Options) createClusterClaims(cphs *clusterpoolhost.ClusterPoolHosts) (err error) {
-	if len(o.ClusterPoolHost) != 0 {
-		cph, err := cphs.GetClusterPoolHost(o.ClusterPoolHost)
-		if err != nil {
-			return err
-		}
-
-		err = cphs.SetActive(cph)
+		cph, err = cphs.GetClusterPoolHost(o.ClusterPoolHost)
 		if err != nil {
 			return err
 		}
 	}
-	return clusterpoolhost.CreateClusterClaims(o.ClusterClaims, o.ClusterPool, o.SkipSchedule, o.Timeout, o.CMFlags.DryRun, o.outputFile)
+	return cph.CreateClusterClaims(o.ClusterClaims, o.ClusterPool, o.SkipSchedule, o.Timeout, o.CMFlags.DryRun, o.outputFile)
 }

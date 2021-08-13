@@ -28,11 +28,7 @@ func (cph *ClusterPoolHost) GetClusterContextName(clusterName string) string {
 	return fmt.Sprintf("%s/%s", cph.Name, clusterName)
 }
 
-func CreateClusterClaims(clusterClaimNames, clusterPoolName string, skipSchedule bool, timeout int, dryRun bool, outputFile string) error {
-	cph, err := GetCurrentClusterPoolHost()
-	if err != nil {
-		return err
-	}
+func (cph *ClusterPoolHost) CreateClusterClaims(clusterClaimNames, clusterPoolName string, skipSchedule bool, timeout int, dryRun bool, outputFile string) error {
 	clusterPoolRestConfig, err := cph.GetGlobalRestConfig()
 	if err != nil {
 		return err
@@ -97,16 +93,12 @@ func CreateClusterClaims(clusterClaimNames, clusterPoolName string, skipSchedule
 	return clusteradmapply.WriteOutput(outputFile, output)
 }
 
-func RunClusterClaims(clusterClaimNames string, skipSchedule bool, timeout int, dryRun bool, outputFile string) error {
+func (cph *ClusterPoolHost) RunClusterClaims(clusterClaimNames string, skipSchedule bool, timeout int, dryRun bool, outputFile string) error {
 	skipScheduleAction := "true"
 	if skipSchedule {
 		skipScheduleAction = "skip"
 	}
-	cph, err := GetCurrentClusterPoolHost()
-	if err != nil {
-		return err
-	}
-	if err = cph.setHibernateClusterClaims(clusterClaimNames, false, skipScheduleAction, dryRun, outputFile); err != nil {
+	if err := cph.setHibernateClusterClaims(clusterClaimNames, false, skipScheduleAction, dryRun, outputFile); err != nil {
 		return err
 	}
 	if !dryRun {
@@ -124,14 +116,10 @@ func RunClusterClaims(clusterClaimNames string, skipSchedule bool, timeout int, 
 	return nil
 }
 
-func HibernateClusterClaims(clusterClaimNames string, skipSchedule, dryRun bool, outputFile string) error {
+func (cph *ClusterPoolHost) HibernateClusterClaims(clusterClaimNames string, skipSchedule, dryRun bool, outputFile string) error {
 	skipScheduleAction := "true"
 	if skipSchedule {
 		skipScheduleAction = "skip"
-	}
-	cph, err := GetCurrentClusterPoolHost()
-	if err != nil {
-		return err
 	}
 	return cph.setHibernateClusterClaims(clusterClaimNames, true, skipScheduleAction, dryRun, outputFile)
 }
@@ -285,11 +273,7 @@ func getClusterClaimRunningStatus(cc *hivev1.ClusterClaim) *hivev1.ClusterClaimC
 	return nil
 }
 
-func DeleteClusterClaims(clusterClaimNames string, dryRun bool, outputFile string) error {
-	cph, err := GetCurrentClusterPoolHost()
-	if err != nil {
-		return err
-	}
+func (cph *ClusterPoolHost) DeleteClusterClaims(clusterClaimNames string, dryRun bool, outputFile string) error {
 	clusterPoolRestConfig, err := cph.GetGlobalRestConfig()
 	if err != nil {
 		return err
@@ -312,12 +296,8 @@ func DeleteClusterClaims(clusterClaimNames string, dryRun bool, outputFile strin
 	return nil
 }
 
-func GetClusterClaims(dryRun bool) (*hivev1.ClusterClaimList, error) {
+func (cph *ClusterPoolHost) GetClusterClaims(dryRun bool) (*hivev1.ClusterClaimList, error) {
 	clusterClaims := &hivev1.ClusterClaimList{}
-	cph, err := GetCurrentClusterPoolHost()
-	if err != nil {
-		return clusterClaims, err
-	}
 	clusterPoolRestConfig, err := cph.GetGlobalRestConfig()
 	if err != nil {
 		return clusterClaims, err
@@ -351,7 +331,7 @@ func getClusterClaimPendingStatus(cc *hivev1.ClusterClaim) *hivev1.ClusterClaimC
 	return nil
 }
 
-func ConvertToPrintClusterClaimList(cph *ClusterPoolHost, ccl *hivev1.ClusterClaimList) *printclusterpoolv1alpha1.PrintClusterClaimList {
+func (cph *ClusterPoolHost) ConvertToPrintClusterClaimList(ccl *hivev1.ClusterClaimList) *printclusterpoolv1alpha1.PrintClusterClaimList {
 	pccs := &printclusterpoolv1alpha1.PrintClusterClaimList{}
 	for i := range ccl.Items {
 		pcc := printclusterpoolv1alpha1.PrintClusterClaim{
@@ -403,11 +383,7 @@ func ConvertToPrintClusterClaimList(cph *ClusterPoolHost, ccl *hivev1.ClusterCla
 	return pccs
 }
 
-func GetClusterClaim(clusterName string, timeout int, dryRun bool, printFlags *get.PrintFlags) (*hivev1.ClusterClaim, error) {
-	cph, err := GetCurrentClusterPoolHost()
-	if err != nil {
-		return nil, err
-	}
+func (cph *ClusterPoolHost) GetClusterClaim(clusterName string, timeout int, dryRun bool, printFlags *get.PrintFlags) (*hivev1.ClusterClaim, error) {
 	clusterPoolRestConfig, err := cph.GetGlobalRestConfig()
 	if err != nil {
 		return nil, err
@@ -433,11 +409,7 @@ func GetClusterClaim(clusterName string, timeout int, dryRun bool, printFlags *g
 	return cc, nil
 }
 
-func GetClusterClaimCred(cc *hivev1.ClusterClaim) (*printclusterpoolv1alpha1.PrintClusterClaimCredential, error) {
-	cph, err := GetCurrentClusterPoolHost()
-	if err != nil {
-		return nil, err
-	}
+func (cph *ClusterPoolHost) GetClusterClaimCred(cc *hivev1.ClusterClaim) (*printclusterpoolv1alpha1.PrintClusterClaimCredential, error) {
 	clusterPoolRestConfig, err := cph.GetGlobalRestConfig()
 	if err != nil {
 		return nil, err
@@ -480,11 +452,7 @@ func GetClusterClaimCred(cc *hivev1.ClusterClaim) (*printclusterpoolv1alpha1.Pri
 	}, nil
 }
 
-func OpenClusterClaim(clusterName string, timeout int) error {
-	cph, err := GetCurrentClusterPoolHost()
-	if err != nil {
-		return err
-	}
+func (cph *ClusterPoolHost) OpenClusterClaim(clusterName string, timeout int) error {
 	clusterPoolRestConfig, err := cph.GetGlobalRestConfig()
 	if err != nil {
 		return err
