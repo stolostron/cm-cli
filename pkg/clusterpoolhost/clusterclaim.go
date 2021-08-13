@@ -409,7 +409,7 @@ func (cph *ClusterPoolHost) GetClusterClaim(clusterName string, timeout int, dry
 	return cc, nil
 }
 
-func (cph *ClusterPoolHost) GetClusterClaimCred(cc *hivev1.ClusterClaim) (*printclusterpoolv1alpha1.PrintClusterClaimCredential, error) {
+func (cph *ClusterPoolHost) GetClusterClaimCred(cc *hivev1.ClusterClaim, withCredentials bool) (*printclusterpoolv1alpha1.PrintClusterClaimCredential, error) {
 	clusterPoolRestConfig, err := cph.GetGlobalRestConfig()
 	if err != nil {
 		return nil, err
@@ -437,19 +437,24 @@ func (cph *ClusterPoolHost) GetClusterClaimCred(cc *hivev1.ClusterClaim) (*print
 	if err != nil {
 		return nil, err
 	}
-	return &printclusterpoolv1alpha1.PrintClusterClaimCredential{
+	ccc := &printclusterpoolv1alpha1.PrintClusterClaimCredential{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      cc.Name,
 			Namespace: cc.Namespace,
 		},
 		Spec: printclusterpoolv1alpha1.PrintClusterClaimCredentialSpec{
-			User:       string(s.Data["username"]),
-			Password:   string(s.Data["password"]),
+			User:       "REDACTED",
+			Password:   "REDACTED",
 			Basedomain: cd.Spec.BaseDomain,
 			ApiUrl:     cd.Status.APIURL,
 			ConsoleUrl: cd.Status.WebConsoleURL,
 		},
-	}, nil
+	}
+	if withCredentials {
+		ccc.Spec.User = string(s.Data["username"])
+		ccc.Spec.Password = string(s.Data["password"])
+	}
+	return ccc, nil
 }
 
 func (cph *ClusterPoolHost) OpenClusterClaim(clusterName string, timeout int) error {

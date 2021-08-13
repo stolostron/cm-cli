@@ -48,7 +48,7 @@ func (o *Options) getCC(cph *clusterpoolhost.ClusterPoolHost) (err error) {
 	if err != nil {
 		return err
 	}
-	cred, err := cph.GetClusterClaimCred(cc)
+	cred, err := cph.GetClusterClaimCred(cc, o.WithCredentials)
 	if err != nil {
 		return err
 	}
