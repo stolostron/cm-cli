@@ -26,21 +26,17 @@ func (o *Options) validate() error {
 func (o *Options) run() (err error) {
 	var cphs *clusterpoolhost.ClusterPoolHosts
 
-	if o.AllClusterPoolHosts {
-		cphs, err = clusterpoolhost.GetClusterPoolHosts()
+	cphs, err = clusterpoolhost.GetClusterPoolHosts()
+	if err != nil {
+		return err
+	}
+
+	if !o.AllClusterPoolHosts {
+		cph, err := cphs.GetClusterPoolHostOrCurrent(o.ClusterPoolHost)
 		if err != nil {
 			return err
 		}
-	} else {
-		var cph *clusterpoolhost.ClusterPoolHost
-		if o.ClusterPoolHost != "" {
-			cph, err = clusterpoolhost.GetClusterPoolHost(o.ClusterPoolHost)
-		} else {
-			cph, err = clusterpoolhost.GetCurrentClusterPoolHost()
-		}
-		if err != nil {
-			return err
-		}
+
 		cphs = &clusterpoolhost.ClusterPoolHosts{
 			ClusterPoolHosts: map[string]*clusterpoolhost.ClusterPoolHost{
 				cph.Name: cph,

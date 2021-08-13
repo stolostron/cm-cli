@@ -29,18 +29,11 @@ func (o *Options) run() (err error) {
 		return err
 	}
 
-	cph, err := cphs.GetCurrentClusterPoolHost()
+	cph, err := cphs.GetClusterPoolHostOrCurrent(o.ClusterPoolHost)
 	if err != nil {
 		return err
 	}
 
-	if len(o.ClusterPoolHost) != 0 {
-		cph, err = cphs.GetClusterPoolHost(o.ClusterPoolHost)
-		if err != nil {
-			return err
-		}
-
-	}
 	if len(o.ClusterClaim) == 0 {
 		err = o.getCCS(cphs)
 	} else {
@@ -68,24 +61,14 @@ func (o *Options) getCC(cph *clusterpoolhost.ClusterPoolHost) (err error) {
 	return helpers.Print(cred, o.GetOptions.PrintFlags)
 }
 
-func (o *Options) getCCS(allcphs *clusterpoolhost.ClusterPoolHosts) (err error) {
-	var cphs *clusterpoolhost.ClusterPoolHosts
+func (o *Options) getCCS(cphs *clusterpoolhost.ClusterPoolHosts) (err error) {
 
-	if o.AllClusterPoolHosts {
-		cphs, err = clusterpoolhost.GetClusterPoolHosts()
+	if !o.AllClusterPoolHosts {
+		cph, err := cphs.GetClusterPoolHostOrCurrent(o.ClusterPoolHost)
 		if err != nil {
 			return err
 		}
-	} else {
-		var cph *clusterpoolhost.ClusterPoolHost
-		if o.ClusterPoolHost != "" {
-			cph, err = clusterpoolhost.GetClusterPoolHost(o.ClusterPoolHost)
-		} else {
-			cph, err = clusterpoolhost.GetCurrentClusterPoolHost()
-		}
-		if err != nil {
-			return err
-		}
+
 		cphs = &clusterpoolhost.ClusterPoolHosts{
 			ClusterPoolHosts: map[string]*clusterpoolhost.ClusterPoolHost{
 				cph.Name: cph,

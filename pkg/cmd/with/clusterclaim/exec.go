@@ -28,20 +28,12 @@ func (o *Options) run() (err error) {
 		return err
 	}
 
-	cph, err := cphs.GetCurrentClusterPoolHost()
+	cph, err := cphs.GetClusterPoolHostOrCurrent(o.ClusterPoolHost)
 	if err != nil {
 		return err
 	}
 
-	if len(o.ClusterPoolHost) != 0 {
-		cph, err = cphs.GetClusterPoolHost(o.ClusterPoolHost)
-		if err != nil {
-			return err
-		}
-	}
-	err = o.executeCommand(cph)
-
-	return err
+	return o.executeCommand(cph)
 }
 
 func (o *Options) executeCommand(cph *clusterpoolhost.ClusterPoolHost) (err error) {

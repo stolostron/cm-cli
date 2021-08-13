@@ -123,12 +123,12 @@ func (cs *ClusterPoolHosts) ApplyClusterPoolHosts() error {
 	return ioutil.WriteFile(fileName, b, 0600)
 }
 
-//OpenClusterPoolHost returns the clusterpoolhost
+//OpenClusterPoolHost opens a browzer on the clusterpoolhost console
 func OpenClusterPoolHost(consoleUrl string) error {
 	return helpers.Openbrowser(consoleUrl)
 }
 
-//GetClusterPoolHost opens a browzer on the clusterpoolhost console
+//GetClusterPoolHost returns the clusterpoolhost
 func (cs *ClusterPoolHosts) GetClusterPoolHost(name string) (*ClusterPoolHost, error) {
 	if c, ok := cs.ClusterPoolHosts[name]; ok {
 		return c, nil
@@ -183,6 +183,14 @@ func (cs *ClusterPoolHosts) GetCurrentClusterPoolHost() (*ClusterPoolHost, error
 		}
 	}
 	return nil, fmt.Errorf("no active cluster pool host found")
+}
+
+//GetClusterPoolHostOrCurrent returns the clusterpoolhost and if
+func (cs *ClusterPoolHosts) GetClusterPoolHostOrCurrent(name string) (*ClusterPoolHost, error) {
+	if len(name) != 0 {
+		return cs.GetClusterPoolHost(name)
+	}
+	return cs.GetCurrentClusterPoolHost()
 }
 
 //AddClusterPoolHost adds a clusterpoolhost
