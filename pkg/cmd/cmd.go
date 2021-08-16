@@ -44,6 +44,8 @@ func NewCMCommand() *cobra.Command {
 	root := &cobra.Command{
 		Use:   "cm",
 		Short: "CLI for Red Hat Advanced Clust Management",
+		//This remove the auto-generated tag in the cobra doc
+		DisableAutoGenTag: true,
 	}
 
 	flags := root.PersistentFlags()

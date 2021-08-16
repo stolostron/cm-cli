@@ -29,6 +29,7 @@ func (o *Options) run() (err error) {
 				Group:   printclusterpoolv1alpha1.GroupName,
 				Kind:    "PrintClusterPoolHost",
 				Version: printclusterpoolv1alpha1.GroupVersion.Version})
+	// sort.Sort(pcphs.Items)
 	helpers.Print(pcphs, o.GetOptions.PrintFlags)
 	return nil
 }

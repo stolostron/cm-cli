@@ -28,48 +28,15 @@ func (o *Options) run() (err error) {
 		return err
 	}
 
-	currentCph, err := cphs.GetCurrentClusterPoolHost()
+	cph, err := cphs.GetClusterPoolHostOrCurrent(o.ClusterPoolHost)
 	if err != nil {
 		return err
 	}
 
-	if len(o.ClusterPoolHost) != 0 {
-		cph, err := cphs.GetClusterPoolHost(o.ClusterPoolHost)
-		if err != nil {
-			return err
-		}
-
-		err = cphs.SetActive(cph)
-		if err != nil {
-			return err
-		}
-	}
-	err = o.executeCommand(cphs)
-
-	if len(o.ClusterPoolHost) != 0 {
-		if err := cphs.SetActive(currentCph); err != nil {
-			return err
-		}
-	}
-	return err
+	return o.executeCommand(cph)
 }
 
-func (o *Options) executeCommand(cphs *clusterpoolhost.ClusterPoolHosts) (err error) {
-	if len(o.ClusterPoolHost) != 0 {
-		cph, err := cphs.GetClusterPoolHost(o.ClusterPoolHost)
-		if err != nil {
-			return err
-		}
-
-		err = cphs.SetActive(cph)
-		if err != nil {
-			return err
-		}
-	}
-	cph, err := cphs.GetCurrentClusterPoolHost()
-	if err != nil {
-		return err
-	}
+func (o *Options) executeCommand(cph *clusterpoolhost.ClusterPoolHost) (err error) {
 	err = cph.SetClusterClaimContext(o.Cluster, false, o.Timeout, o.CMFlags.DryRun, o.outputFile)
 	if err != nil {
 		return err
