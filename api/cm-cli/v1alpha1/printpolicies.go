@@ -22,15 +22,15 @@ type PrintPoliciesSpec struct {
 // PrintPolicies is the Schema for the authrealms API
 // +kubebuilder:object:root=true
 // +kubebuilder:resource:path=printpolicies
-// +kubebuilder:printcolumn:name="Policy Name",type="string",JSONPath=".spec.policy.Name"
-// +kubebuilder:printcolumn:name="Namespace",type="string",JSONPath=".spec.policy.Namespace"
+// +kubebuilder:printcolumn:name="Policy Name",type="string",JSONPath=".metadata.name"
+// +kubebuilder:printcolumn:name="Namespace",type="string",JSONPath=".metadata.namespace"
 // +kubebuilder:printcolumn:name="Compliance State",type="string",JSONPath=".spec.policy.status.compliant"
 // +kubebuilder:printcolumn:name="Remediation Action",type="string",JSONPath=".spec.policy.spec.remediationAction"
 // +kubebuilder:printcolumn:name="Disabled",type="bool",JSONPath=".spec.policy.spec.disabled"
-// +kubebuilder:printcolumn:name="Age",type="date",JSONPath=".spec.age"
 // +kubebuilder:printcolumn:name="Standards",type="string",JSONPath=".spec.policy.metadata.annotations.policy\\.open-cluster-management\\.io/standards",priority=1
 // +kubebuilder:printcolumn:name="Categories",type="string",JSONPath=".spec.policy.metadata.annotations.policy\\.open-cluster-management\\.io/categories",priority=1
 // +kubebuilder:printcolumn:name="Controls",type="string",JSONPath=".spec.policy.metadata.annotations.policy\\.open-cluster-management\\.io/controls",priority=1
+// +kubebuilder:printcolumn:name="Age",type="date",JSONPath=".spec.age"
 
 type PrintPolicies struct {
 	metav1.TypeMeta   `json:",inline"`

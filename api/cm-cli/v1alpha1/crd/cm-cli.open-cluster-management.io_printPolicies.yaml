@@ -17,10 +17,10 @@ spec:
   scope: Namespaced
   versions:
   - additionalPrinterColumns:
-    - jsonPath: .spec.policy.Name
+    - jsonPath: .metadata.name
       name: Policy Name
       type: string
-    - jsonPath: .spec.policy.Namespace
+    - jsonPath: .metadata.namespace
       name: Namespace
       type: string
     - jsonPath: .spec.policy.status.compliant
@@ -32,9 +32,6 @@ spec:
     - jsonPath: .spec.policy.spec.disabled
       name: Disabled
       type: bool
-    - jsonPath: .spec.age
-      name: Age
-      type: date
     - jsonPath: .spec.policy.metadata.annotations.policy\.open-cluster-management\.io/standards
       name: Standards
       priority: 1
@@ -47,6 +44,9 @@ spec:
       name: Controls
       priority: 1
       type: string
+    - jsonPath: .spec.age
+      name: Age
+      type: date
     name: v1alpha1
     schema:
       openAPIV3Schema:
