@@ -119,12 +119,6 @@ func main() {
 				with.NewCmd(cmFlags, streams),
 			},
 		},
-		{
-			Message: "Governance/policy commands:",
-			Commands: []*cobra.Command{
-				get.NewCmd(f, clusteradmFlags, cmFlags, streams),
-			},
-		},
 	}
 	groups.Add(root)
 	err := root.Execute()
