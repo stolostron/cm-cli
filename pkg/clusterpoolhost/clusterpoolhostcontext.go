@@ -37,8 +37,9 @@ func (cph *ClusterPoolHost) getClusterPoolSAToken(
 	outputFile string) (token, serviceAccountName string, isGlobal, needLogin bool, err error) {
 	var clusterPoolRestConfig *rest.Config
 	isGlobal = true
-	err = SetCPHContext(cph.GetContextName())
+	clusterPoolRestConfig, err = cph.GetGlobalRestConfig()
 	if err != nil {
+		isGlobal = false
 		clusterPoolRestConfig, err = GetCurrentRestConfig()
 		if err != nil {
 			if clusterPoolRestConfig == nil {
@@ -63,10 +64,7 @@ func (cph *ClusterPoolHost) getClusterPoolSAToken(
 			err = fmt.Errorf("please login on %s", cph.APIServer)
 			return
 		}
-	}
-	clusterPoolRestConfig, err = GetGlobalCurrentRestConfig()
-	if err != nil {
-		return
+
 	}
 
 	//Update the clusterpoolhostfile
