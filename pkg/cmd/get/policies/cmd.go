@@ -34,7 +34,6 @@ func NewCmd(f cmdutil.Factory, cmFlags *genericclioptionscm.CMFlags, streams gen
 		Short:                 "Display policies",
 		Example:               fmt.Sprintf(example, helpers.GetExampleHeader()),
 		Run: func(cmd *cobra.Command, args []string) {
-			args = append([]string{"policies"}, args...)
 			cmdutil.CheckErr(o.complete(cmd, args))
 			cmdutil.CheckErr(o.validate())
 			cmdutil.CheckErr(o.run(f))
@@ -51,7 +50,8 @@ func NewCmd(f cmdutil.Factory, cmFlags *genericclioptionscm.CMFlags, streams gen
 	policies.Flags().BoolVar(&o.GetOptions.IgnoreNotFound, "ignore-not-found", o.GetOptions.IgnoreNotFound, "If the requested object does not exist the command will return exit code 0.")
 	policies.Flags().StringVarP(&o.GetOptions.LabelSelector, "selector", "l", o.GetOptions.LabelSelector, "Selector (label query) to filter on, supports '=', '==', and '!='.(e.g. -l key1=value1,key2=value2)")
 	policies.Flags().StringVar(&o.GetOptions.FieldSelector, "field-selector", o.GetOptions.FieldSelector, "Selector (field query) to filter on, supports '=', '==', and '!='.(e.g. --field-selector key1=value1,key2=value2). The server only supports a limited number of field queries per type.")
-	policies.Flags().BoolVarP(&o.GetOptions.AllNamespaces, "all-namespaces", "A", o.GetOptions.AllNamespaces, "If present, list the requested object(s) across all namespaces. Namespace in current context is ignored even if specified with --namespace.")
+	policies.Flags().StringVar(&o.GetOptions.Namespace, "cluster", o.GetOptions.Namespace, "List the requested object(s) in the specified cluster namespace.")
+	policies.Flags().StringVarP(&o.GetOptions.Namespace, "namespace", "n", o.GetOptions.Namespace, "List the requested object(s) in the specified namespace.")
 	addServerPrintColumnFlags(policies, o.GetOptions)
 	cmdutil.AddFilenameOptionFlags(policies, &o.GetOptions.FilenameOptions, "identifying the resource to get from a server.")
 
