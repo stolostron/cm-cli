@@ -24,31 +24,19 @@ func (o *Options) validate() error {
 }
 
 func (o *Options) run() (err error) {
-	var cphs, allcphs *clusterpoolhost.ClusterPoolHosts
-	allcphs, err = clusterpoolhost.GetClusterPoolHosts()
-	if err != nil {
-		return err
-	}
-	currentCph, err := allcphs.GetCurrentClusterPoolHost()
+	var cphs *clusterpoolhost.ClusterPoolHosts
+
+	cphs, err = clusterpoolhost.GetClusterPoolHosts()
 	if err != nil {
 		return err
 	}
 
-	if o.AllClusterPoolHosts {
-		cphs, err = clusterpoolhost.GetClusterPoolHosts()
+	if !o.AllClusterPoolHosts {
+		cph, err := cphs.GetClusterPoolHostOrCurrent(o.ClusterPoolHost)
 		if err != nil {
 			return err
 		}
-	} else {
-		var cph *clusterpoolhost.ClusterPoolHost
-		if o.ClusterPoolHost != "" {
-			cph, err = clusterpoolhost.GetClusterPoolHost(o.ClusterPoolHost)
-		} else {
-			cph, err = clusterpoolhost.GetCurrentClusterPoolHost()
-		}
-		if err != nil {
-			return err
-		}
+
 		cphs = &clusterpoolhost.ClusterPoolHosts{
 			ClusterPoolHosts: map[string]*clusterpoolhost.ClusterPoolHost{
 				cph.Name: cph,
@@ -63,23 +51,14 @@ func (o *Options) run() (err error) {
 				Group:   printclusterpoolv1alpha1.GroupName,
 				Kind:    "PrintClusterPool",
 				Version: printclusterpoolv1alpha1.GroupVersion.Version})
-	for k := range cphs.ClusterPoolHosts {
-		err = allcphs.SetActive(allcphs.ClusterPoolHosts[k])
+	for _, cph := range cphs.ClusterPoolHosts {
+		clusterPools, err := cph.GetClusterPools(o.AllClusterPoolHosts, o.CMFlags.DryRun)
 		if err != nil {
-			return err
-		}
-		clusterPools, err := clusterpoolhost.GetClusterPools(o.AllClusterPoolHosts, o.CMFlags.DryRun)
-		if err != nil {
-			fmt.Printf("Error while retrieving clusterpools from %s\n", cphs.ClusterPoolHosts[k].Name)
+			fmt.Printf("Error while retrieving clusterpools from %s\n", cph.Name)
 			continue
 		}
-		printClusterPoolList := clusterpoolhost.ConvertToPrintClusterPoolList(cphs.ClusterPoolHosts[k], clusterPools)
+		printClusterPoolList := cph.ConvertToPrintClusterPoolList(clusterPools)
 		printClusterPoolLists.Items = append(printClusterPoolLists.Items, printClusterPoolList.Items...)
 	}
-	err = helpers.Print(printClusterPoolLists, o.GetOptions.PrintFlags)
-	allcphs.SetActive(currentCph)
-	if err != nil {
-		return err
-	}
-	return nil
+	return helpers.Print(printClusterPoolLists, o.GetOptions.PrintFlags)
 }

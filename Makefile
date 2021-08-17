@@ -31,7 +31,9 @@ build:
 	go install ./cmd/cm.go
 
 .PHONY: 
-build-bin:
+build-bin: doc-help
+	tar -czf docs/help.tar.gz -C docs/help/ .
+	zip -q docs/help.zip -j docs/help/*
 	@rm -rf bin
 	@mkdir -p bin
 	GOOS=darwin GOARCH=amd64 go build -ldflags="-s -w" -gcflags=-trimpath=x/y  -o bin/cm ./cmd/cm.go && tar -czf bin/cm_darwin_amd64.tar.gz -C bin/ cm
@@ -40,6 +42,12 @@ build-bin:
 	GOOS=linux GOARCH=ppc64le go build -ldflags="-s -w" -gcflags=-trimpath=x/y  -o bin/cm ./cmd/cm.go && tar -czf bin/cm_linux_ppc64le.tar.gz -C bin/ cm 
 	GOOS=linux GOARCH=s390x go build -ldflags="-s -w" -gcflags=-trimpath=x/y  -o bin/cm ./cmd/cm.go && tar -czf bin/cm_linux_s390x.tar.gz -C bin/ cm
 	GOOS=windows GOARCH=amd64 go build -ldflags="-s -w" -gcflags=-trimpath=x/y  -o bin/cm.exe ./cmd/cm.go && zip -q bin/cm_windows_amd64.zip -j bin/cm.exe
+
+,PHONY: doc-help
+doc-help:
+	@echo "Generate help markdown in docs/help"
+	go build -o docs/tools/cm docs/tools/cm.go && PATH=docs/tools cm && rm docs/tools/cm
+	@echo "Markdown generated"
 
 .PHONY: install
 install: build
@@ -51,14 +59,14 @@ plugin: build
 
 .PHONY: check
 ## Runs a set of required checks
-check: check-copyright
+check: check-copyright doc-help
 
 .PHONY: check-copyright
 check-copyright:
 	@build/check-copyright.sh
 
 .PHONY: test
-test:
+test: controller-gen manifests
 	@build/run-unit-tests.sh
 
 .PHONY: clean-test

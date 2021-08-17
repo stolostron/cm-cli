@@ -2,16 +2,16 @@
 # Release Content
 ## Additions
 
-- Create a cmd which generate a config to create a clusterpool based on an existing clusterpool [#66](https://github.com/open-cluster-management/cm-cli/issues/66)
 - Add `get policies` command [#98](https://github.com/open-cluster-management/cm-cli/pull/98)
 
 ## Breaking changes
 
-- As the project leverages the [printers](https://github.com/kubernetes/cli-runtime/blob/master/pkg/printers/interface.go) the output format might change.
-- Users without clusterwide access to policies will not be able to list policies. [#100](https://github.com/open-cluster-management/cm-cli/issues/100)
+- When cm get cc <cc_name> provides the credentials only when flag `--creds` is set [#107](https://github.com/open-cluster-management/cm-cli/issues/107). Now the end-user must explacitly set the `--creds` flag to get the credentials displayed.
 
 ## Bug fixes
 
-- [Increase QPS as lots of throttling message #68](https://github.com/open-cluster-management/cm-cli/issues/68)
 - When `-o wide` was specified for resources using a printer CRD only Name and Age columns display
-- [cm console cc doesn't take into account the --cph #95](https://github.com/open-cluster-management/cm-cli/issues/95)
+- When running cm get, the element are listed in random order [#105](https://github.com/open-cluster-management/cm-cli/issues/105)
+- The --cph should not change the current active cph [#102](https://github.com/open-cluster-management/cm-cli/issues/102)
+- No active cluster pool hosts [#89](https://github.com/open-cluster-management/cm-cli/issues/89)
+- cm create fails when KUBECONFIG is set [#108](https://github.com/open-cluster-management/cm-cli/issues/108)

@@ -29,41 +29,26 @@ func (o *Options) run() (err error) {
 		return err
 	}
 
-	currentCph, err := cphs.GetCurrentClusterPoolHost()
+	cph, err := cphs.GetClusterPoolHostOrCurrent(o.ClusterPoolHost)
 	if err != nil {
 		return err
 	}
+
 	if len(o.ClusterClaim) == 0 {
 		err = o.getCCS(cphs)
 	} else {
-		err = o.getCC(cphs)
-	}
-	if len(o.ClusterPoolHost) != 0 {
-		if err := cphs.SetActive(currentCph); err != nil {
-			return err
-		}
+		err = o.getCC(cph)
 	}
 	return err
 
 }
 
-func (o *Options) getCC(cphs *clusterpoolhost.ClusterPoolHosts) (err error) {
-	if len(o.ClusterPoolHost) != 0 {
-		cph, err := cphs.GetClusterPoolHost(o.ClusterPoolHost)
-		if err != nil {
-			return err
-		}
-
-		err = cphs.SetActive(cph)
-		if err != nil {
-			return err
-		}
-	}
-	cc, err := clusterpoolhost.GetClusterClaim(o.ClusterClaim, o.Timeout, o.CMFlags.DryRun, o.GetOptions.PrintFlags)
+func (o *Options) getCC(cph *clusterpoolhost.ClusterPoolHost) (err error) {
+	cc, err := cph.GetClusterClaim(o.ClusterClaim, o.Timeout, o.CMFlags.DryRun, o.GetOptions.PrintFlags)
 	if err != nil {
 		return err
 	}
-	cred, err := clusterpoolhost.GetClusterClaimCred(cc)
+	cred, err := cph.GetClusterClaimCred(cc, o.WithCredentials)
 	if err != nil {
 		return err
 	}
@@ -76,24 +61,14 @@ func (o *Options) getCC(cphs *clusterpoolhost.ClusterPoolHosts) (err error) {
 	return helpers.Print(cred, o.GetOptions.PrintFlags)
 }
 
-func (o *Options) getCCS(allcphs *clusterpoolhost.ClusterPoolHosts) (err error) {
-	var cphs *clusterpoolhost.ClusterPoolHosts
+func (o *Options) getCCS(cphs *clusterpoolhost.ClusterPoolHosts) (err error) {
 
-	if o.AllClusterPoolHosts {
-		cphs, err = clusterpoolhost.GetClusterPoolHosts()
+	if !o.AllClusterPoolHosts {
+		cph, err := cphs.GetClusterPoolHostOrCurrent(o.ClusterPoolHost)
 		if err != nil {
 			return err
 		}
-	} else {
-		var cph *clusterpoolhost.ClusterPoolHost
-		if o.ClusterPoolHost != "" {
-			cph, err = clusterpoolhost.GetClusterPoolHost(o.ClusterPoolHost)
-		} else {
-			cph, err = clusterpoolhost.GetCurrentClusterPoolHost()
-		}
-		if err != nil {
-			return err
-		}
+
 		cphs = &clusterpoolhost.ClusterPoolHosts{
 			ClusterPoolHosts: map[string]*clusterpoolhost.ClusterPoolHost{
 				cph.Name: cph,
@@ -108,17 +83,13 @@ func (o *Options) getCCS(allcphs *clusterpoolhost.ClusterPoolHosts) (err error) 
 				Group:   printclusterpoolv1alpha1.GroupName,
 				Kind:    "PrintClusterClaim",
 				Version: printclusterpoolv1alpha1.GroupVersion.Version})
-	for k := range cphs.ClusterPoolHosts {
-		err = allcphs.SetActive(allcphs.ClusterPoolHosts[k])
+	for _, cph := range cphs.ClusterPoolHosts {
+		clusterClaims, err := cph.GetClusterClaims(o.CMFlags.DryRun)
 		if err != nil {
-			return err
-		}
-		clusterClaims, err := clusterpoolhost.GetClusterClaims(o.CMFlags.DryRun)
-		if err != nil {
-			fmt.Printf("Error while retrieving clusterclaims from %s\n", cphs.ClusterPoolHosts[k].Name)
+			fmt.Printf("Error while retrieving clusterclaims from %s\n", cph.Name)
 			continue
 		}
-		printClusterClaimsList := clusterpoolhost.ConvertToPrintClusterClaimList(cphs.ClusterPoolHosts[k], clusterClaims)
+		printClusterClaimsList := cph.ConvertToPrintClusterClaimList(clusterClaims)
 		printClusterClaimLists.Items = append(printClusterClaimLists.Items, printClusterClaimsList.Items...)
 	}
 	helpers.Print(printClusterClaimLists, o.GetOptions.PrintFlags)

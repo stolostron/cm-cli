@@ -97,35 +97,18 @@ func (o *Options) run() (err error) {
 		return err
 	}
 
-	currentCph, err := cphs.GetCurrentClusterPoolHost()
+	cph, err := cphs.GetClusterPoolHostOrCurrent(o.ClusterPoolHost)
 	if err != nil {
 		return err
 	}
 
-	if len(o.ClusterPoolHost) != 0 {
-		cph, err := cphs.GetClusterPoolHost(o.ClusterPoolHost)
-		if err != nil {
-			return err
-		}
+	err = o.attachClusterClaim(cph)
 
-		err = cphs.SetActive(cph)
-		if err != nil {
-			return err
-		}
-	}
-
-	err = o.attachClusterClaim(cphs)
-
-	if len(o.ClusterPoolHost) != 0 {
-		if err := cphs.SetActive(currentCph); err != nil {
-			return err
-		}
-	}
 	return err
 
 }
 
-func (o *Options) attachClusterClaim(cphs *clusterpoolhost.ClusterPoolHosts) error {
+func (o *Options) attachClusterClaim(cph *clusterpoolhost.ClusterPoolHost) error {
 
 	output := make([]string, 0)
 	reader := scenario.GetScenarioResourcesReader()
@@ -133,11 +116,6 @@ func (o *Options) attachClusterClaim(cphs *clusterpoolhost.ClusterPoolHosts) err
 	files := []string{
 		"attach/hub/namespace.yaml",
 		"attach/hub/managed_cluster_secret.yaml",
-	}
-
-	cph, err := clusterpoolhost.GetCurrentClusterPoolHost()
-	if err != nil {
-		return err
 	}
 
 	clusterPoolRestConfig, err := cph.GetGlobalRestConfig()

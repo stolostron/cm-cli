@@ -39,6 +39,8 @@ See our [Contributing Document](CONTRIBUTING.md) for more information.
 
 ## Commands
 
+[command help](docs/help/cm.md)
+
 [general commands](docs/general.md)
 
 [cluster commands](docs/cluster.md)

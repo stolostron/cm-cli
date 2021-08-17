@@ -24,11 +24,7 @@ import (
 	clusteradmapply "open-cluster-management.io/clusteradm/pkg/helpers/apply"
 )
 
-func SizeClusterPool(clusterPoolName string, size int32, dryRun bool) error {
-	cph, err := GetCurrentClusterPoolHost()
-	if err != nil {
-		return err
-	}
+func (cph *ClusterPoolHost) SizeClusterPool(clusterPoolName string, size int32, dryRun bool) error {
 	clusterPoolRestConfig, err := cph.GetGlobalRestConfig()
 	if err != nil {
 		return err
@@ -59,11 +55,7 @@ func SizeClusterPool(clusterPoolName string, size int32, dryRun bool) error {
 	return nil
 }
 
-func CreateClusterPool(clusterPoolName, cloud string, values map[string]interface{}, dryRun bool, outputFile string) error {
-	cph, err := GetCurrentClusterPoolHost()
-	if err != nil {
-		return err
-	}
+func (cph *ClusterPoolHost) CreateClusterPool(clusterPoolName, cloud string, values map[string]interface{}, dryRun bool, outputFile string) error {
 	values["namespace"] = cph.Namespace
 
 	clusterPoolRestConfig, err := cph.GetGlobalRestConfig()
@@ -138,11 +130,7 @@ func CreateClusterPool(clusterPoolName, cloud string, values map[string]interfac
 	return clusteradmapply.WriteOutput(outputFile, output)
 }
 
-func DeleteClusterPools(clusterPoolNames string, dryRun bool, outputFile string) error {
-	cph, err := GetCurrentClusterPoolHost()
-	if err != nil {
-		return err
-	}
+func (cph *ClusterPoolHost) DeleteClusterPools(clusterPoolNames string, dryRun bool, outputFile string) error {
 	clusterPoolRestConfig, err := cph.GetGlobalRestConfig()
 	if err != nil {
 		return err
@@ -165,12 +153,8 @@ func DeleteClusterPools(clusterPoolNames string, dryRun bool, outputFile string)
 	return nil
 }
 
-func GetClusterPools(showCphName, dryRun bool) (*hivev1.ClusterPoolList, error) {
+func (cph *ClusterPoolHost) GetClusterPools(showCphName, dryRun bool) (*hivev1.ClusterPoolList, error) {
 	clusterPools := &hivev1.ClusterPoolList{}
-	cph, err := GetCurrentClusterPoolHost()
-	if err != nil {
-		return clusterPools, err
-	}
 	clusterPoolRestConfig, err := cph.GetGlobalRestConfig()
 	if err != nil {
 		return clusterPools, err
@@ -195,7 +179,7 @@ func GetClusterPools(showCphName, dryRun bool) (*hivev1.ClusterPoolList, error) 
 	return clusterPools, nil
 }
 
-func ConvertToPrintClusterPoolList(clusterPoolHost *ClusterPoolHost, cpl *hivev1.ClusterPoolList) *printclusterpoolv1alpha1.PrintClusterPoolList {
+func (cph *ClusterPoolHost) ConvertToPrintClusterPoolList(cpl *hivev1.ClusterPoolList) *printclusterpoolv1alpha1.PrintClusterPoolList {
 	pcps := &printclusterpoolv1alpha1.PrintClusterPoolList{}
 	for i := range cpl.Items {
 		pcp := printclusterpoolv1alpha1.PrintClusterPool{
@@ -204,7 +188,7 @@ func ConvertToPrintClusterPoolList(clusterPoolHost *ClusterPoolHost, cpl *hivev1
 				Namespace: cpl.Items[i].Namespace,
 			},
 			Spec: printclusterpoolv1alpha1.PrintClusterPoolSpec{
-				ClusterPoolHostName: clusterPoolHost.Name,
+				ClusterPoolHostName: cph.Name,
 				ClusterPool:         &cpl.Items[i],
 			},
 		}
@@ -213,13 +197,9 @@ func ConvertToPrintClusterPoolList(clusterPoolHost *ClusterPoolHost, cpl *hivev1
 	return pcps
 }
 
-func GetClusterPoolConfig(clusterPoolName string, withoutCredentials bool, beta bool, outputFile string) error {
+func (cph *ClusterPoolHost) GetClusterPoolConfig(clusterPoolName string, withoutCredentials bool, beta bool, outputFile string) error {
 	values := make(map[string]interface{})
 	reader := scenario.GetScenarioResourcesReader()
-	cph, err := GetCurrentClusterPoolHost()
-	if err != nil {
-		return err
-	}
 
 	clusterPoolRestConfig, err := cph.GetGlobalRestConfig()
 	if err != nil {
