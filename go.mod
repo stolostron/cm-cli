@@ -9,8 +9,9 @@ replace (
 
 require (
 	github.com/Masterminds/semver v1.5.0
-	github.com/ghodss/yaml v1.0.0
+	github.com/ghodss/yaml v1.0.1-0.20190212211648-25d852aebe32
 	github.com/imdario/mergo v0.3.11 // indirect
+	github.com/open-cluster-management/governance-policy-propagator v0.0.0-20210810132451-6fcf70131732
 	github.com/openshift/api v0.0.0-20210521075222-e273a339932a
 	github.com/openshift/client-go v0.0.0-20210521082421-73d9475a9142
 	github.com/openshift/hive/apis v0.0.0-20210707015124-49b5837aa081
@@ -22,7 +23,7 @@ require (
 	k8s.io/apiextensions-apiserver v0.21.1
 	k8s.io/apimachinery v0.21.1
 	k8s.io/cli-runtime v0.21.1
-	k8s.io/client-go v0.21.1
+	k8s.io/client-go v12.0.0+incompatible
 	k8s.io/code-generator v0.21.1
 	k8s.io/component-base v0.21.1
 	k8s.io/klog/v2 v2.9.0

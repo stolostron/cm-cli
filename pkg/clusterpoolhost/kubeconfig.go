@@ -247,7 +247,7 @@ func GetGlobalCurrentRestConfig() (*rest.Config, error) {
 	return getCurrentRestConfig(true)
 }
 
-//GetCurrentRestConfig gest the *rest.Config of the current context in the file specified by the env var if set.
+//GetCurrentRestConfig gets the *rest.Config of the current context in the file specified by the env var if set.
 func GetCurrentRestConfig() (*rest.Config, error) {
 	return getCurrentRestConfig(false)
 }

@@ -27,7 +27,7 @@ const (
 
 func Print(obj runtime.Object, printFlags *get.PrintFlags) error {
 	pf := printFlags.Copy()
-	if pf.OutputFormat == nil || len(*pf.OutputFormat) == 0 {
+	if pf.OutputFormat == nil || len(*pf.OutputFormat) == 0 || *pf.OutputFormat == "wide" {
 		reader := printclusterpoolv1alpha1.GetScenarioResourcesReader()
 		crd, err := searchCRD(reader, obj.GetObjectKind().GroupVersionKind().Kind)
 		if err != nil {
@@ -39,7 +39,9 @@ func Print(obj runtime.Object, printFlags *get.PrintFlags) error {
 		}
 		columns := make([]string, 0)
 		for _, pc := range printerColumns {
-			columns = append(columns, strings.ToUpper(pc.Name)+":"+pc.JSONPath)
+			if *pf.OutputFormat == "wide" && pc.Priority > 0 || pc.Priority == 0 {
+				columns = append(columns, strings.ToUpper(pc.Name)+":"+pc.JSONPath)
+			}
 		}
 		cc := "custom-columns=" + strings.Join(columns, ",")
 		pf.OutputFormat = &cc
