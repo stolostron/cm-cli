@@ -49,7 +49,7 @@ get a resource
 
 ### SEE ALSO
 
-* [cm](cm.md)	 - CLI for Open Cluster Management
+* [cm](cm.md)	 - CLI for Red Hat Advanced Cluster Management
 * [cm get clusterclaims](cm_get_clusterclaims.md)	 - Display clusterclaims
 * [cm get clusterpoolhosts](cm_get_clusterpoolhosts.md)	 - list the clusterpoolhosts
 * [cm get clusterpools](cm_get_clusterpools.md)	 - Get clusterpool

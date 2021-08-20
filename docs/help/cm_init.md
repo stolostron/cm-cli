@@ -65,5 +65,5 @@ cm init
 
 ### SEE ALSO
 
-* [cm](cm.md)	 - CLI for Open Cluster Management
+* [cm](cm.md)	 - CLI for Red Hat Advanced Cluster Management
 

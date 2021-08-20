@@ -49,6 +49,6 @@ detach a resources
 
 ### SEE ALSO
 
-* [cm](cm.md)	 - CLI for Open Cluster Management
+* [cm](cm.md)	 - CLI for Red Hat Advanced Cluster Management
 * [cm detach cluster](cm_detach_cluster.md)	 - detach a cluster
 

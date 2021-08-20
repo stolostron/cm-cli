@@ -49,6 +49,6 @@ hibernate a resource
 
 ### SEE ALSO
 
-* [cm](cm.md)	 - CLI for Open Cluster Management
+* [cm](cm.md)	 - CLI for Red Hat Advanced Cluster Management
 * [cm hibernate clusterclaim](cm_hibernate_clusterclaim.md)	 - hibernate clusterclaims
 

@@ -49,7 +49,7 @@ use a resource
 
 ### SEE ALSO
 
-* [cm](cm.md)	 - CLI for Open Cluster Management
+* [cm](cm.md)	 - CLI for Red Hat Advanced Cluster Management
 * [cm use clusterclaim](cm_use_clusterclaim.md)	 - use clusterclaim change the current context to a cluster claim
 * [cm use clusterpoolhost](cm_use_clusterpoolhost.md)	 - use cph change the current context to a clusterpoolhost
 

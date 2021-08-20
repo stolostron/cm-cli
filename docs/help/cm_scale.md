@@ -49,7 +49,7 @@ scale a resource
 
 ### SEE ALSO
 
-* [cm](cm.md)	 - CLI for Open Cluster Management
+* [cm](cm.md)	 - CLI for Red Hat Advanced Cluster Management
 * [cm scale cluster](cm_scale_cluster.md)	 - Scale a cluster
 * [cm scale clusterpool](cm_scale_clusterpool.md)	 - Scale clusterpool
 
