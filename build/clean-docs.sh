@@ -4,6 +4,7 @@
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 
 # Fix sed issues on Mac by using gsed
+OS=$(uname -s | tr '[:upper:]' '[:lower:]')
 SED="sed"
 if [ "${OS}" == "darwin" ]; then
     SED="gsed"
