@@ -31,7 +31,7 @@ build:
 	go install ./cmd/cm.go
 
 .PHONY: build-bin
-build-bin: doc-help doc-clean
+build-bin: doc-help
 	tar -czf docs/help.tar.gz -C docs/help/ .
 	zip -q docs/help.zip -j docs/help/*
 	@rm -rf bin
@@ -48,9 +48,6 @@ doc-help:
 	@echo "Generate help markdown in docs/help"
 	go build -o docs/tools/cm docs/tools/cm.go && PATH=docs/tools cm && rm docs/tools/cm
 	@echo "Markdown generated"
-
-.PHONY: doc-clean
-doc-clean:
 	@build/clean-docs.sh
 
 .PHONY: install
