@@ -1,4 +1,5 @@
 #! /bin/bash
+# Copyright Contributors to the Open Cluster Management project
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 
