@@ -30,8 +30,8 @@ build:
 	rm -f ${GOPATH}/bin/cm
 	go install ./cmd/cm.go
 
-.PHONY: 
-build-bin: doc-help
+.PHONY: build-bin
+build-bin: doc-help doc-clean
 	tar -czf docs/help.tar.gz -C docs/help/ .
 	zip -q docs/help.zip -j docs/help/*
 	@rm -rf bin
@@ -43,11 +43,15 @@ build-bin: doc-help
 	GOOS=linux GOARCH=s390x go build -ldflags="-s -w" -gcflags=-trimpath=x/y  -o bin/cm ./cmd/cm.go && tar -czf bin/cm_linux_s390x.tar.gz -C bin/ cm
 	GOOS=windows GOARCH=amd64 go build -ldflags="-s -w" -gcflags=-trimpath=x/y  -o bin/cm.exe ./cmd/cm.go && zip -q bin/cm_windows_amd64.zip -j bin/cm.exe
 
-,PHONY: doc-help
+.PHONY: doc-help
 doc-help:
 	@echo "Generate help markdown in docs/help"
 	go build -o docs/tools/cm docs/tools/cm.go && PATH=docs/tools cm && rm docs/tools/cm
 	@echo "Markdown generated"
+
+.PHONY: doc-clean
+doc-clean:
+	@build/clean-docs.sh
 
 .PHONY: install
 install: build
