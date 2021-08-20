@@ -16,7 +16,7 @@ get a resource
       --as string                        Username to impersonate for the operation
       --as-group stringArray             Group to impersonate for the operation, this flag can be repeated to specify multiple groups.
       --beta                             If set commands or functionalities in beta version will be available
-      --cache-dir string                 Default cache directory (default "/Users/dvernier/.kube/cache")
+      --cache-dir string                 Default cache directory (default "${HOME}/.kube/cache")
       --certificate-authority string     Path to a cert file for the certificate authority
       --client-certificate string        Path to a client certificate file for TLS
       --client-key string                Path to a client key file for TLS
@@ -57,5 +57,6 @@ get a resource
 * [cm get config](cm_get_config.md)	 - get the config of a resource
 * [cm get credentials](cm_get_credentials.md)	 - list the credentials of cloud providers
 * [cm get machinepools](cm_get_machinepools.md)	 - list the machinepools for a give cluster
+* [cm get policies](cm_get_policies.md)	 - Display policies
 * [cm get token](cm_get_token.md)	 - get the bootsrap token
 

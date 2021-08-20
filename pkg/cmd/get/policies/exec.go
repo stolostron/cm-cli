@@ -65,31 +65,36 @@ func (o *Options) run(f cmdutil.Factory) (err error) {
 			return err
 		}
 	}
-	// Construct and print policies using PrintPolicies CRD
-	policy := &policyv1.Policy{}
-	printPoliciesList := &printpoliciesv1alpha1.PrintPoliciesList{}
-	printPoliciesList.GetObjectKind().
-		SetGroupVersionKind(
-			schema.GroupVersionKind{
-				Group:   printpoliciesv1alpha1.GroupName,
-				Kind:    "PrintPolicies",
-				Version: printpoliciesv1alpha1.GroupVersion.Version})
-	for _, policyu := range list.Items {
-		if runtime.DefaultUnstructuredConverter.FromUnstructured(policyu.UnstructuredContent(), policy); err != nil {
-			return err
+	if o.GetOptions.PrintFlags.OutputFormat == nil || len(*o.GetOptions.PrintFlags.OutputFormat) == 0 || *o.GetOptions.PrintFlags.OutputFormat == "wide" {
+		// Construct and print policies using PrintPolicies CRD
+		policy := &policyv1.Policy{}
+		printPoliciesList := &printpoliciesv1alpha1.PrintPoliciesList{}
+		printPoliciesList.GetObjectKind().
+			SetGroupVersionKind(
+				schema.GroupVersionKind{
+					Group:   printpoliciesv1alpha1.GroupName,
+					Kind:    "PrintPolicies",
+					Version: printpoliciesv1alpha1.GroupVersion.Version})
+		for _, policyu := range list.Items {
+			if runtime.DefaultUnstructuredConverter.FromUnstructured(policyu.UnstructuredContent(), policy); err != nil {
+				return err
+			}
+			printpol := printpoliciesv1alpha1.PrintPolicies{
+				ObjectMeta: metav1.ObjectMeta{
+					Name:      policy.Name,
+					Namespace: policy.Namespace,
+				},
+				Spec: printpoliciesv1alpha1.PrintPoliciesSpec{
+					Policy: *policy,
+					Age:    helpers.TimeDiff(policy.CreationTimestamp.Time, time.Second),
+				},
+			}
+			printPoliciesList.Items = append(printPoliciesList.Items, printpol)
 		}
-		printpol := printpoliciesv1alpha1.PrintPolicies{
-			ObjectMeta: metav1.ObjectMeta{
-				Name:      policy.Name,
-				Namespace: policy.Namespace,
-			},
-			Spec: printpoliciesv1alpha1.PrintPoliciesSpec{
-				Policy: *policy,
-				Age:    helpers.TimeDiff(policy.CreationTimestamp.Time, time.Second),
-			},
-		}
-		printPoliciesList.Items = append(printPoliciesList.Items, printpol)
+		helpers.Print(printPoliciesList, o.GetOptions.PrintFlags)
+	} else {
+		helpers.Print(list, o.GetOptions.PrintFlags)
 	}
-	helpers.Print(printPoliciesList, o.GetOptions.PrintFlags)
+
 	return err
 }

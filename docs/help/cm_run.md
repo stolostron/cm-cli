@@ -16,7 +16,7 @@ run a resource
       --as string                        Username to impersonate for the operation
       --as-group stringArray             Group to impersonate for the operation, this flag can be repeated to specify multiple groups.
       --beta                             If set commands or functionalities in beta version will be available
-      --cache-dir string                 Default cache directory (default "/Users/dvernier/.kube/cache")
+      --cache-dir string                 Default cache directory (default "${HOME}/.kube/cache")
       --certificate-authority string     Path to a cert file for the certificate authority
       --client-certificate string        Path to a client certificate file for TLS
       --client-key string                Path to a client key file for TLS
