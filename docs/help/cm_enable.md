@@ -49,6 +49,6 @@ enable a feature
 
 ### SEE ALSO
 
-* [cm](cm.md)	 - CLI for Red Hat Advanced Clust Management
+* [cm](cm.md)	 - CLI for Open Cluster Management
 * [cm enable addons](cm_enable_addons.md)	 - Import a cluster
 

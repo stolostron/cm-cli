@@ -49,6 +49,6 @@ execute a command on a specific cluster
 
 ### SEE ALSO
 
-* [cm](cm.md)	 - CLI for Red Hat Advanced Clust Management
+* [cm](cm.md)	 - CLI for Open Cluster Management
 * [cm with clusterclaim](cm_with_clusterclaim.md)	 - with clusterclaim executes a kubernetes command using the clusterclaim context
 

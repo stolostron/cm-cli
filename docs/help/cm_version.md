@@ -62,5 +62,5 @@ cm version
 
 ### SEE ALSO
 
-* [cm](cm.md)	 - CLI for Red Hat Advanced Clust Management
+* [cm](cm.md)	 - CLI for Open Cluster Management
 

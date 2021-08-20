@@ -61,6 +61,6 @@ cm plugin [flags]
 
 ### SEE ALSO
 
-* [cm](cm.md)	 - CLI for Red Hat Advanced Clust Management
+* [cm](cm.md)	 - CLI for Open Cluster Management
 * [cm plugin list](cm_plugin_list.md)	 - list all visible plugin executables on a user's PATH
 

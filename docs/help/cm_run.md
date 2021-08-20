@@ -49,6 +49,6 @@ run a resource
 
 ### SEE ALSO
 
-* [cm](cm.md)	 - CLI for Red Hat Advanced Clust Management
+* [cm](cm.md)	 - CLI for Open Cluster Management
 * [cm run clusterclaim](cm_run_clusterclaim.md)	 - Run clusterclaims
 

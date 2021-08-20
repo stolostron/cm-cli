@@ -49,7 +49,7 @@ create a resource
 
 ### SEE ALSO
 
-* [cm](cm.md)	 - CLI for Red Hat Advanced Clust Management
+* [cm](cm.md)	 - CLI for Open Cluster Management
 * [cm create cluster](cm_create_cluster.md)	 - Create a cluster
 * [cm create clusterclaim](cm_create_clusterclaim.md)	 - Create clusterclaims
 * [cm create clusterpool](cm_create_clusterpool.md)	 - Create a clusterpool

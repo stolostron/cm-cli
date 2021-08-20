@@ -49,7 +49,7 @@ open a console
 
 ### SEE ALSO
 
-* [cm](cm.md)	 - CLI for Red Hat Advanced Clust Management
+* [cm](cm.md)	 - CLI for Open Cluster Management
 * [cm console clusterclaims](cm_console_clusterclaims.md)	 - Open console of a clusterclaim
 * [cm console clusterpoolhost](cm_console_clusterpoolhost.md)	 - open the console of a clusterpoolhost
 
