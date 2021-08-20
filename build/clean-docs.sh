@@ -15,7 +15,7 @@ if [ "${OS}" == "darwin" ]; then
     fi
 fi
 
-echo "##### Cleaning doc files"
+echo "Cleaning doc files:"
 echo "* Replacing '${HOME}' with '\${HOME}'"
 for FILE in $(grep -rl "${HOME}" ${DIR}/../docs); do 
   ${SED} -i 's%'${HOME}'%${HOME}%g' ${FILE}
