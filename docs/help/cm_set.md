@@ -49,6 +49,6 @@ set a resource
 
 ### SEE ALSO
 
-* [cm](cm.md)	 - CLI for Red Hat Advanced Clust Management
+* [cm](cm.md)	 - CLI for Red Hat Advanced Cluster Management
 * [cm set clusterpoolhost](cm_set_clusterpoolhost.md)	 - set cph makes the given clusterpoolhost active/current
 

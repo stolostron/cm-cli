@@ -49,7 +49,7 @@ attach a resource
 
 ### SEE ALSO
 
-* [cm](cm.md)	 - CLI for Red Hat Advanced Clust Management
+* [cm](cm.md)	 - CLI for Red Hat Advanced Cluster Management
 * [cm attach cluster](cm_attach_cluster.md)	 - Import a cluster
 * [cm attach clusterclaim](cm_attach_clusterclaim.md)	 - Import a clusterclaim
 

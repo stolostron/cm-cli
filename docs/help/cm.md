@@ -1,6 +1,6 @@
 ## cm
 
-CLI for Red Hat Advanced Clust Management
+CLI for Red Hat Advanced Cluster Management
 
 ### Options
 

@@ -43,7 +43,7 @@ import (
 func NewCMCommand() *cobra.Command {
 	root := &cobra.Command{
 		Use:   "cm",
-		Short: "CLI for Red Hat Advanced Clust Management",
+		Short: "CLI for Red Hat Advanced Cluster Management",
 		//This remove the auto-generated tag in the cobra doc
 		DisableAutoGenTag: true,
 	}

@@ -66,5 +66,5 @@ cm join --hub-token <tokenID.tokenSecret> --hub-apiserver <hub_apiserveR_url> --
 
 ### SEE ALSO
 
-* [cm](cm.md)	 - CLI for Red Hat Advanced Clust Management
+* [cm](cm.md)	 - CLI for Red Hat Advanced Cluster Management
 

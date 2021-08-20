@@ -49,7 +49,7 @@ delete a resource
 
 ### SEE ALSO
 
-* [cm](cm.md)	 - CLI for Red Hat Advanced Clust Management
+* [cm](cm.md)	 - CLI for Red Hat Advanced Cluster Management
 * [cm delete cluster](cm_delete_cluster.md)	 - Delete a cluster
 * [cm delete clusterclaim](cm_delete_clusterclaim.md)	 - Delete clusterclaims
 * [cm delete clusterpool](cm_delete_clusterpool.md)	 - Delete clusterpools
