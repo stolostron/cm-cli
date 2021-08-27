@@ -17,7 +17,7 @@ spec:
   scope: Namespaced
   versions:
   - additionalPrinterColumns:
-    - jsonPath: .metadata.name
+    - jsonPath: .spec.clusterPoolHostName
       name: Cluster_Pool_Host
       type: string
     - jsonPath: .spec.clusterClaim.Name
