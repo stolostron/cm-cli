@@ -32,6 +32,9 @@ spec:
     - jsonPath: .spec.hibernate
       name: Hibernate
       type: string
+    - jsonPath: .spec.Lifetime
+      name: Lifetime
+      type: string
     - jsonPath: .spec.id
       name: Id
       type: string
@@ -200,6 +203,8 @@ spec:
                 type: string
               id:
                 type: string
+              lifetime:
+                type: string
               powerState:
                 type: string
             required:
@@ -209,6 +214,7 @@ spec:
             - error
             - hibernate
             - id
+            - lifetime
             - powerState
             type: object
         type: object

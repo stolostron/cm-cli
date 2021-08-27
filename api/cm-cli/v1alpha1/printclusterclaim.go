@@ -19,6 +19,7 @@ type PrintClusterClaimSpec struct {
 	Hibernate           string               `json:"hibernate"`
 	PowerState          string               `json:"powerState"`
 	ID                  string               `json:"id"`
+	Lifetime            string               `json:"lifetime"`
 	Age                 string               `json:"age"`
 	ErrorMessage        string               `json:"error"`
 }
@@ -32,6 +33,7 @@ type PrintClusterClaimSpec struct {
 // +kubebuilder:printcolumn:name="Cluster_Pool",type="string",JSONPath=".spec.clusterClaim.spec.clusterPoolName"
 // +kubebuilder:printcolumn:name="Power_State",type="string",JSONPath=".spec.powerState"
 // +kubebuilder:printcolumn:name="Hibernate",type="string",JSONPath=".spec.hibernate"
+// +kubebuilder:printcolumn:name="Lifetime",type="string",JSONPath=".spec.Lifetime"
 // +kubebuilder:printcolumn:name="Id",type="string",JSONPath=".spec.id"
 // +kubebuilder:printcolumn:name="Age",type="string",JSONPath=".spec.age"
 // +kubebuilder:printcolumn:name="Error",type="string",JSONPath=".spec.Error"
