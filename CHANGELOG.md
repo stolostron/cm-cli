@@ -3,6 +3,7 @@
 ## Additions
 
 - Add `get policies` command [#98](https://github.com/open-cluster-management/cm-cli/pull/98)
+- Add "Lifetime" column to `get clusterclaims` [#115](https://github.com/open-cluster-management/cm-cli/pull/115)
 
 ## Breaking changes
 
