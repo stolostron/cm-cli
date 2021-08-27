@@ -8,6 +8,10 @@ OS=$(uname -s | tr '[:upper:]' '[:lower:]')
 SED="sed"
 if [ "${OS}" == "darwin" ]; then
     SED="gsed"
+    # Add /usr/local/bin to PATH if it's missing
+    if [[ ":${PATH}:" != *":/usr/local/bin:"* ]]; then
+      export PATH=${PATH}:/usr/local/bin
+    fi
     if [ ! -x "$(command -v ${SED})"  ]; then
        echo "ERROR: ${SED} required, but not found."
        echo "Perform \"brew install gnu-sed\" and try again."

@@ -17,7 +17,7 @@ spec:
   scope: Namespaced
   versions:
   - additionalPrinterColumns:
-    - jsonPath: .metadata.name
+    - jsonPath: .spec.clusterPoolHostName
       name: Cluster_Pool_Host
       type: string
     - jsonPath: .spec.clusterClaim.Name
@@ -31,6 +31,9 @@ spec:
       type: string
     - jsonPath: .spec.hibernate
       name: Hibernate
+      type: string
+    - jsonPath: .spec.Lifetime
+      name: Lifetime
       type: string
     - jsonPath: .spec.id
       name: Id
@@ -200,6 +203,8 @@ spec:
                 type: string
               id:
                 type: string
+              lifetime:
+                type: string
               powerState:
                 type: string
             required:
@@ -209,6 +214,7 @@ spec:
             - error
             - hibernate
             - id
+            - lifetime
             - powerState
             type: object
         type: object

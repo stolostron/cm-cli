@@ -373,6 +373,9 @@ func (cph *ClusterPoolHost) ConvertToPrintClusterClaimList(ccl *hivev1.ClusterCl
 			pcc.Spec.PowerState = string(cd.Spec.PowerState)
 			pcc.Spec.Hibernate = cd.Labels["hibernate"]
 			pcc.Spec.ID = cd.Name
+			if ccl.Items[i].Spec.Lifetime != nil {
+				pcc.Spec.Lifetime = ccl.Items[i].Spec.Lifetime.Duration.String()
+			}
 		}
 		c := getClusterClaimPendingStatus(pcc.Spec.ClusterClaim)
 		if c != nil && c.Status == corev1.ConditionStatus(metav1.ConditionTrue) {

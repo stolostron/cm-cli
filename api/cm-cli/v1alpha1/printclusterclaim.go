@@ -19,6 +19,7 @@ type PrintClusterClaimSpec struct {
 	Hibernate           string               `json:"hibernate"`
 	PowerState          string               `json:"powerState"`
 	ID                  string               `json:"id"`
+	Lifetime            string               `json:"lifetime"`
 	Age                 string               `json:"age"`
 	ErrorMessage        string               `json:"error"`
 }
@@ -27,11 +28,12 @@ type PrintClusterClaimSpec struct {
 //	ClusterClaimsColumns            string = "custom-columns=CLUSTER_POOL_HOST:.spec.clusterPoolHostName,CLUSTER_CLAIM:.spec.clusterClaim.Name,POWER_STATE:.spec.powerState,HIBERNATE:.spec.hibernate,ID:.spec.ID,ERROR:.spec.errorMessage"
 // +kubebuilder:object:root=true
 // +kubebuilder:resource:path=printclusterclaims
-// +kubebuilder:printcolumn:name="Cluster_Pool_Host",type="string",JSONPath=".metadata.name"
+// +kubebuilder:printcolumn:name="Cluster_Pool_Host",type="string",JSONPath=".spec.clusterPoolHostName"
 // +kubebuilder:printcolumn:name="Cluster_Claim",type="string",JSONPath=".spec.clusterClaim.Name"
 // +kubebuilder:printcolumn:name="Cluster_Pool",type="string",JSONPath=".spec.clusterClaim.spec.clusterPoolName"
 // +kubebuilder:printcolumn:name="Power_State",type="string",JSONPath=".spec.powerState"
 // +kubebuilder:printcolumn:name="Hibernate",type="string",JSONPath=".spec.hibernate"
+// +kubebuilder:printcolumn:name="Lifetime",type="string",JSONPath=".spec.Lifetime"
 // +kubebuilder:printcolumn:name="Id",type="string",JSONPath=".spec.id"
 // +kubebuilder:printcolumn:name="Age",type="string",JSONPath=".spec.age"
 // +kubebuilder:printcolumn:name="Error",type="string",JSONPath=".spec.Error"
