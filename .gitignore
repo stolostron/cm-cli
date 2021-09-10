@@ -19,7 +19,7 @@ test/out
 /docs/help.zip
 # Output of the go coverage tool, specifically when used with LiteIDE
 *.out
-
+/cm.yaml
 # Dependency directories (remove the comment below to include it)
 vendor
 

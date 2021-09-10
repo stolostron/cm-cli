@@ -143,7 +143,7 @@ func (o *Options) validateWithClient(kubeClient kubernetes.Interface, dynamicCli
 
 		if o.clusterKubeConfig != "" || o.clusterToken != "" {
 			constraint := ">=2.3.0"
-			supported, err := helpers.IsSupported(kubeClient, constraint)
+			supported, err := helpers.IsSupported(kubeClient, dynamicClient, constraint)
 			if err != nil {
 				return err
 			}
