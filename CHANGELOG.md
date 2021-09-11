@@ -16,3 +16,5 @@
 - The --cph should not change the current active cph [#102](https://github.com/open-cluster-management/cm-cli/issues/102)
 - No active cluster pool hosts [#89](https://github.com/open-cluster-management/cm-cli/issues/89)
 - cm create fails when KUBECONFIG is set [#108](https://github.com/open-cluster-management/cm-cli/issues/108)
+- found more than one configmap with labelset ocm-configmap-type = image-manifest [#119](https://github.com/open-cluster-management/cm-cli/issues/119)
+
