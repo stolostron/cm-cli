@@ -26,6 +26,8 @@ kubectl apply -f $TEST_DIR/resources/multiclusterhubs_cr.yaml
 kubectl apply -f $TEST_DIR/resources/pull_secret_cr.yaml
 kubectl apply -f $TEST_DIR/resources/acm_config_cm.yaml
 
+go run test/functional/kubestatus.go update multiclusterhub -n default --group operator.open-cluster-management.io --version v1 --resource multiclusterhubs --status "currentVersion: 2.4.0"
+
 echo "Test cm version"
 cm version
 if [ $? != 0 ]

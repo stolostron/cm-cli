@@ -31,8 +31,18 @@ func GetACMVersion(kubeClient kubernetes.Interface, dynamicClient dynamic.Interf
 	if err != nil {
 		return "", "", err
 	}
-	ustatus := umch.Items[0].Object["status"]
-	version = ustatus.(map[string]interface{})["currentVersion"].(string)
+	if len(umch.Items) == 0 {
+		return "", "", fmt.Errorf("no multiclusterhub found in namespace %s", ns)
+	}
+	ustatus, ok := umch.Items[0].Object["status"]
+	if !ok {
+		return "", "", fmt.Errorf("no status found multiclusterhub in %s/%s", ns, umch.Items[0].GetName())
+	}
+	uversion, ok := ustatus.(map[string]interface{})["currentVersion"]
+	if !ok {
+		return "", "", fmt.Errorf("no currentVersion found multiclusterhub in %s/%s", ns, umch.Items[0].GetName())
+	}
+	version = uversion.(string)
 	lo = metav1.ListOptions{
 		LabelSelector: fmt.Sprintf("%v = %v,%v = %v", "ocm-configmap-type", "image-manifest", "ocm-release-version", version),
 	}
