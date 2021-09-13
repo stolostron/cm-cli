@@ -8,8 +8,11 @@ import (
 	"github.com/spf13/cobra"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/client-go/dynamic"
+	fakedynamic "k8s.io/client-go/dynamic/fake"
 	"k8s.io/client-go/kubernetes"
 	fakekubernetes "k8s.io/client-go/kubernetes/fake"
+	"k8s.io/kubectl/pkg/scheme"
 )
 
 func TestOptions_complete(t *testing.T) {
@@ -82,11 +85,14 @@ func TestOptions_runWithClient(t *testing.T) {
 		Data: map[string]string{},
 	}
 	kubeClient := fakekubernetes.NewSimpleClientset(cm)
+	s := scheme.Scheme
+	dynamicClient := fakedynamic.NewSimpleDynamicClient(s)
 	type fields struct {
 		CMFlags *genericclioptions.CMFlags
 	}
 	type args struct {
-		kubeClient kubernetes.Interface
+		kubeClient    kubernetes.Interface
+		dynamicClient dynamic.Interface
 	}
 	tests := []struct {
 		name    string
@@ -97,7 +103,8 @@ func TestOptions_runWithClient(t *testing.T) {
 		{
 			name: "success",
 			args: args{
-				kubeClient: kubeClient,
+				kubeClient:    kubeClient,
+				dynamicClient: dynamicClient,
 			},
 			wantErr: false,
 		},
@@ -107,7 +114,7 @@ func TestOptions_runWithClient(t *testing.T) {
 			o := &Options{
 				CMFlags: tt.fields.CMFlags,
 			}
-			if err := o.runWithClient(tt.args.kubeClient); (err != nil) != tt.wantErr {
+			if err := o.runWithClient(tt.args.kubeClient, tt.args.dynamicClient); (err != nil) != tt.wantErr {
 				t.Errorf("Options.runWithClient() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})

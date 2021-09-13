@@ -43,6 +43,14 @@ build-bin: doc-help
 	GOOS=linux GOARCH=s390x go build -ldflags="-s -w" -gcflags=-trimpath=x/y  -o bin/cm ./cmd/cm.go && tar -czf bin/cm_linux_s390x.tar.gz -C bin/ cm
 	GOOS=windows GOARCH=amd64 go build -ldflags="-s -w" -gcflags=-trimpath=x/y  -o bin/cm.exe ./cmd/cm.go && zip -q bin/cm_windows_amd64.zip -j bin/cm.exe
 
+.PHONY: build-krew
+build-krew: 
+	@if [[ -z "${VERSION}" ]]; then VERSION=`cat VERSION.txt`; echo $$VERSION; fi; \
+	docker run -v /Users/dvernier/acm-tools/cm-cli/.krew.yaml:/tmp/template-file.yaml rajatjindal/krew-release-bot:v0.0.40 \
+	krew-release-bot template --tag $$VERSION --template-file /tmp/template-file.yaml > cm.yaml; \
+	
+	
+
 .PHONY: doc-help
 doc-help:
 	@echo "Generate help markdown in docs/help"
@@ -80,6 +88,10 @@ clean-test:
 .PHONY: functional-test-full
 functional-test-full: deps install
 	@build/run-functional-tests.sh
+
+.PHONY: functional-test-full-clean
+functional-test-full-clean:
+	@build/run-functional-tests-clean.sh
 
 .PHONY: manifests
 manifests:

@@ -174,7 +174,7 @@ func (o *Options) attachClusterClaim(cph *clusterpoolhost.ClusterPoolHost) error
 	}
 
 	constraint := ">=2.3.0"
-	supported, err := helpers.IsSupported(kubeClient, constraint)
+	supported, err := helpers.IsSupported(kubeClient, dynamicClientCP, constraint)
 	if err != nil {
 		return err
 	}
