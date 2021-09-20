@@ -4,7 +4,6 @@ package clusterclaim
 import (
 	"fmt"
 
-	"github.com/open-cluster-management/cm-cli/pkg/clusterpoolhost"
 	genericclioptionscm "github.com/open-cluster-management/cm-cli/pkg/genericclioptions"
 	"k8s.io/kubectl/pkg/cmd/get"
 	cmdutil "k8s.io/kubectl/pkg/cmd/util"
@@ -36,18 +35,18 @@ func NewCmd(f cmdutil.Factory, cmFlags *genericclioptionscm.CMFlags, streams gen
 		DisableFlagsInUseLine: true,
 		Short:                 "Display clusterclaims",
 		Example:               fmt.Sprintf(example, helpers.GetExampleHeader()),
-		PreRunE: func(cmd *cobra.Command, args []string) error {
-			return clusterpoolhost.BackupCurrentContexts()
-		},
+		// PreRunE: func(cmd *cobra.Command, args []string) error {
+		// 	return clusterpoolhost.BackupCurrentContexts()
+		// },
 		Run: func(cmd *cobra.Command, args []string) {
 			cmdutil.CheckErr(o.complete(cmd, args))
 			cmdutil.CheckErr(o.GetOptions.Complete(f, cmd, []string{"printclusterclaims"}))
 			cmdutil.CheckErr(o.validate())
 			cmdutil.CheckErr(o.run())
 		},
-		PostRunE: func(cmd *cobra.Command, args []string) error {
-			return clusterpoolhost.RestoreCurrentContexts()
-		},
+		// PostRunE: func(cmd *cobra.Command, args []string) error {
+		// 	return clusterpoolhost.RestoreCurrentContexts()
+		// },
 	}
 
 	o.GetOptions.PrintFlags = get.NewGetPrintFlags()

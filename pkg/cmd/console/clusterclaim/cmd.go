@@ -4,7 +4,6 @@ package clusterclaim
 import (
 	"fmt"
 
-	"github.com/open-cluster-management/cm-cli/pkg/clusterpoolhost"
 	genericclioptionscm "github.com/open-cluster-management/cm-cli/pkg/genericclioptions"
 	cmdutil "k8s.io/kubectl/pkg/cmd/util"
 
@@ -33,17 +32,17 @@ func NewCmd(cmFlags *genericclioptionscm.CMFlags, streams genericclioptions.IOSt
 		DisableFlagsInUseLine: true,
 		Short:                 "Open console of a clusterclaim",
 		Example:               fmt.Sprintf(example, helpers.GetExampleHeader()),
-		PreRunE: func(cmd *cobra.Command, args []string) error {
-			return clusterpoolhost.BackupCurrentContexts()
-		},
+		// PreRunE: func(cmd *cobra.Command, args []string) error {
+		// 	return clusterpoolhost.BackupCurrentContexts()
+		// },
 		Run: func(cmd *cobra.Command, args []string) {
 			cmdutil.CheckErr(o.complete(cmd, args))
 			cmdutil.CheckErr(o.validate())
 			cmdutil.CheckErr(o.run())
 		},
-		PostRunE: func(cmd *cobra.Command, args []string) error {
-			return clusterpoolhost.RestoreCurrentContexts()
-		},
+		// PostRunE: func(cmd *cobra.Command, args []string) error {
+		// 	return clusterpoolhost.RestoreCurrentContexts()
+		// },
 	}
 
 	cmd.Flags().StringVar(&o.ClusterPoolHost, "cph", "", "The clusterpoolhost to use")

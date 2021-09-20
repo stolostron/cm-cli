@@ -4,7 +4,6 @@ package clusterpoolhosts
 import (
 	"fmt"
 
-	"github.com/open-cluster-management/cm-cli/pkg/clusterpoolhost"
 	genericclioptionscm "github.com/open-cluster-management/cm-cli/pkg/genericclioptions"
 	"github.com/open-cluster-management/cm-cli/pkg/helpers"
 	"k8s.io/kubectl/pkg/cmd/get"
@@ -29,18 +28,18 @@ func NewCmd(f cmdutil.Factory, cmFlags *genericclioptionscm.CMFlags, streams gen
 		Short:        "list the clusterpoolhosts",
 		Example:      fmt.Sprintf(example, helpers.GetExampleHeader()),
 		SilenceUsage: true,
-		PreRunE: func(cmd *cobra.Command, args []string) error {
-			return clusterpoolhost.BackupCurrentContexts()
-		},
+		// PreRunE: func(cmd *cobra.Command, args []string) error {
+		// 	return clusterpoolhost.BackupCurrentContexts()
+		// },
 		Run: func(cmd *cobra.Command, args []string) {
 			cmdutil.CheckErr(o.complete(cmd, args))
 			cmdutil.CheckErr(o.GetOptions.Complete(f, cmd, []string{"printclusterpoolhost"}))
 			cmdutil.CheckErr(o.validate())
 			cmdutil.CheckErr(o.run())
 		},
-		PostRunE: func(cmd *cobra.Command, args []string) error {
-			return clusterpoolhost.RestoreCurrentContexts()
-		},
+		// PostRunE: func(cmd *cobra.Command, args []string) error {
+		// 	return clusterpoolhost.RestoreCurrentContexts()
+		// },
 	}
 
 	o.GetOptions.PrintFlags = get.NewGetPrintFlags()

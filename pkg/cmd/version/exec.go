@@ -33,9 +33,6 @@ func (o *Options) run() (err error) {
 }
 
 func (o *Options) runWithClient(kubeClient kubernetes.Interface, dynamicClient dynamic.Interface) (err error) {
-	if !helpers.IsRHACM(o.CMFlags.KubectlFactory) {
-		return fmt.Errorf("server release/image only available when login on RHCACM cluster")
-	}
 	version, snapshot, err := helpers.GetACMVersion(kubeClient, dynamicClient)
 	if version != "" {
 		fmt.Printf("server release\tversion\t:%s\n", version)
