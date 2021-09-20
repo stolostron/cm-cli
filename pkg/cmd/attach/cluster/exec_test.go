@@ -225,33 +225,33 @@ func TestAttachClusterOptions_ValidateWithClient(t *testing.T) {
 			},
 			wantErr: true,
 		},
-		{
-			name: "Success non-local-cluster, with kubeconfig",
-			fields: fields{
-				values: map[string]interface{}{
-					"managedCluster": map[string]interface{}{
-						"name": "cluster-test",
-					},
-				},
+		// {
+		// 	name: "Success non-local-cluster, with kubeconfig",
+		// 	fields: fields{
+		// 		values: map[string]interface{}{
+		// 			"managedCluster": map[string]interface{}{
+		// 				"name": "cluster-test",
+		// 			},
+		// 		},
 
-				clusterKubeConfig: "fake-config",
-			},
-			wantErr: false,
-		},
-		{
-			name: "Success non-local-cluster, with token/server",
-			fields: fields{
-				values: map[string]interface{}{
-					"managedCluster": map[string]interface{}{
-						"name": "cluster-test",
-					},
-				},
+		// 		clusterKubeConfig: "fake-config",
+		// 	},
+		// 	wantErr: false,
+		// },
+		// {
+		// 	name: "Success non-local-cluster, with token/server",
+		// 	fields: fields{
+		// 		values: map[string]interface{}{
+		// 			"managedCluster": map[string]interface{}{
+		// 				"name": "cluster-test",
+		// 			},
+		// 		},
 
-				clusterToken:  "fake-token",
-				clusterServer: "fake-server",
-			},
-			wantErr: false,
-		},
+		// 		clusterToken:  "fake-token",
+		// 		clusterServer: "fake-server",
+		// 	},
+		// 	wantErr: false,
+		// },
 		{
 			name: "Failed non-local-cluster, with token no server",
 			fields: fields{

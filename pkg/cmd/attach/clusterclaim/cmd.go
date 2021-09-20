@@ -7,7 +7,6 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/open-cluster-management/cm-cli/pkg/clusterpoolhost"
 	"github.com/open-cluster-management/cm-cli/pkg/cmd/attach/cluster/scenario"
 	genericclioptionscm "github.com/open-cluster-management/cm-cli/pkg/genericclioptions"
 	"github.com/open-cluster-management/cm-cli/pkg/helpers"
@@ -47,7 +46,8 @@ func NewCmd(cmFlags *genericclioptionscm.CMFlags, streams genericclioptions.IOSt
 			if !helpers.IsRHACM(cmFlags.KubectlFactory) {
 				return fmt.Errorf("this command '%s %s' is only available on RHACM", helpers.GetExampleHeader(), strings.Join(os.Args[1:], " "))
 			}
-			return clusterpoolhost.BackupCurrentContexts()
+			return nil
+			// return clusterpoolhost.BackupCurrentContexts()
 		},
 		RunE: func(c *cobra.Command, args []string) error {
 			if err := o.complete(c, args); err != nil {
@@ -62,9 +62,9 @@ func NewCmd(cmFlags *genericclioptionscm.CMFlags, streams genericclioptions.IOSt
 
 			return nil
 		},
-		PostRunE: func(cmd *cobra.Command, args []string) error {
-			return clusterpoolhost.RestoreCurrentContexts()
-		},
+		// PostRunE: func(cmd *cobra.Command, args []string) error {
+		// 	return clusterpoolhost.RestoreCurrentContexts()
+		// },
 	}
 
 	cmd.SetUsageTemplate(clusteradmhelpers.UsageTempate(cmd, scenario.GetScenarioResourcesReader(), valuesTemplatePath))
