@@ -12,6 +12,7 @@ type Options struct {
 	ClusterPool     string
 	ClusterPoolHost string
 	cloud           string
+	clusterSetName  string
 	valuesPath      string
 	values          map[string]interface{}
 	//The file to output the resources will be sent to the file.

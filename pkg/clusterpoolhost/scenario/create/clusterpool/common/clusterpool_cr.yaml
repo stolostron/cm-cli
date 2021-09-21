@@ -12,6 +12,9 @@ metadata:
 {{- if .clusterPool.vendor }}
     vendor: {{ .clusterPool.vendor }}
 {{- end }}
+{{- if .clusterPool.clusterSetName }}
+    cluster.open-cluster-management.io/clusterset: {{ .clusterPool.clusterSetName }}
+{{- end }}
 spec:
   size: {{ .clusterPool.size }}
 {{- if (eq .clusterPool.cloud "aws") }}
