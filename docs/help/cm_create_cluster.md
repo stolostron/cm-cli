@@ -24,6 +24,7 @@ cm create cluster mycluster --values values.yaml
 ### Options
 
 ```
+      --cluster-set string   The clusterset to which the clusterpool should be place
   -h, --help                 help for cluster
       --output-file string   The generated resources will be copied in the specified file
       --values string        The files containing the values
