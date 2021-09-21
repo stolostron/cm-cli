@@ -38,7 +38,7 @@ var example = `
 // NewCmd ...
 func NewCmd(cmFlags *genericclioptionscm.CMFlags, streams genericclioptions.IOStreams) *cobra.Command {
 	o := newOptions(cmFlags, streams)
-	cluster := &cobra.Command{
+	cmd := &cobra.Command{
 		Use:          "cluster",
 		Short:        "Create a cluster",
 		Example:      fmt.Sprintf(example, helpers.GetExampleHeader()),
@@ -65,10 +65,14 @@ func NewCmd(cmFlags *genericclioptionscm.CMFlags, streams genericclioptions.IOSt
 		},
 	}
 
-	cluster.SetUsageTemplate(clusteradmhelpers.UsageTempate(cluster, scenario.GetScenarioResourcesReader(), valuesTemplatePath))
-	cluster.Flags().StringVar(&o.clusterName, "cluster", "", "Name of the cluster")
-	cluster.Flags().StringVar(&o.valuesPath, "values", "", "The files containing the values")
-	cluster.Flags().StringVar(&o.outputFile, "output-file", "", "The generated resources will be copied in the specified file")
+	cmd.SetUsageTemplate(clusteradmhelpers.UsageTempate(cmd, scenario.GetScenarioResourcesReader(), valuesTemplatePath))
+	cmd.Flags().StringVar(&o.clusterName, "cluster", "", "Name of the cluster")
+	cmd.Flags().StringVar(&o.valuesPath, "values", "", "The files containing the values")
+	cmd.Flags().StringVar(&o.outputFile, "output-file", "", "The generated resources will be copied in the specified file")
+	cmd.Flags().BoolVar(&o.waitAgent, "wait", false, "Wait until the klusterlet agent is installed")
+	//Not implemented as it requires to import all addon packages
+	// cmd.Flags().BoolVar(&o.waitAddOns, "wait-addons", false, "Wait until the klusterlet agent and the addons are is installed")
+	cmd.Flags().IntVar(&o.timeout, "timeout", 180, "Timeout to get the klusterlet agent or addons ready in seconds")
 
-	return cluster
+	return cmd
 }

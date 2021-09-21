@@ -13,6 +13,8 @@ import (
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/client-go/dynamic"
 	"k8s.io/client-go/kubernetes"
+	clusterclientset "open-cluster-management.io/api/client/cluster/clientset/versioned"
+	workclientset "open-cluster-management.io/api/client/work/clientset/versioned"
 	clusteradmhelpers "open-cluster-management.io/clusteradm/pkg/helpers"
 	clusteradmapply "open-cluster-management.io/clusteradm/pkg/helpers/apply"
 
@@ -180,12 +182,26 @@ func (o *Options) run() (err error) {
 	if err != nil {
 		return err
 	}
-	return o.runWithClient(kubeClient, apiextensionsClient, dynamicClient)
+	restConfig, err := o.CMFlags.KubectlFactory.ToRESTConfig()
+	if err != nil {
+		return err
+	}
+	clusterClient, err := clusterclientset.NewForConfig(restConfig)
+	if err != nil {
+		return err
+	}
+	workClient, err := workclientset.NewForConfig(restConfig)
+	if err != nil {
+		return err
+	}
+	return o.runWithClient(kubeClient, apiextensionsClient, dynamicClient, clusterClient, workClient)
 }
 
 func (o *Options) runWithClient(kubeClient kubernetes.Interface,
 	apiextensionsClient apiextensionsclient.Interface,
-	dynamicClient dynamic.Interface) (err error) {
+	dynamicClient dynamic.Interface,
+	clusterClient clusterclientset.Interface,
+	workClient workclientset.Interface) (err error) {
 	output := make([]string, 0)
 	reader := scenario.GetScenarioResourcesReader()
 
@@ -253,6 +269,15 @@ func (o *Options) runWithClient(kubeClient kubernetes.Interface,
 		fmt.Printf("Execute this command on the managed cluster\nkubectl apply -f %s;sleep 10; kubectl apply -f %s\n",
 			importFileContentCRDFileName,
 			importFileContentYAMLFileName)
+	}
+
+	if !o.CMFlags.DryRun {
+		if o.waitAgent || o.waitAddOns {
+			return helpers.WaitKlusterlet(clusterClient, o.clusterName, o.timeout)
+		}
+		if o.waitAddOns {
+			return helpers.WaitKlusterletAddons(workClient, o.clusterName, o.timeout)
+		}
 	}
 	return clusteradmapply.WriteOutput(o.outputFile, output)
 }

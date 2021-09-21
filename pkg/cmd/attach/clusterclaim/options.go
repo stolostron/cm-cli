@@ -11,6 +11,9 @@ type Options struct {
 	CMFlags         *genericclioptionscm.CMFlags
 	ClusterClaim    string
 	ClusterPoolHost string
+	waitAgent       bool
+	waitAddOns      bool
+	timeout         int
 	valuesPath      string
 	values          map[string]interface{}
 	//The file to output the resources will be sent to the file.

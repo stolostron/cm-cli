@@ -12,6 +12,8 @@ import (
 	"k8s.io/client-go/dynamic"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/klog/v2"
+	clusterclientset "open-cluster-management.io/api/client/cluster/clientset/versioned"
+	workclientset "open-cluster-management.io/api/client/work/clientset/versioned"
 	clusteradmapply "open-cluster-management.io/clusteradm/pkg/helpers/apply"
 
 	"github.com/open-cluster-management/cm-cli/pkg/clusterpoolhost"
@@ -210,6 +212,23 @@ func (o *Options) attachClusterClaim(cph *clusterpoolhost.ClusterPoolHost) error
 		return err
 	}
 	output = append(output, out...)
+
+	if !o.CMFlags.DryRun {
+		clusterClient, err := clusterclientset.NewForConfig(hubRestConfig)
+		if err != nil {
+			return err
+		}
+		workClient, err := workclientset.NewForConfig(hubRestConfig)
+		if err != nil {
+			return err
+		}
+		if o.waitAgent || o.waitAddOns {
+			return helpers.WaitKlusterlet(clusterClient, o.ClusterClaim, o.timeout)
+		}
+		if o.waitAddOns {
+			return helpers.WaitKlusterletAddons(workClient, o.ClusterClaim, o.timeout)
+		}
+	}
 
 	return clusteradmapply.WriteOutput(o.outputFile, output)
 }
