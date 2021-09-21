@@ -25,7 +25,7 @@ cm create cc <clusterpool> <clusterclaim_name>[,<clusterclaim_name>...] --cph <c
   -h, --help                 help for clusterclaim
       --output-file string   The generated resources will be copied in the specified file
       --skip-schedule        Set the hibernation schedule to skip
-      --timeout int          Timeout to get the cluster claim running (default 60)
+      --timeout int          Timeout to get the cluster claim running in minutes (default 60)
 ```
 
 ### Options inherited from parent commands

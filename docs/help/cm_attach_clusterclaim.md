@@ -24,7 +24,9 @@ cm attach cc --values values.yaml --cph <clusterpoolhost_name>
       --cph string           The clusterpoolhost to use
   -h, --help                 help for clusterclaim
       --output-file string   The generated resources will be copied in the specified file
+      --timeout int          Timeout to get the klusterlet agent or addons ready in seconds (default 180)
       --values string        The files containing the values
+      --wait                 Wait until the klusterlet agent is installed
 ```
 
 ### Options inherited from parent commands
