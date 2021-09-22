@@ -71,6 +71,10 @@ func NewCmd(cmFlags *genericclioptionscm.CMFlags, streams genericclioptions.IOSt
 	cmd.Flags().StringVar(&o.ClusterPoolHost, "cph", "", "The clusterpoolhost to use")
 	cmd.Flags().StringVar(&o.valuesPath, "values", "", "The files containing the values")
 	cmd.Flags().StringVar(&o.outputFile, "output-file", "", "The generated resources will be copied in the specified file")
+	cmd.Flags().BoolVar(&o.waitAgent, "wait", false, "Wait until the klusterlet agent is installed")
+	//Not implemented as it requires to import all addon packages
+	// cmd.Flags().BoolVar(&o.waitAddOns, "wait-addons", false, "Wait until the klusterlet agent and the addons are is installed")
+	cmd.Flags().IntVar(&o.timeout, "timeout", 180, "Timeout to get the klusterlet agent or addons ready in seconds")
 
 	return cmd
 }

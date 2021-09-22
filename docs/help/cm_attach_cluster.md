@@ -30,7 +30,9 @@ cm attach cluster mycluster --values values.yaml
   -h, --help                        help for cluster
       --import-file string          the file path and prefix which will contain the import yaml files for manual import
       --output-file string          The generated resources will be copied in the specified file
+      --timeout int                 Timeout to get the klusterlet agent or addons ready in seconds (default 180)
       --values string               The files containing the values
+      --wait                        Wait until the klusterlet agent is installed
 ```
 
 ### Options inherited from parent commands

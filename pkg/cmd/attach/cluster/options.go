@@ -16,7 +16,11 @@ type Options struct {
 	clusterToken      string
 	clusterKubeConfig string
 	importFile        string
+	waitAgent         bool
+	waitAddOns        bool
+	timeout           int
 	hiveScenario      bool
+
 	//The file to output the resources will be sent to the file.
 	outputFile string
 }
