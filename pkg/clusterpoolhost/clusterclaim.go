@@ -180,11 +180,11 @@ func waitClusterClaimsRunning(dynamicClient dynamic.Interface, clusterClaimNames
 	i := 0
 	return wait.PollImmediate(1*time.Minute, time.Duration(timeout)*time.Minute, func() (bool, error) {
 		i += 1
-		return checkClusterClaimsRunning(dynamicClient, clusterClaimNames, clusterPoolName, namespace, i, timeout, printFlags)
+		return checkClusterClaimsRunning(dynamicClient, clusterClaimNames, clusterPoolName, namespace, i, timeout, false, printFlags)
 	})
 
 }
-func checkClusterClaimsRunning(dynamicClient dynamic.Interface, clusterClaimNames, clusterPoolName, namespace string, i, timeout int, printFlags *get.PrintFlags) (bool, error) {
+func checkClusterClaimsRunning(dynamicClient dynamic.Interface, clusterClaimNames, clusterPoolName, namespace string, i, timeout int, errorOnHibernate bool, printFlags *get.PrintFlags) (bool, error) {
 	if len(clusterPoolName) != 0 {
 		cpu, err := dynamicClient.Resource(helpers.GvrCP).Namespace(namespace).Get(context.TODO(), clusterPoolName, metav1.GetOptions{})
 		if err != nil {
@@ -233,8 +233,8 @@ func checkClusterClaimsRunning(dynamicClient dynamic.Interface, clusterClaimName
 					fmt.Printf("Error: %s\n", err.Error())
 					continue
 				}
-				if cd.Spec.PowerState == hivev1.HibernatingClusterPowerState {
-					allErrors[clusterClaimName] = fmt.Errorf("%s is hibernating, run a use command to resume it", cc.GetName())
+				if errorOnHibernate && cd.Spec.PowerState == hivev1.HibernatingClusterPowerState {
+					allErrors[clusterClaimName] = fmt.Errorf("%s is hibernating, run a \"cm use cc\" or \"cm run cc\" command to resume it", cc.GetName())
 					fmt.Printf("Error: %s\n", allErrors[clusterClaimName])
 					continue
 				}

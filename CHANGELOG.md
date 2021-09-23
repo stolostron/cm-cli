@@ -6,5 +6,5 @@
 
 ## Bug fixes
 
-
+- (Error when cm create cc and the cc is in hibernate state in the pool #124)[https://github.com/open-cluster-management/cm-cli/issues/124]
 
