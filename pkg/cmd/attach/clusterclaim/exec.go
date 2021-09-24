@@ -175,14 +175,14 @@ func (o *Options) attachClusterClaim(cph *clusterpoolhost.ClusterPoolHost) error
 		return err
 	}
 
-	constraint := ">=2.3.0"
-	supported, err := helpers.IsSupported(kubeClient, dynamicClientCP, constraint)
-	if err != nil {
-		return err
-	}
-	if !supported {
-		return fmt.Errorf("this command requires RHACM version %s", constraint)
-	}
+	// constraint := ">=2.3.0"
+	// supported, err := helpers.IsSupported(kubeClient, dynamicClientCP, constraint)
+	// if err != nil {
+	// 	return err
+	// }
+	// if !supported {
+	// 	return fmt.Errorf("this command requires RHACM version %s", constraint)
+	// }
 
 	dynamicClient, err := dynamic.NewForConfig(hubRestConfig)
 	if err != nil {
