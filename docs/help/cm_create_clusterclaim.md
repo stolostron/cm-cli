@@ -22,6 +22,7 @@ cm create cc <clusterpool> <clusterclaim_name>[,<clusterclaim_name>...] --cph <c
 
 ```
       --cph string           The clusterpoolhost to use
+      --creds                If set the credentials will be displayed
   -h, --help                 help for clusterclaim
       --output-file string   The generated resources will be copied in the specified file
       --skip-schedule        Set the hibernation schedule to skip
