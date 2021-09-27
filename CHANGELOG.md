@@ -2,6 +2,7 @@
 # Release Content
 ## Additions
 - (Add info to the cm attach command #120)[https://github.com/open-cluster-management/cm-cli/issues/120]
+- Display clusterclaim information after creation
 ## Breaking changes
 
 ## Bug fixes
