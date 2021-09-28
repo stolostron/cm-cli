@@ -3,7 +3,9 @@ package clusterclaim
 
 import (
 	"fmt"
+	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/open-cluster-management/cm-cli/pkg/cmd/attach/cluster/scenario"
 	genericclioptionscm "github.com/open-cluster-management/cm-cli/pkg/genericclioptions"
@@ -41,9 +43,13 @@ func NewCmd(cmFlags *genericclioptionscm.CMFlags, streams genericclioptions.IOSt
 		SilenceUsage: true,
 		PreRunE: func(c *cobra.Command, args []string) error {
 			clusteradmhelpers.DryRunMessage(cmFlags.DryRun)
-			// if !helpers.IsRHACM(cmFlags.KubectlFactory) {
-			// 	return fmt.Errorf("this command '%s %s' is only available on RHACM", helpers.GetExampleHeader(), strings.Join(os.Args[1:], " "))
-			// }
+			if !helpers.IsRHACM(cmFlags.KubectlFactory) && !helpers.IsMCE(cmFlags.KubectlFactory) {
+				return fmt.Errorf("this command '%s %s' is only available on %s or %s",
+					helpers.GetExampleHeader(),
+					strings.Join(os.Args[1:], " "),
+					helpers.RHACM,
+					helpers.MCE)
+			}
 			return nil
 			// return clusterpoolhost.BackupCurrentContexts()
 		},
