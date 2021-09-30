@@ -275,7 +275,15 @@ func (cph *ClusterPoolHost) getRestConfig(globalKubeConfig bool) (*rest.Config, 
 	if err != nil {
 		return nil, err
 	}
-	clientConfig := clientcmd.NewDefaultClientConfig(*configapi, &clientcmd.ConfigOverrides{CurrentContext: cph.GetContextName()})
+	configapi.CurrentContext = cph.GetContextName()
+	clientConfig := clientcmd.NewDefaultClientConfig(*configapi, nil)
+	// clientConfig.Get
+	// rawConfig, err := clientConfig.RawConfig()
+	// if err != nil {
+	// 	return nil, err
+	// }
+
+	// clientConfig = clientcmd.NewDefaultClientConfig(rawConfig, &clientcmd.ConfigOverrides{})
 	config, err := clientConfig.ClientConfig()
 	if err != nil {
 		return nil, err
