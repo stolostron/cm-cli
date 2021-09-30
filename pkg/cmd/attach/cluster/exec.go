@@ -144,13 +144,19 @@ func (o *Options) validateWithClient(kubeClient kubernetes.Interface, dynamicCli
 		}
 
 		if o.clusterKubeConfig != "" || o.clusterToken != "" {
-			constraint := ">=2.3.0"
-			supported, err := helpers.IsSupported(kubeClient, dynamicClient, constraint)
+			rhacmConstraint := ">=2.3.0"
+			mceConstraint := ">=1.0.0"
+			supported, platform, err := helpers.IsSupported(o.CMFlags.KubectlFactory, rhacmConstraint, mceConstraint)
 			if err != nil {
 				return err
 			}
 			if !supported {
-				return fmt.Errorf("auto-import is supported only on version %s", constraint)
+				switch platform {
+				case helpers.RHACM:
+					return fmt.Errorf("auto-import is supported only on versions %s", rhacmConstraint)
+				case helpers.MCE:
+					return fmt.Errorf("auto-import is supported only on versions %s", mceConstraint)
+				}
 			}
 		}
 

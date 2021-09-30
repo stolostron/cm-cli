@@ -1,7 +1,7 @@
 [comment]: # ( Copyright Contributors to the Open Cluster Management project )
 # Open Cluster Management CLI & CLI Plugin
 
-A CLI and kubernetes CLI plugin that allows you to interact with OCM/ACM to provision and managed your Hybrid Cloud presence from the command-line.
+A CLI and kubernetes CLI plugin that allows you to interact with OCM/ACM/MCE to provision and managed your Hybrid Cloud presence from the command-line.
 
 ## Requirements
 

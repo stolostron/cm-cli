@@ -33,7 +33,13 @@ func (o *Options) run() (err error) {
 }
 
 func (o *Options) runWithClient(kubeClient kubernetes.Interface, dynamicClient dynamic.Interface) (err error) {
-	version, snapshot, err := helpers.GetACMVersion(kubeClient, dynamicClient)
+	var version, snapshot string
+	switch {
+	case helpers.IsRHACM(o.CMFlags.KubectlFactory):
+		version, snapshot, err = helpers.GetACMVersion(kubeClient, dynamicClient)
+	case helpers.IsMCE(o.CMFlags.KubectlFactory):
+		version, snapshot, err = helpers.GetMCEVersion(kubeClient, dynamicClient)
+	}
 	if version != "" {
 		fmt.Printf("server release\tversion\t:%s\n", version)
 	}
