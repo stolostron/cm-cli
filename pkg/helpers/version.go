@@ -10,8 +10,14 @@ import (
 	"github.com/Masterminds/semver"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/dynamic"
+	cmdutil "k8s.io/kubectl/pkg/cmd/util"
 
 	"k8s.io/client-go/kubernetes"
+)
+
+const (
+	RHACM string = "RHACM"
+	MCE   string = "MCE"
 )
 
 func GetACMVersion(kubeClient kubernetes.Interface, dynamicClient dynamic.Interface) (version, snapshot string, err error) {
@@ -68,21 +74,91 @@ func GetACMVersion(kubeClient kubernetes.Interface, dynamicClient dynamic.Interf
 	return version, snapshot, nil
 }
 
-func IsSupported(kubeClient kubernetes.Interface, dynamicClient dynamic.Interface, constraint string) (bool, error) {
-	version, _, err := GetACMVersion(kubeClient, dynamicClient)
+func GetMCEVersion(kubeClient kubernetes.Interface, dynamicClient dynamic.Interface) (version, snapshot string, err error) {
+	lo := metav1.ListOptions{
+		LabelSelector: fmt.Sprintf("%v = %v", "operators.coreos.com/multicluster-engine.multicluster-engine", ""),
+	}
+	cms, err := kubeClient.CoreV1().ConfigMaps("").List(context.TODO(), lo)
 	if err != nil {
-		return false, err
+		return "", "", err
+	}
+	if len(cms.Items) == 0 {
+		return "", "", fmt.Errorf("no configmap with labelset %v", lo.LabelSelector)
+	}
+	ns := cms.Items[0].Namespace
+	ucsv, err := dynamicClient.Resource(GvrMCE).Namespace(ns).List(context.TODO(), metav1.ListOptions{})
+	if err != nil {
+		return "", "", err
+	}
+	if err != nil {
+		return "", "", err
+	}
+	if len(ucsv.Items) == 0 {
+		return "", "", fmt.Errorf("no clusterserviceversion found in namespace %s", ns)
 	}
 
-	c, err := semver.NewConstraint(constraint)
+	uspec := ucsv.Items[0].Object["spec"]
+	spec := uspec.(map[string]interface{})
+	version = spec["version"].(string)
+	return version, "", nil
+
+}
+
+func GetVersion(f cmdutil.Factory) (version string, platform string, err error) {
+	kubeClient, err := f.KubernetesClientSet()
 	if err != nil {
-		return false, err
+		return version, platform, err
+	}
+	dynamicClient, err := f.DynamicClient()
+	if err != nil {
+		return version, platform, err
+	}
+	switch {
+	case IsRHACM(f):
+		platform = RHACM
+		version, _, err = GetACMVersion(kubeClient, dynamicClient)
+	case IsMCE(f):
+		platform = MCE
+		version, _, err = GetMCEVersion(kubeClient, dynamicClient)
+	}
+	return version, platform, err
+}
+
+func IsSupported(f cmdutil.Factory, rhacmConstraint string, mceConstraint string) (isSupported bool, platform string, err error) {
+	var version string
+	kubeClient, err := f.KubernetesClientSet()
+	if err != nil {
+		return isSupported, platform, err
+	}
+	dynamicClient, err := f.DynamicClient()
+	if err != nil {
+		return isSupported, platform, err
+	}
+	var c *semver.Constraints
+	switch {
+	case IsRHACM(f):
+		platform = RHACM
+		version, _, err = GetACMVersion(kubeClient, dynamicClient)
+		if err != nil {
+			return isSupported, platform, err
+		}
+		c, err = semver.NewConstraint(rhacmConstraint)
+	case IsMCE(f):
+		platform = MCE
+		version, _, err = GetMCEVersion(kubeClient, dynamicClient)
+		if err != nil {
+			return isSupported, platform, err
+		}
+		c, err = semver.NewConstraint(mceConstraint)
+	}
+	if err != nil {
+		return isSupported, platform, err
 	}
 
 	vs, err := semver.NewVersion(version)
 	if err != nil {
-		return false, err
+		return isSupported, platform, err
 	}
 
-	return c.Check(vs), nil
+	return c.Check(vs), platform, nil
 }

@@ -39,3 +39,20 @@ func IsRHACM(f cmdutil.Factory) bool {
 	}
 	return true
 }
+
+func IsMCE(f cmdutil.Factory) bool {
+	kubeClient, err := f.KubernetesClientSet()
+	if err != nil {
+		panic(err)
+	}
+	cms, err := kubeClient.CoreV1().ConfigMaps("").List(context.TODO(), metav1.ListOptions{
+		LabelSelector: fmt.Sprintf("%v = %v", "operators.coreos.com/multicluster-engine.multicluster-engine", ""),
+	})
+	if err != nil {
+		return false
+	}
+	if len(cms.Items) == 0 {
+		return false
+	}
+	return true
+}
