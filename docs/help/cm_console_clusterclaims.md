@@ -22,6 +22,7 @@ cm console clusterclaims
 
 ```
       --cph string    The clusterpoolhost to use
+      --creds         If set the credentials will be displayed
   -h, --help          help for clusterclaims
       --timeout int   Timeout to get the cluster claim running (default 60)
 ```
