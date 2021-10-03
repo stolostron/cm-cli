@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	genericclioptionscm "github.com/open-cluster-management/cm-cli/pkg/genericclioptions"
+	"k8s.io/kubectl/pkg/cmd/get"
 	cmdutil "k8s.io/kubectl/pkg/cmd/util"
 
 	"github.com/open-cluster-management/cm-cli/pkg/helpers"
@@ -44,6 +45,10 @@ func NewCmd(cmFlags *genericclioptionscm.CMFlags, streams genericclioptions.IOSt
 		// 	return clusterpoolhost.RestoreCurrentContexts()
 		// },
 	}
+
+	o.GetOptions.PrintFlags = get.NewGetPrintFlags()
+
+	o.GetOptions.PrintFlags.AddFlags(cmd)
 
 	cmd.Flags().StringVar(&o.ClusterPoolHost, "cph", "", "The clusterpoolhost to use")
 	cmd.Flags().IntVar(&o.Timeout, "timeout", 60, "Timeout to get the cluster claim running")
