@@ -48,17 +48,7 @@ func (o *Options) getCC(cph *clusterpoolhost.ClusterPoolHost) (err error) {
 	if err != nil {
 		return err
 	}
-	cred, err := cph.GetClusterClaimCred(cc, o.WithCredentials)
-	if err != nil {
-		return err
-	}
-	cred.GetObjectKind().
-		SetGroupVersionKind(
-			schema.GroupVersionKind{
-				Group:   printclusterpoolv1alpha1.GroupName,
-				Kind:    "PrintClusterClaimCredential",
-				Version: printclusterpoolv1alpha1.GroupVersion.Version})
-	return helpers.Print(cred, o.GetOptions.PrintFlags)
+	return cph.PrintClusterClaimCred(cc, o.GetOptions.PrintFlags, o.WithCredentials)
 }
 
 func (o *Options) getCCS(cphs *clusterpoolhost.ClusterPoolHosts) (err error) {

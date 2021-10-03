@@ -6,10 +6,7 @@ import (
 	"strings"
 
 	"github.com/open-cluster-management/cm-cli/pkg/clusterpoolhost"
-	"github.com/open-cluster-management/cm-cli/pkg/helpers"
-	"k8s.io/apimachinery/pkg/runtime/schema"
 
-	printclusterpoolv1alpha1 "github.com/open-cluster-management/cm-cli/api/cm-cli/v1alpha1"
 	"github.com/spf13/cobra"
 )
 
@@ -45,25 +42,16 @@ func (o *Options) run() (err error) {
 		return err
 	}
 
-	for _, clusterClaim := range strings.Split(o.ClusterClaims, ",") {
-		cc, err := cph.GetClusterClaim(clusterClaim, o.Timeout, o.CMFlags.DryRun, o.GetOptions.PrintFlags)
-		if err != nil {
-			return err
-		}
-
-		cred, err := cph.GetClusterClaimCred(cc, o.WithCredentials)
-		if err != nil {
-			return err
-		}
-		cred.GetObjectKind().
-			SetGroupVersionKind(
-				schema.GroupVersionKind{
-					Group:   printclusterpoolv1alpha1.GroupName,
-					Kind:    "PrintClusterClaimCredential",
-					Version: printclusterpoolv1alpha1.GroupVersion.Version})
-		err = helpers.Print(cred, o.GetOptions.PrintFlags)
-		if err != nil {
-			return err
+	if o.WithCredentials {
+		for _, clusterClaim := range strings.Split(o.ClusterClaims, ",") {
+			cc, err := cph.GetClusterClaim(clusterClaim, o.Timeout, o.CMFlags.DryRun, o.GetOptions.PrintFlags)
+			if err != nil {
+				return err
+			}
+			err = cph.PrintClusterClaimCred(cc, o.GetOptions.PrintFlags, o.WithCredentials)
+			if err != nil {
+				return err
+			}
 		}
 	}
 	return nil
