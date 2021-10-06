@@ -68,6 +68,14 @@ func (o *Options) validate() (err error) {
 
 	cp["name"] = o.ClusterPool
 
+	if o.clusterSetName == "" {
+		if iclusterSetName, ok := cp["clusterSetName"]; ok {
+			o.clusterSetName = iclusterSetName.(string)
+		}
+	}
+
+	cp["clusterSetName"] = o.clusterSetName
+
 	return nil
 }
 

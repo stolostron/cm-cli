@@ -21,6 +21,7 @@ cm create cp [<clusterpool_name>] --values values.yaml [--cph <clusterpoolhost_n
 ### Options
 
 ```
+      --cluster-set string   The clusterset to which the clusterpool should be place
       --cph string           The clusterpoolhost to use
   -h, --help                 help for clusterpool
       --output-file string   The generated resources will be copied in the specified file
