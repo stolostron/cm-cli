@@ -85,6 +85,14 @@ func (o *Options) validate() (err error) {
 
 	mc["name"] = o.clusterName
 
+	if o.clusterSetName == "" {
+		if iclusterSetName, ok := mc["clusterSetName"]; ok {
+			o.clusterSetName = iclusterSetName.(string)
+		}
+	}
+
+	mc["clusterSetName"] = o.clusterSetName
+
 	return nil
 }
 

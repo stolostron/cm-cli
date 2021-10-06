@@ -77,6 +77,7 @@ func NewCmd(cmFlags *genericclioptionscm.CMFlags, streams genericclioptions.IOSt
 	//Not implemented as it requires to import all addon packages
 	// cmd.Flags().BoolVar(&o.waitAddOns, "wait-addons", false, "Wait until the klusterlet agent and the addons are is installed")
 	cmd.Flags().IntVar(&o.timeout, "timeout", 180, "Timeout to get the klusterlet agent or addons ready in seconds")
+	cmd.Flags().StringVar(&o.clusterSetName, "cluster-set", "", "The clusterset to which the clusterpool should be place")
 
 	return cmd
 }
