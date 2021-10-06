@@ -1,0 +1,20 @@
+# Copyright Contributors to the Open Cluster Management project
+
+apiVersion: identityconfig.identitatem.io/v1alpha1
+kind: AuthRealm
+metadata:
+  name: ${NAME}
+  namespace: ${NS}
+spec:
+  type: dex
+  routeSubDomain: ${ROUTE_SUBDOMAIN}
+  placementRef:
+    name: ${NAME}-placement
+  identityProviders:
+    - name: ${IDP_NAME}
+      mappingMethod: claim
+      type: GitHub
+      github:
+        clientID: ${GITHUB_APP_CLIENT_ID}
+        clientSecret:
+          name: ${NAME}-client-secret

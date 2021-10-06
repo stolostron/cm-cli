@@ -1,0 +1,16 @@
+# Copyright Contributors to the Open Cluster Management project
+
+authrealm:
+  name: 
+  namespace:
+  routeSubDomain:
+  placementRef:
+   name:
+  identityProviders:
+  - name:
+    mappingMethod:
+    type:
+    github:
+      clientID:
+      clientSecret:
+        name: 
