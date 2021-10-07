@@ -11,8 +11,7 @@ clusterPool:
     #mylabel: myvalue
   cloud: vsphere # clouds values can be aws, azure, gcp, openstack, vsphere
   vendor: OpenShift
-  #clusterSetName the name of the clusterset
-  #clusterSetname: 
+  clusterSetName: #clusterSetName the name of the clusterset
   #ocpImage and imageSetRef are mutually exclusive.
   ocpImage: # ocp image (ie: quay.io/openshift-release-dev/ocp-release:4.3.40-x86_64)
   imageSetRef: # the imageSetRef, use `oc get clusterimageset` to find the list, use this when you don't have the permission to create clusterimageset.
