@@ -105,8 +105,8 @@ func isContextExists(contextName string, globalKubeConfig bool) (bool, error) {
 // }
 
 //MoveContextToDefault Move the context from its current location to the global file.
-func MoveContextToDefault(contextName, clusterPoolContextName, defaultNamespace, user, token string) error {
-	if len(contextName) == 0 {
+func MoveContextToDefault(currentContextName, clusterPoolContextName, defaultNamespace, user, token string) error {
+	if len(currentContextName) == 0 {
 		return fmt.Errorf("context name is empty")
 	}
 	pathOptions := clientcmd.NewDefaultPathOptions()
@@ -115,24 +115,36 @@ func MoveContextToDefault(contextName, clusterPoolContextName, defaultNamespace,
 		return err
 	}
 
-	context, ok := config.Contexts[contextName]
+	//The cph context is already in the config, no move needed
+	if _, ok := config.Contexts[clusterPoolContextName]; ok {
+		config.CurrentContext = clusterPoolContextName
+		//refesh token
+		authInfo := config.AuthInfos[clusterPoolContextName]
+		authInfo.Token = token
+
+		file := pathOptions.GetDefaultFilename()
+		return clientcmd.WriteToFile(*config, file)
+	}
+
+	//Search the context used for `oc login` while creating the cph
+	context, ok := config.Contexts[currentContextName]
 	if !ok {
 		//Search in Globalfile
 		pathOptions.EnvVar = ""
 		if config, err = pathOptions.GetStartingConfig(); err != nil {
 			return err
 		}
-		if context, ok = config.Contexts[contextName]; !ok {
-			return fmt.Errorf("context name %s not found", contextName)
+		if context, ok = config.Contexts[currentContextName]; !ok {
+			return fmt.Errorf("context name %s not found", currentContextName)
 		}
 	}
 	cluster, ok := config.Clusters[context.Cluster]
 	if !ok {
-		return fmt.Errorf("cluster not found for context %s", contextName)
+		return fmt.Errorf("cluster not found for context %s", currentContextName)
 	}
 	authInfo, ok := config.AuthInfos[context.AuthInfo]
 	if !ok {
-		return fmt.Errorf("authInfo not found for context %s", contextName)
+		return fmt.Errorf("authInfo not found for context %s", currentContextName)
 	}
 
 	pathOptions = clientcmd.NewDefaultPathOptions()
