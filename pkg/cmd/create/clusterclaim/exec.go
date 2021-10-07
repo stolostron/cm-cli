@@ -3,6 +3,7 @@ package clusterclaim
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/open-cluster-management/cm-cli/pkg/clusterpoolhost"
 
@@ -36,5 +37,22 @@ func (o *Options) run() (err error) {
 		return err
 	}
 
-	return cph.CreateClusterClaims(o.ClusterClaims, o.ClusterPool, o.SkipSchedule, o.Timeout, o.CMFlags.DryRun, o.outputFile)
+	err = cph.CreateClusterClaims(o.ClusterClaims, o.ClusterPool, o.SkipSchedule, o.Timeout, o.CMFlags.DryRun, o.outputFile)
+	if err != nil {
+		return err
+	}
+
+	if o.WithCredentials {
+		for _, clusterClaim := range strings.Split(o.ClusterClaims, ",") {
+			cc, err := cph.GetClusterClaim(clusterClaim, o.Timeout, o.CMFlags.DryRun, o.GetOptions.PrintFlags)
+			if err != nil {
+				return err
+			}
+			err = cph.PrintClusterClaimCred(cc, o.GetOptions.PrintFlags, o.WithCredentials)
+			if err != nil {
+				return err
+			}
+		}
+	}
+	return nil
 }

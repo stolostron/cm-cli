@@ -21,11 +21,21 @@ cm create cc <clusterpool> <clusterclaim_name>[,<clusterclaim_name>...] --cph <c
 ### Options
 
 ```
-      --cph string           The clusterpoolhost to use
-  -h, --help                 help for clusterclaim
-      --output-file string   The generated resources will be copied in the specified file
-      --skip-schedule        Set the hibernation schedule to skip
-      --timeout int          Timeout to get the cluster claim running in minutes (default 60)
+      --allow-missing-template-keys   If true, ignore any errors in templates when a field or map key is missing in the template. Only applies to golang and jsonpath output formats. (default true)
+      --cph string                    The clusterpoolhost to use
+      --creds                         If set the credentials will be displayed
+  -h, --help                          help for clusterclaim
+  -L, --label-columns strings         Accepts a comma separated list of labels that are going to be presented as columns. Names are case-sensitive. You can also use multiple flag options like -L label1 -L label2...
+      --no-headers                    When using the default or custom-column output format, don't print headers (default print headers).
+  -o, --output string                 Output format. One of: json|yaml|wide|name|custom-columns=...|custom-columns-file=...|go-template=...|go-template-file=...|jsonpath=...|jsonpath-file=... See custom columns [http://kubernetes.io/docs/user-guide/kubectl-overview/#custom-columns], golang template [http://golang.org/pkg/text/template/#pkg-overview] and jsonpath template [http://kubernetes.io/docs/user-guide/jsonpath].
+      --output-file string            The generated resources will be copied in the specified file
+      --show-kind                     If present, list the resource type for the requested object(s).
+      --show-labels                   When printing, show all labels as the last column (default hide labels column)
+      --show-managed-fields           If true, keep the managedFields when printing objects in JSON or YAML format.
+      --skip-schedule                 Set the hibernation schedule to skip
+      --sort-by string                If non-empty, sort list types using this field specification.  The field specification is expressed as a JSONPath expression (e.g. '{.metadata.name}'). The field in the API resource specified by this JSONPath expression must be an integer or a string.
+      --template string               Template string or path to template file to use when -o=go-template, -o=go-template-file. The template format is golang templates [http://golang.org/pkg/text/template/#pkg-overview].
+      --timeout int                   Timeout to get the cluster claim running in minutes (default 60)
 ```
 
 ### Options inherited from parent commands

@@ -16,6 +16,7 @@ import (
 	"k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/apimachinery/pkg/util/wait"
 	"k8s.io/client-go/dynamic"
 	"k8s.io/client-go/kubernetes"
@@ -412,7 +413,7 @@ func (cph *ClusterPoolHost) GetClusterClaim(clusterName string, timeout int, dry
 	return cc, nil
 }
 
-func (cph *ClusterPoolHost) GetClusterClaimCred(cc *hivev1.ClusterClaim, withCredentials bool) (*printclusterpoolv1alpha1.PrintClusterClaimCredential, error) {
+func (cph *ClusterPoolHost) GetPrintClusterClaimCredential(cc *hivev1.ClusterClaim, withCredentials bool) (*printclusterpoolv1alpha1.PrintClusterClaimCredential, error) {
 	clusterPoolRestConfig, err := cph.GetGlobalRestConfig()
 	if err != nil {
 		return nil, err
@@ -458,6 +459,20 @@ func (cph *ClusterPoolHost) GetClusterClaimCred(cc *hivev1.ClusterClaim, withCre
 		ccc.Spec.Password = string(s.Data["password"])
 	}
 	return ccc, nil
+}
+
+func (cph *ClusterPoolHost) PrintClusterClaimCred(cc *hivev1.ClusterClaim, printFlags *get.PrintFlags, withCredentials bool) error {
+	cred, err := cph.GetPrintClusterClaimCredential(cc, withCredentials)
+	if err != nil {
+		return err
+	}
+	cred.GetObjectKind().
+		SetGroupVersionKind(
+			schema.GroupVersionKind{
+				Group:   printclusterpoolv1alpha1.GroupName,
+				Kind:    "PrintClusterClaimCredential",
+				Version: printclusterpoolv1alpha1.GroupVersion.Version})
+	return helpers.Print(cred, printFlags)
 }
 
 func (cph *ClusterPoolHost) OpenClusterClaim(clusterName string, timeout int) error {
