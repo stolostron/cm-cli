@@ -114,18 +114,18 @@ func (cph *ClusterPoolHost) openBrowser() error {
 
 func (cph *ClusterPoolHost) CreateClusterPoolContext(token, serviceAccountName string, inGlobal bool) error {
 	var err error
-	var currentContext *clientcmdapi.Config
+	var currentConfg *clientcmdapi.Config
 	//Get current context
 	if inGlobal {
-		currentContext, _, err = GetGlobalConfigAPI()
+		currentConfg, _, err = GetGlobalConfigAPI()
 	} else {
-		currentContext, _, err = GetConfigAPI()
+		currentConfg, _, err = GetConfigAPI()
 
 	}
 	if err != nil {
 		return err
 	}
-
 	//Move ClusterPool context
-	return MoveContextToDefault(currentContext.CurrentContext, cph.GetContextName(), cph.Namespace, serviceAccountName, token)
+	err = MoveContextToDefault(currentConfg.CurrentContext, cph.GetContextName(), cph.Namespace, serviceAccountName, token)
+	return err
 }
