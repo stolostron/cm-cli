@@ -29,7 +29,7 @@ var example = `
 %[1]s create authrealm myauthrealm --values values.yaml
 
 # Create a authrealm with routeSubDomain overwrite
-%[1]s create cluster myauthrealm --routeSubDomain mysso --values values.yaml
+%[1]s create authrealm myauthrealm --routeSubDomain mysso --values values.yaml
 `
 
 // NewCmd ...
