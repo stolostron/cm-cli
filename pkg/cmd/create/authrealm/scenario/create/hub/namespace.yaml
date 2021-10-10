@@ -3,6 +3,4 @@
 apiVersion: v1
 kind: Namespace
 metadata:
-  labels:
-    control-plane: controller-manager
-  name: {{ .Namespace }}
+  name: {{ .authRealm.namespace  }}

@@ -12,7 +12,7 @@ import (
 	genericclioptionscm "github.com/open-cluster-management/cm-cli/pkg/genericclioptions"
 	"github.com/open-cluster-management/cm-cli/pkg/helpers"
 
-	"github.com/open-cluster-management/cm-cli/pkg/cmd/create/cluster/scenario"
+	"github.com/open-cluster-management/cm-cli/pkg/cmd/create/authrealm/scenario"
 
 	"github.com/spf13/cobra"
 	"k8s.io/cli-runtime/pkg/genericclioptions"
@@ -25,22 +25,19 @@ const (
 var valuesTemplatePath = filepath.Join(scenarioDirectory, "values-template.yaml")
 
 var example = `
-# Create a cluster
-%[1]s create cluster --values values.yaml
+# Create a authrealm
+%[1]s create authrealm myauthrealm --values values.yaml
 
-# Create a cluster with cluster name overwrite
-%[1]s create cluster --cluster mycluster --values values.yaml
-
-# Create a cluster with cluster name overwrite by args
-%[1]s create cluster mycluster --values values.yaml
+# Create a authrealm with routeSubDomain overwrite
+%[1]s create cluster myauthrealm --routeSubDomain mysso --values values.yaml
 `
 
 // NewCmd ...
 func NewCmd(cmFlags *genericclioptionscm.CMFlags, streams genericclioptions.IOStreams) *cobra.Command {
 	o := newOptions(cmFlags, streams)
 	cmd := &cobra.Command{
-		Use:          "cluster",
-		Short:        "Create a cluster",
+		Use:          "authrealm",
+		Short:        "Create a authrealm",
 		Example:      fmt.Sprintf(example, helpers.GetExampleHeader()),
 		SilenceUsage: true,
 		PreRunE: func(c *cobra.Command, args []string) error {
@@ -70,13 +67,15 @@ func NewCmd(cmFlags *genericclioptionscm.CMFlags, streams genericclioptions.IOSt
 	}
 
 	cmd.SetUsageTemplate(clusteradmhelpers.UsageTempate(cmd, scenario.GetScenarioResourcesReader(), valuesTemplatePath))
-	cmd.Flags().StringVar(&o.clusterName, "cluster", "", "Name of the cluster")
+	cmd.Flags().StringVar(&o.name, "name", "", "The name of the authrealm")
+	cmd.Flags().StringVarP(&o.namespace, "namespace", "n", "", "The name of the authrealm")
+	cmd.Flags().StringVar(&o.typeName, "type", "", "type of proxy (dex)")
+	cmd.Flags().StringVar(&o.routeSubDomain, "route-sub-domain", "", "the route sub domain")
+	cmd.Flags().StringVar(&o.placementName, "placement", "", "The name of the placement")
+	cmd.Flags().StringVar(&o.clusterSetName, "cluster-set", "", "The name of the managed cluster set")
+	cmd.Flags().StringVar(&o.clusterSetBindingName, "cluster-set-binding", "", "The of the cluster set binding")
 	cmd.Flags().StringVar(&o.valuesPath, "values", "", "The files containing the values")
 	cmd.Flags().StringVar(&o.outputFile, "output-file", "", "The generated resources will be copied in the specified file")
-	cmd.Flags().BoolVar(&o.waitAgent, "wait", false, "Wait until the klusterlet agent is installed")
-	//Not implemented as it requires to import all addon packages
-	// cmd.Flags().BoolVar(&o.waitAddOns, "wait-addons", false, "Wait until the klusterlet agent and the addons are is installed")
-	cmd.Flags().IntVar(&o.timeout, "timeout", 180, "Timeout to get the klusterlet agent or addons ready in seconds")
 
 	return cmd
 }

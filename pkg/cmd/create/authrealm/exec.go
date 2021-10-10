@@ -4,33 +4,20 @@ package authrealm
 import (
 	"context"
 	"fmt"
-	"path/filepath"
 
-	clusterclientset "open-cluster-management.io/api/client/cluster/clientset/versioned"
-	workclientset "open-cluster-management.io/api/client/work/clientset/versioned"
 	clusteradmhelpers "open-cluster-management.io/clusteradm/pkg/helpers"
 	clusteradmapply "open-cluster-management.io/clusteradm/pkg/helpers/apply"
 
-	attachscenario "github.com/open-cluster-management/cm-cli/pkg/cmd/attach/cluster/scenario"
-	"github.com/open-cluster-management/cm-cli/pkg/cmd/create/cluster/scenario"
+	"github.com/open-cluster-management/cm-cli/pkg/cmd/create/authrealm/scenario"
 	"github.com/open-cluster-management/cm-cli/pkg/helpers"
 	apiextensionsclient "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
-	"github.com/ghodss/yaml"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	"k8s.io/client-go/dynamic"
 	"k8s.io/client-go/kubernetes"
 
 	"github.com/spf13/cobra"
-)
-
-const (
-	AWS       = "aws"
-	AZURE     = "azure"
-	GCP       = "gcp"
-	OPENSTACK = "openstack"
-	VSPHERE   = "vsphere"
 )
 
 func (o *Options) complete(cmd *cobra.Command, args []string) (err error) {
@@ -43,48 +30,87 @@ func (o *Options) complete(cmd *cobra.Command, args []string) (err error) {
 		return fmt.Errorf("values are missing")
 	}
 
-	if len(args) > 0 {
-		o.clusterName = args[0]
+	if len(o.name) == 0 && len(args) > 0 {
+		o.name = args[0]
+	}
+	iauthRealm := o.values["authRealm"]
+	authRealm := iauthRealm.(map[string]interface{})
+	if len(o.name) > 0 {
+		authRealm["name"] = o.name
+	}
+
+	if len(o.namespace) > 0 {
+		authRealm["namespace"] = o.namespace
+	}
+
+	if len(o.typeName) > 0 {
+		authRealm["type"] = o.typeName
+	}
+
+	if len(o.routeSubDomain) > 0 {
+		authRealm["routeSubDomain"] = o.routeSubDomain
+	}
+
+	if len(o.placementName) > 0 {
+		authRealm["placementName"] = o.placementName
+	}
+
+	if len(o.clusterSetName) > 0 {
+		authRealm["clusterSetName"] = o.clusterSetName
+	}
+
+	if len(o.clusterSetBindingName) > 0 {
+		authRealm["clusterSetBindingName"] = o.clusterSetBindingName
 	}
 
 	return nil
+
 }
 
 func (o *Options) validate() (err error) {
-	imc, ok := o.values["managedCluster"]
-	if !ok || imc == nil {
-		return fmt.Errorf("managedCluster is missing")
+	_, _, dynamicClient, err := clusteradmhelpers.GetClients(o.CMFlags.KubectlFactory)
+	if err != nil {
+		return err
 	}
-	mc := imc.(map[string]interface{})
-	icloud, ok := mc["cloud"]
-	if !ok || icloud == nil {
-		return fmt.Errorf("cloud type is missing")
+	iauthRealm := o.values["authRealm"]
+	authRealm := iauthRealm.(map[string]interface{})
+	if _, ok := authRealm["name"]; !ok {
+		return fmt.Errorf("name is missing")
 	}
-	cloud := icloud.(string)
-	if cloud != AWS && cloud != AZURE && cloud != GCP && cloud != OPENSTACK && cloud != VSPHERE {
-		return fmt.Errorf("supported cloud type are (%s, %s, %s, %s, %s) and got %s", AWS, AZURE, GCP, OPENSTACK, VSPHERE, cloud)
+	if _, ok := authRealm["namespace"]; !ok {
+		return fmt.Errorf("namespace is missing")
 	}
-	o.cloud = cloud
+	if _, ok := authRealm["type"]; !ok {
+		return fmt.Errorf("type is missing")
+	}
+	if v, ok := authRealm["type"]; ok && v != "dex" {
+		return fmt.Errorf("type possible values is dex")
+	}
+	if _, ok := authRealm["routeSubDomain"]; !ok {
+		return fmt.Errorf("routeSubDomain is missing")
+	}
 
-	_, ocpImageOk := mc["ocpImage"]
-	_, imageSetRef := mc["imageSetRef"]
-	if ocpImageOk && imageSetRef {
-		return fmt.Errorf("ocpImage and imageSetRef are mutually exclusive")
-	}
-
-	if o.clusterName == "" {
-		iname, ok := mc["name"]
-		if !ok || iname == nil {
-			return fmt.Errorf("cluster name is missing")
-		}
-		o.clusterName = iname.(string)
-		if len(o.clusterName) == 0 {
-			return fmt.Errorf("managedCluster.name not specified")
+	if v, ok := authRealm["placementName"]; ok && v != nil {
+		if _, err = dynamicClient.Resource(helpers.GvrPLC).
+			Namespace(authRealm["namespace"].(string)).
+			Get(context.TODO(), v.(string), metav1.GetOptions{}); err != nil {
+			return err
 		}
 	}
-
-	mc["name"] = o.clusterName
-
+	if v, ok := authRealm["managedClusterSetName"]; ok && v != nil {
+		if _, err = dynamicClient.Resource(helpers.GvrMCS).
+			Namespace(authRealm["namespace"].(string)).
+			Get(context.TODO(), v.(string), metav1.GetOptions{}); err != nil {
+			return err
+		}
+	}
+	if v, ok := authRealm["managedClusterSetBindingName"]; ok && v != nil {
+		if _, err = dynamicClient.Resource(helpers.GvrMCSB).
+			Namespace(authRealm["namespace"].(string)).
+			Get(context.TODO(), v.(string), metav1.GetOptions{}); err != nil {
+			return err
+		}
+	}
 	return nil
 }
 
@@ -93,115 +119,88 @@ func (o *Options) run() error {
 	if err != nil {
 		return err
 	}
-	restConfig, err := o.CMFlags.KubectlFactory.ToRESTConfig()
-	if err != nil {
-		return err
-	}
-	clusterClient, err := clusterclientset.NewForConfig(restConfig)
-	if err != nil {
-		return err
-	}
-	workClient, err := workclientset.NewForConfig(restConfig)
-	if err != nil {
-		return err
-	}
-	return o.runWithClient(kubeClient, apiextensionsClient, dynamicClient, clusterClient, workClient)
+	return o.runWithClient(kubeClient, apiextensionsClient, dynamicClient)
 }
 
 func (o *Options) runWithClient(kubeClient kubernetes.Interface,
 	apiextensionsClient apiextensionsclient.Interface,
-	dynamicClient dynamic.Interface,
-	clusterClient clusterclientset.Interface,
-	workClient workclientset.Interface) (err error) {
+	dynamicClient dynamic.Interface) (err error) {
 	output := make([]string, 0)
-	pullSecret, err := kubeClient.CoreV1().Secrets("openshift-config").Get(
-		context.TODO(),
-		"pull-secret",
-		metav1.GetOptions{})
-	if err != nil {
-		return err
-	}
-
-	ps, err := yaml.Marshal(pullSecret)
-	if err != nil {
-		return err
-	}
-
-	valueps := make(map[string]interface{})
-	err = yaml.Unmarshal(ps, &valueps)
-	if err != nil {
-		return err
-	}
-
-	o.values["pullSecret"] = valueps
 
 	reader := scenario.GetScenarioResourcesReader()
-	attachreader := attachscenario.GetScenarioResourcesReader()
 	applierBuilder := &clusteradmapply.ApplierBuilder{}
 	applier := applierBuilder.WithClient(kubeClient, apiextensionsClient, dynamicClient).Build()
 
-	installConfig, err := applier.MustTempalteAsset(reader, o.values, "", filepath.Join(scenarioDirectory, "hub", o.cloud, "install_config.yaml"))
-	if err != nil {
-		return err
-	}
+	iauthRealm := o.values["authRealm"]
+	authRealm := iauthRealm.(map[string]interface{})
 
-	valueic := make(map[string]interface{})
-	err = yaml.Unmarshal(installConfig, &valueic)
-	if err != nil {
-		return err
-	}
-
-	files := []string{
-		"create/hub/common/namespace.yaml",
-	}
-
-	out, err := applier.ApplyDirectly(reader, o.values, o.CMFlags.DryRun, "", files...)
-	if err != nil {
-		return err
-	}
-	output = append(output, out...)
-	o.values["installConfig"] = valueic
-
-	files = []string{
-		"create/hub/common/creds_secret_cr.yaml",
-		"create/hub/common/install_config_secret_cr.yaml",
-		"create/hub/common/machinepool_cr.yaml",
-		"create/hub/common/pull_secret_cr.yaml",
-		"create/hub/common/ssh_private_key_secret_cr.yaml",
-		"create/hub/common/vsphere_ca_cert_secret_cr.yaml",
-	}
-
-	imc := o.values["managedCluster"]
-	mc := imc.(map[string]interface{})
-
-	if _, ok := mc["imageSetRef"]; !ok {
-		files = append(files, "create/hub/common/clusterimageset_cr.yaml")
-	}
-
-	files = append(files, "create/hub/common/cluster_deployment_cr.yaml")
-	out, err = applier.ApplyCustomResources(reader, o.values, o.CMFlags.DryRun, "create/hub/common/_helpers.tpl", files...)
+	//create ns
+	file := "create/hub/namespace.yaml"
+	out, err := applier.ApplyDirectly(reader, o.values, o.CMFlags.DryRun, "", file)
 	if err != nil {
 		return err
 	}
 	output = append(output, out...)
 
-	files = []string{
-		"attach/hub/managed_cluster_cr.yaml",
-		"attach/hub/klusterlet_addon_config_cr.yaml",
-	}
-	out, err = applier.ApplyCustomResources(attachreader, o.values, o.CMFlags.DryRun, "", files...)
-	if err != nil {
-		return err
-	}
-
-	output = append(output, out...)
-	if !o.CMFlags.DryRun {
-		if o.waitAgent || o.waitAddOns {
-			return helpers.WaitKlusterlet(clusterClient, o.clusterName, o.timeout)
+	//create placement if not provided
+	if placementName, ok := authRealm["placementName"]; !ok || placementName == nil {
+		file := "create/hub/placement.yaml"
+		out, err := applier.ApplyCustomResource(reader, o.values, o.CMFlags.DryRun, "", file)
+		if err != nil {
+			return err
 		}
-		if o.waitAddOns {
-			return helpers.WaitKlusterletAddons(workClient, o.clusterName, o.timeout)
+		output = append(output, out)
+		authRealm["placementName"] = authRealm["name"].(string) + "-placement"
+	}
+
+	//create clusterset if not provided
+	if managedClusterSetName, ok := authRealm["managedClusterSetName"]; !ok || managedClusterSetName == nil {
+		file := "create/hub/managedclusterset.yaml"
+		out, err := applier.ApplyCustomResource(reader, o.values, o.CMFlags.DryRun, "", file)
+		if err != nil {
+			return err
+		}
+		output = append(output, out)
+		authRealm["managedClusterSetName"] = authRealm["name"].(string) + "-clusterset"
+	}
+
+	//create clustersetbinding if not provided
+	if managedClusterSetBindingName, ok := authRealm["managedClusterSetBindingName"]; !ok || managedClusterSetBindingName == nil {
+		file := "create/hub/managedclusterset_binding.yaml"
+		out, err := applier.ApplyCustomResource(reader, o.values, o.CMFlags.DryRun, "", file)
+		if err != nil {
+			return err
+		}
+		output = append(output, out)
+		authRealm["managedClusterSetBindingName"] = authRealm["name"].(string) + "-clusterset"
+	}
+
+	//Create secrets
+	for _, iidp := range authRealm["identityProviders"].([]interface{}) {
+		idp := iidp.(map[string]interface{})
+		o.values["idp"] = idp
+		switch idp["type"].(string) {
+		case "GitHub":
+			file := "create/hub/secret.yaml"
+			out, err := applier.ApplyDirectly(reader, o.values, o.CMFlags.DryRun, "", file)
+			if err != nil {
+				return err
+			}
+			igithub := idp["github"]
+			github := igithub.(map[string]interface{})
+			github["clientSecret"] = map[string]string{"name": authRealm["name"].(string) + "-client-secret"}
+			output = append(output, out...)
+		default:
+			return fmt.Errorf("unsupported idp type %s", idp["type"].(string))
 		}
 	}
+
+	file = "create/hub/authrealm.yaml"
+	out, err = applier.ApplyCustomResources(reader, o.values, o.CMFlags.DryRun, "", file)
+	if err != nil {
+		return err
+	}
+	output = append(output, out...)
+
 	return clusteradmapply.WriteOutput(o.outputFile, output)
 }

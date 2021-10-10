@@ -3,18 +3,12 @@
 apiVersion: identityconfig.identitatem.io/v1alpha1
 kind: AuthRealm
 metadata:
-  name: ${NAME}
-  namespace: ${NS}
+  name: {{ .authRealm.name }}
+  namespace: {{ .authRealm.namespace }}
 spec:
-  type: dex
-  routeSubDomain: ${ROUTE_SUBDOMAIN}
+  type: {{ .authRealm.type }}
+  routeSubDomain: {{ .authRealm.routeSubDomain }}
   placementRef:
-    name: ${NAME}-placement
+    name: {{ .authRealm.placementName }}
   identityProviders:
-    - name: ${IDP_NAME}
-      mappingMethod: claim
-      type: GitHub
-      github:
-        clientID: ${GITHUB_APP_CLIENT_ID}
-        clientSecret:
-          name: ${NAME}-client-secret
+{{ toYaml .authRealm.identityProviders | indent 2 }}
