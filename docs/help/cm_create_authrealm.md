@@ -14,7 +14,7 @@ cm create authrealm [flags]
 cm create authrealm myauthrealm --values values.yaml
 
 # Create a authrealm with routeSubDomain overwrite
-cm create cluster myauthrealm --routeSubDomain mysso --values values.yaml
+cm create authrealm myauthrealm --routeSubDomain mysso --values values.yaml
 
 ```
 
