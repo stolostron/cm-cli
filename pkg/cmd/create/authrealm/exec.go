@@ -68,9 +68,15 @@ func (o *Options) complete(cmd *cobra.Command, args []string) (err error) {
 }
 
 func (o *Options) validate() (err error) {
-	_, _, dynamicClient, err := clusteradmhelpers.GetClients(o.CMFlags.KubectlFactory)
+	_, apiExtensionClient, dynamicClient, err := clusteradmhelpers.GetClients(o.CMFlags.KubectlFactory)
 	if err != nil {
 		return err
+	}
+	if _, err := apiExtensionClient.
+		ApiextensionsV1().
+		CustomResourceDefinitions().
+		Get(context.TODO(), "authrealms.identityconfig.identitatem.io", metav1.GetOptions{}); err != nil {
+		return fmt.Errorf("identitatem not installed")
 	}
 	iauthRealm := o.values["authRealm"]
 	authRealm := iauthRealm.(map[string]interface{})
