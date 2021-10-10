@@ -95,6 +95,9 @@ func (o *Options) validate() (err error) {
 	if _, ok := authRealm["routeSubDomain"]; !ok {
 		return fmt.Errorf("routeSubDomain is missing")
 	}
+	if _, ok := authRealm["identityProviders"]; !ok {
+		return fmt.Errorf("identityProviders is missing")
+	}
 
 	if v, ok := authRealm["placementName"]; ok && v != nil {
 		if _, err = dynamicClient.Resource(helpers.GvrPLC).
