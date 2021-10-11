@@ -10,5 +10,5 @@ spec:
   - requiredClusterSelector:
       labelSelector:
         matchLabels:
-{{ .authRealm.matchLabels | indent 10 }}
+{{ toYaml .authRealm.matchLabels | indent 10 }}
           
