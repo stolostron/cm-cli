@@ -3,5 +3,4 @@
 apiVersion: cluster.open-cluster-management.io/v1beta1
 kind: ManagedClusterSet
 metadata:
-  name: {{.authRealm.name  }}-clusterset
-  namespace: {{ .authRealm.namespace }}
+  name: {{ .authRealm.name  }}-clusterset

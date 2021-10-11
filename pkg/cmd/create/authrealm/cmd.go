@@ -71,9 +71,9 @@ func NewCmd(cmFlags *genericclioptionscm.CMFlags, streams genericclioptions.IOSt
 	cmd.Flags().StringVarP(&o.namespace, "namespace", "n", "", "The name of the authrealm")
 	cmd.Flags().StringVar(&o.typeName, "type", "", "type of proxy (dex)")
 	cmd.Flags().StringVar(&o.routeSubDomain, "route-sub-domain", "", "the route sub domain")
-	cmd.Flags().StringVar(&o.placementName, "placement", "", "The name of the placement")
-	cmd.Flags().StringVar(&o.clusterSetName, "cluster-set", "", "The name of the managed cluster set")
-	cmd.Flags().StringVar(&o.clusterSetBindingName, "cluster-set-binding", "", "The of the cluster set binding")
+	cmd.Flags().StringVar(&o.placement, "placement", "", "The name of the placement")
+	cmd.Flags().StringVar(&o.managedClusterSet, "cluster-set", "", "The name of the managed cluster set")
+	cmd.Flags().StringVar(&o.managedClusterSetBinding, "cluster-set-binding", "", "The of the cluster set binding")
 	cmd.Flags().StringVar(&o.valuesPath, "values", "", "The files containing the values")
 	cmd.Flags().StringVar(&o.outputFile, "output-file", "", "The generated resources will be copied in the specified file")
 

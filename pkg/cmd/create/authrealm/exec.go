@@ -51,16 +51,16 @@ func (o *Options) complete(cmd *cobra.Command, args []string) (err error) {
 		authRealm["routeSubDomain"] = o.routeSubDomain
 	}
 
-	if len(o.placementName) > 0 {
-		authRealm["placementName"] = o.placementName
+	if len(o.placement) > 0 {
+		authRealm["placement"] = o.placement
 	}
 
-	if len(o.clusterSetName) > 0 {
-		authRealm["clusterSetName"] = o.clusterSetName
+	if len(o.managedClusterSet) > 0 {
+		authRealm["managedClusterSet"] = o.managedClusterSet
 	}
 
-	if len(o.clusterSetBindingName) > 0 {
-		authRealm["clusterSetBindingName"] = o.clusterSetBindingName
+	if len(o.managedClusterSetBinding) > 0 {
+		authRealm["managedClusterSetBinding"] = o.managedClusterSetBinding
 	}
 
 	return nil
@@ -99,21 +99,20 @@ func (o *Options) validate() (err error) {
 		return fmt.Errorf("identityProviders is missing")
 	}
 
-	if v, ok := authRealm["placementName"]; ok && v != nil {
+	if v, ok := authRealm["placement"]; ok && v != nil {
 		if _, err = dynamicClient.Resource(helpers.GvrPLC).
 			Namespace(authRealm["namespace"].(string)).
 			Get(context.TODO(), v.(string), metav1.GetOptions{}); err != nil {
 			return err
 		}
 	}
-	if v, ok := authRealm["managedClusterSetName"]; ok && v != nil {
+	if v, ok := authRealm["managedClusterSet"]; ok && v != nil {
 		if _, err = dynamicClient.Resource(helpers.GvrMCS).
-			Namespace(authRealm["namespace"].(string)).
 			Get(context.TODO(), v.(string), metav1.GetOptions{}); err != nil {
 			return err
 		}
 	}
-	if v, ok := authRealm["managedClusterSetBindingName"]; ok && v != nil {
+	if v, ok := authRealm["managedClusterSetBinding"]; ok && v != nil {
 		if _, err = dynamicClient.Resource(helpers.GvrMCSB).
 			Namespace(authRealm["namespace"].(string)).
 			Get(context.TODO(), v.(string), metav1.GetOptions{}); err != nil {
@@ -152,36 +151,36 @@ func (o *Options) runWithClient(kubeClient kubernetes.Interface,
 	output = append(output, out...)
 
 	//create placement if not provided
-	if placementName, ok := authRealm["placementName"]; !ok || placementName == nil {
+	if placement, ok := authRealm["placement"]; !ok || placement == nil {
 		file := "create/hub/placement.yaml"
 		out, err := applier.ApplyCustomResource(reader, o.values, o.CMFlags.DryRun, "", file)
 		if err != nil {
 			return err
 		}
 		output = append(output, out)
-		authRealm["placementName"] = authRealm["name"].(string) + "-placement"
+		authRealm["placement"] = authRealm["name"].(string) + "-placement"
 	}
 
 	//create clusterset if not provided
-	if managedClusterSetName, ok := authRealm["managedClusterSetName"]; !ok || managedClusterSetName == nil {
+	if managedClusterSet, ok := authRealm["managedClusterSet"]; !ok || managedClusterSet == nil {
 		file := "create/hub/managedclusterset.yaml"
 		out, err := applier.ApplyCustomResource(reader, o.values, o.CMFlags.DryRun, "", file)
 		if err != nil {
 			return err
 		}
 		output = append(output, out)
-		authRealm["managedClusterSetName"] = authRealm["name"].(string) + "-clusterset"
+		authRealm["managedClusterSet"] = authRealm["name"].(string) + "-clusterset"
 	}
 
 	//create clustersetbinding if not provided
-	if managedClusterSetBindingName, ok := authRealm["managedClusterSetBindingName"]; !ok || managedClusterSetBindingName == nil {
+	if managedClusterSetBinding, ok := authRealm["managedClusterSetBinding"]; !ok || managedClusterSetBinding == nil {
 		file := "create/hub/managedclusterset_binding.yaml"
 		out, err := applier.ApplyCustomResource(reader, o.values, o.CMFlags.DryRun, "", file)
 		if err != nil {
 			return err
 		}
 		output = append(output, out)
-		authRealm["managedClusterSetBindingName"] = authRealm["name"].(string) + "-clusterset"
+		authRealm["managedClusterSetBinding"] = authRealm["name"].(string) + "-clusterset"
 	}
 
 	//Create secrets

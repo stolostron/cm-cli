@@ -9,6 +9,6 @@ spec:
   type: {{ .authRealm.type }}
   routeSubDomain: {{ .authRealm.routeSubDomain }}
   placementRef:
-    name: {{ .authRealm.placementName }}
+    name: {{ .authRealm.placement }}
   identityProviders:
 {{ toYaml .authRealm.identityProviders | indent 2 }}

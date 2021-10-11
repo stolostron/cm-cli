@@ -6,4 +6,4 @@ metadata:
   name: {{ .authRealm.name }}-clusterset
   namespace: {{ .authRealm.namespace  }}
 spec:
-  clusterSet: {{ .authRealm.managedClusterSetName }}
+  clusterSet: {{ .authRealm.managedClusterSet }}
