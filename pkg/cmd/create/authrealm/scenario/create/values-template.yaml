@@ -5,10 +5,10 @@ authRealm:
   namespace:
   type: dex # only dex is supported
   routeSubDomain:
-  placementName:
+  placement:
   matcheLabels: # the matching labels map
-  managedClusterSetName:
-  managedClusterSetBindingName:
+  managedClusterSet:
+  managedClusterSetBinding:
   identityProviders:
   - name:
     mappingMethod:
