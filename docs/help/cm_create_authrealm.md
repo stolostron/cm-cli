@@ -1,11 +1,35 @@
-## cm create
+## cm create authrealm
 
-create a resource
+Create a authrealm
+
+```
+cm create authrealm [flags]
+```
+
+### Examples
+
+```
+
+# Create a authrealm
+cm create authrealm myauthrealm --values values.yaml
+
+# Create a authrealm with routeSubDomain overwrite
+cm create authrealm myauthrealm --routeSubDomain mysso --values values.yaml
+
+```
 
 ### Options
 
 ```
-  -h, --help   help for create
+      --cluster-set string           The name of the managed cluster set
+      --cluster-set-binding string   The of the cluster set binding
+  -h, --help                         help for authrealm
+      --name string                  The name of the authrealm
+      --output-file string           The generated resources will be copied in the specified file
+      --placement string             The name of the placement
+      --route-sub-domain string      the route sub domain
+      --type string                  type of proxy (dex)
+      --values string                The files containing the values
 ```
 
 ### Options inherited from parent commands
@@ -49,10 +73,5 @@ create a resource
 
 ### SEE ALSO
 
-* [cm](cm.md)	 - CLI for Red Hat Advanced Cluster Management
-* [cm create authrealm](cm_create_authrealm.md)	 - Create a authrealm
-* [cm create cluster](cm_create_cluster.md)	 - Create a cluster
-* [cm create clusterclaim](cm_create_clusterclaim.md)	 - Create clusterclaims
-* [cm create clusterpool](cm_create_clusterpool.md)	 - Create a clusterpool
-* [cm create clusterpoolhost](cm_create_clusterpoolhost.md)	 - Initialize a clusterpool management cluster
+* [cm create](cm_create.md)	 - create a resource
 

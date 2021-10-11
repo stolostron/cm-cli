@@ -1,0 +1,14 @@
+# Copyright Contributors to the Open Cluster Management project
+
+apiVersion: identityconfig.identitatem.io/v1alpha1
+kind: AuthRealm
+metadata:
+  name: {{ .authRealm.name }}
+  namespace: {{ .authRealm.namespace }}
+spec:
+  type: {{ .authRealm.type }}
+  routeSubDomain: {{ .authRealm.routeSubDomain }}
+  placementRef:
+    name: {{ .authRealm.placement }}
+  identityProviders:
+{{ toYaml .authRealm.identityProviders | indent 2 }}

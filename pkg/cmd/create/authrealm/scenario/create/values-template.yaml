@@ -1,0 +1,19 @@
+# Copyright Contributors to the Open Cluster Management project
+
+authRealm:
+  name: 
+  namespace:
+  type: dex # only dex is supported
+  routeSubDomain:
+  placement:
+  matcheLabels: # the matching labels map
+  managedClusterSet:
+  managedClusterSetBinding:
+  identityProviders:
+  - name:
+    mappingMethod:
+    type: GitHub
+    github:
+      clientID: #github App id
+      clientSecret: #github App secret
+
