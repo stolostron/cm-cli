@@ -69,3 +69,17 @@ A total coverage is shown when running `make test`. For the time being, the `cmd
 
 - The project runs functional-tests `make functional-test-full`, this test deploys a [KiND](https://kind.sigs.k8s.io/) cluster, install some resource using the applier and then runs a set of tests against that cluster [run-functional-tests.sh](build/run-functional-tests.sh).  A prerequisite is that Docker is already running. If it fails then clean with `make clean`.
 - The `make functional-tests-full` is part of the PR acceptance and it is launched using git-actions.
+
+## Make a release (Owners only)
+
+1. Run `make release`
+2. Monitor the github action.
+3. Go to releases on github
+4. Review the summary.
+5. Untick `This is a pre-release`.
+6. Publish
+
+## Update krew-index
+
+1. Run `make build-krew`
+2. Create a PR on with the newly created `cm.yaml` file in https://github.com/kubernetes-sigs/krew-index
