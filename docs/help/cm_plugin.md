@@ -1,6 +1,6 @@
 ## cm plugin
 
-Provides utilities for interacting with plugins.
+Provides utilities for interacting with plugins
 
 ### Synopsis
 
@@ -62,5 +62,5 @@ cm plugin [flags]
 ### SEE ALSO
 
 * [cm](cm.md)	 - CLI for Red Hat Advanced Cluster Management
-* [cm plugin list](cm_plugin_list.md)	 - list all visible plugin executables on a user's PATH
+* [cm plugin list](cm_plugin_list.md)	 - List all visible plugin executables on a user's PATH
 
