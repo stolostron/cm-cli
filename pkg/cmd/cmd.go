@@ -80,7 +80,7 @@ func NewCMCommand() *cobra.Command {
 
 	//enable plugin functionality: all `os.Args[0]-<binary>` in the $PATH will be available for plugin
 	plugin.ValidPluginFilenamePrefixes = []string{os.Args[0]}
-	root.AddCommand(plugin.NewCmdPlugin(f, streams))
+	root.AddCommand(plugin.NewCmdPlugin(streams))
 
 	groups := templates.CommandGroups{
 		{

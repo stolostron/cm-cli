@@ -158,6 +158,8 @@ spec:
                                     type: string
                                 type: object
                               type: array
+                            placement:
+                              type: string
                             placementBinding:
                               type: string
                             placementRule:

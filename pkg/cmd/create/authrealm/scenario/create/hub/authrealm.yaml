@@ -12,3 +12,7 @@ spec:
     name: {{ .authRealm.placement }}
   identityProviders:
 {{ toYaml .authRealm.identityProviders | indent 2 }}
+{{- if .authRealm.ldapExtraConfigs }}
+  ldapExtraConfigs:
+{{ toYaml .authRealm.ldapExtraConfigs | indent 4 }}
+{{- end }}

@@ -10,10 +10,30 @@ authRealm:
   managedClusterSet:
   managedClusterSetBinding:
   identityProviders:
-  - name:
-    mappingMethod:
-    type: GitHub
+  # Example for github, this section will be copied into the authrealm CR.
+  # Reference: https://github.com/openshift/api/blob/master/config/v1/0000_10_config-operator_01_oauth.crd.yaml#L80
+  - name: my-github-idp # name of the idp
+    mappingMethod: claim # Either claim, lookup or add 
+    type: GitHub 
     github:
       clientID: #github App id
-      clientSecret: #github App secret
-
+      clientSecret: #github App secret, the cm-cli will create a local secret with it
+      organizations:
+      - myorg
+    #,,,,
+  # Example for LDAP, this section will be copied into the authrealm CR.
+  # Reference: https://github.com/openshift/api/blob/master/config/v1/0000_10_config-operator_01_oauth.crd.yaml#L215
+  - name: my-ldap-idp
+    mappingMethod: claim
+    type: LDAP
+    ldap:
+      url:
+      bindDN:
+      bindPassword: # the cm-cli will create a local secret with it
+    #....
+  # Extra supported ldap configuration
+  # 
+  ldapExtraConfigs:
+    my-ldap-idp: #the name of the ldap identity provider
+      baseDN: 
+      filter:

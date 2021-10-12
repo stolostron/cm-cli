@@ -8,7 +8,7 @@ import (
 
 	printpoliciesv1alpha1 "github.com/open-cluster-management/cm-cli/api/cm-cli/v1alpha1"
 	"github.com/open-cluster-management/cm-cli/pkg/helpers"
-	policyv1 "github.com/open-cluster-management/governance-policy-propagator/pkg/apis/policy/v1"
+	policyv1 "github.com/open-cluster-management/governance-policy-propagator/api/v1"
 	"github.com/spf13/cobra"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
