@@ -73,7 +73,7 @@ plugin: build
 
 .PHONY: check
 ## Runs a set of required checks
-check: check-copyright doc-help
+check: check-copyright
 
 .PHONY: check-copyright
 check-copyright:
