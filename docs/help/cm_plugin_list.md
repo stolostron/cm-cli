@@ -1,6 +1,6 @@
 ## cm plugin list
 
-list all visible plugin executables on a user's PATH
+List all visible plugin executables on a user's PATH
 
 ### Synopsis
 
@@ -60,5 +60,5 @@ cm plugin list [flags]
 
 ### SEE ALSO
 
-* [cm plugin](cm_plugin.md)	 - Provides utilities for interacting with plugins.
+* [cm plugin](cm_plugin.md)	 - Provides utilities for interacting with plugins
 

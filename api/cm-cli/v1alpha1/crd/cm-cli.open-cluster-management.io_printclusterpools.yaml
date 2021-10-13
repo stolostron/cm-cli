@@ -92,7 +92,10 @@ spec:
                         properties:
                           default:
                             description: Default is the default lifetime of the claim
-                              when no lifetime is set on the claim itself.
+                              when no lifetime is set on the claim itself. This is
+                              a Duration value; see https://pkg.go.dev/time#ParseDuration
+                              for accepted formats.
+                            format: duration
                             type: string
                           maximum:
                             description: Maximum is the maximum lifetime of the claim
@@ -100,6 +103,9 @@ spec:
                               when the lifetime has elapsed, the claim will be deleted
                               by Hive. The lifetime of a claim is the mimimum of the
                               lifetimes set by the cluster pool and the claim itself.
+                              This is a Duration value; see https://pkg.go.dev/time#ParseDuration
+                              for accepted formats.
+                            format: duration
                             type: string
                         type: object
                       hibernateAfter:
@@ -109,6 +115,9 @@ spec:
                           been running for the given duration. The time that a cluster
                           has been running is the time since the cluster was installed
                           or the time since the cluster last came out of hibernation.
+                          This is a Duration value; see https://pkg.go.dev/time#ParseDuration
+                          for accepted formats.
+                        format: duration
                         type: string
                       imageSetRef:
                         description: ImageSetRef is a reference to a ClusterImageSet.
@@ -280,6 +289,18 @@ spec:
                                 description: BaseDomainResourceGroupName specifies
                                   the resource group where the azure DNS zone for
                                   the base domain is found
+                                type: string
+                              cloudName:
+                                description: cloudName is the name of the Azure cloud
+                                  environment which can be used to configure the Azure
+                                  SDK with the appropriate Azure API endpoints. If
+                                  empty, the value is equal to "AzurePublicCloud".
+                                enum:
+                                - ""
+                                - AzurePublicCloud
+                                - AzureUSGovernmentCloud
+                                - AzureChinaCloud
+                                - AzureGermanCloud
                                 type: string
                               credentialsSecretRef:
                                 description: CredentialsSecretRef refers to a secret
@@ -514,6 +535,14 @@ spec:
                               TODO: Add other useful fields. apiVersion, kind, uid?'
                             type: string
                         type: object
+                      runningCount:
+                        description: RunningCount is the number of clusters we should
+                          keep running. The remainder will be kept hibernated until
+                          claimed. By default no clusters will be kept running (all
+                          will be hibernated).
+                        format: int32
+                        minimum: 0
+                        type: integer
                       size:
                         description: Size is the default number of clusters that we
                           should keep provisioned and waiting for use.

@@ -56,7 +56,7 @@ CLI for Red Hat Advanced Cluster Management
 * [cm init](cm_init.md)	 - init feature or hub
 * [cm join](cm_join.md)	 - join a hub
 * [cm options](cm_options.md)	 - Print the list of flags inherited by all commands
-* [cm plugin](cm_plugin.md)	 - Provides utilities for interacting with plugins.
+* [cm plugin](cm_plugin.md)	 - Provides utilities for interacting with plugins
 * [cm run](cm_run.md)	 - run a resource
 * [cm scale](cm_scale.md)	 - scale a resource
 * [cm set](cm_set.md)	 - set a resource

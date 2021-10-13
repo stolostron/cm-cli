@@ -189,14 +189,24 @@ func (o *Options) runWithClient(kubeClient kubernetes.Interface,
 		o.values["idp"] = idp
 		switch idp["type"].(string) {
 		case "GitHub":
-			file := "create/hub/secret.yaml"
+			file := "create/hub/github_secret.yaml"
 			out, err := applier.ApplyDirectly(reader, o.values, o.CMFlags.DryRun, "", file)
 			if err != nil {
 				return err
 			}
 			igithub := idp["github"]
 			github := igithub.(map[string]interface{})
-			github["clientSecret"] = map[string]string{"name": authRealm["name"].(string) + "-client-secret"}
+			github["clientSecret"] = map[string]string{"name": idp["name"].(string) + "-secret"}
+			output = append(output, out...)
+		case "LDAP":
+			file := "create/hub/ldap_secret.yaml"
+			out, err := applier.ApplyDirectly(reader, o.values, o.CMFlags.DryRun, "", file)
+			if err != nil {
+				return err
+			}
+			ildap := idp["ldap"]
+			ldap := ildap.(map[string]interface{})
+			ldap["bindPassword"] = map[string]string{"name": idp["name"].(string) + "-secret"}
 			output = append(output, out...)
 		default:
 			return fmt.Errorf("unsupported idp type %s", idp["type"].(string))
