@@ -1,6 +1,6 @@
 ## cm get token
 
-get the bootsrap token
+get the bootstrap token
 
 ```
 cm get token [flags]

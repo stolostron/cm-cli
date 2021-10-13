@@ -72,14 +72,16 @@ A total coverage is shown when running `make test`. For the time being, the `cmd
 
 ## Make a release (Owners only)
 
-1. Run `make release`
-2. Monitor the github action.
-3. Go to releases on github
-4. Review the summary.
-5. Untick `This is a pre-release`.
-6. Publish
-
-## Update krew-index
-
-1. Run `make build-krew`
-2. Create a PR on with the newly created `cm.yaml` file in https://github.com/kubernetes-sigs/krew-index
+1. Update the VERSION.txt with the semver of the new release
+2. Add labels to PR to generate the release note
+- `ignore-for-release` to exclude the PR from the release note.
+- `bracking-changes` to set the PR for the `Breaking Changes` section.
+- `enhancement` to set the PR for the `Exciting New Features` section.
+- `bug-fix` to set the PR for the `Bug fixes` section. 
+3. Run `make release`
+4. Monitor the github action.
+5. Go to releases on github
+6. Review the summary.
+7. Run `make build-krew` to verify if the krew configuration is ok
+8. Publish
+9. (To Be verified) A PR will be automatically created in https://github.com/kubernetes-sigs/krew-index to generate the plugin version
