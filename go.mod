@@ -21,7 +21,7 @@ require (
 	github.com/ghodss/yaml v1.0.1-0.20190212211648-25d852aebe32
 	github.com/open-cluster-management/governance-policy-propagator v0.0.0-20211005130403-ec156472e33b
 	github.com/openshift/api v3.9.1-0.20190924102528-32369d4db2ad+incompatible
-	github.com/openshift/client-go v0.0.0-20210521082421-73d9475a9142
+	github.com/openshift/client-go v0.0.0-20210916133943-9acee1a0fb83
 	github.com/openshift/hive/apis v0.0.0-20211012143010-16ef5a35537d
 	github.com/spf13/cobra v1.2.1
 	github.com/spf13/pflag v1.0.5
@@ -36,5 +36,5 @@ require (
 	k8s.io/klog/v2 v2.9.0
 	k8s.io/kubectl v0.22.1
 	open-cluster-management.io/api v0.0.0-20210927063308-2c6896161c48
-	open-cluster-management.io/clusteradm v0.1.0-alpha.4.0.20210709205037-2347693f34cd
+	open-cluster-management.io/clusteradm v0.1.0-alpha.5.0.20211012235309-d275d8270776
 )
