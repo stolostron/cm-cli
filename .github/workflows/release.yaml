@@ -27,7 +27,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          body_path: CHANGELOG.md
+          # body_path: CHANGELOG.md
           files: |
             docs/help.tar.gz
             docs/help.zip
@@ -38,4 +38,4 @@ jobs:
             bin/cm_linux_s390x.tar.gz
             bin/cm_windows_amd64.zip
           draft: true
-          prerelease: true
+          prerelease: false

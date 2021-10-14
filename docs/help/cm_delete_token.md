@@ -1,6 +1,6 @@
 ## cm delete token
 
-delete the bootsrap token
+delete the bootstrap token
 
 ```
 cm delete token [flags]

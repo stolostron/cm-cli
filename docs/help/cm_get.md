@@ -58,5 +58,5 @@ get a resource
 * [cm get credentials](cm_get_credentials.md)	 - list the credentials of cloud providers
 * [cm get machinepools](cm_get_machinepools.md)	 - list the machinepools for a give cluster
 * [cm get policies](cm_get_policies.md)	 - Display policies
-* [cm get token](cm_get_token.md)	 - get the bootsrap token
+* [cm get token](cm_get_token.md)	 - get the bootstrap token
 

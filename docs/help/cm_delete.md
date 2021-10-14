@@ -54,5 +54,5 @@ delete a resource
 * [cm delete clusterclaim](cm_delete_clusterclaim.md)	 - Delete clusterclaims
 * [cm delete clusterpool](cm_delete_clusterpool.md)	 - Delete clusterpools
 * [cm delete clusterpoolhost](cm_delete_clusterpoolhost.md)	 - delete clusterpoolhost
-* [cm delete token](cm_delete_token.md)	 - delete the bootsrap token
+* [cm delete token](cm_delete_token.md)	 - delete the bootstrap token
 

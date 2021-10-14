@@ -1,0 +1,20 @@
+# Copyright Contributors to the Open Cluster Management project
+
+on:
+  release:
+    types:
+      - published # Release published
+
+name: krew
+
+jobs:
+  build:
+    name: Create krew PR
+    runs-on: ubuntu-latest
+    steps:
+      - name: Build project
+        run: |
+          make build-krew
+      - name: Update new version in krew-index
+        uses: rajatjindal/krew-release-bot@v0.0.40    
+ 
