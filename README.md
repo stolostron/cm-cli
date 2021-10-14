@@ -11,11 +11,11 @@ Go 1.16 is required in order to build or contribute on this project as it levera
 
 ### Using releases
 
-You can download the binary from (https://github.com/open-cluster-management/cm-cli/releases)[https://github.com/open-cluster-management/cm-cli/releases]
+You can download the binary from [https://github.com/open-cluster-management/cm-cli/releases](https://github.com/open-cluster-management/cm-cli/releases)
 
 ### Using Krew
 
-1. Install krew (https://krew.sigs.k8s.io/docs/user-guide/setup/install/)[https://krew.sigs.k8s.io/docs/user-guide/setup/install/]
+1. Install krew [https://krew.sigs.k8s.io/docs/user-guide/setup/install/](https://krew.sigs.k8s.io/docs/user-guide/setup/install/)
 2. Plugins can be installed with the `kubectl krew install cm`
 
 ### CLI
