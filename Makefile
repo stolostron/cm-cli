@@ -50,15 +50,14 @@ build-bin: doc-help
 .PHONY: release
 release: 
 	@if [[ -z "${VERSION}" ]]; then VERSION=`cat VERSION.txt`; echo $$VERSION; fi; \
-	git tag v$$VERSION && git merge upstream/main --signoff
+	git tag v$$VERSION && git push upstream --tags
 
 .PHONY: build-krew
 build-krew: krew-tools
 	@if [[ -z "${VERSION}" ]]; then VERSION=`cat VERSION.txt`; echo $$VERSION; fi; \
-	docker run -v /Users/dvernier/acm-tools/cm-cli/.krew.yaml:/tmp/template-file.yaml rajatjindal/krew-release-bot:v0.0.40 \
+	docker run -v ${PROJECT_DIR}/.krew.yaml:/tmp/template-file.yaml rajatjindal/krew-release-bot:v0.0.40 \
 	krew-release-bot template --tag v$$VERSION --template-file /tmp/template-file.yaml > cm.yaml; 
 	KREW=/tmp/krew-${GOOS}\_$(GOARCH) && \
-	echo $$KREW && \
 	KREW_ROOT=`mktemp -d` KREW_OS=darwin KREW_ARCH=amd64 $$KREW install --manifest=cm.yaml && \
 	KREW_ROOT=`mktemp -d` KREW_OS=linux KREW_ARCH=amd64 $$KREW install --manifest=cm.yaml && \
 	KREW_ROOT=`mktemp -d` KREW_OS=linux KREW_ARCH=arm64 $$KREW install --manifest=cm.yaml && \
@@ -69,9 +68,9 @@ krew-tools:
 ifeq (, $(shell which /tmp/krew-$(GOOS)\_$(GOARCH)))
 	@( \
 		set -x; cd /tmp && \
-		curl -fsSLO "https://github.com/kubernetes-sigs/krew/releases/latest/download/krew.tar.gz" && \
-		tar zxvf krew.tar.gz && \
-		KREW=/tmp/krew-$(GOOS)\_$(GOARCH); \
+		KREW=krew-$(GOOS)\_$(GOARCH); \
+		curl -fsSLO "https://github.com/kubernetes-sigs/krew/releases/latest/download/$$KREW.tar.gz" && \
+		tar zxvf $$KREW.tar.gz \
 	) 
 endif
 
