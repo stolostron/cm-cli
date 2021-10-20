@@ -12,9 +12,6 @@ jobs:
     name: Create krew PR
     runs-on: ubuntu-latest
     steps:
-      - name: Build project
-        run: |
-          make build-krew
       - name: Update new version in krew-index
         uses: rajatjindal/krew-release-bot@v0.0.40    
  
