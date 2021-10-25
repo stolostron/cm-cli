@@ -5,4 +5,4 @@
 ## Breaking changes
 
 ## Bug fixes
-
+[Klusteraddonconfig error when attach cluster on MCE #143](https://github.com/open-cluster-management/cm-cli/issues/143)
