@@ -179,6 +179,9 @@ func (cph *ClusterPoolHost) setHibernateClusterClaims(clusterClaimNames string, 
 
 func waitClusterClaimsRunning(dynamicClient dynamic.Interface, clusterClaimNames, clusterPoolName, namespace string, timeout int, printFlags *get.PrintFlags) error {
 	i := 0
+	if running, _ := checkClusterClaimsRunning(dynamicClient, clusterClaimNames, clusterPoolName, namespace, i, timeout, false, printFlags); running {
+		return nil
+	}
 	return wait.PollImmediate(1*time.Minute, time.Duration(timeout)*time.Minute, func() (bool, error) {
 		i += 1
 		return checkClusterClaimsRunning(dynamicClient, clusterClaimNames, clusterPoolName, namespace, i, timeout, false, printFlags)
@@ -245,7 +248,8 @@ func checkClusterClaimsRunning(dynamicClient dynamic.Interface, clusterClaimName
 					len(cd.Status.APIURL) != 0 &&
 					c != nil && c.Status == corev1.ConditionStatus(metav1.ConditionTrue) {
 					running = true
-					if printFlags == nil || printFlags.OutputFormat == nil || strings.HasPrefix(*printFlags.OutputFormat, "custom-columns=") {
+					if i != 0 &&
+						(printFlags == nil || printFlags.OutputFormat == nil || strings.HasPrefix(*printFlags.OutputFormat, "custom-columns=")) {
 						fmt.Printf("clusterclaim %s is running with id %s (%d/%d)\n", clusterClaimName, cc.Spec.Namespace, i, timeout)
 					}
 				}
