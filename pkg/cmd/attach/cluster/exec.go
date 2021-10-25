@@ -229,7 +229,10 @@ func (o *Options) runWithClient(kubeClient kubernetes.Interface,
 
 	files = []string{
 		"attach/hub/managed_cluster_cr.yaml",
-		"attach/hub/klusterlet_addon_config_cr.yaml",
+	}
+
+	if helpers.IsRHACM(o.CMFlags.KubectlFactory) {
+		files = append(files, "attach/hub/klusterlet_addon_config_cr.yaml")
 	}
 
 	out, err = applier.ApplyCustomResources(reader, o.values, o.CMFlags.DryRun, "", files...)
