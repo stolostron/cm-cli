@@ -1,39 +1,71 @@
 # Copyright Contributors to the Open Cluster Management project
 
 authRealm:
+  # The name of the authrealm, can be override using the --name parameter
   name: 
+  # The namespace where the authrealm must be created, can be override using the --namespace
   namespace:
-  type: dex # only dex is supported
+  # The strategy type, only dex is supported, can be override using --type
+  type: dex
+  # The routeSubDomain to use, can be override using --route-sub-domain
   routeSubDomain:
+  # The placement rule to use, if not present then a new one will be created
+  # in the authrealm namespace and having for labelSelector the matchLabels below.
+  # It can be overridden using --placement
   placement:
-  matcheLabels: # the matching labels map
+  # The matchLabels to use to build the placement if not provided
+  # For example:
+  # matchLabels:
+  #  authdeployment: east
+  matchLabels: 
+  # The managedClusterSet to link the placement to, can be override using --cluster-set
   managedClusterSet:
+  # The managedClusterSetBinding, if not present then it will be created to bind
+  # the provided placement with the managedClusterSet
+  # It can be overridden using --cluster-set-binding
   managedClusterSetBinding:
+  # The list of identity providers
   identityProviders:
   # Example for github, this section will be copied into the authrealm CR.
   # Reference: https://github.com/openshift/api/blob/master/config/v1/0000_10_config-operator_01_oauth.crd.yaml#L80
-  - name: my-github-idp # name of the idp
-    mappingMethod: claim # Either claim, lookup or add 
+  # The identity provider name
+  - name: my-github-idp 
+    # The mappingMethod could be add, claim or lookup
+    mappingMethod: claim 
+    # The identity provider type, here GitHub
     type: GitHub 
+    # The github specifics
     github:
-      clientID: #github App id
-      clientSecret: #github App secret, the cm-cli will create a local secret with it
+      # The client ID of the github app
+      clientID: 
+      # The github app secret, the cm-cli will create a local secret with it
+      clientSecret:
+      # Lists of GitHub Organizations (optionals)
       organizations:
       - myorg
     #,,,,
   # Example for LDAP, this section will be copied into the authrealm CR.
   # Reference: https://github.com/openshift/api/blob/master/config/v1/0000_10_config-operator_01_oauth.crd.yaml#L215
+  # The identity provider name
   - name: my-ldap-idp
+    # The mappingMethod could be add, claim or lookup
     mappingMethod: claim
+    # The identity provider type, here LDAP
     type: LDAP
+    # The ldap specifics
     ldap:
+      # The LDAP server url
       url:
+      # The bind Domain name
       bindDN:
-      bindPassword: # the cm-cli will create a local secret with it
+      # The bind password, the cm-cli will create a local secret with it
+      bindPassword:
     #....
-  # Extra supported ldap configuration
+  # Extra supported ldap configuration for the dex server
   # 
   ldapExtraConfigs:
-    my-ldap-idp: #the name of the ldap identity provider
+    # The name of the ldap identity provider
+    my-ldap-idp: 
+      # The base Domain name
       baseDN: 
       filter:
