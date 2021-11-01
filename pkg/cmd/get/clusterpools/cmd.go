@@ -16,10 +16,10 @@ import (
 )
 
 var example = `
-# Get clusterpool
-%[1]s get cp <clusterpool_name>
+# Get clusterpools or a specific clusterpool
+%[1]s get cp [<clusterpool_name>]
 
-# Get clusterpool on a given clusterpoolhost
+# Get clusterpools or a specific clusterpool on a given clusterpoolhost
 %[1]s get cp <clusterpool_name> --cph <clusterpoolhost>
 
 # Get clusterpool across all clusterpoolhosts

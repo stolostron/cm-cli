@@ -37,13 +37,13 @@ cm attach cluster --cluster <cluster_name> [--cluster-kubeconfig <managed_cluste
 ```
 
 The `attach` verb provides the capability to attach a cluster to a hub.
-The `attach` can be done on different ways. 
+The `attach` can be done on different ways.
 1. Manually:
     By adding the parameter `--import-file` to the `attach` command, an import yaml files will be generated then run the command `kubectl apply -f <import_file>` on the cluster you would like to import. This will install the agent on the cluster and it will connect to the hub.
 
 2. Automatically:
     a) By providing the kubeconfig in the [values.yaml](../pkg/cmd/attach/cluster/scenario/attach/values-template.yaml), then a secret will be created on the hub cluster and the system will use it to install the agent. The secret is deleled if the `attach` failed or succeed and so the credentials are not kept on the hub.
-    b) By providing the pair server/token in the [values.yaml](../pkg/cmd/attach/cluster/scenario/attach/values-template.yaml) and again a secret will be created on the hub and the system will use it to install the agent. The secret is deleled if the `attach` failed or succeed and so the credentials are not kept on the hub. 
+    b) By providing the pair server/token in the [values.yaml](../pkg/cmd/attach/cluster/scenario/attach/values-template.yaml) and again a secret will be created on the hub and the system will use it to install the agent. The secret is deleled if the `attach` failed or succeed and so the credentials are not kept on the hub.
     c) When the cluster was provisionned with hive. If the cluster was provisionned with hive, a clusterdeployemnt custom resource exists which contain a secret to access the remote cluster and thus if you `attach` a hive cluster, you don't have to provide any credential to access the cluster. The system will find out the credentials and attach the cluster.
 
     The `attach` command also takes `--cluster` and `--cluster-kubeconfig` instead of the `--values`, in that case the default [values.yaml](../pkg/attach/cluster/scenario/attach/values-default.yaml) will be used.
@@ -72,7 +72,7 @@ The `create` will create a new managed cluster and attach it to the hub. Cloud p
 
 ### Get Cluster config
 
-If the cluster was deployed with hive, this command will retreive the configuration in order to redeploy the cluster later or another cluster with another name.
+If the cluster was deployed with hive, this command will retrieve the configuration in order to redeploy the cluster later or another cluster with another name.
 
 ```bash
 cm get config cluster <cluster_name> [--output-file <config_file_name>] [--without-credentials]
