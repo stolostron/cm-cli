@@ -179,9 +179,19 @@ func (cph *ClusterPoolHost) GetClusterPools(showCphName, dryRun bool) (*hivev1.C
 	return clusterPools, nil
 }
 
-func (cph *ClusterPoolHost) ConvertToPrintClusterPoolList(cpl *hivev1.ClusterPoolList) *printclusterpoolv1alpha1.PrintClusterPoolList {
+func (cph *ClusterPoolHost) ConvertToPrintClusterPoolList(cpl *hivev1.ClusterPoolList, specificClusterPool string) (*printclusterpoolv1alpha1.PrintClusterPoolList, error) {
 	pcps := &printclusterpoolv1alpha1.PrintClusterPoolList{}
+	var singletonFound = false
 	for i := range cpl.Items {
+		// if only a specific cluster pool list is wanted, skip the others
+		if specificClusterPool != "" {
+			if specificClusterPool != cpl.Items[i].Name {
+				continue
+			} else {
+				singletonFound = true
+			}
+
+		}
 		pcp := printclusterpoolv1alpha1.PrintClusterPool{
 			ObjectMeta: metav1.ObjectMeta{
 				Name:      cpl.Items[i].Name,
@@ -194,7 +204,11 @@ func (cph *ClusterPoolHost) ConvertToPrintClusterPoolList(cpl *hivev1.ClusterPoo
 		}
 		pcps.Items = append(pcps.Items, pcp)
 	}
-	return pcps
+	//If they only want one item, be sure we found that item or toss and error
+	if specificClusterPool != "" && !singletonFound {
+		return nil, fmt.Errorf("clusterpool %s was not found", specificClusterPool)
+	}
+	return pcps, nil
 }
 
 func (cph *ClusterPoolHost) GetClusterPoolConfig(clusterPoolName string, withoutCredentials bool, beta bool, outputFile string) error {
