@@ -61,7 +61,11 @@ func (o *Options) run() (err error) {
 			fmt.Printf("Error while retrieving clusterpools from %s\n", cph.Name)
 			continue
 		}
-		printClusterPoolList := cph.ConvertToPrintClusterPoolList(clusterPools, o.ClusterPool)
+		printClusterPoolList, err := cph.ConvertToPrintClusterPoolList(clusterPools, o.ClusterPool)
+		if err != nil {
+			return err
+		}
+
 		printClusterPoolLists.Items = append(printClusterPoolLists.Items, printClusterPoolList.Items...)
 	}
 	return helpers.Print(printClusterPoolLists, o.GetOptions.PrintFlags)
