@@ -179,9 +179,13 @@ func (cph *ClusterPoolHost) GetClusterPools(showCphName, dryRun bool) (*hivev1.C
 	return clusterPools, nil
 }
 
-func (cph *ClusterPoolHost) ConvertToPrintClusterPoolList(cpl *hivev1.ClusterPoolList) *printclusterpoolv1alpha1.PrintClusterPoolList {
+func (cph *ClusterPoolHost) ConvertToPrintClusterPoolList(cpl *hivev1.ClusterPoolList, specificClusterPool string) *printclusterpoolv1alpha1.PrintClusterPoolList {
 	pcps := &printclusterpoolv1alpha1.PrintClusterPoolList{}
 	for i := range cpl.Items {
+		// if only a specific cluster pool list is wanted, skip the others
+		if specificClusterPool != "" && specificClusterPool != cpl.Items[i].Name {
+			continue
+		}
 		pcp := printclusterpoolv1alpha1.PrintClusterPool{
 			ObjectMeta: metav1.ObjectMeta{
 				Name:      cpl.Items[i].Name,

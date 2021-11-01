@@ -10,6 +10,7 @@ import (
 type Options struct {
 	//CMFlags: The generic optiosn from the cm cli-runtime.
 	CMFlags             *genericclioptionscm.CMFlags
+	ClusterPool         string
 	GetOptions          *get.GetOptions
 	AllClusterPoolHosts bool
 	ClusterPoolHost     string
