@@ -178,16 +178,25 @@ func (cph *ClusterPoolHost) setHibernateClusterClaims(clusterClaimNames string, 
 }
 
 func waitClusterClaimsRunning(dynamicClient dynamic.Interface, clusterClaimNames, clusterPoolName, namespace string, timeout int, printFlags *get.PrintFlags) error {
-	i := 0
-	if running, _ := checkClusterClaimsRunning(dynamicClient, clusterClaimNames, clusterPoolName, namespace, i, timeout, false, printFlags); running {
+	if timeout == 0 {
+		running, err := checkClusterClaimsRunning(dynamicClient, clusterClaimNames, clusterPoolName, namespace, 0, timeout, false, printFlags)
+		if err != nil {
+			return err
+		}
+		if !running {
+			return fmt.Errorf("one or more clusterclaims are not running: %s", clusterClaimNames)
+		}
 		return nil
 	}
+	i := 0
 	return wait.PollImmediate(1*time.Minute, time.Duration(timeout)*time.Minute, func() (bool, error) {
+		running, err := checkClusterClaimsRunning(dynamicClient, clusterClaimNames, clusterPoolName, namespace, i, timeout, false, printFlags)
 		i += 1
-		return checkClusterClaimsRunning(dynamicClient, clusterClaimNames, clusterPoolName, namespace, i, timeout, false, printFlags)
+		return running, err
 	})
 
 }
+
 func checkClusterClaimsRunning(dynamicClient dynamic.Interface, clusterClaimNames, clusterPoolName, namespace string, i, timeout int, errorOnHibernate bool, printFlags *get.PrintFlags) (bool, error) {
 	if len(clusterPoolName) != 0 {
 		cpu, err := dynamicClient.Resource(helpers.GvrCP).Namespace(namespace).Get(context.TODO(), clusterPoolName, metav1.GetOptions{})
@@ -248,15 +257,22 @@ func checkClusterClaimsRunning(dynamicClient dynamic.Interface, clusterClaimName
 					len(cd.Status.APIURL) != 0 &&
 					c != nil && c.Status == corev1.ConditionStatus(metav1.ConditionTrue) {
 					running = true
-					if i != 0 &&
-						(printFlags == nil || printFlags.OutputFormat == nil || strings.HasPrefix(*printFlags.OutputFormat, "custom-columns=")) {
-						fmt.Printf("clusterclaim %s is running with id %s (%d/%d)\n", clusterClaimName, cc.Spec.Namespace, i, timeout)
+					if i == 0 || printFlags == nil || printFlags.OutputFormat == nil || strings.HasPrefix(*printFlags.OutputFormat, "custom-columns=") {
+						if timeout == 0 {
+							fmt.Printf("clusterclaim %s is running with id %s (%d)\n", clusterClaimName, cc.Spec.Namespace, i)
+						} else {
+							fmt.Printf("clusterclaim %s is running with id %s (%d/%d)\n", clusterClaimName, cc.Spec.Namespace, i, timeout)
+						}
 					}
 				}
 			}
 		}
 		if !running {
-			fmt.Printf("clusterclaim %s is not running (%d/%d)\n", clusterClaimName, i, timeout)
+			if timeout == 0 {
+				fmt.Printf("clusterclaim %s is not running (%d)\n", clusterClaimName, i)
+			} else {
+				fmt.Printf("clusterclaim %s is not running (%d/%d)\n", clusterClaimName, i, timeout)
+			}
 			allRunning = false
 		}
 	}
