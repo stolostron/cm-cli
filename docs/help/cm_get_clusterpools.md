@@ -10,10 +10,10 @@ cm get clusterpools [flags]
 
 ```
 
-# Get clusterpool
-cm get cp <clusterpool_name>
+# Get clusterpools or a specific clusterpool
+cm get cp [<clusterpool_name>]
 
-# Get clusterpool on a given clusterpoolhost
+# Get clusterpools or a specific clusterpool on a given clusterpoolhost
 cm get cp <clusterpool_name> --cph <clusterpoolhost>
 
 # Get clusterpool across all clusterpoolhosts
