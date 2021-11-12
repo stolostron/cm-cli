@@ -72,11 +72,12 @@ A total coverage is shown when running `make test`. For the time being, the `cmd
 
 ## Make a release (Owners only)
 
-1. Update the VERSION.txt with the semver of the new release
-2. Run `make release`
-3. Monitor the github action.
-4. Go to releases on github
-5. Review the summary.
-6. Run `make build-krew` to verify if the krew configuration is ok
-7. Publish
-8. (To Be verified) A PR will be automatically created in https://github.com/kubernetes-sigs/krew-index to generate the plugin version
+1. Create a branch
+2. run `make doc-help`
+3. Update the VERSION.txt with the semver of the new release
+4. Create a PR and merge it
+5. Run `make release` on the main branch
+6. Monitor the github action.
+7. Go to releases on github
+8. Review the summary.
+9. Publish
