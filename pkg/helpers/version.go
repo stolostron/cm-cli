@@ -138,6 +138,9 @@ func IsSupported(f cmdutil.Factory, rhacmConstraint string, mceConstraint string
 	switch {
 	case IsRHACM(f):
 		platform = RHACM
+		if len(rhacmConstraint) == 0 {
+			return false, platform, nil
+		}
 		version, _, err = GetACMVersion(kubeClient, dynamicClient)
 		if err != nil {
 			return isSupported, platform, err
@@ -145,6 +148,9 @@ func IsSupported(f cmdutil.Factory, rhacmConstraint string, mceConstraint string
 		c, err = semver.NewConstraint(rhacmConstraint)
 	case IsMCE(f):
 		platform = MCE
+		if len(mceConstraint) == 0 {
+			return false, platform, nil
+		}
 		version, _, err = GetMCEVersion(kubeClient, dynamicClient)
 		if err != nil {
 			return isSupported, platform, err

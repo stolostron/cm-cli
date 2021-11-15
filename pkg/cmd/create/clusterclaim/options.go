@@ -14,6 +14,7 @@ type Options struct {
 	ClusterClaims   string
 	ClusterPool     string
 	ClusterPoolHost string
+	Import          bool
 	GetOptions      *get.GetOptions
 	WithCredentials bool
 	Timeout         int
