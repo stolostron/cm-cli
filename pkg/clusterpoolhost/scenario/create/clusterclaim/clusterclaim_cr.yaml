@@ -5,6 +5,8 @@ kind: ClusterClaim
 metadata:
   name: "{{ .Name }}"
   namespace: "{{ .Namespace }}"
+  annotations:
+    open-cluster-management.io/createmanagedcluster: "{{ .AutoImport }}"
 spec:
   clusterPoolName: "{{ .ClusterPoolName }}"
   subjects:

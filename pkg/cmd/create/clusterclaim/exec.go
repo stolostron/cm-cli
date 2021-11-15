@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/open-cluster-management/cm-cli/pkg/clusterpoolhost"
+	"github.com/open-cluster-management/cm-cli/pkg/helpers"
 
 	"github.com/spf13/cobra"
 )
@@ -23,6 +24,21 @@ func (o *Options) complete(cmd *cobra.Command, args []string) (err error) {
 }
 
 func (o *Options) validate() error {
+	if o.Import {
+		rhacmConstraint := ">=2.4.0"
+		supported, platform, err := helpers.IsSupported(o.CMFlags.KubectlFactory, rhacmConstraint, "")
+		if err != nil {
+			return err
+		}
+		if !supported {
+			switch platform {
+			case helpers.RHACM:
+				return fmt.Errorf("clusterlcaim import is supported only on versions %s", rhacmConstraint)
+			case helpers.MCE:
+				return fmt.Errorf("clusterlcaim import is supported only on MCE")
+			}
+		}
+	}
 	return nil
 }
 
@@ -37,7 +53,7 @@ func (o *Options) run() (err error) {
 		return err
 	}
 
-	err = cph.CreateClusterClaims(o.ClusterClaims, o.ClusterPool, o.SkipSchedule, o.Timeout, o.CMFlags.DryRun, o.outputFile)
+	err = cph.CreateClusterClaims(o.ClusterClaims, o.ClusterPool, o.SkipSchedule, o.Import, o.Timeout, o.CMFlags.DryRun, o.outputFile)
 	if err != nil {
 		return err
 	}

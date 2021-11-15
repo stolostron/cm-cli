@@ -4,6 +4,7 @@ package clusterpoolhost
 import (
 	"context"
 	"fmt"
+	"strconv"
 	"strings"
 	"time"
 
@@ -29,7 +30,7 @@ func (cph *ClusterPoolHost) GetClusterContextName(clusterName string) string {
 	return fmt.Sprintf("%s/%s", cph.Name, clusterName)
 }
 
-func (cph *ClusterPoolHost) CreateClusterClaims(clusterClaimNames, clusterPoolName string, skipSchedule bool, timeout int, dryRun bool, outputFile string) error {
+func (cph *ClusterPoolHost) CreateClusterClaims(clusterClaimNames, clusterPoolName string, skipSchedule bool, autoImport bool, timeout int, dryRun bool, outputFile string) error {
 	clusterPoolRestConfig, err := cph.GetGlobalRestConfig()
 	if err != nil {
 		return err
@@ -70,6 +71,7 @@ func (cph *ClusterPoolHost) CreateClusterClaims(clusterClaimNames, clusterPoolNa
 		values["Name"] = clusterClaimName
 		values["Namespace"] = cph.Namespace
 		values["ClusterPoolName"] = clusterPoolName
+		values["AutoImport"] = strconv.FormatBool(autoImport)
 		values["ServiceAccountName"] = serviceAccountName
 		values["Group"] = cph.Group
 		files := []string{
