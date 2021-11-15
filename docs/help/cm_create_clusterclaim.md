@@ -25,6 +25,7 @@ cm create cc <clusterpool> <clusterclaim_name>[,<clusterclaim_name>...] --cph <c
       --cph string                    The clusterpoolhost to use
       --creds                         If set the credentials will be displayed
   -h, --help                          help for clusterclaim
+      --import                        If set the clusterclaim will be imported
   -L, --label-columns strings         Accepts a comma separated list of labels that are going to be presented as columns. Names are case-sensitive. You can also use multiple flag options like -L label1 -L label2...
       --no-headers                    When using the default or custom-column output format, don't print headers (default print headers).
   -o, --output string                 Output format. One of: json|yaml|name|go-template|go-template-file|template|templatefile|jsonpath|jsonpath-as-json|jsonpath-file|custom-columns-file|custom-columns|wide See custom columns [https://kubernetes.io/docs/reference/kubectl/overview/#custom-columns], golang template [http://golang.org/pkg/text/template/#pkg-overview] and jsonpath template [https://kubernetes.io/docs/reference/kubectl/jsonpath/].
