@@ -259,7 +259,7 @@ func checkClusterClaimsRunning(dynamicClient dynamic.Interface, clusterClaimName
 					len(cd.Status.APIURL) != 0 &&
 					c != nil && c.Status == corev1.ConditionStatus(metav1.ConditionTrue) {
 					running = true
-					if i == 0 || printFlags == nil || printFlags.OutputFormat == nil || strings.HasPrefix(*printFlags.OutputFormat, "custom-columns=") {
+					if i == 0 && (printFlags == nil || printFlags.OutputFormat == nil || strings.HasPrefix(*printFlags.OutputFormat, "custom-columns=")) {
 						if timeout == 0 {
 							fmt.Printf("clusterclaim %s is running with id %s (%d)\n", clusterClaimName, cc.Spec.Namespace, i)
 						} else {

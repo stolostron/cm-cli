@@ -5,4 +5,5 @@
 ## Breaking changes
 
 ## Bug fixes
+- remove message "is running" when `cm get cc` and it is already running.
 
