@@ -48,10 +48,6 @@ func (o *Options) validate() error {
 }
 
 func (o *Options) run() (err error) {
-	return o.initclusterpoolhost()
-}
-
-func (o *Options) initclusterpoolhost() error {
 	cph := &clusterpoolhost.ClusterPoolHost{
 		Name:      o.ClusterPoolHost.Name,
 		APIServer: o.ClusterPoolHost.APIServer,
@@ -59,7 +55,7 @@ func (o *Options) initclusterpoolhost() error {
 		Group:     o.ClusterPoolHost.Group,
 		Namespace: o.ClusterPoolHost.Namespace,
 	}
-	err := cph.VerifyClusterPoolContext(o.CMFlags.DryRun, o.outputFile)
+	err = cph.VerifyClusterPoolContext(o.CMFlags.DryRun, o.outputFile)
 	if err != nil {
 		return err
 	}

@@ -6,7 +6,6 @@ import (
 
 	clusteradmhelpers "open-cluster-management.io/clusteradm/pkg/helpers"
 
-	"github.com/open-cluster-management/cm-cli/pkg/clusterpoolhost"
 	genericclioptionscm "github.com/open-cluster-management/cm-cli/pkg/genericclioptions"
 	"github.com/open-cluster-management/cm-cli/pkg/helpers"
 	cmdutil "k8s.io/kubectl/pkg/cmd/util"
@@ -34,16 +33,17 @@ func NewCmd(cmFlags *genericclioptionscm.CMFlags, streams genericclioptions.IOSt
 		SilenceUsage: true,
 		PreRunE: func(cmd *cobra.Command, args []string) error {
 			clusteradmhelpers.DryRunMessage(cmFlags.DryRun)
-			return clusterpoolhost.BackupCurrentContexts()
+			return nil
+			// return clusterpoolhost.BackupCurrentContexts()
 		},
 		Run: func(cmd *cobra.Command, args []string) {
 			cmdutil.CheckErr(o.complete(cmd, args))
 			cmdutil.CheckErr(o.validate())
 			cmdutil.CheckErr(o.run())
 		},
-		PostRunE: func(cmd *cobra.Command, args []string) error {
-			return clusterpoolhost.RestoreCurrentContexts()
-		},
+		// PostRunE: func(cmd *cobra.Command, args []string) error {
+		// 	return clusterpoolhost.RestoreCurrentContexts()
+		// },
 	}
 
 	cmd.Flags().StringVar(&o.ClusterPoolHost, "cph", "", "The clusterpoolhost to use")

@@ -3,7 +3,9 @@ package cluster
 
 import (
 	"fmt"
+	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/open-cluster-management/cm-cli/pkg/cmd/scale/cluster/scenario"
 	genericclioptionscm "github.com/open-cluster-management/cm-cli/pkg/genericclioptions"
@@ -36,8 +38,12 @@ func NewCmd(cmFlags *genericclioptionscm.CMFlags, streams genericclioptions.IOSt
 		Example:      fmt.Sprintf(example, helpers.GetExampleHeader()),
 		SilenceUsage: true,
 		PreRunE: func(c *cobra.Command, args []string) error {
-			if !helpers.IsRHACM(cmFlags.KubectlFactory) {
-				return fmt.Errorf("this command '%s scale cluster' is only available on RHACM", helpers.GetExampleHeader())
+			if !helpers.IsRHACM(cmFlags.KubectlFactory) && !helpers.IsMCE(cmFlags.KubectlFactory) {
+				return fmt.Errorf("this command '%s %s' is only available on %s or %s",
+					helpers.GetExampleHeader(),
+					strings.Join(os.Args[1:], " "),
+					helpers.RHACM,
+					helpers.MCE)
 			}
 			clusteradmhelpers.DryRunMessage(cmFlags.DryRun)
 			return nil

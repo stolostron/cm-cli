@@ -3,7 +3,9 @@ package cluster
 
 import (
 	"fmt"
+	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/open-cluster-management/cm-cli/pkg/cmd/attach/cluster/scenario"
 	genericclioptionscm "github.com/open-cluster-management/cm-cli/pkg/genericclioptions"
@@ -36,15 +38,19 @@ var valuesDefaultPath = filepath.Join(scenarioDirectory, "values-default.yaml")
 func NewCmd(cmFlags *genericclioptionscm.CMFlags, streams genericclioptions.IOStreams) *cobra.Command {
 	o := newOptions(cmFlags, streams)
 
-	cluster := &cobra.Command{
+	cmd := &cobra.Command{
 		Use:          "cluster",
 		Short:        "Import a cluster",
 		Example:      fmt.Sprintf(example, helpers.GetExampleHeader()),
 		SilenceUsage: true,
 		PreRunE: func(c *cobra.Command, args []string) error {
 			clusteradmhelpers.DryRunMessage(cmFlags.DryRun)
-			if !helpers.IsRHACM(cmFlags.KubectlFactory) {
-				return fmt.Errorf("this command '%s attach cluster' is only available on RHACM", helpers.GetExampleHeader())
+			if !helpers.IsRHACM(cmFlags.KubectlFactory) && !helpers.IsMCE(cmFlags.KubectlFactory) {
+				return fmt.Errorf("this command '%s %s' is only available on %s or %s",
+					helpers.GetExampleHeader(),
+					strings.Join(os.Args[1:], " "),
+					helpers.RHACM,
+					helpers.MCE)
 			}
 			return nil
 		},
@@ -63,14 +69,17 @@ func NewCmd(cmFlags *genericclioptionscm.CMFlags, streams genericclioptions.IOSt
 		},
 	}
 
-	cluster.SetUsageTemplate(clusteradmhelpers.UsageTempate(cluster, scenario.GetScenarioResourcesReader(), valuesTemplatePath))
-	cluster.Flags().StringVar(&o.valuesPath, "values", "", "The files containing the values")
-	cluster.Flags().StringVar(&o.clusterName, "cluster", "", "Name of the cluster")
-	cluster.Flags().StringVar(&o.clusterServer, "cluster-server", "", "cluster server url of the cluster to import")
-	cluster.Flags().StringVar(&o.clusterToken, "cluster-token", "", "token to access the cluster to import")
-	cluster.Flags().StringVar(&o.clusterKubeConfig, "cluster-kubeconfig", "", "path to the kubeconfig the cluster to import")
-	cluster.Flags().StringVar(&o.importFile, "import-file", "", "the file path and prefix which will contain the import yaml files for manual import")
-	cluster.Flags().StringVar(&o.outputFile, "output-file", "", "The generated resources will be copied in the specified file")
-
-	return cluster
+	cmd.SetUsageTemplate(clusteradmhelpers.UsageTempate(cmd, scenario.GetScenarioResourcesReader(), valuesTemplatePath))
+	cmd.Flags().StringVar(&o.valuesPath, "values", "", "The files containing the values")
+	cmd.Flags().StringVar(&o.clusterName, "cluster", "", "Name of the cluster")
+	cmd.Flags().StringVar(&o.clusterServer, "cluster-server", "", "cluster server url of the cluster to import")
+	cmd.Flags().StringVar(&o.clusterToken, "cluster-token", "", "token to access the cluster to import")
+	cmd.Flags().StringVar(&o.clusterKubeConfig, "cluster-kubeconfig", "", "path to the kubeconfig the cluster to import")
+	cmd.Flags().StringVar(&o.importFile, "import-file", "", "the file path and prefix which will contain the import yaml files for manual import")
+	cmd.Flags().StringVar(&o.outputFile, "output-file", "", "The generated resources will be copied in the specified file")
+	cmd.Flags().BoolVar(&o.waitAgent, "wait", false, "Wait until the klusterlet agent is installed")
+	//Not implemented as it requires to import all addon packages
+	// cmd.Flags().BoolVar(&o.waitAddOns, "wait-addons", false, "Wait until the klusterlet agent and the addons are is installed")
+	cmd.Flags().IntVar(&o.timeout, "timeout", 180, "Timeout to get the klusterlet agent or addons ready in seconds")
+	return cmd
 }

@@ -1,0 +1,14 @@
+# Copyright Contributors to the Open Cluster Management project
+
+apiVersion: cluster.open-cluster-management.io/v1alpha1
+kind: Placement
+metadata:
+  name: {{ .authRealm.name }}-placement
+  namespace: {{ .authRealm.namespace }}
+spec:
+  predicates:
+  - requiredClusterSelector:
+      labelSelector:
+        matchLabels:
+{{ toYaml .authRealm.matchLabels | indent 10 }}
+          

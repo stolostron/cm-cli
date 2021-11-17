@@ -24,21 +24,23 @@ func (o *Options) run() (err error) {
 		return err
 	}
 
-	currentCph, err := cphs.GetCurrentClusterPoolHost()
+	cph, err := cphs.GetClusterPoolHostOrCurrent(o.ClusterPoolHost)
 	if err != nil {
 		return err
 	}
 
-	err = clusterpoolhost.OpenClusterClaim(o.ClusterClaim, o.Timeout)
+	err = cph.OpenClusterClaim(o.ClusterClaim, o.Timeout)
 	if err != nil {
 		return err
 	}
 
-	if len(o.ClusterPoolHost) != 0 {
-		if err := cphs.SetActive(currentCph); err != nil {
+	if o.WithCredentials {
+		cc, err := cph.GetClusterClaim(o.ClusterClaim, o.Timeout, o.CMFlags.DryRun, o.GetOptions.PrintFlags)
+		if err != nil {
 			return err
 		}
+		return cph.PrintClusterClaimCred(cc, o.GetOptions.PrintFlags, o.WithCredentials)
 	}
-	return err
+	return nil
 
 }

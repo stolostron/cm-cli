@@ -10,7 +10,9 @@ import (
 	"path/filepath"
 
 	"github.com/ghodss/yaml"
+	printclusterpoolv1alpha1 "github.com/open-cluster-management/cm-cli/api/cm-cli/v1alpha1"
 	"github.com/open-cluster-management/cm-cli/pkg/helpers"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 const ClusterPoolHostsDir = ".kube"
@@ -121,12 +123,12 @@ func (cs *ClusterPoolHosts) ApplyClusterPoolHosts() error {
 	return ioutil.WriteFile(fileName, b, 0600)
 }
 
-//OpenClusterPoolHost returns the clusterpoolhost
+//OpenClusterPoolHost opens a browzer on the clusterpoolhost console
 func OpenClusterPoolHost(consoleUrl string) error {
 	return helpers.Openbrowser(consoleUrl)
 }
 
-//GetClusterPoolHost opens a browzer on the clusterpoolhost console
+//GetClusterPoolHost returns the clusterpoolhost
 func (cs *ClusterPoolHosts) GetClusterPoolHost(name string) (*ClusterPoolHost, error) {
 	if c, ok := cs.ClusterPoolHosts[name]; ok {
 		return c, nil
@@ -134,26 +136,26 @@ func (cs *ClusterPoolHosts) GetClusterPoolHost(name string) (*ClusterPoolHost, e
 	return nil, fmt.Errorf("cluster pool host %s not found", name)
 }
 
-//RawPrint prints the clusterpoolhosts
-func (cs *ClusterPoolHosts) RawPrint() error {
-	b, err := yaml.Marshal(cs)
-	if err != nil {
-		return err
-	}
-	fmt.Println(string(b))
-	return nil
-}
-
-//Print prints a summary of the clusterpoolhosts
-func (cs *ClusterPoolHosts) Print() {
-	fmt.Printf("%-1s%-20s\t%-30s\t%-60s\n", " ", "CLUSTER_POOL_HOST", "NAMESPACE", "API_URL")
-	for _, c := range cs.ClusterPoolHosts {
-		star := " "
-		if c.IsActive() {
-			star = "*"
+func ConvertToPrintClusterPoolHostList(cphs *ClusterPoolHosts) *printclusterpoolv1alpha1.PrintClusterPoolHostList {
+	pcps := &printclusterpoolv1alpha1.PrintClusterPoolHostList{}
+	for i := range cphs.ClusterPoolHosts {
+		pcp := printclusterpoolv1alpha1.PrintClusterPoolHost{
+			ObjectMeta: metav1.ObjectMeta{
+				Name:      cphs.ClusterPoolHosts[i].Name,
+				Namespace: cphs.ClusterPoolHosts[i].Namespace,
+			},
+			Spec: printclusterpoolv1alpha1.PrintClusterPoolHostSpec{
+				Active:    cphs.ClusterPoolHosts[i].Active,
+				Name:      cphs.ClusterPoolHosts[i].Name,
+				Namespace: cphs.ClusterPoolHosts[i].Namespace,
+				APIServer: cphs.ClusterPoolHosts[i].APIServer,
+				Console:   cphs.ClusterPoolHosts[i].Console,
+				Group:     cphs.ClusterPoolHosts[i].Group,
+			},
 		}
-		fmt.Printf("%-1s%-20s\t%-30s\t%-60s\n", star, c.Name, c.Namespace, c.APIServer)
+		pcps.Items = append(pcps.Items, pcp)
 	}
+	return pcps
 }
 
 //UnActiveAll unactives all clusterpoolhosts
@@ -181,6 +183,14 @@ func (cs *ClusterPoolHosts) GetCurrentClusterPoolHost() (*ClusterPoolHost, error
 		}
 	}
 	return nil, fmt.Errorf("no active cluster pool host found")
+}
+
+//GetClusterPoolHostOrCurrent returns the clusterpoolhost and if
+func (cs *ClusterPoolHosts) GetClusterPoolHostOrCurrent(name string) (*ClusterPoolHost, error) {
+	if len(name) != 0 {
+		return cs.GetClusterPoolHost(name)
+	}
+	return cs.GetCurrentClusterPoolHost()
 }
 
 //AddClusterPoolHost adds a clusterpoolhost

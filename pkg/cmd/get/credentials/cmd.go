@@ -3,6 +3,8 @@ package credentials
 
 import (
 	"fmt"
+	"os"
+	"strings"
 
 	genericclioptionscm "github.com/open-cluster-management/cm-cli/pkg/genericclioptions"
 	"k8s.io/klog/v2"
@@ -33,8 +35,12 @@ func NewCmd(cmFlags *genericclioptionscm.CMFlags, streams genericclioptions.IOSt
 		Short:                 "list the credentials of cloud providers",
 		Example:               fmt.Sprintf(example, helpers.GetExampleHeader()),
 		PreRunE: func(c *cobra.Command, args []string) error {
-			if !helpers.IsRHACM(cmFlags.KubectlFactory) {
-				return fmt.Errorf("this command '%s scale cluster' is only available on RHACM", helpers.GetExampleHeader())
+			if !helpers.IsRHACM(cmFlags.KubectlFactory) && !helpers.IsMCE(cmFlags.KubectlFactory) {
+				return fmt.Errorf("this command '%s %s' is only available on %s or %s",
+					helpers.GetExampleHeader(),
+					strings.Join(os.Args[1:], " "),
+					helpers.RHACM,
+					helpers.MCE)
 			}
 			return nil
 		},

@@ -3,9 +3,10 @@ package clusterclaim
 
 import (
 	"fmt"
+	"os"
 	"path/filepath"
+	"strings"
 
-	"github.com/open-cluster-management/cm-cli/pkg/clusterpoolhost"
 	"github.com/open-cluster-management/cm-cli/pkg/cmd/attach/cluster/scenario"
 	genericclioptionscm "github.com/open-cluster-management/cm-cli/pkg/genericclioptions"
 	"github.com/open-cluster-management/cm-cli/pkg/helpers"
@@ -42,10 +43,15 @@ func NewCmd(cmFlags *genericclioptionscm.CMFlags, streams genericclioptions.IOSt
 		SilenceUsage: true,
 		PreRunE: func(c *cobra.Command, args []string) error {
 			clusteradmhelpers.DryRunMessage(cmFlags.DryRun)
-			if !helpers.IsRHACM(cmFlags.KubectlFactory) {
-				return fmt.Errorf("this command is only available on RHACM")
+			if !helpers.IsRHACM(cmFlags.KubectlFactory) && !helpers.IsMCE(cmFlags.KubectlFactory) {
+				return fmt.Errorf("this command '%s %s' is only available on %s or %s",
+					helpers.GetExampleHeader(),
+					strings.Join(os.Args[1:], " "),
+					helpers.RHACM,
+					helpers.MCE)
 			}
-			return clusterpoolhost.BackupCurrentContexts()
+			return nil
+			// return clusterpoolhost.BackupCurrentContexts()
 		},
 		RunE: func(c *cobra.Command, args []string) error {
 			if err := o.complete(c, args); err != nil {
@@ -60,15 +66,19 @@ func NewCmd(cmFlags *genericclioptionscm.CMFlags, streams genericclioptions.IOSt
 
 			return nil
 		},
-		PostRunE: func(cmd *cobra.Command, args []string) error {
-			return clusterpoolhost.RestoreCurrentContexts()
-		},
+		// PostRunE: func(cmd *cobra.Command, args []string) error {
+		// 	return clusterpoolhost.RestoreCurrentContexts()
+		// },
 	}
 
 	cmd.SetUsageTemplate(clusteradmhelpers.UsageTempate(cmd, scenario.GetScenarioResourcesReader(), valuesTemplatePath))
 	cmd.Flags().StringVar(&o.ClusterPoolHost, "cph", "", "The clusterpoolhost to use")
 	cmd.Flags().StringVar(&o.valuesPath, "values", "", "The files containing the values")
 	cmd.Flags().StringVar(&o.outputFile, "output-file", "", "The generated resources will be copied in the specified file")
+	cmd.Flags().BoolVar(&o.waitAgent, "wait", false, "Wait until the klusterlet agent is installed")
+	//Not implemented as it requires to import all addon packages
+	// cmd.Flags().BoolVar(&o.waitAddOns, "wait-addons", false, "Wait until the klusterlet agent and the addons are is installed")
+	cmd.Flags().IntVar(&o.timeout, "timeout", 180, "Timeout to get the klusterlet agent or addons ready in seconds")
 
 	return cmd
 }

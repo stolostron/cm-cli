@@ -50,15 +50,14 @@ cm <verb> [subcmd...] [flags]
 - Each command package contains its own resources in the scenario package. The scenario package contains one go file which provides the `go:embed` `embed.FS` files. For example [resources.go](pkg/cmd/create/cluster/scenario/resources.go).
 - All resources must be accessed using unstrusctured, the project must not have api dependencies.
 
-## Client
+## build
 
-- The [helpers](pkg/helpers/client.go) package contains methods to get a client. For the time being only a `sigs.k8s.io/controller-runtime/pkg/client` is used as it is the one needed for the applier, but if you would like to use another client for other goals, please add the method to create client in that package. The most important to to get the config from:
-
-```Go
-config, err := configFlags.ToRESTConfig()
+```bash
+make build
 ```
+## API
 
-as it uses also the parameters like `--server` or `--kubeconfig` to generate the client.
+This project contains some API and these are used in order to leverage the ["github.com/kubernetes/cli-runtime/blob/master/pkg/printers/interface.go](https://github.com/kubernetes/cli-runtime/blob/master/pkg/printers/interface.go). To generate the zz_files for it run `make generate`
 
 ## Unit tests
 
@@ -70,3 +69,15 @@ A total coverage is shown when running `make test`. For the time being, the `cmd
 
 - The project runs functional-tests `make functional-test-full`, this test deploys a [KiND](https://kind.sigs.k8s.io/) cluster, install some resource using the applier and then runs a set of tests against that cluster [run-functional-tests.sh](build/run-functional-tests.sh).  A prerequisite is that Docker is already running. If it fails then clean with `make clean`.
 - The `make functional-tests-full` is part of the PR acceptance and it is launched using git-actions.
+
+## Make a release (Owners only)
+
+1. Create a branch
+2. run `make doc-help`
+3. Update the VERSION.txt with the semver of the new release
+4. Create a PR and merge it
+5. Run `make release` on the main branch
+6. Monitor the github action.
+7. Go to releases on github
+8. Review the summary.
+9. Publish

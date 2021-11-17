@@ -4,8 +4,8 @@ package clusterclaim
 import (
 	"fmt"
 
-	"github.com/open-cluster-management/cm-cli/pkg/clusterpoolhost"
 	genericclioptionscm "github.com/open-cluster-management/cm-cli/pkg/genericclioptions"
+	"k8s.io/kubectl/pkg/cmd/get"
 	cmdutil "k8s.io/kubectl/pkg/cmd/util"
 
 	"github.com/open-cluster-management/cm-cli/pkg/helpers"
@@ -26,7 +26,7 @@ const (
 )
 
 // NewCmd ...
-func NewCmd(cmFlags *genericclioptionscm.CMFlags, streams genericclioptions.IOStreams) *cobra.Command {
+func NewCmd(f cmdutil.Factory, cmFlags *genericclioptionscm.CMFlags, streams genericclioptions.IOStreams) *cobra.Command {
 
 	o := newOptions(cmFlags, streams)
 	cmd := &cobra.Command{
@@ -35,21 +35,27 @@ func NewCmd(cmFlags *genericclioptionscm.CMFlags, streams genericclioptions.IOSt
 		DisableFlagsInUseLine: true,
 		Short:                 "Display clusterclaims",
 		Example:               fmt.Sprintf(example, helpers.GetExampleHeader()),
-		PreRunE: func(cmd *cobra.Command, args []string) error {
-			return clusterpoolhost.BackupCurrentContexts()
-		},
+		// PreRunE: func(cmd *cobra.Command, args []string) error {
+		// 	return clusterpoolhost.BackupCurrentContexts()
+		// },
 		Run: func(cmd *cobra.Command, args []string) {
 			cmdutil.CheckErr(o.complete(cmd, args))
+			cmdutil.CheckErr(o.GetOptions.Complete(f, cmd, []string{"printclusterclaims"}))
 			cmdutil.CheckErr(o.validate())
 			cmdutil.CheckErr(o.run())
 		},
-		PostRunE: func(cmd *cobra.Command, args []string) error {
-			return clusterpoolhost.RestoreCurrentContexts()
-		},
+		// PostRunE: func(cmd *cobra.Command, args []string) error {
+		// 	return clusterpoolhost.RestoreCurrentContexts()
+		// },
 	}
 
+	o.GetOptions.PrintFlags = get.NewGetPrintFlags()
+
+	o.GetOptions.PrintFlags.AddFlags(cmd)
+
 	cmd.Flags().StringVar(&o.ClusterPoolHost, "cph", "", "The clusterpoolhost to use")
-	cmd.Flags().BoolVarP(&o.AllClusterPoolHosts, "all-cphs", "A", o.AllClusterPoolHosts, "If the requested object does not exist the command will return exit code 0.")
+	cmd.Flags().BoolVar(&o.WithCredentials, "creds", o.WithCredentials, "If set the credentials will be displayed")
+	cmd.Flags().BoolVarP(&o.AllClusterPoolHosts, "all-cphs", "A", o.AllClusterPoolHosts, "List the clusterclaims across all clusterpoolhosts")
 	cmd.Flags().IntVar(&o.Timeout, "timeout", 60, "Timeout to get the cluster claim running")
 
 	return cmd

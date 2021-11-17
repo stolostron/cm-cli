@@ -5,8 +5,8 @@ package clusterpoolhost
 import (
 	"fmt"
 	"os"
-	"strings"
 
+	"github.com/open-cluster-management/cm-cli/pkg/helpers"
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd"
 	clientcmdapi "k8s.io/client-go/tools/clientcmd/api"
@@ -68,45 +68,45 @@ func isContextExists(contextName string, globalKubeConfig bool) (bool, error) {
 }
 
 //SetGlobalCurrentContext sets the current context in the global file
-func SetGlobalCurrentContext(contextName string) error {
-	return setCurrentContext(contextName, true)
-}
+// func SetGlobalCurrentContext(contextName string) error {
+// 	return setCurrentContext(contextName, true)
+// }
 
-//SetCurrentContext sets the current context in the file specified by the env var if set otherwise in the global file.
-func SetCurrentContext(contextName string) error {
-	return setCurrentContext(contextName, false)
-}
+// //SetCurrentContext sets the current context in the file specified by the env var if set otherwise in the global file.
+// func SetCurrentContext(contextName string) error {
+// 	return setCurrentContext(contextName, false)
+// }
 
-func setCurrentContext(contextName string, globalKubeConfig bool) error {
-	if len(contextName) == 0 {
-		return fmt.Errorf("context name is empty")
-	}
-	pathOptions := clientcmd.NewDefaultPathOptions()
-	if globalKubeConfig && os.Getenv(pathOptions.EnvVar) != "" {
-		fmt.Printf(KubeConfigIgnoredMessage, contextName)
-		pathOptions.EnvVar = ""
-	}
-	config, err := pathOptions.GetStartingConfig()
-	if err != nil {
-		return err
-	}
+// func setCurrentContext(contextName string, globalKubeConfig bool) error {
+// 	if len(contextName) == 0 {
+// 		return fmt.Errorf("context name is empty")
+// 	}
+// 	pathOptions := clientcmd.NewDefaultPathOptions()
+// 	if globalKubeConfig && os.Getenv(pathOptions.EnvVar) != "" {
+// 		fmt.Printf(KubeConfigIgnoredMessage, contextName)
+// 		pathOptions.EnvVar = ""
+// 	}
+// 	config, err := pathOptions.GetStartingConfig()
+// 	if err != nil {
+// 		return err
+// 	}
 
-	_, ok := config.Contexts[contextName]
-	if !ok {
-		return fmt.Errorf("context name %s not found", contextName)
-	}
-	if config.CurrentContext != contextName {
-		config.CurrentContext = contextName
-		fmt.Printf(KubeConfigSwitchMessage, contextName)
-		return clientcmd.ModifyConfig(pathOptions, *config, true)
-	}
-	return nil
+// 	_, ok := config.Contexts[contextName]
+// 	if !ok {
+// 		return fmt.Errorf("context name %s not found", contextName)
+// 	}
+// 	if config.CurrentContext != contextName {
+// 		config.CurrentContext = contextName
+// 		fmt.Printf(KubeConfigSwitchMessage, contextName)
+// 		return clientcmd.ModifyConfig(pathOptions, *config, true)
+// 	}
+// 	return nil
 
-}
+// }
 
 //MoveContextToDefault Move the context from its current location to the global file.
-func MoveContextToDefault(contextName, clusterPoolContextName, defaultNamespace, user, token string) error {
-	if len(contextName) == 0 {
+func MoveContextToDefault(currentContextName, clusterPoolContextName, defaultNamespace, user, token string) error {
+	if len(currentContextName) == 0 {
 		return fmt.Errorf("context name is empty")
 	}
 	pathOptions := clientcmd.NewDefaultPathOptions()
@@ -115,24 +115,36 @@ func MoveContextToDefault(contextName, clusterPoolContextName, defaultNamespace,
 		return err
 	}
 
-	context, ok := config.Contexts[contextName]
+	//The cph context is already in the config, no move needed
+	if _, ok := config.Contexts[clusterPoolContextName]; ok {
+		config.CurrentContext = clusterPoolContextName
+		//refesh token
+		authInfo := config.AuthInfos[clusterPoolContextName]
+		authInfo.Token = token
+
+		file := pathOptions.GetDefaultFilename()
+		return clientcmd.WriteToFile(*config, file)
+	}
+
+	//Search the context used for `oc login` while creating the cph
+	context, ok := config.Contexts[currentContextName]
 	if !ok {
 		//Search in Globalfile
 		pathOptions.EnvVar = ""
 		if config, err = pathOptions.GetStartingConfig(); err != nil {
 			return err
 		}
-		if context, ok = config.Contexts[contextName]; !ok {
-			return fmt.Errorf("context name %s not found", contextName)
+		if context, ok = config.Contexts[currentContextName]; !ok {
+			return fmt.Errorf("context name %s not found", currentContextName)
 		}
 	}
 	cluster, ok := config.Clusters[context.Cluster]
 	if !ok {
-		return fmt.Errorf("cluster not found for context %s", contextName)
+		return fmt.Errorf("cluster not found for context %s", currentContextName)
 	}
 	authInfo, ok := config.AuthInfos[context.AuthInfo]
 	if !ok {
-		return fmt.Errorf("authInfo not found for context %s", contextName)
+		return fmt.Errorf("authInfo not found for context %s", currentContextName)
 	}
 
 	pathOptions = clientcmd.NewDefaultPathOptions()
@@ -176,7 +188,7 @@ func MoveContextToDefault(contextName, clusterPoolContextName, defaultNamespace,
 }
 
 //CreateContextFronConfigAPI creates a new context in the global file
-func CreateContextFronConfigAPI(configAPI *clientcmdapi.Config, token, contextName, defaultNamespace, user string) error {
+func CreateContextFronConfigAPI(configAPI *clientcmdapi.Config, token, contextName, defaultNamespace, user string, setAsCurrent bool) error {
 	if len(contextName) == 0 {
 		return fmt.Errorf("context name is empty")
 	}
@@ -202,7 +214,9 @@ func CreateContextFronConfigAPI(configAPI *clientcmdapi.Config, token, contextNa
 	config.Contexts[contextName] = configAPI.Contexts["admin"]
 	config.Contexts[contextName].AuthInfo = contextName
 	config.Contexts[contextName].Cluster = contextName
-	config.CurrentContext = contextName
+	if setAsCurrent {
+		config.CurrentContext = contextName
+	}
 
 	clientConfig := clientcmdapi.Config{
 		Kind:           "Config",
@@ -244,7 +258,7 @@ func GetGlobalCurrentRestConfig() (*rest.Config, error) {
 	return getCurrentRestConfig(true)
 }
 
-//GetCurrentRestConfig gest the *rest.Config of the current context in the file specified by the env var if set.
+//GetCurrentRestConfig gets the *rest.Config of the current context in the file specified by the env var if set.
 func GetCurrentRestConfig() (*rest.Config, error) {
 	return getCurrentRestConfig(false)
 }
@@ -273,56 +287,73 @@ func (cph *ClusterPoolHost) getRestConfig(globalKubeConfig bool) (*rest.Config, 
 	if err != nil {
 		return nil, err
 	}
-	clientConfig := clientcmd.NewDefaultClientConfig(*configapi, &clientcmd.ConfigOverrides{CurrentContext: cph.GetContextName()})
-	return clientConfig.ClientConfig()
+	configapi.CurrentContext = cph.GetContextName()
+	clientConfig := clientcmd.NewDefaultClientConfig(*configapi, nil)
+	// clientConfig.Get
+	// rawConfig, err := clientConfig.RawConfig()
+	// if err != nil {
+	// 	return nil, err
+	// }
+
+	// clientConfig = clientcmd.NewDefaultClientConfig(rawConfig, &clientcmd.ConfigOverrides{})
+	config, err := clientConfig.ClientConfig()
+	if err != nil {
+		return nil, err
+	}
+
+	config.QPS = helpers.QPS
+	config.Burst = helpers.Burst
+
+	return config, nil
+
 }
 
 //SetCPHContext sets the clusterpoolhost context as current
-func SetCPHContext(contextName string) error {
-	if strings.HasPrefix(contextName, ClusterPoolHostContextPrefix) {
-		IsGlobalContext, err := IsGlobalContext(contextName)
-		if err != nil {
-			return err
-		}
-		if IsGlobalContext {
-			if err := SetGlobalCurrentContext(contextName); err != nil {
-				return err
-			}
-			return nil
-		}
-	}
-	return fmt.Errorf("%s is not cph context", contextName)
-}
+// func SetCPHContext(contextName string) error {
+// 	if strings.HasPrefix(contextName, ClusterPoolHostContextPrefix) {
+// 		IsGlobalContext, err := IsGlobalContext(contextName)
+// 		if err != nil {
+// 			return err
+// 		}
+// 		if IsGlobalContext {
+// 			if err := SetGlobalCurrentContext(contextName); err != nil {
+// 				return err
+// 			}
+// 			return nil
+// 		}
+// 	}
+// 	return fmt.Errorf("%s is not cph context", contextName)
+// }
 
 //BackupCurrentContexts backups the names for the current contexts, the context in the
 //global file and the one defined in the env var if set.
-func BackupCurrentContexts() (err error) {
-	configAPI, isEnvVarSet, err := GetConfigAPI()
-	if err != nil {
-		return
-	}
-	if isEnvVarSet {
-		contextBackup = configAPI.CurrentContext
-		configAPI, _, err = GetGlobalConfigAPI()
-		if err != nil {
-			return
-		}
-	}
-	globalContextBackup = configAPI.CurrentContext
-	return
-}
+// func BackupCurrentContexts() (err error) {
+// 	configAPI, isEnvVarSet, err := GetConfigAPI()
+// 	if err != nil {
+// 		return
+// 	}
+// 	if isEnvVarSet {
+// 		contextBackup = configAPI.CurrentContext
+// 		configAPI, _, err = GetGlobalConfigAPI()
+// 		if err != nil {
+// 			return
+// 		}
+// 	}
+// 	globalContextBackup = configAPI.CurrentContext
+// 	return
+// }
 
 //RestoreCurrentContexts restores the backuped contexts.
-func RestoreCurrentContexts() error {
-	if len(contextBackup) != 0 {
-		if err := setCurrentContext(contextBackup, false); err != nil {
-			return err
-		}
-	}
-	if len(globalContextBackup) != 0 {
-		if err := setCurrentContext(globalContextBackup, true); err != nil {
-			return err
-		}
-	}
-	return nil
-}
+// func RestoreCurrentContexts() error {
+// 	if len(contextBackup) != 0 {
+// 		if err := setCurrentContext(contextBackup, false); err != nil {
+// 			return err
+// 		}
+// 	}
+// 	if len(globalContextBackup) != 0 {
+// 		if err := setCurrentContext(globalContextBackup, true); err != nil {
+// 			return err
+// 		}
+// 	}
+// 	return nil
+// }

@@ -4,34 +4,83 @@ package helpers
 
 import (
 	"fmt"
+	"os"
 	"strings"
+
+	printclusterpoolv1alpha1 "github.com/open-cluster-management/cm-cli/api/cm-cli/v1alpha1"
+	apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1"
+	"k8s.io/kubectl/pkg/cmd/get"
+	"open-cluster-management.io/clusteradm/pkg/helpers/asset"
+
+	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/apimachinery/pkg/util/yaml"
 )
 
-func PrintLines(lines []string, sep string) {
-	if len(lines) == 0 {
-		return
-	}
-	columns := strings.Split(lines[0], sep)
-	ncColumns := len(columns)
-	if ncColumns == 0 {
-		return
-	}
-	columnsSize := make([]int, ncColumns)
-	for _, l := range lines {
-		columns := strings.Split(l, sep)
-		for i, col := range columns {
-			if len(col) > columnsSize[i] {
-				columnsSize[i] = len(col)
+const (
+	YamlFormat            string = "yaml"
+	JsonFormat            string = "json"
+	JsonPathFormat        string = "jsonpath="
+	CustomColumnsFormat   string = "columns="
+	ColumnsSeparator      string = ","
+	SupportedOutputFormat string = YamlFormat + "|" + JsonFormat + "|" + JsonPathFormat + "|" + CustomColumnsFormat + "..."
+)
+
+func Print(obj runtime.Object, printFlags *get.PrintFlags) error {
+	pf := printFlags.Copy()
+	if pf.OutputFormat == nil || len(*pf.OutputFormat) == 0 || *pf.OutputFormat == "wide" {
+		reader := printclusterpoolv1alpha1.GetScenarioResourcesReader()
+		crd, err := searchCRD(reader, obj.GetObjectKind().GroupVersionKind().Kind)
+		if err != nil {
+			return err
+		}
+		printerColumns, err := searchPrinterColumns(crd)
+		if err != nil {
+			return err
+		}
+		columns := make([]string, 0)
+		for _, pc := range printerColumns {
+			if *pf.OutputFormat == "wide" && pc.Priority > 0 || pc.Priority == 0 {
+				columns = append(columns, strings.ToUpper(pc.Name)+":"+pc.JSONPath)
 			}
 		}
+		cc := "custom-columns=" + strings.Join(columns, ",")
+		pf.OutputFormat = &cc
 	}
-	for _, l := range lines {
-		columns := strings.Split(l, sep)
-		var outLine string
-		for i, col := range columns {
-			formatString := "%-" + fmt.Sprintf("%d", columnsSize[i]) + "s "
-			outLine = outLine + fmt.Sprintf(formatString, col)
+	printer, err := pf.ToPrinter()
+	if err != nil {
+		return err
+	}
+	return printer.PrintObj(obj, os.Stdout)
+}
+
+func searchCRD(reader *asset.ScenarioResourcesReader, kind string) (*apiextensionsv1.CustomResourceDefinition, error) {
+	crdFileNames, err := reader.AssetNames(nil)
+	if err != nil {
+		return nil, err
+	}
+	for _, crdFileName := range crdFileNames {
+		crdData, err := reader.Asset(crdFileName)
+		if err != nil {
+			return nil, err
 		}
-		fmt.Println(outLine)
+		crd := &apiextensionsv1.CustomResourceDefinition{}
+		err = yaml.Unmarshal(crdData, crd)
+		if err != nil {
+			continue
+		}
+		if crd.Spec.Names.Kind != kind {
+			continue
+		}
+		return crd, nil
 	}
+	return nil, fmt.Errorf("crd %s not found", kind)
+}
+
+func searchPrinterColumns(crd *apiextensionsv1.CustomResourceDefinition) ([]apiextensionsv1.CustomResourceColumnDefinition, error) {
+	for _, v := range crd.Spec.Versions {
+		if v.Name == printclusterpoolv1alpha1.GroupVersion.Version {
+			return v.AdditionalPrinterColumns, nil
+		}
+	}
+	return nil, fmt.Errorf("column definition not found for version %s in crd %s", printclusterpoolv1alpha1.GroupVersion.Version, crd.GetName())
 }

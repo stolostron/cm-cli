@@ -37,8 +37,9 @@ func (cph *ClusterPoolHost) getClusterPoolSAToken(
 	outputFile string) (token, serviceAccountName string, isGlobal, needLogin bool, err error) {
 	var clusterPoolRestConfig *rest.Config
 	isGlobal = true
-	err = SetCPHContext(cph.GetContextName())
+	clusterPoolRestConfig, err = cph.GetGlobalRestConfig()
 	if err != nil {
+		isGlobal = false
 		clusterPoolRestConfig, err = GetCurrentRestConfig()
 		if err != nil {
 			if clusterPoolRestConfig == nil {
@@ -63,10 +64,7 @@ func (cph *ClusterPoolHost) getClusterPoolSAToken(
 			err = fmt.Errorf("please login on %s", cph.APIServer)
 			return
 		}
-	}
-	clusterPoolRestConfig, err = GetGlobalCurrentRestConfig()
-	if err != nil {
-		return
+
 	}
 
 	//Update the clusterpoolhostfile
@@ -116,18 +114,18 @@ func (cph *ClusterPoolHost) openBrowser() error {
 
 func (cph *ClusterPoolHost) CreateClusterPoolContext(token, serviceAccountName string, inGlobal bool) error {
 	var err error
-	var currentContext *clientcmdapi.Config
+	var currentConfg *clientcmdapi.Config
 	//Get current context
 	if inGlobal {
-		currentContext, _, err = GetGlobalConfigAPI()
+		currentConfg, _, err = GetGlobalConfigAPI()
 	} else {
-		currentContext, _, err = GetConfigAPI()
+		currentConfg, _, err = GetConfigAPI()
 
 	}
 	if err != nil {
 		return err
 	}
-
 	//Move ClusterPool context
-	return MoveContextToDefault(currentContext.CurrentContext, cph.GetContextName(), cph.Namespace, serviceAccountName, token)
+	err = MoveContextToDefault(currentConfg.CurrentContext, cph.GetContextName(), cph.Namespace, serviceAccountName, token)
+	return err
 }

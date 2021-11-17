@@ -40,5 +40,7 @@ platform:
     baseDomainResourceGroupName: {{ .clusterPool.azure.baseDomainRGN }}
     region: {{ .clusterPool.azure.region }}
 pullSecret: "" # skip, hive will inject based on it's secrets
+{{- if .clusterPool.sshPublicKey }}
 sshKey: |-
 {{ .clusterPool.sshPublicKey | indent 4 }}
+{{- end }}

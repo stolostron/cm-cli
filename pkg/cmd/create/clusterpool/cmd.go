@@ -9,7 +9,6 @@ import (
 
 	clusteradmhelpers "open-cluster-management.io/clusteradm/pkg/helpers"
 
-	"github.com/open-cluster-management/cm-cli/pkg/clusterpoolhost"
 	genericclioptionscm "github.com/open-cluster-management/cm-cli/pkg/genericclioptions"
 	"github.com/open-cluster-management/cm-cli/pkg/helpers"
 
@@ -27,10 +26,10 @@ var valuesTemplatePath = filepath.Join(scenarioDirectory, "common/values-templat
 
 var example = `
 # Create a clusterpool
-%[1]s create cp --values values.yaml [--cph <clusterpool_name>]
+%[1]s create cp --values values.yaml [--cph <clusterpoolhost_name>]
 
 # Create a cluster with cluster name overwrite by args
-%[1]s create cp --values values.yaml [--cph <clusterpool_name>]
+%[1]s create cp [<clusterpool_name>] --values values.yaml [--cph <clusterpoolhost_name>]
 `
 
 // NewCmd ...
@@ -44,22 +43,23 @@ func NewCmd(cmFlags *genericclioptionscm.CMFlags, streams genericclioptions.IOSt
 		SilenceUsage: true,
 		PreRunE: func(cmd *cobra.Command, args []string) error {
 			clusteradmhelpers.DryRunMessage(cmFlags.DryRun)
-			return clusterpoolhost.BackupCurrentContexts()
+			return nil
+			// return clusterpoolhost.BackupCurrentContexts()
 		},
 		Run: func(cmd *cobra.Command, args []string) {
 			cmdutil.CheckErr(o.complete(cmd, args))
 			cmdutil.CheckErr(o.validate())
 			cmdutil.CheckErr(o.run())
 		},
-		PostRunE: func(cmd *cobra.Command, args []string) error {
-			return clusterpoolhost.RestoreCurrentContexts()
-		},
+		// PostRunE: func(cmd *cobra.Command, args []string) error {
+		// 	return clusterpoolhost.RestoreCurrentContexts()
+		// },
 	}
 
 	cmd.SetUsageTemplate(clusteradmhelpers.UsageTempate(cmd, scenario.GetScenarioResourcesReader(), valuesTemplatePath))
 	cmd.Flags().StringVar(&o.ClusterPoolHost, "cph", "", "The clusterpoolhost to use")
 	cmd.Flags().StringVar(&o.valuesPath, "values", "", "The files containing the values")
 	cmd.Flags().StringVar(&o.outputFile, "output-file", "", "The generated resources will be copied in the specified file")
-
+	cmd.Flags().StringVar(&o.clusterSetName, "cluster-set", "", "The clusterset to which the clusterpool should be place")
 	return cmd
 }

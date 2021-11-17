@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"path/filepath"
 
+	clusterclientset "open-cluster-management.io/api/client/cluster/clientset/versioned"
+	workclientset "open-cluster-management.io/api/client/work/clientset/versioned"
 	clusteradmhelpers "open-cluster-management.io/clusteradm/pkg/helpers"
 	clusteradmapply "open-cluster-management.io/clusteradm/pkg/helpers/apply"
 
@@ -83,6 +85,14 @@ func (o *Options) validate() (err error) {
 
 	mc["name"] = o.clusterName
 
+	if o.clusterSetName == "" {
+		if iclusterSetName, ok := mc["clusterSetName"]; ok {
+			o.clusterSetName = iclusterSetName.(string)
+		}
+	}
+
+	mc["clusterSetName"] = o.clusterSetName
+
 	return nil
 }
 
@@ -91,12 +101,26 @@ func (o *Options) run() error {
 	if err != nil {
 		return err
 	}
-	return o.runWithClient(kubeClient, apiextensionsClient, dynamicClient)
+	restConfig, err := o.CMFlags.KubectlFactory.ToRESTConfig()
+	if err != nil {
+		return err
+	}
+	clusterClient, err := clusterclientset.NewForConfig(restConfig)
+	if err != nil {
+		return err
+	}
+	workClient, err := workclientset.NewForConfig(restConfig)
+	if err != nil {
+		return err
+	}
+	return o.runWithClient(kubeClient, apiextensionsClient, dynamicClient, clusterClient, workClient)
 }
 
 func (o *Options) runWithClient(kubeClient kubernetes.Interface,
 	apiextensionsClient apiextensionsclient.Interface,
-	dynamicClient dynamic.Interface) (err error) {
+	dynamicClient dynamic.Interface,
+	clusterClient clusterclientset.Interface,
+	workClient workclientset.Interface) (err error) {
 	output := make([]string, 0)
 	pullSecret, err := kubeClient.CoreV1().Secrets("openshift-config").Get(
 		context.TODO(),
@@ -179,5 +203,13 @@ func (o *Options) runWithClient(kubeClient kubernetes.Interface,
 	}
 
 	output = append(output, out...)
+	if !o.CMFlags.DryRun {
+		if o.waitAgent || o.waitAddOns {
+			return helpers.WaitKlusterlet(clusterClient, o.clusterName, o.timeout)
+		}
+		if o.waitAddOns {
+			return helpers.WaitKlusterletAddons(workClient, o.clusterName, o.timeout)
+		}
+	}
 	return clusteradmapply.WriteOutput(o.outputFile, output)
 }

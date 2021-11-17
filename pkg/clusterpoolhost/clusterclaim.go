@@ -4,9 +4,11 @@ package clusterpoolhost
 import (
 	"context"
 	"fmt"
+	"strconv"
 	"strings"
 	"time"
 
+	printclusterpoolv1alpha1 "github.com/open-cluster-management/cm-cli/api/cm-cli/v1alpha1"
 	"github.com/open-cluster-management/cm-cli/pkg/clusterpoolhost/scenario"
 	"github.com/open-cluster-management/cm-cli/pkg/helpers"
 	hivev1 "github.com/openshift/hive/apis/hive/v1"
@@ -15,18 +17,20 @@ import (
 	"k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/apimachinery/pkg/util/wait"
 	"k8s.io/client-go/dynamic"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/klog/v2"
+	"k8s.io/kubectl/pkg/cmd/get"
 	clusteradmapply "open-cluster-management.io/clusteradm/pkg/helpers/apply"
 )
 
-func CreateClusterClaims(clusterClaimNames, clusterPoolName string, skipSchedule bool, timeout int, dryRun bool, outputFile string) error {
-	cph, err := GetCurrentClusterPoolHost()
-	if err != nil {
-		return err
-	}
+func (cph *ClusterPoolHost) GetClusterContextName(clusterName string) string {
+	return fmt.Sprintf("%s/%s", cph.Name, clusterName)
+}
+
+func (cph *ClusterPoolHost) CreateClusterClaims(clusterClaimNames, clusterPoolName string, skipSchedule bool, autoImport bool, timeout int, dryRun bool, outputFile string) error {
 	clusterPoolRestConfig, err := cph.GetGlobalRestConfig()
 	if err != nil {
 		return err
@@ -67,6 +71,7 @@ func CreateClusterClaims(clusterClaimNames, clusterPoolName string, skipSchedule
 		values["Name"] = clusterClaimName
 		values["Namespace"] = cph.Namespace
 		values["ClusterPoolName"] = clusterPoolName
+		values["AutoImport"] = strconv.FormatBool(autoImport)
 		values["ServiceAccountName"] = serviceAccountName
 		values["Group"] = cph.Group
 		files := []string{
@@ -84,23 +89,19 @@ func CreateClusterClaims(clusterClaimNames, clusterPoolName string, skipSchedule
 	}
 
 	if !dryRun {
-		if err := waitClusterClaimsRunning(dynamicClient, clusterClaimNames, clusterPoolName, cph.Namespace, timeout); err != nil {
+		if err := waitClusterClaimsRunning(dynamicClient, clusterClaimNames, clusterPoolName, cph.Namespace, timeout, nil); err != nil {
 			return err
 		}
 	}
 	return clusteradmapply.WriteOutput(outputFile, output)
 }
 
-func RunClusterClaims(clusterClaimNames string, skipSchedule bool, timeout int, dryRun bool, outputFile string) error {
+func (cph *ClusterPoolHost) RunClusterClaims(clusterClaimNames string, skipSchedule bool, timeout int, dryRun bool, outputFile string) error {
 	skipScheduleAction := "true"
 	if skipSchedule {
 		skipScheduleAction = "skip"
 	}
-	cph, err := GetCurrentClusterPoolHost()
-	if err != nil {
-		return err
-	}
-	if err = cph.setHibernateClusterClaims(clusterClaimNames, false, skipScheduleAction, dryRun, outputFile); err != nil {
+	if err := cph.setHibernateClusterClaims(clusterClaimNames, false, skipScheduleAction, dryRun, outputFile); err != nil {
 		return err
 	}
 	if !dryRun {
@@ -113,19 +114,15 @@ func RunClusterClaims(clusterClaimNames string, skipSchedule bool, timeout int, 
 		if err != nil {
 			return err
 		}
-		return waitClusterClaimsRunning(dynamicClient, clusterClaimNames, "", cph.Namespace, timeout)
+		return waitClusterClaimsRunning(dynamicClient, clusterClaimNames, "", cph.Namespace, timeout, nil)
 	}
 	return nil
 }
 
-func HibernateClusterClaims(clusterClaimNames string, skipSchedule, dryRun bool, outputFile string) error {
+func (cph *ClusterPoolHost) HibernateClusterClaims(clusterClaimNames string, skipSchedule, dryRun bool, outputFile string) error {
 	skipScheduleAction := "true"
 	if skipSchedule {
 		skipScheduleAction = "skip"
-	}
-	cph, err := GetCurrentClusterPoolHost()
-	if err != nil {
-		return err
 	}
 	return cph.setHibernateClusterClaims(clusterClaimNames, true, skipScheduleAction, dryRun, outputFile)
 }
@@ -182,15 +179,27 @@ func (cph *ClusterPoolHost) setHibernateClusterClaims(clusterClaimNames string, 
 	return nil
 }
 
-func waitClusterClaimsRunning(dynamicClient dynamic.Interface, clusterClaimNames, clusterPoolName, namespace string, timeout int) error {
+func waitClusterClaimsRunning(dynamicClient dynamic.Interface, clusterClaimNames, clusterPoolName, namespace string, timeout int, printFlags *get.PrintFlags) error {
+	if timeout == 0 {
+		running, err := checkClusterClaimsRunning(dynamicClient, clusterClaimNames, clusterPoolName, namespace, 0, timeout, false, printFlags)
+		if err != nil {
+			return err
+		}
+		if !running {
+			return fmt.Errorf("one or more clusterclaims are not running: %s", clusterClaimNames)
+		}
+		return nil
+	}
 	i := 0
 	return wait.PollImmediate(1*time.Minute, time.Duration(timeout)*time.Minute, func() (bool, error) {
+		running, err := checkClusterClaimsRunning(dynamicClient, clusterClaimNames, clusterPoolName, namespace, i, timeout, false, printFlags)
 		i += 1
-		return checkClusterClaimsRunning(dynamicClient, clusterClaimNames, clusterPoolName, namespace, i, timeout)
+		return running, err
 	})
 
 }
-func checkClusterClaimsRunning(dynamicClient dynamic.Interface, clusterClaimNames, clusterPoolName, namespace string, i, timeout int) (bool, error) {
+
+func checkClusterClaimsRunning(dynamicClient dynamic.Interface, clusterClaimNames, clusterPoolName, namespace string, i, timeout int, errorOnHibernate bool, printFlags *get.PrintFlags) (bool, error) {
 	if len(clusterPoolName) != 0 {
 		cpu, err := dynamicClient.Resource(helpers.GvrCP).Namespace(namespace).Get(context.TODO(), clusterPoolName, metav1.GetOptions{})
 		if err != nil {
@@ -239,8 +248,8 @@ func checkClusterClaimsRunning(dynamicClient dynamic.Interface, clusterClaimName
 					fmt.Printf("Error: %s\n", err.Error())
 					continue
 				}
-				if cd.Spec.PowerState == hivev1.HibernatingClusterPowerState {
-					allErrors[clusterClaimName] = fmt.Errorf("%s is hibernating, run a use command to resume it", cc.GetName())
+				if errorOnHibernate && cd.Spec.PowerState == hivev1.HibernatingClusterPowerState {
+					allErrors[clusterClaimName] = fmt.Errorf("%s is hibernating, run a \"cm use cc\" or \"cm run cc\" command to resume it", cc.GetName())
 					fmt.Printf("Error: %s\n", allErrors[clusterClaimName])
 					continue
 				}
@@ -250,12 +259,22 @@ func checkClusterClaimsRunning(dynamicClient dynamic.Interface, clusterClaimName
 					len(cd.Status.APIURL) != 0 &&
 					c != nil && c.Status == corev1.ConditionStatus(metav1.ConditionTrue) {
 					running = true
-					fmt.Printf("clusterclaim %s is running with id %s (%d/%d)\n", clusterClaimName, cc.Spec.Namespace, i, timeout)
+					if i == 0 && (printFlags == nil || printFlags.OutputFormat == nil || strings.HasPrefix(*printFlags.OutputFormat, "custom-columns=")) {
+						if timeout == 0 {
+							fmt.Printf("clusterclaim %s is running with id %s (%d)\n", clusterClaimName, cc.Spec.Namespace, i)
+						} else {
+							fmt.Printf("clusterclaim %s is running with id %s (%d/%d)\n", clusterClaimName, cc.Spec.Namespace, i, timeout)
+						}
+					}
 				}
 			}
 		}
 		if !running {
-			fmt.Printf("clusterclaim %s is not running (%d/%d)\n", clusterClaimName, i, timeout)
+			if timeout == 0 {
+				fmt.Printf("clusterclaim %s is not running (%d)\n", clusterClaimName, i)
+			} else {
+				fmt.Printf("clusterclaim %s is not running (%d/%d)\n", clusterClaimName, i, timeout)
+			}
 			allRunning = false
 		}
 	}
@@ -277,11 +296,7 @@ func getClusterClaimRunningStatus(cc *hivev1.ClusterClaim) *hivev1.ClusterClaimC
 	return nil
 }
 
-func DeleteClusterClaims(clusterClaimNames string, dryRun bool, outputFile string) error {
-	cph, err := GetCurrentClusterPoolHost()
-	if err != nil {
-		return err
-	}
+func (cph *ClusterPoolHost) DeleteClusterClaims(clusterClaimNames string, dryRun bool, outputFile string) error {
 	clusterPoolRestConfig, err := cph.GetGlobalRestConfig()
 	if err != nil {
 		return err
@@ -304,12 +319,8 @@ func DeleteClusterClaims(clusterClaimNames string, dryRun bool, outputFile strin
 	return nil
 }
 
-func GetClusterClaims(dryRun bool) (*hivev1.ClusterClaimList, error) {
+func (cph *ClusterPoolHost) GetClusterClaims(dryRun bool) (*hivev1.ClusterClaimList, error) {
 	clusterClaims := &hivev1.ClusterClaimList{}
-	cph, err := GetCurrentClusterPoolHost()
-	if err != nil {
-		return clusterClaims, err
-	}
 	clusterPoolRestConfig, err := cph.GetGlobalRestConfig()
 	if err != nil {
 		return clusterClaims, err
@@ -343,110 +354,150 @@ func getClusterClaimPendingStatus(cc *hivev1.ClusterClaim) *hivev1.ClusterClaimC
 	return nil
 }
 
-func SprintClusterClaims(cph *ClusterPoolHost, sep string, ccs *hivev1.ClusterClaimList) []string {
-	lines := make([]string, 0)
-	if len(ccs.Items) != 0 {
-		lines = append(lines, fmt.Sprintf("%s%s%s%s%s%s%s%s%s", "CLUSTER_POOL_HOST", sep, "CLUSTER_CLAIM", sep, "POWER_STATE", sep, "HIBERNATE", sep, "ID"))
+func (cph *ClusterPoolHost) ConvertToPrintClusterClaimList(ccl *hivev1.ClusterClaimList) *printclusterpoolv1alpha1.PrintClusterClaimList {
+	pccs := &printclusterpoolv1alpha1.PrintClusterClaimList{}
+	for i := range ccl.Items {
+		pcc := printclusterpoolv1alpha1.PrintClusterClaim{
+			ObjectMeta: metav1.ObjectMeta{
+				Name:      ccl.Items[i].Spec.Namespace,
+				Namespace: ccl.Items[i].Spec.Namespace,
+			},
+			Spec: printclusterpoolv1alpha1.PrintClusterClaimSpec{
+				ClusterPoolHostName: cph.Name,
+				ClusterClaim:        &ccl.Items[i],
+				Age:                 helpers.TimeDiff(ccl.Items[i].CreationTimestamp.Time, time.Second),
+			},
+		}
+		clusterPoolRestConfig, err := cph.GetGlobalRestConfig()
+		if err != nil {
+			pcc.Spec.ErrorMessage = err.Error()
+			pccs.Items = append(pccs.Items, pcc)
+			continue
+		}
+		dynamicClient, err := dynamic.NewForConfig(clusterPoolRestConfig)
+		if err != nil {
+			pcc.Spec.ErrorMessage = err.Error()
+			pccs.Items = append(pccs.Items, pcc)
+			continue
+		}
+		cdu, err := dynamicClient.Resource(helpers.GvrCD).Namespace(pcc.Spec.ClusterClaim.Spec.Namespace).Get(context.TODO(), pcc.Spec.ClusterClaim.Spec.Namespace, metav1.GetOptions{})
+		if err != nil {
+			pcc.Spec.ErrorMessage = err.Error()
+			pccs.Items = append(pccs.Items, pcc)
+			continue
+		}
+		cd := &hivev1.ClusterDeployment{}
+		if err := runtime.DefaultUnstructuredConverter.FromUnstructured(cdu.UnstructuredContent(), cd); err != nil {
+			pcc.Spec.ErrorMessage = err.Error()
+			pccs.Items = append(pccs.Items, pcc)
+			continue
+		}
+		if cd != nil {
+			pcc.Spec.PowerState = string(cd.Spec.PowerState)
+			pcc.Spec.Hibernate = cd.Labels["hibernate"]
+			pcc.Spec.ID = cd.Name
+			if ccl.Items[i].Spec.Lifetime != nil {
+				pcc.Spec.Lifetime = ccl.Items[i].Spec.Lifetime.Duration.String()
+			}
+		}
+		c := getClusterClaimPendingStatus(pcc.Spec.ClusterClaim)
+		if c != nil && c.Status == corev1.ConditionStatus(metav1.ConditionTrue) {
+			pcc.Spec.PowerState = string(hivev1.ClusterClaimPendingCondition)
+		}
+		pccs.Items = append(pccs.Items, pcc)
 	}
-	for _, cc := range ccs.Items {
-		lines = append(lines, sprintClusterClaim(cph, sep, &cc))
-	}
-	if len(ccs.Items) != 0 {
-		lines = append(lines, fmt.Sprintf("%s%s%s%s%s%s%s%s%s", "", sep, "", sep, "", sep, "", sep, ""))
-	}
-	klog.V(5).Infof("lines:%s\n", lines)
-	return lines
+	return pccs
 }
 
-func sprintClusterClaim(cph *ClusterPoolHost, sep string, cc *hivev1.ClusterClaim) string {
-	var powerState, hibernate, cdName string
+func (cph *ClusterPoolHost) GetClusterClaim(clusterName string, timeout int, dryRun bool, printFlags *get.PrintFlags) (*hivev1.ClusterClaim, error) {
 	clusterPoolRestConfig, err := cph.GetGlobalRestConfig()
 	if err != nil {
-		return fmt.Sprintf("%s%s%s%s%s%s%s%s%s", cph.Name, sep, sep, sep, sep, sep, sep, sep, err.Error())
-	}
-	dynamicClient, err := dynamic.NewForConfig(clusterPoolRestConfig)
-	if err != nil {
-		return fmt.Sprintf("%s%s%s%s%s%s%s%s%s", cph.Name, sep, sep, sep, sep, sep, sep, sep, err.Error())
-	}
-	cdu, err := dynamicClient.Resource(helpers.GvrCD).Namespace(cc.Spec.Namespace).Get(context.TODO(), cc.Spec.Namespace, metav1.GetOptions{})
-	if err != nil {
-		return fmt.Sprintf("%s%s%s%s%s%s%s%s%s", cph.Name, sep, sep, sep, sep, sep, sep, sep, err.Error())
-	}
-	cd := &hivev1.ClusterDeployment{}
-	if err := runtime.DefaultUnstructuredConverter.FromUnstructured(cdu.UnstructuredContent(), cd); err != nil {
-		return fmt.Sprintf("%s%s%s%s%s%s%s%s%s", cph.Name, sep, sep, sep, sep, sep, sep, sep, err.Error())
-	}
-	if cd != nil {
-		powerState = string(cd.Spec.PowerState)
-		hibernate = cd.Labels["hibernate"]
-		cdName = cd.Name
-	}
-	c := getClusterClaimPendingStatus(cc)
-	if c != nil && c.Status == corev1.ConditionStatus(metav1.ConditionTrue) {
-		powerState = string(hivev1.ClusterClaimPendingCondition)
-	}
-	return fmt.Sprintf("%s%s%s%s%s%s%s%s%s", cph.Name, sep, cc.GetName(), sep, powerState, sep, hibernate, sep, cdName)
-}
-
-func GetClusterClaim(clusterName string, timeout int, dryRun bool) error {
-	cph, err := GetCurrentClusterPoolHost()
-	if err != nil {
-		return err
-	}
-	clusterPoolRestConfig, err := cph.GetGlobalRestConfig()
-	if err != nil {
-		return err
+		return nil, err
 	}
 
 	dynamicClient, err := dynamic.NewForConfig(clusterPoolRestConfig)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	klog.V(3).Infof("Wait cc %s ready", clusterName)
-	if err = waitClusterClaimsRunning(dynamicClient, clusterName, "", cph.Namespace, timeout); err != nil {
-		return err
+	if err = waitClusterClaimsRunning(dynamicClient, clusterName, "", cph.Namespace, timeout, printFlags); err != nil {
+		return nil, err
 	}
 
-	kubeClient, err := kubernetes.NewForConfig(clusterPoolRestConfig)
-	if err != nil {
-		return err
-	}
 	ccu, err := dynamicClient.Resource(helpers.GvrCC).Namespace(cph.Namespace).Get(context.TODO(), clusterName, metav1.GetOptions{})
 	if err != nil {
-		return err
+		return nil, err
 	}
 	cc := &hivev1.ClusterClaim{}
 	if runtime.DefaultUnstructuredConverter.FromUnstructured(ccu.UnstructuredContent(), cc); err != nil {
-		return err
+		return nil, err
+	}
+	return cc, nil
+}
+
+func (cph *ClusterPoolHost) GetPrintClusterClaimCredential(cc *hivev1.ClusterClaim, withCredentials bool) (*printclusterpoolv1alpha1.PrintClusterClaimCredential, error) {
+	clusterPoolRestConfig, err := cph.GetGlobalRestConfig()
+	if err != nil {
+		return nil, err
+	}
+	dynamicClient, err := dynamic.NewForConfig(clusterPoolRestConfig)
+	if err != nil {
+		return nil, err
 	}
 	cdu, err := dynamicClient.Resource(helpers.GvrCD).Namespace(cc.Spec.Namespace).Get(context.TODO(), cc.Spec.Namespace, metav1.GetOptions{})
 	if err != nil {
-		return err
+		return nil, err
 	}
 	cd := &hivev1.ClusterDeployment{}
 	if runtime.DefaultUnstructuredConverter.FromUnstructured(cdu.UnstructuredContent(), cd); err != nil {
-		return err
+		return nil, err
 	}
 	if cd.Spec.PowerState == hivev1.HibernatingClusterPowerState {
-		return fmt.Errorf("%s is hibernating, run a use command to resume it", cc.GetName())
+		return nil, fmt.Errorf("%s is hibernating, run a use command to resume it", cc.GetName())
+	}
+	kubeClient, err := kubernetes.NewForConfig(clusterPoolRestConfig)
+	if err != nil {
+		return nil, err
 	}
 	s, err := kubeClient.CoreV1().Secrets(cd.Namespace).Get(context.TODO(), cd.Spec.ClusterMetadata.AdminPasswordSecretRef.Name, metav1.GetOptions{})
 	if err != nil {
-		return err
+		return nil, err
 	}
-	fmt.Printf("username:    %s\n", s.Data["username"])
-	fmt.Printf("password:    %s\n", s.Data["password"])
-	fmt.Printf("basedomain:  %s\n", cd.Spec.BaseDomain)
-	fmt.Printf("api_url:     %s\n", cd.Status.APIURL)
-	fmt.Printf("console_url: %s\n", cd.Status.WebConsoleURL)
-	return nil
+	ccc := &printclusterpoolv1alpha1.PrintClusterClaimCredential{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      cc.Name,
+			Namespace: cc.Namespace,
+		},
+		Spec: printclusterpoolv1alpha1.PrintClusterClaimCredentialSpec{
+			User:       "REDACTED",
+			Password:   "REDACTED",
+			Basedomain: cd.Spec.BaseDomain,
+			ApiUrl:     cd.Status.APIURL,
+			ConsoleUrl: cd.Status.WebConsoleURL,
+		},
+	}
+	if withCredentials {
+		ccc.Spec.User = string(s.Data["username"])
+		ccc.Spec.Password = string(s.Data["password"])
+	}
+	return ccc, nil
 }
 
-func OpenClusterClaim(clusterName string, timeout int) error {
-	cph, err := GetCurrentClusterPoolHost()
+func (cph *ClusterPoolHost) PrintClusterClaimCred(cc *hivev1.ClusterClaim, printFlags *get.PrintFlags, withCredentials bool) error {
+	cred, err := cph.GetPrintClusterClaimCredential(cc, withCredentials)
 	if err != nil {
 		return err
 	}
+	cred.GetObjectKind().
+		SetGroupVersionKind(
+			schema.GroupVersionKind{
+				Group:   printclusterpoolv1alpha1.GroupName,
+				Kind:    "PrintClusterClaimCredential",
+				Version: printclusterpoolv1alpha1.GroupVersion.Version})
+	return helpers.Print(cred, printFlags)
+}
+
+func (cph *ClusterPoolHost) OpenClusterClaim(clusterName string, timeout int) error {
 	clusterPoolRestConfig, err := cph.GetGlobalRestConfig()
 	if err != nil {
 		return err
@@ -457,7 +508,7 @@ func OpenClusterClaim(clusterName string, timeout int) error {
 		return err
 	}
 	klog.V(3).Infof("Wait cc %s ready", clusterName)
-	if err = waitClusterClaimsRunning(dynamicClient, clusterName, "", cph.Namespace, timeout); err != nil {
+	if err = waitClusterClaimsRunning(dynamicClient, clusterName, "", cph.Namespace, timeout, nil); err != nil {
 		return err
 	}
 
@@ -480,5 +531,5 @@ func OpenClusterClaim(clusterName string, timeout int) error {
 	if cd.Spec.PowerState == hivev1.HibernatingClusterPowerState {
 		return fmt.Errorf("%s is hibernating, run a use command to resume it", cc.GetName())
 	}
-	return helpers.Openbrowser(*&cd.Status.WebConsoleURL)
+	return helpers.Openbrowser(cd.Status.WebConsoleURL)
 }

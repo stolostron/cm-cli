@@ -98,6 +98,7 @@ metadata:
   labels:
     cloud: aws
     vendor: OpenShift
+    cluster.open-cluster-management.io/clusterset: myClusterSet
 spec:
   baseDomain: baseDnsDomainValue
   clusterName: "mycluster"

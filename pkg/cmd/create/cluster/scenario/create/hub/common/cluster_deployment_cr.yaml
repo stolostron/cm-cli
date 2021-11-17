@@ -8,6 +8,9 @@ metadata:
   labels:
     cloud: {{ .managedCluster.cloud }}
     vendor: {{ .managedCluster.vendor }}
+{{- if .managedCluster.clusterSetName }}
+    cluster.open-cluster-management.io/clusterset: {{ .managedCluster.clusterSetName }}
+{{- end }}
 spec:
 {{- if (eq .managedCluster.cloud "aws") }}
   baseDomain: {{ .managedCluster.aws.baseDnsDomain }}

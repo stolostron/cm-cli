@@ -1,0 +1,72 @@
+# Copyright Contributors to the Open Cluster Management project
+
+clusterPool:
+  clusterSetName: {{ index .clusterPool.metadata.labels "cluster.open-cluster-management.io/clusterset" }}
+  size: 1 #Number of cluster in the pool
+  master: 
+    replicas: {{ .installConfig.controlPlane.replicas }} #Number of master node, default 3
+  worker:
+    replicas: {{ with index .installConfig.compute 0 }} {{ .replicas }} {{ end }} #Number of worker node, default 3
+  cloud: {{ .cloud }} # clouds values can be aws, azure, gcp, openstack, vsphere
+  imageSetRef: {{ .imageSetRef }} # the imageSetRef, use `oc get clusterimageset` to find the list, use this when you don't have the permission to create clusterimageset.
+  #imagepullsecret in format:
+  # {
+  # "auths": {
+  #   "quay.io": {
+  #     "auth": "xxxxxxx",
+  #     "email": ""
+  #   }
+  # }
+  imagePullSecret: |- 
+{{ .imagePullSecret | indent 4 }}
+{{- if .installConfig.sshKey }}
+  sshPublicKey: |-
+    {{ .installConfig.sshKey }}
+{{- end }}
+{{- if .clusterPool.spec.platform.aws }}
+  aws:
+    baseDnsDomain: {{ .clusterPool.spec.baseDomain }} # baseDomain of your cluster (ie: mycompany.com)
+    awsAccessKeyID: {{ .awsAccessKeyID }}
+    awsSecretAccessKeyID: {{ .awsSecretAccessKey }}
+    region: {{ .installConfig.platform.aws.region }} # Region (ie: us-east-1)
+    master:
+    {{- with .installConfig.controlPlane.platform.aws }}
+      type: {{ .type }}
+      {{- with .rootVolume }}
+      rootVolume: # see below the default values 
+        iops: {{ .iops }}
+        size: {{ .size}}
+        type: {{ .type}}
+      {{- end }}
+    {{- end }}
+    {{- with  index .installConfig.compute 0 }}
+    worker:
+      {{- with .platform.aws }}
+      type: {{ .type }}
+      rootVolume: # see below the default values 
+        {{- with .rootVolume }}
+        iops: {{ .iops }}
+        size: {{ .size }}
+        type: {{ .type }}
+        {{- end }}
+      {{- end }}
+    {{- end }}
+{{- end }}
+{{- if .clusterPool.spec.platform.azure }}
+  azure:
+    baseDnsDomain: {{ .clusterPool.spec.baseDomain }} # baseDomain of your cluster (ie: mycompany.com)
+    baseDomainRGN: {{ .installConfig.platform.azure.baseDomainResourceGroupName }}
+    clientID: {{ .osServicePrincipalJson.clientID }}
+    clientSecret: {{ .osServicePrincipalJson.clientSecret }}
+    tenantID: {{ .osServicePrincipalJson.tenantID }}
+    subscriptionID: {{ .osServicePrincipalJson.subscriptionID }}
+    region: {{ .installConfig.platform.azure.region }}
+{{- end }}
+{{- if .clusterPool.spec.platform.gcp }}
+  gcp:
+    osServiceAccountJson: |-
+{{ .osServiceAccountJson | indent 6 }}
+    projectID: {{ .installConfig.platform.gcp.projectID }}
+    baseDnsDomain: {{ .clusterPool.spec.baseDomain }}
+    region:  {{ .installConfig.platform.gcp.region }}
+{{- end }}

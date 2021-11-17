@@ -12,6 +12,8 @@ import (
 	"k8s.io/client-go/dynamic"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/klog/v2"
+	clusterclientset "open-cluster-management.io/api/client/cluster/clientset/versioned"
+	workclientset "open-cluster-management.io/api/client/work/clientset/versioned"
 	clusteradmapply "open-cluster-management.io/clusteradm/pkg/helpers/apply"
 
 	"github.com/open-cluster-management/cm-cli/pkg/clusterpoolhost"
@@ -97,35 +99,18 @@ func (o *Options) run() (err error) {
 		return err
 	}
 
-	currentCph, err := cphs.GetCurrentClusterPoolHost()
+	cph, err := cphs.GetClusterPoolHostOrCurrent(o.ClusterPoolHost)
 	if err != nil {
 		return err
 	}
 
-	if len(o.ClusterPoolHost) != 0 {
-		cph, err := cphs.GetClusterPoolHost(o.ClusterPoolHost)
-		if err != nil {
-			return err
-		}
+	err = o.attachClusterClaim(cph)
 
-		err = cphs.SetActive(cph)
-		if err != nil {
-			return err
-		}
-	}
-
-	err = o.attachClusterClaim(cphs)
-
-	if len(o.ClusterPoolHost) != 0 {
-		if err := cphs.SetActive(currentCph); err != nil {
-			return err
-		}
-	}
 	return err
 
 }
 
-func (o *Options) attachClusterClaim(cphs *clusterpoolhost.ClusterPoolHosts) error {
+func (o *Options) attachClusterClaim(cph *clusterpoolhost.ClusterPoolHost) error {
 
 	output := make([]string, 0)
 	reader := scenario.GetScenarioResourcesReader()
@@ -133,11 +118,6 @@ func (o *Options) attachClusterClaim(cphs *clusterpoolhost.ClusterPoolHosts) err
 	files := []string{
 		"attach/hub/namespace.yaml",
 		"attach/hub/managed_cluster_secret.yaml",
-	}
-
-	cph, err := clusterpoolhost.GetCurrentClusterPoolHost()
-	if err != nil {
-		return err
 	}
 
 	clusterPoolRestConfig, err := cph.GetGlobalRestConfig()
@@ -195,13 +175,20 @@ func (o *Options) attachClusterClaim(cphs *clusterpoolhost.ClusterPoolHosts) err
 		return err
 	}
 
-	constraint := ">=2.3.0"
-	supported, err := helpers.IsSupported(kubeClient, constraint)
+	rhacmConstraint := ">=2.3.0"
+	mceConstraint := ">=1.0.0"
+
+	supported, platform, err := helpers.IsSupported(o.CMFlags.KubectlFactory, rhacmConstraint, mceConstraint)
 	if err != nil {
 		return err
 	}
 	if !supported {
-		return fmt.Errorf("this command requires RHACM version %s", constraint)
+		switch platform {
+		case helpers.RHACM:
+			return fmt.Errorf("this command requires %s version %s", platform, rhacmConstraint)
+		case helpers.MCE:
+			return fmt.Errorf("this command requires %s version %s", platform, mceConstraint)
+		}
 	}
 
 	dynamicClient, err := dynamic.NewForConfig(hubRestConfig)
@@ -224,7 +211,10 @@ func (o *Options) attachClusterClaim(cphs *clusterpoolhost.ClusterPoolHosts) err
 
 	files = []string{
 		"attach/hub/managed_cluster_cr.yaml",
-		"attach/hub/klusterlet_addon_config_cr.yaml",
+	}
+
+	if helpers.IsRHACM(o.CMFlags.KubectlFactory) {
+		files = append(files, "attach/hub/klusterlet_addon_config_cr.yaml")
 	}
 
 	out, err = applier.ApplyCustomResources(reader, o.values, o.CMFlags.DryRun, "", files...)
@@ -232,6 +222,23 @@ func (o *Options) attachClusterClaim(cphs *clusterpoolhost.ClusterPoolHosts) err
 		return err
 	}
 	output = append(output, out...)
+
+	if !o.CMFlags.DryRun {
+		clusterClient, err := clusterclientset.NewForConfig(hubRestConfig)
+		if err != nil {
+			return err
+		}
+		workClient, err := workclientset.NewForConfig(hubRestConfig)
+		if err != nil {
+			return err
+		}
+		if o.waitAgent || o.waitAddOns {
+			return helpers.WaitKlusterlet(clusterClient, o.ClusterClaim, o.timeout)
+		}
+		if o.waitAddOns {
+			return helpers.WaitKlusterletAddons(workClient, o.ClusterClaim, o.timeout)
+		}
+	}
 
 	return clusteradmapply.WriteOutput(o.outputFile, output)
 }

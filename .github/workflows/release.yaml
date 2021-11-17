@@ -29,6 +29,8 @@ jobs:
         with:
           body_path: CHANGELOG.md
           files: |
+            docs/help.tar.gz
+            docs/help.zip
             bin/cm_darwin_amd64.tar.gz
             bin/cm_linux_amd64.tar.gz
             bin/cm_linux_arm64.tar.gz
@@ -36,4 +38,4 @@ jobs:
             bin/cm_linux_s390x.tar.gz
             bin/cm_windows_amd64.zip
           draft: true
-          prerelease: true
+          prerelease: false

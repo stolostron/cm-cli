@@ -2,7 +2,7 @@
 
 # ClusterPools
 
-The CLI has commands to manage clusterpools. It allows to manage multiple clusters that are holding the clusterpool management system. 
+The CLI has commands to manage clusterpools. It allows to manage multiple clusters that are holding the clusterpool management system.
 
 These clusters are called here `clusterpoolhost`
 
@@ -16,7 +16,7 @@ cm create clusterpoolhost <clusterpoolhost_name> --api-server <api_server_url> -
 ```
 
 The namespace is where the clusterclaim will be created on that clusterpoolhost.
-The group is user group that will be bind to roles in order to retreive the cluster credentials
+The group is user group that will be bind to roles in order to retrieve the cluster credentials
 
 When you create a clusterpoolhosts it becomes the active one and all other commands will be done toward that clusterpoolhosts. It could be cluster-admin if you have such permission.
 
@@ -66,7 +66,7 @@ cm create clusterpool [<clusterpool_name>] --values <values_yaml_path>
 
 if the clusterpool_name is specified then it overwrites the one in the values yaml.
 
-The template can be retreived by running 
+The template can be retrieved by running
 
 ```bash
 cm create cp -h
@@ -75,15 +75,15 @@ cm create cp -h
 it supports clusterpools for AWS, Azure and Google
 
 
-### Get cluserpools
+### Get clusterpools or a specific clusterpool
 
 ```bash
-cm get clusterpool [--cph <clusterpoolhost>|-A]
+cm get clusterpool [<clusterpool_name>] [--cph <clusterpoolhost>|-A]
 ```
 ### Scale a clusterpool
 
 ```bash
-cm scale <clusterpool> --size <size> [--cph <clusterpoolhost>] 
+cm scale <clusterpool_name> --size <size> [--cph <clusterpoolhost>]
 ```
 ### Delete a clusterpool
 

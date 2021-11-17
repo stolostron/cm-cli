@@ -4,6 +4,7 @@ package version
 import (
 	"fmt"
 
+	"k8s.io/client-go/dynamic"
 	"k8s.io/client-go/kubernetes"
 
 	cmcli "github.com/open-cluster-management/cm-cli"
@@ -24,11 +25,21 @@ func (o *Options) run() (err error) {
 	if err != nil {
 		return err
 	}
-	return o.runWithClient(kubeClient)
+	dynamicClient, err := o.CMFlags.KubectlFactory.DynamicClient()
+	if err != nil {
+		return err
+	}
+	return o.runWithClient(kubeClient, dynamicClient)
 }
 
-func (o *Options) runWithClient(kubeClient kubernetes.Interface) (err error) {
-	version, snapshot, err := helpers.GetACMVersion(kubeClient)
+func (o *Options) runWithClient(kubeClient kubernetes.Interface, dynamicClient dynamic.Interface) (err error) {
+	var version, snapshot string
+	switch {
+	case helpers.IsRHACM(o.CMFlags.KubectlFactory):
+		version, snapshot, err = helpers.GetACMVersion(kubeClient, dynamicClient)
+	case helpers.IsMCE(o.CMFlags.KubectlFactory):
+		version, snapshot, err = helpers.GetMCEVersion(kubeClient, dynamicClient)
+	}
 	if version != "" {
 		fmt.Printf("server release\tversion\t:%s\n", version)
 	}

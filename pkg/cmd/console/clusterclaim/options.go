@@ -4,6 +4,7 @@ package clusterclaim
 import (
 	genericclioptionscm "github.com/open-cluster-management/cm-cli/pkg/genericclioptions"
 	"k8s.io/cli-runtime/pkg/genericclioptions"
+	"k8s.io/kubectl/pkg/cmd/get"
 )
 
 type Options struct {
@@ -12,10 +13,13 @@ type Options struct {
 	ClusterClaim    string
 	ClusterPoolHost string
 	Timeout         int
+	GetOptions      *get.GetOptions
+	WithCredentials bool
 }
 
 func newOptions(cmFlags *genericclioptionscm.CMFlags, streams genericclioptions.IOStreams) *Options {
 	return &Options{
-		CMFlags: cmFlags,
+		CMFlags:    cmFlags,
+		GetOptions: get.NewGetOptions("cm", streams),
 	}
 }
