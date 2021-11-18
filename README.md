@@ -61,7 +61,7 @@ To set up your first ClusterPoolHost:
 
 ClusterPools maintain a configurable and scalable number of OpenShift clusters in a hibernating state.  `cm` exposes the capability to create, view, consume clusters from, and destroy clusterpools.  
 
-To create a ClusterPool, see `cm create <clusterpool/cp> --help` for all options.  You can veiw your created ClusterPool(s) with `cm get <clusterpool/cp>`.
+To create a ClusterPool, see `cm create <clusterpool/cp> --help` for all options.  You can view your created ClusterPools with `cm get <clusterpool/cp>`.
 
 Once you have a clusterpool, you can claim clusters from the pool for use using `cm create <clusterclaim/cc> <clusterpool-name> <clusterclaim-name>`, see `cm create <clusterclaim/cc> --help` for more options.  You can also view ClusterClaims and details with `cm get <clusterclaim/cc>` and delete ClusterClaims with `cm delete <clusterclaim/cc>`.  
 
