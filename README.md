@@ -52,7 +52,7 @@ In order to work with clusters, you need set up `cm` with your hub cluster(s) - 
 
 To set up your first ClusterPoolHost:
 1. `oc login` to your ClusterPoolHost running [Red Hat Advanced Cluster Management](https://access.redhat.com/products/red-hat-advanced-cluster-management-for-kubernetes), [Multicluster Engine for Kubernetes](https://github.com/open-cluster-management/backplane-operator), or [Open Cluster Management](http://github.com/open-cluster-management-io).  **Your user must be able to create ServiceAccounts in the target namespace, given that `create cph` creates a ServiceAccount.  Also ensure that ServiceAccounts in that namespace have the relevant access such as create/delete clusterclaims, pools, etc.   
-2. Run `cm create cph --api-url=<api> --console=<console-url> --group=<rbac-group> --namespace=<namespace-containing-clusters> <name-of-cph>` and run `cm create cph --help` to view all options
+2. Run `cm create cph --api-server=<api-url> --console=<console-url> --group=<rbac-group> --namespace=<namespace-containing-clusters> <name-of-cph>` and run `cm create cph --help` to view all options
 3. Run `cm get cph` to verify that your active clusterpoolhost is correct, `cm set cph <clusterpoolhost-name>` to swap clusterpoolhosts, and `cm use cph <clusterpoolhost-name>` to switch to that clusterpoolhost's context.  
 
 ### Working with Clusters
