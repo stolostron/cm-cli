@@ -63,7 +63,7 @@ ClusterPools maintain a configurable and scalable number of OpenShift clusters i
 
 To create a ClusterPool, see `cm create <clusterpool/cp> --help` for all options.  You can view your created ClusterPools with `cm get <clusterpool/cp>`.
 
-Once you have a clusterpool, you can claim clusters from the pool for use using `cm create <clusterclaim/cc> <clusterpool-name> <clusterclaim-name>`, see `cm create <clusterclaim/cc> --help` for more options.  You can also view ClusterClaims and details with `cm get <clusterclaim/cc>` and delete ClusterClaims with `cm delete <clusterclaim/cc>`.  
+Once you have a ClusterPool, you can claim clusters from the pool for use using `cm create <clusterclaim/cc> <clusterpool-name> <clusterclaim-name>`, see `cm create <clusterclaim/cc> --help` for more options.  You can also view ClusterClaims and details with `cm get <clusterclaim/cc>` and delete ClusterClaims with `cm delete <clusterclaim/cc>`.  
 
 Finally, you can delete a ClusterPool with `cm delete <clusterpool/cp>`.  
 
