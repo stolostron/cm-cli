@@ -59,7 +59,7 @@ To set up your first ClusterPoolHost:
 
 #### Using ClusterPools
 
-ClusterPools maintain a configurable and scalable number of OpenShift clusters in a hibernating state.  `cm` exposes the capability to create, view, consume clusters from, and destroy clusterpools.  
+ClusterPools maintain a configurable and scalable number of OpenShift clusters in a hibernating state.  `cm` exposes the capability to create, view, consume clusters from, and destroy ClusterPools.  
 
 To create a ClusterPool, see `cm create <clusterpool/cp> --help` for all options.  You can view your created ClusterPools with `cm get <clusterpool/cp>`.
 
