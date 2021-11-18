@@ -48,12 +48,12 @@ This CLI (and plugin) is still in development, but aims to expose OCM/ACM's func
 
 ### Setting up a ClusterPoolHost
 
-In order to work with clusters, you need set up `cm` with your hub cluster(s) - `cm` refers to these hubs as "clusterpoolhost"(s) or "cph"(s) for short!  
+In order to work with clusters, you need to set up `cm` with your hub cluster(s) - `cm` refers to these hubs as "clusterpoolhost"(s) or "cph"(s) for short!  
 
 To set up your first ClusterPoolHost:
-1. `oc login` to your ClusterPoolHost running [Red Hat Advanced Cluster Management](https://access.redhat.com/products/red-hat-advanced-cluster-management-for-kubernetes), [Multicluster Engine for Kubernetes](https://github.com/open-cluster-management/backplane-operator), or [Open Cluster Management](http://github.com/open-cluster-management-io).  **Your user must be able to create ServiceAccounts in the target namespace, given that `create cph` creates a ServiceAccount.  Also ensure that ServiceAccounts in that namespace have the relevant access such as create/delete ClusterClaims, ClusterPools, etc.   
+1. `oc login` to your ClusterPoolHost running [Red Hat Advanced Cluster Management](https://access.redhat.com/products/red-hat-advanced-cluster-management-for-kubernetes), [Multicluster Engine for Kubernetes](https://github.com/open-cluster-management/backplane-operator), or [Open Cluster Management](http://github.com/open-cluster-management-io).  **Your user must be able to create ServiceAccounts in the target namespace, given that `create cph` creates a ServiceAccount.  Also ensure that ServiceAccounts in that namespace have the relevant access such as create/delete ClusterClaims, ClusterPools, etc.   We'll include a list of commmon RBAC configurations in the [RBAC Section below](#rbac-configurations).  
 2. Run `cm create cph --api-server=<api-url> --console=<console-url> --group=<rbac-group> --namespace=<namespace-containing-clusters> <name-of-cph>` and run `cm create cph --help` to view all options
-3. Run `cm get cph` to verify that your active clusterpoolhost is correct, `cm set cph <clusterpoolhost-name>` to swap clusterpoolhosts, and `cm use cph <clusterpoolhost-name>` to switch to that clusterpoolhost's context.  
+3. Run `cm get cph` to verify that your active clusterpoolhost is correct, `cm set cph <clusterpoolhost-name>` to set the current clusterpoolhost, `cm use cph <clusterpoolhost-name>` to switch to that clusterpoolhost's context, and `cm delete cph <clusterpoolhost-name>` to delete a ClusterPoolHost.  
 
 ### Working with Clusters
 
@@ -67,11 +67,11 @@ Once you have a ClusterPool, you can claim clusters from the pool for use using 
 
 Finally, you can delete a ClusterPool with `cm delete <clusterpool/cp>`.  
 
-#### Creating Clusters
+#### Creating Managed Clusters
 
 To create individual clusters with specific configurations, you can use `cm create cluster`, see `cm create cluster --help` for more options, including a `values.yaml` template.  
 
-#### Nagivating with Clusters
+#### Navigating around Clusters
 
 `cm` also allows you to easily change cluster contexts without losing visibility to your Hub/ClusterPoolHost.  
 
@@ -88,6 +88,38 @@ Once you've identified a cluster, you can use `cm use <clusterclaim/clusterpoolh
 #### Bringing Clusters Under Management
 
 If you wish to bring a cluster under the management of a hub cluster, you can use `cm attach <cluster/clusterclaim>`, see `cm attach --help` for all options.  
+
+### RBAC Configurations
+
+`cm` creates a ServiceAccount, named after your local system's username, on each ClusterPoolHost that you create, which provides a consistent connection to the ClusterPoolHost's API.  For `cm` to function properly, you need to give your ServiceAccount certain permissions.  We'll leave the exact permissions you wish to grant up to you, but below are the standard API objects and operations you'll interact with via `cm`, although *this list is not comprehensive*.  
+
+```
+  - apiGroups:
+      - hive.openshift.io
+    resources:
+      - clusterdeployments
+      - clusterprovisions
+      - clusterdeprovisions
+      - clusterpools
+      - clusterimagesets
+      - clusterclaims
+  - apiGroups:
+      - cluster.open-cluster-management.io
+    resources:
+      - managedclusters
+      - managedclustersets
+      - managedclustersets/join
+      - managedclustersets/bind
+  - apiGroups:
+      - clusterview.open-cluster-management.io
+    resources:
+      - managedclusters
+      - managedclusetrsets
+  - apiGroups:
+      - register.open-cluster-management.io
+    resources:
+      - managedclusters/accept
+```
 
 ## Contributing
 
