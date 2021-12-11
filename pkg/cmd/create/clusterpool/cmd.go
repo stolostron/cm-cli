@@ -44,16 +44,12 @@ func NewCmd(cmFlags *genericclioptionscm.CMFlags, streams genericclioptions.IOSt
 		PreRunE: func(cmd *cobra.Command, args []string) error {
 			clusteradmhelpers.DryRunMessage(cmFlags.DryRun)
 			return nil
-			// return clusterpoolhost.BackupCurrentContexts()
 		},
 		Run: func(cmd *cobra.Command, args []string) {
 			cmdutil.CheckErr(o.complete(cmd, args))
 			cmdutil.CheckErr(o.validate())
 			cmdutil.CheckErr(o.run())
 		},
-		// PostRunE: func(cmd *cobra.Command, args []string) error {
-		// 	return clusterpoolhost.RestoreCurrentContexts()
-		// },
 	}
 
 	cmd.SetUsageTemplate(clusteradmhelpers.UsageTempate(cmd, scenario.GetScenarioResourcesReader(), valuesTemplatePath))

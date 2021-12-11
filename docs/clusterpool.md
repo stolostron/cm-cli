@@ -12,18 +12,20 @@ These clusters are called here `clusterpoolhost`
 A clusterpoolhost defines where clusterclaim can be created using the cm-cli.
 
 ```bash
-cm create clusterpoolhost <clusterpoolhost_name> --api-server <api_server_url> --console <console_url> --namespace <my_namespace> [--group <my_user_group>]
+cm create clusterpoolhost <clusterpoolhost_name> --api-server <api_server_url> --console <console_url> --namespace <my_namespace> [--group <my_user_group>] [--product-namespace rhacm_mce_installation_namespace]
 ```
 
 The namespace is where the clusterclaim will be created on that clusterpoolhost.
 The group is user group that will be bind to roles in order to retrieve the cluster credentials
+In some environment, the RBAC forebid the users to list all namespace and thus cm is unable to discover if RHACM/MCE are running in the environement and which versions. Setting the product-namespace will allow cm to discover the product name and version. This can be overwritten in each cm command using the global option `--product-namespace`.
 
 When you create a clusterpoolhosts it becomes the active one and all other commands will be done toward that clusterpoolhosts. It could be cluster-admin if you have such permission.
 
 Example:
 ```
-cm create clusterpoolhost my_cluster_pool_host_name --api-server https://api.mycluster.my.domain:6443 --console https://console-openshift-console.apps.mycluster.my.domain --namespace my_namespace --group my_user_group
+cm create clusterpoolhost my_cluster_pool_host_name --api-server https://api.mycluster.my.domain:6443 --console https://console-openshift-console.apps.mycluster.my.domain --namespace my_namespace --group my_user_group --product-namespace open-cluster-management
 ```
+
 
 ### Get ClusterPoolHosts
 

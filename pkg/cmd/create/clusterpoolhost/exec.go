@@ -49,11 +49,12 @@ func (o *Options) validate() error {
 
 func (o *Options) run() (err error) {
 	cph := &clusterpoolhost.ClusterPoolHost{
-		Name:      o.ClusterPoolHost.Name,
-		APIServer: o.ClusterPoolHost.APIServer,
-		Console:   o.ClusterPoolHost.Console,
-		Group:     o.ClusterPoolHost.Group,
-		Namespace: o.ClusterPoolHost.Namespace,
+		Name:             o.ClusterPoolHost.Name,
+		APIServer:        o.ClusterPoolHost.APIServer,
+		Console:          o.ClusterPoolHost.Console,
+		Group:            o.ClusterPoolHost.Group,
+		Namespace:        o.ClusterPoolHost.Namespace,
+		ProductNamespace: o.ClusterPoolHost.ProductNamespace,
 	}
 	err = cph.VerifyClusterPoolContext(o.CMFlags.DryRun, o.outputFile)
 	if err != nil {

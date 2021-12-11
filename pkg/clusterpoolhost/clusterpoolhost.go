@@ -43,6 +43,8 @@ type ClusterPoolHost struct {
 	Namespace string `json:"namespace"`
 	// Name of a `Group` (`user.openshift.io/v1`) that should be added to each `ClusterClaim` for team access
 	Group string `json:"group"`
+	//ProductNamespace namespace where RHACM or MCE is installed
+	ProductNamespace string `json:"productNamespace"`
 }
 
 type ErrorType string
@@ -186,7 +188,11 @@ func (cs *ClusterPoolHosts) GetCurrentClusterPoolHost() (*ClusterPoolHost, error
 }
 
 //GetClusterPoolHostOrCurrent returns the clusterpoolhost and if
-func (cs *ClusterPoolHosts) GetClusterPoolHostOrCurrent(name string) (*ClusterPoolHost, error) {
+func GetClusterPoolHostOrCurrent(name string) (*ClusterPoolHost, error) {
+	cs, err := GetClusterPoolHosts()
+	if err != nil {
+		return nil, err
+	}
 	if len(name) != 0 {
 		return cs.GetClusterPoolHost(name)
 	}

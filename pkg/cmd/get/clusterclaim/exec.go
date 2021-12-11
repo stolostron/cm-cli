@@ -29,7 +29,7 @@ func (o *Options) run() (err error) {
 		return err
 	}
 
-	cph, err := cphs.GetClusterPoolHostOrCurrent(o.ClusterPoolHost)
+	cph, err := clusterpoolhost.GetClusterPoolHostOrCurrent(o.ClusterPoolHost)
 	if err != nil {
 		return err
 	}
@@ -54,7 +54,7 @@ func (o *Options) getCC(cph *clusterpoolhost.ClusterPoolHost) (err error) {
 func (o *Options) getCCS(cphs *clusterpoolhost.ClusterPoolHosts) (err error) {
 
 	if !o.AllClusterPoolHosts {
-		cph, err := cphs.GetClusterPoolHostOrCurrent(o.ClusterPoolHost)
+		cph, err := clusterpoolhost.GetClusterPoolHostOrCurrent(o.ClusterPoolHost)
 		if err != nil {
 			return err
 		}

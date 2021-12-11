@@ -45,7 +45,11 @@ func NewCmd(cmFlags *genericclioptionscm.CMFlags, streams genericclioptions.IOSt
 		SilenceUsage: true,
 		PreRunE: func(c *cobra.Command, args []string) error {
 			clusteradmhelpers.DryRunMessage(cmFlags.DryRun)
-			if !helpers.IsRHACM(cmFlags.KubectlFactory) && !helpers.IsMCE(cmFlags.KubectlFactory) {
+			isSupported, err := helpers.IsSupported(o.CMFlags)
+			if err != nil {
+				return err
+			}
+			if !isSupported {
 				return fmt.Errorf("this command '%s %s' is only available on %s or %s",
 					helpers.GetExampleHeader(),
 					strings.Join(os.Args[1:], " "),

@@ -49,6 +49,7 @@ cm accept --clusters <cluster_1>,<cluster_2>,...
   -n, --namespace string                 If present, the namespace scope for this CLI request
       --one-output                       If true, only write logs to their native severity level (vs also writing to each lower severity level)
       --password string                  Password for basic authentication to the API server
+      --product-namespace string         The namespace where the product (RHACM/MCE) is installed
       --request-timeout string           The length of time to wait before giving up on a single server request. Non-zero values should contain a corresponding time unit (e.g. 1s, 2m, 3h). A value of zero means don't timeout requests. (default "0")
   -s, --server string                    The address and port of the Kubernetes API server
       --skip-headers                     If true, avoid header prefixes in the log messages

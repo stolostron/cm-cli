@@ -21,24 +21,31 @@ func (o *Options) validate() error {
 }
 func (o *Options) run() (err error) {
 	fmt.Printf("client\t\tversion\t:%s\n", cmcli.GetVersion())
-	kubeClient, err := o.CMFlags.KubectlFactory.KubernetesClientSet()
+	isSupported, err := helpers.IsSupported(o.CMFlags)
 	if err != nil {
 		return err
 	}
-	dynamicClient, err := o.CMFlags.KubectlFactory.DynamicClient()
-	if err != nil {
-		return err
+	if isSupported {
+		kubeClient, err := o.CMFlags.KubectlFactory.KubernetesClientSet()
+		if err != nil {
+			return err
+		}
+		dynamicClient, err := o.CMFlags.KubectlFactory.DynamicClient()
+		if err != nil {
+			return err
+		}
+		return o.runWithClient(kubeClient, dynamicClient)
 	}
-	return o.runWithClient(kubeClient, dynamicClient)
+	return nil
 }
 
 func (o *Options) runWithClient(kubeClient kubernetes.Interface, dynamicClient dynamic.Interface) (err error) {
 	var version, snapshot string
 	switch {
-	case helpers.IsRHACM(o.CMFlags.KubectlFactory):
-		version, snapshot, err = helpers.GetACMVersion(kubeClient, dynamicClient)
-	case helpers.IsMCE(o.CMFlags.KubectlFactory):
-		version, snapshot, err = helpers.GetMCEVersion(kubeClient, dynamicClient)
+	case helpers.IsRHACM(o.CMFlags):
+		version, snapshot, err = helpers.GetACMVersion(o.CMFlags, kubeClient, dynamicClient)
+	case helpers.IsMCE(o.CMFlags):
+		version, snapshot, err = helpers.GetMCEVersion(o.CMFlags, kubeClient, dynamicClient)
 	}
 	if version != "" {
 		fmt.Printf("server release\tversion\t:%s\n", version)
