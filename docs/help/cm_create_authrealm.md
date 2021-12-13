@@ -58,11 +58,12 @@ cm create authrealm myauthrealm --routeSubDomain mysso --values values.yaml
   -n, --namespace string                 If present, the namespace scope for this CLI request
       --one-output                       If true, only write logs to their native severity level (vs also writing to each lower severity level)
       --password string                  Password for basic authentication to the API server
-      --product-namespace string         The namespace where the product (RHACM/MCE) is installed
       --request-timeout string           The length of time to wait before giving up on a single server request. Non-zero values should contain a corresponding time unit (e.g. 1s, 2m, 3h). A value of zero means don't timeout requests. (default "0")
   -s, --server string                    The address and port of the Kubernetes API server
+      --server-namespace string          The namespace where the server (RHACM/MCE) is installed
       --skip-headers                     If true, avoid header prefixes in the log messages
       --skip-log-headers                 If true, avoid headers when opening log files
+      --skip-server-check                If set commands will not check the installed server (RHACM/MCE) target
       --stderrthreshold severity         logs at or above this threshold go to stderr (default 2)
       --tls-server-name string           Server name to use for server certificate validation. If it is not provided, the hostname used to contact the server is used
       --token string                     Bearer token for authentication to the API server

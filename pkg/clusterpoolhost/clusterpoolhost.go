@@ -43,8 +43,8 @@ type ClusterPoolHost struct {
 	Namespace string `json:"namespace"`
 	// Name of a `Group` (`user.openshift.io/v1`) that should be added to each `ClusterClaim` for team access
 	Group string `json:"group"`
-	//ProductNamespace namespace where RHACM or MCE is installed
-	ProductNamespace string `json:"productNamespace"`
+	//ServerNamespace namespace where RHACM or MCE is installed
+	ServerNamespace string `json:"serverNamespace"`
 }
 
 type ErrorType string

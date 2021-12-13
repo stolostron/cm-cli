@@ -7,17 +7,17 @@ import (
 )
 
 func IsSupported(cmFlags *genericclioptions.CMFlags) (isSupported bool, err error) {
-	var productNamespace string
+	var serverNamespace string
 	switch {
-	case len(cmFlags.ProductNamespace) != 0:
-		productNamespace = cmFlags.ProductNamespace
+	case len(cmFlags.ServerNamespace) != 0:
+		serverNamespace = cmFlags.ServerNamespace
 	default:
 		cph, err := GetCurrentClusterPoolHost()
 		if err != nil {
 			return false, err
 		}
-		productNamespace = cph.ProductNamespace
+		serverNamespace = cph.ServerNamespace
 	}
-	cmFlags.ProductNamespace = productNamespace
-	return helpers.IsRHACM(cmFlags) || helpers.IsMCE(cmFlags), err
+	cmFlags.ServerNamespace = serverNamespace
+	return helpers.IsSupported(cmFlags)
 }

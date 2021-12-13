@@ -12,7 +12,7 @@ import (
 )
 
 func IsSupported(cmFlags *genericclioptions.CMFlags) (isSupported bool, err error) {
-	return IsRHACM(cmFlags) || IsMCE(cmFlags), err
+	return cmFlags.SkipServerCheck || IsRHACM(cmFlags) || IsMCE(cmFlags), err
 }
 
 func IsRHACM(cmFlags *genericclioptions.CMFlags) bool {
@@ -32,8 +32,8 @@ func getRHACMConfigMapList(cmFlags *genericclioptions.CMFlags) (cms *corev1.Conf
 	cms, err = kubeClient.CoreV1().ConfigMaps("").List(context.TODO(), metav1.ListOptions{
 		LabelSelector: fmt.Sprintf("%v = %v", "ocm-configmap-type", "image-manifest"),
 	})
-	if (err != nil || len(cms.Items) == 0) && len(cmFlags.ProductNamespace) != 0 {
-		cms, err = kubeClient.CoreV1().ConfigMaps(cmFlags.ProductNamespace).List(context.TODO(), metav1.ListOptions{
+	if (err != nil || len(cms.Items) == 0) && len(cmFlags.ServerNamespace) != 0 {
+		cms, err = kubeClient.CoreV1().ConfigMaps(cmFlags.ServerNamespace).List(context.TODO(), metav1.ListOptions{
 			LabelSelector: fmt.Sprintf("%v = %v", "ocm-configmap-type", "image-manifest"),
 		})
 	}
@@ -62,8 +62,8 @@ func getMCEConfigMapList(cmFlags *genericclioptions.CMFlags) (cms *corev1.Config
 	cms, err = kubeClient.CoreV1().ConfigMaps("").List(context.TODO(), metav1.ListOptions{
 		LabelSelector: fmt.Sprintf("%v = %v", "operators.coreos.com/multicluster-engine.multicluster-engine", ""),
 	})
-	if (err != nil || len(cms.Items) == 0) && len(cmFlags.ProductNamespace) != 0 {
-		cms, err = kubeClient.CoreV1().ConfigMaps(cmFlags.ProductNamespace).List(context.TODO(), metav1.ListOptions{
+	if (err != nil || len(cms.Items) == 0) && len(cmFlags.ServerNamespace) != 0 {
+		cms, err = kubeClient.CoreV1().ConfigMaps(cmFlags.ServerNamespace).List(context.TODO(), metav1.ListOptions{
 			LabelSelector: fmt.Sprintf("%v = %v", "operators.coreos.com/multicluster-engine.multicluster-engine", ""),
 		})
 	}

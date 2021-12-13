@@ -26,7 +26,7 @@ cm get clusters [(-o|--output=)json|yaml|wide|custom-columns=...|custom-columns-
   -k, --kustomize string              Process the kustomization directory. This flag can't be used together with -f or -R.
   -L, --label-columns strings         Accepts a comma separated list of labels that are going to be presented as columns. Names are case-sensitive. You can also use multiple flag options like -L label1 -L label2...
       --no-headers                    When using the default or custom-column output format, don't print headers (default print headers).
-  -o, --output string                 Output format. One of: json|yaml|name|go-template|go-template-file|template|templatefile|jsonpath|jsonpath-as-json|jsonpath-file|custom-columns|custom-columns-file|wide See custom columns [https://kubernetes.io/docs/reference/kubectl/overview/#custom-columns], golang template [http://golang.org/pkg/text/template/#pkg-overview] and jsonpath template [https://kubernetes.io/docs/reference/kubectl/jsonpath/].
+  -o, --output string                 Output format. One of: json|yaml|name|go-template|go-template-file|template|templatefile|jsonpath|jsonpath-as-json|jsonpath-file|custom-columns-file|custom-columns|wide See custom columns [https://kubernetes.io/docs/reference/kubectl/overview/#custom-columns], golang template [http://golang.org/pkg/text/template/#pkg-overview] and jsonpath template [https://kubernetes.io/docs/reference/kubectl/jsonpath/].
       --output-watch-events           Output watch event objects when --watch or --watch-only is used. Existing objects are output as initial ADDED events.
   -R, --recursive                     Process the directory used in -f, --filename recursively. Useful when you want to manage related manifests organized within the same directory.
   -l, --selector string               Selector (label query) to filter on, supports '=', '==', and '!='.(e.g. -l key1=value1,key2=value2)
@@ -66,11 +66,12 @@ cm get clusters [(-o|--output=)json|yaml|wide|custom-columns=...|custom-columns-
   -n, --namespace string                 If present, the namespace scope for this CLI request
       --one-output                       If true, only write logs to their native severity level (vs also writing to each lower severity level)
       --password string                  Password for basic authentication to the API server
-      --product-namespace string         The namespace where the product (RHACM/MCE) is installed
       --request-timeout string           The length of time to wait before giving up on a single server request. Non-zero values should contain a corresponding time unit (e.g. 1s, 2m, 3h). A value of zero means don't timeout requests. (default "0")
   -s, --server string                    The address and port of the Kubernetes API server
+      --server-namespace string          The namespace where the server (RHACM/MCE) is installed
       --skip-headers                     If true, avoid header prefixes in the log messages
       --skip-log-headers                 If true, avoid headers when opening log files
+      --skip-server-check                If set commands will not check the installed server (RHACM/MCE) target
       --stderrthreshold severity         logs at or above this threshold go to stderr (default 2)
       --tls-server-name string           Server name to use for server certificate validation. If it is not provided, the hostname used to contact the server is used
       --token string                     Bearer token for authentication to the API server

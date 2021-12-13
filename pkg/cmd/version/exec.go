@@ -20,7 +20,7 @@ func (o *Options) validate() error {
 	return nil
 }
 func (o *Options) run() (err error) {
-	fmt.Printf("client\t\tversion\t:%s\n", cmcli.GetVersion())
+	fmt.Printf("client\t\t\tversion\t:%s\n", cmcli.GetVersion())
 	isSupported, err := helpers.IsSupported(o.CMFlags)
 	if err != nil {
 		return err
@@ -40,18 +40,20 @@ func (o *Options) run() (err error) {
 }
 
 func (o *Options) runWithClient(kubeClient kubernetes.Interface, dynamicClient dynamic.Interface) (err error) {
-	var version, snapshot string
+	var version, snapshot, server string
 	switch {
 	case helpers.IsRHACM(o.CMFlags):
+		server = helpers.RHACM
 		version, snapshot, err = helpers.GetACMVersion(o.CMFlags, kubeClient, dynamicClient)
 	case helpers.IsMCE(o.CMFlags):
+		server = helpers.MCE
 		version, snapshot, err = helpers.GetMCEVersion(o.CMFlags, kubeClient, dynamicClient)
 	}
 	if version != "" {
-		fmt.Printf("server release\tversion\t:%s\n", version)
+		fmt.Printf("server %s release\tversion\t:%s\n", server, version)
 	}
 	if snapshot != "" {
-		fmt.Printf("server image\ttag\t:%s\n", snapshot)
+		fmt.Printf("server %s image\ttag\t:%s\n", server, snapshot)
 	}
 	if err != nil {
 		return err
