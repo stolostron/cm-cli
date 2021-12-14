@@ -35,7 +35,11 @@ func NewCmd(cmFlags *genericclioptionscm.CMFlags, streams genericclioptions.IOSt
 		Short:                 "list the credentials of cloud providers",
 		Example:               fmt.Sprintf(example, helpers.GetExampleHeader()),
 		PreRunE: func(c *cobra.Command, args []string) error {
-			if !helpers.IsRHACM(cmFlags.KubectlFactory) && !helpers.IsMCE(cmFlags.KubectlFactory) {
+			isSupported, err := helpers.IsSupported(cmFlags)
+			if err != nil {
+				return err
+			}
+			if !isSupported {
 				return fmt.Errorf("this command '%s %s' is only available on %s or %s",
 					helpers.GetExampleHeader(),
 					strings.Join(os.Args[1:], " "),

@@ -44,7 +44,11 @@ func NewCmd(cmFlags *genericclioptionscm.CMFlags, streams genericclioptions.IOSt
 		Example:      fmt.Sprintf(example, helpers.GetExampleHeader()),
 		SilenceUsage: true,
 		PreRunE: func(c *cobra.Command, args []string) error {
-			if !helpers.IsRHACM(cmFlags.KubectlFactory) && !helpers.IsMCE(cmFlags.KubectlFactory) {
+			isSupported, err := helpers.IsSupported(o.CMFlags)
+			if err != nil {
+				return err
+			}
+			if !isSupported {
 				return fmt.Errorf("this command '%s %s' is only available on %s or %s",
 					helpers.GetExampleHeader(),
 					strings.Join(os.Args[1:], " "),

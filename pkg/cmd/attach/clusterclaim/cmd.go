@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/open-cluster-management/cm-cli/pkg/clusterpoolhost"
 	"github.com/open-cluster-management/cm-cli/pkg/cmd/attach/cluster/scenario"
 	genericclioptionscm "github.com/open-cluster-management/cm-cli/pkg/genericclioptions"
 	"github.com/open-cluster-management/cm-cli/pkg/helpers"
@@ -43,7 +44,11 @@ func NewCmd(cmFlags *genericclioptionscm.CMFlags, streams genericclioptions.IOSt
 		SilenceUsage: true,
 		PreRunE: func(c *cobra.Command, args []string) error {
 			clusteradmhelpers.DryRunMessage(cmFlags.DryRun)
-			if !helpers.IsRHACM(cmFlags.KubectlFactory) && !helpers.IsMCE(cmFlags.KubectlFactory) {
+			isSupported, err := clusterpoolhost.IsSupported(o.CMFlags)
+			if err != nil {
+				return err
+			}
+			if !isSupported {
 				return fmt.Errorf("this command '%s %s' is only available on %s or %s",
 					helpers.GetExampleHeader(),
 					strings.Join(os.Args[1:], " "),

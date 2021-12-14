@@ -41,10 +41,10 @@ func NewCmd(cmFlags *genericclioptionscm.CMFlags, streams genericclioptions.IOSt
 		Example:      fmt.Sprintf(example, helpers.GetExampleHeader()),
 		SilenceUsage: true,
 		PreRunE: func(c *cobra.Command, args []string) error {
-			clusteradmhelpers.DryRunMessage(cmFlags.DryRun)
-			if !helpers.IsRHACM(cmFlags.KubectlFactory) {
+			if !helpers.IsRHACM(o.CMFlags) {
 				return fmt.Errorf("this command '%s %s' is only available on RHACM", helpers.GetExampleHeader(), strings.Join(os.Args[1:], " "))
 			}
+			clusteradmhelpers.DryRunMessage(cmFlags.DryRun)
 			return nil
 		},
 		RunE: func(c *cobra.Command, args []string) error {

@@ -94,12 +94,7 @@ func (o *Options) validate() error {
 }
 
 func (o *Options) run() (err error) {
-	cphs, err := clusterpoolhost.GetClusterPoolHosts()
-	if err != nil {
-		return err
-	}
-
-	cph, err := cphs.GetClusterPoolHostOrCurrent(o.ClusterPoolHost)
+	cph, err := clusterpoolhost.GetClusterPoolHostOrCurrent(o.ClusterPoolHost)
 	if err != nil {
 		return err
 	}
@@ -178,7 +173,7 @@ func (o *Options) attachClusterClaim(cph *clusterpoolhost.ClusterPoolHost) error
 	rhacmConstraint := ">=2.3.0"
 	mceConstraint := ">=1.0.0"
 
-	supported, platform, err := helpers.IsSupported(o.CMFlags.KubectlFactory, rhacmConstraint, mceConstraint)
+	supported, platform, err := helpers.IsSupportedVersion(o.CMFlags, true, o.ClusterPoolHost, rhacmConstraint, mceConstraint)
 	if err != nil {
 		return err
 	}
@@ -213,7 +208,7 @@ func (o *Options) attachClusterClaim(cph *clusterpoolhost.ClusterPoolHost) error
 		"attach/hub/managed_cluster_cr.yaml",
 	}
 
-	if helpers.IsRHACM(o.CMFlags.KubectlFactory) {
+	if helpers.IsRHACM(o.CMFlags) {
 		files = append(files, "attach/hub/klusterlet_addon_config_cr.yaml")
 	}
 

@@ -80,12 +80,7 @@ func (o *Options) validate() (err error) {
 }
 
 func (o *Options) run() (err error) {
-	cphs, err := clusterpoolhost.GetClusterPoolHosts()
-	if err != nil {
-		return err
-	}
-
-	cph, err := cphs.GetClusterPoolHostOrCurrent(o.ClusterPoolHost)
+	cph, err := clusterpoolhost.GetClusterPoolHostOrCurrent(o.ClusterPoolHost)
 	if err != nil {
 		return err
 	}

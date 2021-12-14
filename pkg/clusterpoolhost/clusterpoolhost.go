@@ -43,6 +43,8 @@ type ClusterPoolHost struct {
 	Namespace string `json:"namespace"`
 	// Name of a `Group` (`user.openshift.io/v1`) that should be added to each `ClusterClaim` for team access
 	Group string `json:"group"`
+	//ServerNamespace namespace where RHACM or MCE is installed
+	ServerNamespace string `json:"serverNamespace"`
 }
 
 type ErrorType string
@@ -145,12 +147,13 @@ func ConvertToPrintClusterPoolHostList(cphs *ClusterPoolHosts) *printclusterpool
 				Namespace: cphs.ClusterPoolHosts[i].Namespace,
 			},
 			Spec: printclusterpoolv1alpha1.PrintClusterPoolHostSpec{
-				Active:    cphs.ClusterPoolHosts[i].Active,
-				Name:      cphs.ClusterPoolHosts[i].Name,
-				Namespace: cphs.ClusterPoolHosts[i].Namespace,
-				APIServer: cphs.ClusterPoolHosts[i].APIServer,
-				Console:   cphs.ClusterPoolHosts[i].Console,
-				Group:     cphs.ClusterPoolHosts[i].Group,
+				Active:          cphs.ClusterPoolHosts[i].Active,
+				Name:            cphs.ClusterPoolHosts[i].Name,
+				Namespace:       cphs.ClusterPoolHosts[i].Namespace,
+				APIServer:       cphs.ClusterPoolHosts[i].APIServer,
+				Console:         cphs.ClusterPoolHosts[i].Console,
+				Group:           cphs.ClusterPoolHosts[i].Group,
+				ServerNamespace: cphs.ClusterPoolHosts[i].ServerNamespace,
 			},
 		}
 		pcps.Items = append(pcps.Items, pcp)
@@ -186,7 +189,11 @@ func (cs *ClusterPoolHosts) GetCurrentClusterPoolHost() (*ClusterPoolHost, error
 }
 
 //GetClusterPoolHostOrCurrent returns the clusterpoolhost and if
-func (cs *ClusterPoolHosts) GetClusterPoolHostOrCurrent(name string) (*ClusterPoolHost, error) {
+func GetClusterPoolHostOrCurrent(name string) (*ClusterPoolHost, error) {
+	cs, err := GetClusterPoolHosts()
+	if err != nil {
+		return nil, err
+	}
 	if len(name) != 0 {
 		return cs.GetClusterPoolHost(name)
 	}

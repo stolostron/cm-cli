@@ -26,7 +26,7 @@ func (o *Options) complete(cmd *cobra.Command, args []string) (err error) {
 func (o *Options) validate() error {
 	if o.Import {
 		rhacmConstraint := ">=2.4.0"
-		supported, platform, err := helpers.IsSupported(o.CMFlags.KubectlFactory, rhacmConstraint, "")
+		supported, platform, err := helpers.IsSupportedVersion(o.CMFlags, true, o.ClusterPoolHost, rhacmConstraint, "")
 		if err != nil {
 			return err
 		}
@@ -43,12 +43,7 @@ func (o *Options) validate() error {
 }
 
 func (o *Options) run() (err error) {
-	cphs, err := clusterpoolhost.GetClusterPoolHosts()
-	if err != nil {
-		return err
-	}
-
-	cph, err := cphs.GetClusterPoolHostOrCurrent(o.ClusterPoolHost)
+	cph, err := clusterpoolhost.GetClusterPoolHostOrCurrent(o.ClusterPoolHost)
 	if err != nil {
 		return err
 	}

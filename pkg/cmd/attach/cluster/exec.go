@@ -146,7 +146,7 @@ func (o *Options) validateWithClient(kubeClient kubernetes.Interface, dynamicCli
 		if o.clusterKubeConfig != "" || o.clusterToken != "" {
 			rhacmConstraint := ">=2.3.0"
 			mceConstraint := ">=1.0.0"
-			supported, platform, err := helpers.IsSupported(o.CMFlags.KubectlFactory, rhacmConstraint, mceConstraint)
+			supported, platform, err := helpers.IsSupportedVersion(o.CMFlags, false, "", rhacmConstraint, mceConstraint)
 			if err != nil {
 				return err
 			}
@@ -231,7 +231,7 @@ func (o *Options) runWithClient(kubeClient kubernetes.Interface,
 		"attach/hub/managed_cluster_cr.yaml",
 	}
 
-	if helpers.IsRHACM(o.CMFlags.KubectlFactory) {
+	if helpers.IsRHACM(o.CMFlags) {
 		files = append(files, "attach/hub/klusterlet_addon_config_cr.yaml")
 	}
 

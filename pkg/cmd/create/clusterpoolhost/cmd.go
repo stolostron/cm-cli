@@ -54,5 +54,6 @@ func NewCmd(cmFlags *genericclioptionscm.CMFlags, streams genericclioptions.IOSt
 	cmd.Flags().StringVarP(&o.ClusterPoolHost.Namespace, "namespace", "n", "", "Namespace where 'ClusterPools' are defined")
 	cmd.Flags().StringVar(&o.outputFile, "output-file", "", "The generated resources will be copied in the specified file")
 	cmd.Flags().BoolVar(&o.force, "force", false, "If set and the cluster pool host already exists, it will be overwritten")
+	cmd.Flags().StringVar(&o.ClusterPoolHost.ServerNamespace, "server-namespace", "", "The namespace where the server is installed (RHACM/MCE)")
 	return cmd
 }
