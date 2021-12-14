@@ -136,3 +136,20 @@ See our [Contributing Document](CONTRIBUTING.md) for more information.
 [clusterpool commands](docs/clusterpool.md)
 
 [policies commands](docs/policies.md)
+
+# Troubleshootings
+
+1. Message: "this command '%s %s' is only available on %s or %s"
+  If RHACM or MCE is installed on the cluster, it is probably because either it doesn't have the correct version, the RBAC in the environment doesn't allow the user to access the server configuration or the server is not installed in the standard namespace. 
+  You can specify the namespace by adding a `--server-namespace` to the command or skip the test `--skip-server-check`. You can also add an attribute in the cph `~/kube/.known-cphs` to specify the namespace avoiding to have to add the `--server-namespace` in each single command.
+  ```yaml
+  clusters:
+  ms:
+    active: true
+    apiServer: my_apiserver_url
+    console: my_console_url
+    group: my_group
+    name: my_cph_name
+    namespace: my_cph_namespace
+    serverNamespace: my_install_namespace_open_cluster_management
+  ```

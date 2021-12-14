@@ -32,6 +32,9 @@ spec:
     - jsonPath: .spec.Console
       name: Console
       type: string
+    - jsonPath: .spec.ServerNamespace
+      name: Server_namespace
+      type: string
     name: v1alpha1
     schema:
       openAPIV3Schema:
@@ -74,6 +77,9 @@ spec:
               namespace:
                 description: Namespace where `ClusterPools` are defined
                 type: string
+              serverNamespace:
+                description: ServerNamespace namespace where RHACM or MCE is installed
+                type: string
             required:
             - active
             - apiServer
@@ -81,6 +87,7 @@ spec:
             - group
             - name
             - namespace
+            - serverNamespace
             type: object
         type: object
     served: true

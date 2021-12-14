@@ -25,6 +25,8 @@ type PrintClusterPoolHostSpec struct {
 	Namespace string `json:"namespace"`
 	// Name of a `Group` (`user.openshift.io/v1`) that should be added to each `ClusterClaim` for team access
 	Group string `json:"group"`
+	//ServerNamespace namespace where RHACM or MCE is installed
+	ServerNamespace string `json:"serverNamespace"`
 }
 
 // PrintClusterPoolHost is the Schema for the authrealms API
@@ -35,6 +37,7 @@ type PrintClusterPoolHostSpec struct {
 // +kubebuilder:printcolumn:name="Namespace",type="string",JSONPath=".spec.Namespace"
 // +kubebuilder:printcolumn:name="Api_server",type="string",JSONPath=".spec.APIServer"
 // +kubebuilder:printcolumn:name="Console",type="string",JSONPath=".spec.Console"
+// +kubebuilder:printcolumn:name="Server_namespace",type="string",JSONPath=".spec.ServerNamespace"
 
 type PrintClusterPoolHost struct {
 	metav1.TypeMeta   `json:",inline"`

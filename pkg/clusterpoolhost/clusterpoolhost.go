@@ -147,12 +147,13 @@ func ConvertToPrintClusterPoolHostList(cphs *ClusterPoolHosts) *printclusterpool
 				Namespace: cphs.ClusterPoolHosts[i].Namespace,
 			},
 			Spec: printclusterpoolv1alpha1.PrintClusterPoolHostSpec{
-				Active:    cphs.ClusterPoolHosts[i].Active,
-				Name:      cphs.ClusterPoolHosts[i].Name,
-				Namespace: cphs.ClusterPoolHosts[i].Namespace,
-				APIServer: cphs.ClusterPoolHosts[i].APIServer,
-				Console:   cphs.ClusterPoolHosts[i].Console,
-				Group:     cphs.ClusterPoolHosts[i].Group,
+				Active:          cphs.ClusterPoolHosts[i].Active,
+				Name:            cphs.ClusterPoolHosts[i].Name,
+				Namespace:       cphs.ClusterPoolHosts[i].Namespace,
+				APIServer:       cphs.ClusterPoolHosts[i].APIServer,
+				Console:         cphs.ClusterPoolHosts[i].Console,
+				Group:           cphs.ClusterPoolHosts[i].Group,
+				ServerNamespace: cphs.ClusterPoolHosts[i].ServerNamespace,
 			},
 		}
 		pcps.Items = append(pcps.Items, pcp)
