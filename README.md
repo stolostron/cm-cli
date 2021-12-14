@@ -144,7 +144,7 @@ See our [Contributing Document](CONTRIBUTING.md) for more information.
   You can specify the namespace by adding a `--server-namespace` to the command or skip the test `--skip-server-check`. You can also add an attribute in the cph `~/kube/.known-cphs` to specify the namespace avoiding to have to add the `--server-namespace` in each single command.
   ```yaml
   clusters:
-  ms:
+  my_cph_name:
     active: true
     apiServer: my_apiserver_url
     console: my_console_url
