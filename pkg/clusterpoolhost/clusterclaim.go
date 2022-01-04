@@ -220,37 +220,32 @@ func checkClusterClaimsRunning(dynamicClient dynamic.Interface, clusterClaimName
 		clusterClaimName := strings.TrimSpace(ccn)
 		ccu, err := dynamicClient.Resource(helpers.GvrCC).Namespace(namespace).Get(context.TODO(), clusterClaimName, metav1.GetOptions{})
 		if err != nil {
-			allErrors[clusterClaimName] = err
-			fmt.Printf("Error: %s\n", err.Error())
+			allErrors[clusterClaimName] = fmt.Errorf("(%d/%d) clusterclaim %s error: %s", i, timeout, clusterClaimName, err.Error())
 			continue
 		}
 		cc := &hivev1.ClusterClaim{}
 		err = runtime.DefaultUnstructuredConverter.FromUnstructured(ccu.UnstructuredContent(), cc)
 		if err != nil {
-			allErrors[clusterClaimName] = err
-			fmt.Printf("Error: %s\n", err.Error())
+			allErrors[clusterClaimName] = fmt.Errorf("(%d/%d) clusterclaim %s error: %s", i, timeout, clusterClaimName, err.Error())
 			continue
 		}
 		running := false
 		if len(cc.Spec.Namespace) != 0 {
 			cdu, err := dynamicClient.Resource(helpers.GvrCD).Namespace(cc.Spec.Namespace).Get(context.TODO(), cc.Spec.Namespace, metav1.GetOptions{})
 			if statusError, isStatus := err.(*errors.StatusError); isStatus && statusError.Status().Reason == metav1.StatusReasonForbidden {
-				fmt.Printf("Permissions error when accessing claimed ClusterDeployment.  Permissions are likely still propagating. \nError: %s\n", err.Error())
+				allErrors[clusterClaimName] = fmt.Errorf("permissions error when accessing claimed ClusterDeployment.  permissions are likely still propagating. \nerror: %s", err.Error())
 			} else {
 				if err != nil {
-					allErrors[clusterClaimName] = err
-					fmt.Printf("Error: %s\n", err.Error())
+					allErrors[clusterClaimName] = fmt.Errorf("(%d/%d) clusterclaim %s error: %s", i, timeout, clusterClaimName, err.Error())
 					continue
 				}
 				cd := &hivev1.ClusterDeployment{}
 				if runtime.DefaultUnstructuredConverter.FromUnstructured(cdu.UnstructuredContent(), cd); err != nil {
-					allErrors[clusterClaimName] = err
-					fmt.Printf("Error: %s\n", err.Error())
+					allErrors[clusterClaimName] = fmt.Errorf("(%d/%d) clusterclaim %s error: %s", i, timeout, clusterClaimName, err.Error())
 					continue
 				}
 				if errorOnHibernate && cd.Spec.PowerState == hivev1.HibernatingClusterPowerState {
-					allErrors[clusterClaimName] = fmt.Errorf("%s is hibernating, run a \"cm use cc\" or \"cm run cc\" command to resume it", cc.GetName())
-					fmt.Printf("Error: %s\n", allErrors[clusterClaimName])
+					allErrors[clusterClaimName] = fmt.Errorf("(%d/%d) clusterclaim %s is hibernating, run a \"cm use cc\" or \"cm run cc\" command to resume it", i, timeout, cc.GetName())
 					continue
 				}
 				c := getClusterClaimRunningStatus(cc)
@@ -261,9 +256,9 @@ func checkClusterClaimsRunning(dynamicClient dynamic.Interface, clusterClaimName
 					running = true
 					if i == 0 && (printFlags == nil || printFlags.OutputFormat == nil || strings.HasPrefix(*printFlags.OutputFormat, "custom-columns=")) {
 						if timeout == 0 {
-							fmt.Printf("clusterclaim %s is running with id %s (%d)\n", clusterClaimName, cc.Spec.Namespace, i)
+							fmt.Printf("(%d) clusterclaim %s is running with id %s\n", i, clusterClaimName, cc.Spec.Namespace)
 						} else {
-							fmt.Printf("clusterclaim %s is running with id %s (%d/%d)\n", clusterClaimName, cc.Spec.Namespace, i, timeout)
+							fmt.Printf("(%d/%d) clusterclaim %s is running with id %s\n", i, timeout, clusterClaimName, cc.Spec.Namespace)
 						}
 					}
 				}
@@ -271,15 +266,17 @@ func checkClusterClaimsRunning(dynamicClient dynamic.Interface, clusterClaimName
 		}
 		if !running {
 			if timeout == 0 {
-				fmt.Printf("clusterclaim %s is not running (%d)\n", clusterClaimName, i)
+				allErrors[clusterClaimName] = fmt.Errorf("(%d) clusterclaim %s is not running", i, clusterClaimName)
 			} else {
-				fmt.Printf("clusterclaim %s is not running (%d/%d)\n", clusterClaimName, i, timeout)
+				allErrors[clusterClaimName] = fmt.Errorf("(%d/%d) clusterclaim %s is not running", i, timeout, clusterClaimName)
 			}
 			allRunning = false
+		} else {
+			delete(allErrors, clusterClaimName)
 		}
 	}
-	if len(allErrors) == len(strings.Split(clusterClaimNames, ",")) {
-		return false, fmt.Errorf("all requested clusterclaims have errors")
+	for _, msg := range allErrors {
+		fmt.Println(msg)
 	}
 	if len(allErrors) == 0 {
 		return allRunning, nil
