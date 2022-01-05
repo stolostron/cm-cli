@@ -54,6 +54,22 @@ func (cph *ClusterPoolHost) CreateClusterClaims(clusterClaimNames, clusterPoolNa
 	if err != nil {
 		return err
 	}
+	//Check if all clusterclaims are not present before creation
+	for _, ccn := range strings.Split(clusterClaimNames, ",") {
+		clusterClaimName := strings.TrimSpace(ccn)
+		cc, err := dynamicClient.Resource(helpers.GvrCC).Namespace(cph.Namespace).Get(context.TODO(), clusterClaimName, metav1.GetOptions{})
+		switch {
+		case errors.IsNotFound(err):
+		case err == nil:
+			if cc.GetDeletionTimestamp().IsZero() {
+				return fmt.Errorf("clusterclaim %s already exists", ccn)
+			} else {
+				return fmt.Errorf("clusterclaim %s is currently in deletion, please retry later", ccn)
+			}
+		case err != nil:
+			return err
+		}
+	}
 
 	me, err := WhoAmI(clusterPoolRestConfig)
 	if err != nil {
