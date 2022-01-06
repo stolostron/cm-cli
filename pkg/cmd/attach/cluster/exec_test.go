@@ -17,15 +17,16 @@ import (
 	"github.com/open-cluster-management/cm-cli/pkg/helpers"
 	"github.com/spf13/cobra"
 	apiextensionsclient "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset"
-	fakeapiextensionsclient "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset/fake"
-	fakediscovery "k8s.io/client-go/discovery/fake"
+	cligenericclioptions "k8s.io/cli-runtime/pkg/genericclioptions"
 	"k8s.io/client-go/dynamic"
 	fakedynamic "k8s.io/client-go/dynamic/fake"
 	"k8s.io/client-go/kubernetes"
 	fakekubernetes "k8s.io/client-go/kubernetes/fake"
+	cmdutil "k8s.io/kubectl/pkg/cmd/util"
 	"k8s.io/kubectl/pkg/scheme"
-	clusterclientset "open-cluster-management.io/api/client/cluster/clientset/versioned/fake"
-	workclientset "open-cluster-management.io/api/client/work/clientset/versioned/fake"
+	clusterclientset "open-cluster-management.io/api/client/cluster/clientset/versioned"
+	workclientset "open-cluster-management.io/api/client/work/clientset/versioned"
+	"sigs.k8s.io/controller-runtime/pkg/envtest"
 )
 
 var testDir = filepath.Join("test", "unit")
@@ -309,7 +310,22 @@ func TestAttachClusterOptions_ValidateWithClient(t *testing.T) {
 	}
 }
 
+//TODO: Test must be changed to use envtest
 func TestOptions_runWithClient(t *testing.T) {
+	testEnv := &envtest.Environment{
+		CRDDirectoryPaths: []string{
+			//DV added this line and copyed the authrealms CRD
+			filepath.Join("..", "..", "..", "..", "test", "unit", "crd", "external"),
+		},
+		ErrorIfCRDPathMissing: true,
+	}
+	cfg, err := testEnv.Start()
+	if err != nil {
+		t.Error(err)
+	}
+
+	defer testEnv.Stop()
+
 	dir, err := ioutil.TempDir(testDir, "tmp")
 	if err != nil {
 		t.Error(err)
@@ -334,35 +350,48 @@ func TestOptions_runWithClient(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	apiextensionsClient := fakeapiextensionsclient.NewSimpleClientset()
-	s := scheme.Scheme
-	kubeClient := fakekubernetes.NewSimpleClientset(importSecret)
-	dynamicClient := fakedynamic.NewSimpleDynamicClient(s)
-	discoveryClient := kubeClient.Discovery()
-	discoveryClient.(*fakediscovery.FakeDiscovery).Resources = []*metav1.APIResourceList{
-		{
-			GroupVersion: "cluster.open-cluster-management.io/v1",
-			APIResources: []metav1.APIResource{
-				{
-					Name:       "managedclusters",
-					Namespaced: false,
-					Kind:       "ManagedCluster",
-				},
-			},
-		},
-		{
-			GroupVersion: "agent.open-cluster-management.io/v1",
-			APIResources: []metav1.APIResource{
-				{
-					Name:       "klusteraddonconfigs",
-					Namespaced: false,
-					Kind:       "KlusterletAddonConfig",
-				},
-			},
+	apiextensionsClient := apiextensionsclient.NewForConfigOrDie(cfg)
+	// s := scheme.Scheme
+	kubeClient := kubernetes.NewForConfigOrDie(cfg)
+	ns := &corev1.Namespace{
+		ObjectMeta: metav1.ObjectMeta{
+			Name: "test",
 		},
 	}
-	clusterClient := clusterclientset.NewSimpleClientset()
-	workClient := workclientset.NewSimpleClientset()
+	kubeClient.CoreV1().Namespaces().Create(context.TODO(), ns, metav1.CreateOptions{})
+	_, err = kubeClient.CoreV1().Secrets("test").Create(context.TODO(), importSecret, metav1.CreateOptions{})
+	if err != nil {
+		t.Fatal(err)
+	}
+	dynamicClient := dynamic.NewForConfigOrDie(cfg)
+	// discoveryClient := kubeClient.Discovery()
+	// discoveryClient.(*discovery.Discovery).Resources = []*metav1.APIResourceList{
+	// 	{
+	// 		GroupVersion: "cluster.open-cluster-management.io/v1",
+	// 		APIResources: []metav1.APIResource{
+	// 			{
+	// 				Name:       "managedclusters",
+	// 				Namespaced: false,
+	// 				Kind:       "ManagedCluster",
+	// 			},
+	// 		},
+	// 	},
+	// 	{
+	// 		GroupVersion: "agent.open-cluster-management.io/v1",
+	// 		APIResources: []metav1.APIResource{
+	// 			{
+	// 				Name:       "klusteraddonconfigs",
+	// 				Namespaced: false,
+	// 				Kind:       "KlusterletAddonConfig",
+	// 			},
+	// 		},
+	// 	},
+	// }
+	clusterClient := clusterclientset.NewForConfigOrDie(cfg)
+	workClient := workclientset.NewForConfigOrDie(cfg)
+
+	configFlag := cligenericclioptions.NewConfigFlags(true)
+	f := cmdutil.NewFactory(configFlag)
 
 	type fields struct {
 		CMFlags     *genericclioptions.CMFlags
@@ -386,7 +415,7 @@ func TestOptions_runWithClient(t *testing.T) {
 		{
 			name: "Success",
 			fields: fields{
-				CMFlags:     genericclioptions.NewCMFlags(nil),
+				CMFlags:     genericclioptions.NewCMFlags(f),
 				values:      values,
 				importFile:  generatedImportFileName,
 				clusterName: "test",

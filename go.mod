@@ -37,4 +37,5 @@ require (
 	k8s.io/kubectl v0.22.1
 	open-cluster-management.io/api v0.0.0-20210927063308-2c6896161c48
 	open-cluster-management.io/clusteradm v0.1.0-alpha.5.0.20211012235309-d275d8270776
+	sigs.k8s.io/controller-runtime v0.9.6
 )
