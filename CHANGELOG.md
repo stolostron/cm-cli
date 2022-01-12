@@ -2,9 +2,10 @@
 # Release Content
 ## Additions
 
-- Add global parameter --product-namespace to specify the namespace where the product is installed as in some case restricted RBAC prevented to discover that namespace.
-- Add a cph attribute to specify the product namespace.
+- [Add parameter to import when creating a clusterclaim #154](https://github.com/stolostron/cm-cli/issues/154)
+- [Migrate to stolostron org #163](https://github.com/stolostron/cm-cli/issues/163)
 ## Breaking changes
 
 ## Bug fixes
 
+- [When getting clusterclaims, failed clusterclaims still show as Running #148](https://github.com/stolostron/cm-cli/issues/148)
