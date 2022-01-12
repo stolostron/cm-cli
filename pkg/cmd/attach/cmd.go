@@ -2,9 +2,9 @@
 package attach
 
 import (
-	"github.com/open-cluster-management/cm-cli/pkg/cmd/attach/cluster"
-	"github.com/open-cluster-management/cm-cli/pkg/cmd/attach/clusterclaim"
-	genericclioptionscm "github.com/open-cluster-management/cm-cli/pkg/genericclioptions"
+	"github.com/stolostron/cm-cli/pkg/cmd/attach/cluster"
+	"github.com/stolostron/cm-cli/pkg/cmd/attach/clusterclaim"
+	genericclioptionscm "github.com/stolostron/cm-cli/pkg/genericclioptions"
 
 	"github.com/spf13/cobra"
 	"k8s.io/cli-runtime/pkg/genericclioptions"

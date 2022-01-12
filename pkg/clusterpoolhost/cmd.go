@@ -2,8 +2,8 @@
 package clusterpoolhost
 
 import (
-	"github.com/open-cluster-management/cm-cli/pkg/genericclioptions"
-	"github.com/open-cluster-management/cm-cli/pkg/helpers"
+	"github.com/stolostron/cm-cli/pkg/genericclioptions"
+	"github.com/stolostron/cm-cli/pkg/helpers"
 )
 
 func IsSupported(cmFlags *genericclioptions.CMFlags) (isSupported bool, err error) {

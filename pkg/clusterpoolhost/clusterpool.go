@@ -10,10 +10,10 @@ import (
 	"strings"
 
 	"github.com/ghodss/yaml"
-	printclusterpoolv1alpha1 "github.com/open-cluster-management/cm-cli/api/cm-cli/v1alpha1"
-	"github.com/open-cluster-management/cm-cli/pkg/clusterpoolhost/scenario"
-	"github.com/open-cluster-management/cm-cli/pkg/helpers"
 	hivev1 "github.com/openshift/hive/apis/hive/v1"
+	printclusterpoolv1alpha1 "github.com/stolostron/cm-cli/api/cm-cli/v1alpha1"
+	"github.com/stolostron/cm-cli/pkg/clusterpoolhost/scenario"
+	"github.com/stolostron/cm-cli/pkg/helpers"
 	apiextensionsclient "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"

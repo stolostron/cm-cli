@@ -2,8 +2,8 @@
 package hibernate
 
 import (
-	"github.com/open-cluster-management/cm-cli/pkg/cmd/hibernate/clusterclaim"
-	genericclioptionscm "github.com/open-cluster-management/cm-cli/pkg/genericclioptions"
+	"github.com/stolostron/cm-cli/pkg/cmd/hibernate/clusterclaim"
+	genericclioptionscm "github.com/stolostron/cm-cli/pkg/genericclioptions"
 
 	"github.com/spf13/cobra"
 	"k8s.io/cli-runtime/pkg/genericclioptions"

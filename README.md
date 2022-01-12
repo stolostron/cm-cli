@@ -11,7 +11,7 @@ Go 1.16 is required in order to build or contribute on this project as it levera
 
 ### Using releases
 
-You can download the binary from [https://github.com/open-cluster-management/cm-cli/releases](https://github.com/open-cluster-management/cm-cli/releases)
+You can download the binary from [https://github.com/stolostron/cm-cli/releases](https://github.com/stolostron/cm-cli/releases)
 
 ### Using Krew
 
@@ -22,7 +22,7 @@ You can download the binary from [https://github.com/open-cluster-management/cm-
 The binary will be installed in GOPATH/bin
 
 ```bash
-git clone https://github.com/open-cluster-management/cm-cli.git
+git clone https://github.com/stolostron/cm-cli.git
 cd cm-cli
 make build
 cm
@@ -33,7 +33,7 @@ The binary will be installed in GOPATH/bin
 
 This will create a binary `oc-cm` and `kubectl-cm` in the `$GOPATH/go/bin` allowing you to call `oc cm` or `kubectl cm`
 ```bash
-git clone https://github.com/open-cluster-management/cm-cli.git
+git clone https://github.com/stolostron/cm-cli.git
 cd cm-cli
 make plugin
 kubectl cm
@@ -51,7 +51,7 @@ This CLI (and plugin) is still in development, but aims to expose OCM/ACM's func
 In order to work with clusters, you need to set up `cm` with your hub cluster(s) - `cm` refers to these hubs as "clusterpoolhost"(s) or "cph"(s) for short!  
 
 To set up your first ClusterPoolHost:
-1. `oc login` to your ClusterPoolHost running [Red Hat Advanced Cluster Management](https://access.redhat.com/products/red-hat-advanced-cluster-management-for-kubernetes), [Multicluster Engine for Kubernetes](https://github.com/open-cluster-management/backplane-operator), or [Open Cluster Management](http://github.com/open-cluster-management-io).  **Your user must be able to create ServiceAccounts in the target namespace, given that `create cph` creates a ServiceAccount.  Also ensure that ServiceAccounts in that namespace have the relevant access such as create/delete ClusterClaims, ClusterPools, etc.   We'll include a list of commmon RBAC configurations in the [RBAC Section below](#rbac-configurations).  
+1. `oc login` to your ClusterPoolHost running [Red Hat Advanced Cluster Management](https://access.redhat.com/products/red-hat-advanced-cluster-management-for-kubernetes), [Multicluster Engine for Kubernetes](https://github.com/stolostron/backplane-operator), or [Open Cluster Management](http://github.com/stolostron-io).  **Your user must be able to create ServiceAccounts in the target namespace, given that `create cph` creates a ServiceAccount.  Also ensure that ServiceAccounts in that namespace have the relevant access such as create/delete ClusterClaims, ClusterPools, etc.   We'll include a list of commmon RBAC configurations in the [RBAC Section below](#rbac-configurations).  
 2. Run `cm create cph --api-server=<api-url> --console=<console-url> --group=<rbac-group> --namespace=<namespace-containing-clusters> <name-of-cph>` and run `cm create cph --help` to view all options
 3. Run `cm get cph` to verify that your active clusterpoolhost is correct, `cm set cph <clusterpoolhost-name>` to set the current clusterpoolhost, `cm use cph <clusterpoolhost-name>` to switch to that clusterpoolhost's context, and `cm delete cph <clusterpoolhost-name>` to delete a ClusterPoolHost.  
 

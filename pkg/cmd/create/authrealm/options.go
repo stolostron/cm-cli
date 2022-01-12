@@ -2,7 +2,7 @@
 package authrealm
 
 import (
-	genericclioptionscm "github.com/open-cluster-management/cm-cli/pkg/genericclioptions"
+	genericclioptionscm "github.com/stolostron/cm-cli/pkg/genericclioptions"
 	"k8s.io/cli-runtime/pkg/genericclioptions"
 )
 

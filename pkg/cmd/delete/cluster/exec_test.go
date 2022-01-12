@@ -7,8 +7,8 @@ import (
 
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
-	genericclioptionscm "github.com/open-cluster-management/cm-cli/pkg/genericclioptions"
 	"github.com/spf13/cobra"
+	genericclioptionscm "github.com/stolostron/cm-cli/pkg/genericclioptions"
 	"k8s.io/client-go/dynamic"
 	fakedynamic "k8s.io/client-go/dynamic/fake"
 	"k8s.io/kubectl/pkg/scheme"

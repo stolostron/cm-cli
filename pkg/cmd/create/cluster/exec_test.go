@@ -7,8 +7,8 @@ import (
 
 	corev1 "k8s.io/api/core/v1"
 
-	genericclioptionscm "github.com/open-cluster-management/cm-cli/pkg/genericclioptions"
-	"github.com/open-cluster-management/cm-cli/pkg/helpers"
+	genericclioptionscm "github.com/stolostron/cm-cli/pkg/genericclioptions"
+	"github.com/stolostron/cm-cli/pkg/helpers"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	"github.com/spf13/cobra"

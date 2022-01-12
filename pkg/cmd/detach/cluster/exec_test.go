@@ -7,8 +7,8 @@ import (
 
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
-	genericclioptionscm "github.com/open-cluster-management/cm-cli/pkg/genericclioptions"
 	"github.com/spf13/cobra"
+	genericclioptionscm "github.com/stolostron/cm-cli/pkg/genericclioptions"
 	clusterclientset "open-cluster-management.io/api/client/cluster/clientset/versioned"
 	clusterclientsetfake "open-cluster-management.io/api/client/cluster/clientset/versioned/fake"
 	cluster "open-cluster-management.io/api/cluster/v1"

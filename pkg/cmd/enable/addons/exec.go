@@ -10,10 +10,10 @@ import (
 	clusteradmhelpers "open-cluster-management.io/clusteradm/pkg/helpers"
 	clusteradmapply "open-cluster-management.io/clusteradm/pkg/helpers/apply"
 
-	attachscenario "github.com/open-cluster-management/cm-cli/pkg/cmd/attach/cluster/scenario"
-	"github.com/open-cluster-management/cm-cli/pkg/cmd/enable/addons/scenario"
-	"github.com/open-cluster-management/cm-cli/pkg/helpers"
 	"github.com/spf13/cobra"
+	attachscenario "github.com/stolostron/cm-cli/pkg/cmd/attach/cluster/scenario"
+	"github.com/stolostron/cm-cli/pkg/cmd/enable/addons/scenario"
+	"github.com/stolostron/cm-cli/pkg/helpers"
 )
 
 func (o *Options) complete(cmd *cobra.Command, args []string) (err error) {

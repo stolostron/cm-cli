@@ -5,9 +5,9 @@ import (
 	"context"
 	"strings"
 
-	"github.com/open-cluster-management/cm-cli/pkg/clusterpoolhost/scenario"
-	"github.com/open-cluster-management/cm-cli/pkg/helpers"
 	hivev1 "github.com/openshift/hive/apis/hive/v1"
+	"github.com/stolostron/cm-cli/pkg/clusterpoolhost/scenario"
+	"github.com/stolostron/cm-cli/pkg/helpers"
 	apiextensionsclient "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"

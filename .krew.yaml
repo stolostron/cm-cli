@@ -6,7 +6,7 @@ metadata:
   name: cm
 spec:
   version: {{ .TagName }}
-  homepage: https://github.com/open-cluster-management/cm-cli
+  homepage: https://github.com/stolostron/cm-cli
   shortDescription: Provides commands for OCM/MCE/ACM.
   description: |
     This plugin allows you to manage clusters on the OCM/MCE/ACM platform.
@@ -15,23 +15,23 @@ spec:
       matchLabels:
         os: darwin
         arch: amd64
-    {{addURIAndSha "https://github.com/open-cluster-management/cm-cli/releases/download/{{ .TagName }}/cm_darwin_amd64.tar.gz" .TagName }}
+    {{addURIAndSha "https://github.com/stolostron/cm-cli/releases/download/{{ .TagName }}/cm_darwin_amd64.tar.gz" .TagName }}
     bin: cm
   - selector:
       matchLabels:
         os: linux
         arch: amd64
-    {{addURIAndSha "https://github.com/open-cluster-management/cm-cli/releases/download/{{ .TagName }}/cm_linux_amd64.tar.gz" .TagName }}
+    {{addURIAndSha "https://github.com/stolostron/cm-cli/releases/download/{{ .TagName }}/cm_linux_amd64.tar.gz" .TagName }}
     bin: cm
   - selector:
       matchLabels:
         os: linux
         arch: arm64
-    {{addURIAndSha "https://github.com/open-cluster-management/cm-cli/releases/download/{{ .TagName }}/cm_linux_arm64.tar.gz" .TagName }}
+    {{addURIAndSha "https://github.com/stolostron/cm-cli/releases/download/{{ .TagName }}/cm_linux_arm64.tar.gz" .TagName }}
     bin: cm
   - selector:
       matchLabels:
         os: windows
         arch: amd64
-    {{addURIAndSha "https://github.com/open-cluster-management/cm-cli/releases/download/{{ .TagName }}/cm_windows_amd64.zip" .TagName }}
+    {{addURIAndSha "https://github.com/stolostron/cm-cli/releases/download/{{ .TagName }}/cm_windows_amd64.zip" .TagName }}
     bin: cm.exe

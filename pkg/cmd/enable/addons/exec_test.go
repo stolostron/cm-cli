@@ -11,9 +11,9 @@ import (
 	apiextensionsclient "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
-	"github.com/open-cluster-management/cm-cli/pkg/genericclioptions"
-	"github.com/open-cluster-management/cm-cli/pkg/helpers"
 	"github.com/spf13/cobra"
+	"github.com/stolostron/cm-cli/pkg/genericclioptions"
+	"github.com/stolostron/cm-cli/pkg/helpers"
 	fakeapiextensionsclient "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset/fake"
 	fakediscovery "k8s.io/client-go/discovery/fake"
 	"k8s.io/client-go/dynamic"

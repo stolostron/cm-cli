@@ -6,7 +6,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/open-cluster-management/cm-cli/pkg/genericclioptions"
+	"github.com/stolostron/cm-cli/pkg/genericclioptions"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )

@@ -13,9 +13,9 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
-	"github.com/open-cluster-management/cm-cli/pkg/genericclioptions"
-	"github.com/open-cluster-management/cm-cli/pkg/helpers"
 	"github.com/spf13/cobra"
+	"github.com/stolostron/cm-cli/pkg/genericclioptions"
+	"github.com/stolostron/cm-cli/pkg/helpers"
 	apiextensionsclient "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset"
 	cligenericclioptions "k8s.io/cli-runtime/pkg/genericclioptions"
 	"k8s.io/client-go/dynamic"

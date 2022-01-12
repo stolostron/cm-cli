@@ -8,8 +8,8 @@ import (
 	clusteradmhelpers "open-cluster-management.io/clusteradm/pkg/helpers"
 	clusteradmapply "open-cluster-management.io/clusteradm/pkg/helpers/apply"
 
-	"github.com/open-cluster-management/cm-cli/pkg/cmd/create/authrealm/scenario"
-	"github.com/open-cluster-management/cm-cli/pkg/helpers"
+	"github.com/stolostron/cm-cli/pkg/cmd/create/authrealm/scenario"
+	"github.com/stolostron/cm-cli/pkg/helpers"
 	apiextensionsclient "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset"
 
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"

@@ -8,10 +8,10 @@ import (
 	"io/ioutil"
 
 	"github.com/ghodss/yaml"
-	"github.com/open-cluster-management/cm-cli/pkg/cmd/get/config/cluster/scenario"
-	"github.com/open-cluster-management/cm-cli/pkg/helpers"
 	hivev1 "github.com/openshift/hive/apis/hive/v1"
 	"github.com/spf13/cobra"
+	"github.com/stolostron/cm-cli/pkg/cmd/get/config/cluster/scenario"
+	"github.com/stolostron/cm-cli/pkg/helpers"
 	apiextensionsClient "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"

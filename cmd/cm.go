@@ -7,7 +7,7 @@ import (
 
 	"k8s.io/klog/v2"
 
-	"github.com/open-cluster-management/cm-cli/pkg/cmd"
+	"github.com/stolostron/cm-cli/pkg/cmd"
 )
 
 func main() {

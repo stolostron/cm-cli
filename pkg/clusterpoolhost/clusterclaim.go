@@ -8,10 +8,10 @@ import (
 	"strings"
 	"time"
 
-	printclusterpoolv1alpha1 "github.com/open-cluster-management/cm-cli/api/cm-cli/v1alpha1"
-	"github.com/open-cluster-management/cm-cli/pkg/clusterpoolhost/scenario"
-	"github.com/open-cluster-management/cm-cli/pkg/helpers"
 	hivev1 "github.com/openshift/hive/apis/hive/v1"
+	printclusterpoolv1alpha1 "github.com/stolostron/cm-cli/api/cm-cli/v1alpha1"
+	"github.com/stolostron/cm-cli/pkg/clusterpoolhost/scenario"
+	"github.com/stolostron/cm-cli/pkg/helpers"
 	corev1 "k8s.io/api/core/v1"
 	apiextensionsclient "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset"
 	"k8s.io/apimachinery/pkg/api/errors"

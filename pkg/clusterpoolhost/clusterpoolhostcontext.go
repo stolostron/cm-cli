@@ -8,7 +8,7 @@ import (
 	"os"
 	"strings"
 
-	"github.com/open-cluster-management/cm-cli/pkg/helpers"
+	"github.com/stolostron/cm-cli/pkg/helpers"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"

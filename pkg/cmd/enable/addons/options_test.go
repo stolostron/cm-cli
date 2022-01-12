@@ -5,7 +5,7 @@ package addons
 // 	"reflect"
 // 	"testing"
 
-// 	"github.com/open-cluster-management/cm-cli/pkg/cmd/applierscenarios"
+// 	"github.com/stolostron/cm-cli/pkg/cmd/applierscenarios"
 // 	"k8s.io/cli-runtime/pkg/genericclioptions"
 // )
 

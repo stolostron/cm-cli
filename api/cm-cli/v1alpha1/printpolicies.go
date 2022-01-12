@@ -3,7 +3,7 @@
 package v1alpha1
 
 import (
-	policyv1 "github.com/open-cluster-management/governance-policy-propagator/api/v1"
+	policyv1 "github.com/stolostron/governance-policy-propagator/api/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 

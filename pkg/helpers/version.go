@@ -8,7 +8,7 @@ import (
 	"strings"
 
 	"github.com/Masterminds/semver"
-	"github.com/open-cluster-management/cm-cli/pkg/genericclioptions"
+	"github.com/stolostron/cm-cli/pkg/genericclioptions"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/dynamic"
 

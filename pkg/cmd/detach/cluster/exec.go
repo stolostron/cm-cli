@@ -9,8 +9,8 @@ import (
 
 	clusterclientset "open-cluster-management.io/api/client/cluster/clientset/versioned"
 
-	"github.com/open-cluster-management/cm-cli/pkg/helpers"
 	"github.com/spf13/cobra"
+	"github.com/stolostron/cm-cli/pkg/helpers"
 )
 
 func (o *Options) complete(cmd *cobra.Command, args []string) (err error) {
