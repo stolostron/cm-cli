@@ -6,8 +6,8 @@ import (
 
 	clusteradmhelpers "open-cluster-management.io/clusteradm/pkg/helpers"
 
-	genericclioptionscm "github.com/open-cluster-management/cm-cli/pkg/genericclioptions"
-	"github.com/open-cluster-management/cm-cli/pkg/helpers"
+	genericclioptionscm "github.com/stolostron/cm-cli/pkg/genericclioptions"
+	"github.com/stolostron/cm-cli/pkg/helpers"
 	"k8s.io/kubectl/pkg/cmd/get"
 	cmdutil "k8s.io/kubectl/pkg/cmd/util"
 

@@ -2,9 +2,9 @@
 package console
 
 import (
-	"github.com/open-cluster-management/cm-cli/pkg/cmd/console/clusterclaim"
-	"github.com/open-cluster-management/cm-cli/pkg/cmd/console/clusterpoolhost"
-	genericclioptionscm "github.com/open-cluster-management/cm-cli/pkg/genericclioptions"
+	"github.com/stolostron/cm-cli/pkg/cmd/console/clusterclaim"
+	"github.com/stolostron/cm-cli/pkg/cmd/console/clusterpoolhost"
+	genericclioptionscm "github.com/stolostron/cm-cli/pkg/genericclioptions"
 
 	"github.com/spf13/cobra"
 	"k8s.io/cli-runtime/pkg/genericclioptions"

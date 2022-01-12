@@ -11,9 +11,9 @@ import (
 	clusteradmhelpers "open-cluster-management.io/clusteradm/pkg/helpers"
 	clusteradmapply "open-cluster-management.io/clusteradm/pkg/helpers/apply"
 
-	attachscenario "github.com/open-cluster-management/cm-cli/pkg/cmd/attach/cluster/scenario"
-	"github.com/open-cluster-management/cm-cli/pkg/cmd/create/cluster/scenario"
-	"github.com/open-cluster-management/cm-cli/pkg/helpers"
+	attachscenario "github.com/stolostron/cm-cli/pkg/cmd/attach/cluster/scenario"
+	"github.com/stolostron/cm-cli/pkg/cmd/create/cluster/scenario"
+	"github.com/stolostron/cm-cli/pkg/helpers"
 	apiextensionsclient "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 

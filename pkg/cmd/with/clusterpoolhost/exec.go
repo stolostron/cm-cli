@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/open-cluster-management/cm-cli/pkg/clusterpoolhost"
-	"github.com/open-cluster-management/cm-cli/pkg/helpers"
 	"github.com/spf13/cobra"
+	"github.com/stolostron/cm-cli/pkg/clusterpoolhost"
+	"github.com/stolostron/cm-cli/pkg/helpers"
 )
 
 func (o *Options) complete(cmd *cobra.Command, args []string) (err error) {

@@ -2,10 +2,10 @@
 package clusterpoolhosts
 
 import (
-	printclusterpoolv1alpha1 "github.com/open-cluster-management/cm-cli/api/cm-cli/v1alpha1"
-	"github.com/open-cluster-management/cm-cli/pkg/clusterpoolhost"
-	"github.com/open-cluster-management/cm-cli/pkg/helpers"
 	"github.com/spf13/cobra"
+	printclusterpoolv1alpha1 "github.com/stolostron/cm-cli/api/cm-cli/v1alpha1"
+	"github.com/stolostron/cm-cli/pkg/clusterpoolhost"
+	"github.com/stolostron/cm-cli/pkg/helpers"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 )
 

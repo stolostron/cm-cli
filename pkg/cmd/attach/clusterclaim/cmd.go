@@ -7,10 +7,10 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/open-cluster-management/cm-cli/pkg/clusterpoolhost"
-	"github.com/open-cluster-management/cm-cli/pkg/cmd/attach/cluster/scenario"
-	genericclioptionscm "github.com/open-cluster-management/cm-cli/pkg/genericclioptions"
-	"github.com/open-cluster-management/cm-cli/pkg/helpers"
+	"github.com/stolostron/cm-cli/pkg/clusterpoolhost"
+	"github.com/stolostron/cm-cli/pkg/cmd/attach/cluster/scenario"
+	genericclioptionscm "github.com/stolostron/cm-cli/pkg/genericclioptions"
+	"github.com/stolostron/cm-cli/pkg/helpers"
 	clusteradmhelpers "open-cluster-management.io/clusteradm/pkg/helpers"
 
 	"github.com/spf13/cobra"

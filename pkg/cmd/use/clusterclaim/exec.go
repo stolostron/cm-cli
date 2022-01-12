@@ -4,8 +4,8 @@ package clusterclaim
 import (
 	"fmt"
 
-	"github.com/open-cluster-management/cm-cli/pkg/clusterpoolhost"
 	"github.com/spf13/cobra"
+	"github.com/stolostron/cm-cli/pkg/clusterpoolhost"
 )
 
 func (o *Options) complete(cmd *cobra.Command, args []string) (err error) {

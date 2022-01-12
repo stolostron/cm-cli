@@ -7,7 +7,7 @@ import (
 	"os"
 	"strings"
 
-	printclusterpoolv1alpha1 "github.com/open-cluster-management/cm-cli/api/cm-cli/v1alpha1"
+	printclusterpoolv1alpha1 "github.com/stolostron/cm-cli/api/cm-cli/v1alpha1"
 	apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1"
 	"k8s.io/kubectl/pkg/cmd/get"
 	"open-cluster-management.io/clusteradm/pkg/helpers/asset"

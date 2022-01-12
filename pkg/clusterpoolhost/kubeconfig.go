@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/open-cluster-management/cm-cli/pkg/helpers"
+	"github.com/stolostron/cm-cli/pkg/helpers"
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd"
 	clientcmdapi "k8s.io/client-go/tools/clientcmd/api"

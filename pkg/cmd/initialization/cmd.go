@@ -2,7 +2,7 @@
 package initialization
 
 import (
-	genericclioptionscm "github.com/open-cluster-management/cm-cli/pkg/genericclioptions"
+	genericclioptionscm "github.com/stolostron/cm-cli/pkg/genericclioptions"
 	clusteradminit "open-cluster-management.io/clusteradm/pkg/cmd/init"
 	genericclioptionsclusteradm "open-cluster-management.io/clusteradm/pkg/genericclioptions"
 

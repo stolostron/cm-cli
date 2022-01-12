@@ -2,12 +2,12 @@
 package create
 
 import (
-	"github.com/open-cluster-management/cm-cli/pkg/cmd/create/authrealm"
-	"github.com/open-cluster-management/cm-cli/pkg/cmd/create/cluster"
-	"github.com/open-cluster-management/cm-cli/pkg/cmd/create/clusterclaim"
-	"github.com/open-cluster-management/cm-cli/pkg/cmd/create/clusterpool"
-	"github.com/open-cluster-management/cm-cli/pkg/cmd/create/clusterpoolhost"
-	genericclioptionscm "github.com/open-cluster-management/cm-cli/pkg/genericclioptions"
+	"github.com/stolostron/cm-cli/pkg/cmd/create/authrealm"
+	"github.com/stolostron/cm-cli/pkg/cmd/create/cluster"
+	"github.com/stolostron/cm-cli/pkg/cmd/create/clusterclaim"
+	"github.com/stolostron/cm-cli/pkg/cmd/create/clusterpool"
+	"github.com/stolostron/cm-cli/pkg/cmd/create/clusterpoolhost"
+	genericclioptionscm "github.com/stolostron/cm-cli/pkg/genericclioptions"
 
 	"github.com/spf13/cobra"
 	"k8s.io/cli-runtime/pkg/genericclioptions"

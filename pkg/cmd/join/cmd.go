@@ -2,7 +2,7 @@
 package join
 
 import (
-	genericclioptionscm "github.com/open-cluster-management/cm-cli/pkg/genericclioptions"
+	genericclioptionscm "github.com/stolostron/cm-cli/pkg/genericclioptions"
 	clusteradmjoin "open-cluster-management.io/clusteradm/pkg/cmd/join"
 	genericclioptionsclusteradm "open-cluster-management.io/clusteradm/pkg/genericclioptions"
 

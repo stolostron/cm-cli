@@ -2,7 +2,7 @@
 package accept
 
 import (
-	genericclioptionscm "github.com/open-cluster-management/cm-cli/pkg/genericclioptions"
+	genericclioptionscm "github.com/stolostron/cm-cli/pkg/genericclioptions"
 	clusteradmaccept "open-cluster-management.io/clusteradm/pkg/cmd/accept"
 	genericclioptionsclusteradm "open-cluster-management.io/clusteradm/pkg/genericclioptions"
 

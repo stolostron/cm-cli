@@ -2,9 +2,9 @@
 package config
 
 import (
-	"github.com/open-cluster-management/cm-cli/pkg/cmd/get/config/cluster"
-	"github.com/open-cluster-management/cm-cli/pkg/cmd/get/config/clusterpool"
-	genericclioptionscm "github.com/open-cluster-management/cm-cli/pkg/genericclioptions"
+	"github.com/stolostron/cm-cli/pkg/cmd/get/config/cluster"
+	"github.com/stolostron/cm-cli/pkg/cmd/get/config/clusterpool"
+	genericclioptionscm "github.com/stolostron/cm-cli/pkg/genericclioptions"
 	genericclioptionsclusteradm "open-cluster-management.io/clusteradm/pkg/genericclioptions"
 
 	"github.com/spf13/cobra"

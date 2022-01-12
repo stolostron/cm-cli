@@ -7,9 +7,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/open-cluster-management/cm-cli/pkg/clusterpoolhost/scenario"
 	userv1 "github.com/openshift/api/user/v1"
 	userv1typedclient "github.com/openshift/client-go/user/clientset/versioned/typed/user/v1"
+	"github.com/stolostron/cm-cli/pkg/clusterpoolhost/scenario"
 	corev1 "k8s.io/api/core/v1"
 	apiextensionsclient "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset"
 	"k8s.io/apimachinery/pkg/api/errors"

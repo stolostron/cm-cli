@@ -7,8 +7,8 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/open-cluster-management/cm-cli/pkg/cmd"
 	"github.com/spf13/cobra/doc"
+	"github.com/stolostron/cm-cli/pkg/cmd"
 )
 
 const (

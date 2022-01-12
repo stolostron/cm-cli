@@ -4,7 +4,7 @@ package clusterclaim
 import (
 	"fmt"
 
-	"github.com/open-cluster-management/cm-cli/pkg/clusterpoolhost"
+	"github.com/stolostron/cm-cli/pkg/clusterpoolhost"
 
 	"github.com/spf13/cobra"
 )

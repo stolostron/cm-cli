@@ -10,8 +10,8 @@ import (
 	"path/filepath"
 
 	"github.com/ghodss/yaml"
-	printclusterpoolv1alpha1 "github.com/open-cluster-management/cm-cli/api/cm-cli/v1alpha1"
-	"github.com/open-cluster-management/cm-cli/pkg/helpers"
+	printclusterpoolv1alpha1 "github.com/stolostron/cm-cli/api/cm-cli/v1alpha1"
+	"github.com/stolostron/cm-cli/pkg/helpers"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 

@@ -11,9 +11,9 @@ import (
 	"k8s.io/client-go/discovery"
 	"k8s.io/client-go/dynamic"
 
-	"github.com/open-cluster-management/cm-cli/pkg/cmd/scale/cluster/scenario"
-	"github.com/open-cluster-management/cm-cli/pkg/helpers"
 	"github.com/spf13/cobra"
+	"github.com/stolostron/cm-cli/pkg/cmd/scale/cluster/scenario"
+	"github.com/stolostron/cm-cli/pkg/helpers"
 )
 
 func (o *Options) complete(cmd *cobra.Command, args []string) (err error) {

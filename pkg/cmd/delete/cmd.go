@@ -2,11 +2,11 @@
 package delete
 
 import (
-	"github.com/open-cluster-management/cm-cli/pkg/cmd/delete/cluster"
-	"github.com/open-cluster-management/cm-cli/pkg/cmd/delete/clusterclaim"
-	"github.com/open-cluster-management/cm-cli/pkg/cmd/delete/clusterpool"
-	"github.com/open-cluster-management/cm-cli/pkg/cmd/delete/clusterpoolhost"
-	genericclioptionscm "github.com/open-cluster-management/cm-cli/pkg/genericclioptions"
+	"github.com/stolostron/cm-cli/pkg/cmd/delete/cluster"
+	"github.com/stolostron/cm-cli/pkg/cmd/delete/clusterclaim"
+	"github.com/stolostron/cm-cli/pkg/cmd/delete/clusterpool"
+	"github.com/stolostron/cm-cli/pkg/cmd/delete/clusterpoolhost"
+	genericclioptionscm "github.com/stolostron/cm-cli/pkg/genericclioptions"
 	clusteradmdeletetoken "open-cluster-management.io/clusteradm/pkg/cmd/delete/token"
 	genericclioptionsclusteradm "open-cluster-management.io/clusteradm/pkg/genericclioptions"
 
