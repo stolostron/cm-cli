@@ -163,6 +163,9 @@ func (cph *ClusterPoolHost) setHibernateClusterClaims(clusterClaimNames string, 
 		if err = runtime.DefaultUnstructuredConverter.FromUnstructured(ccu.UnstructuredContent(), cc); err != nil {
 			return err
 		}
+		if len(cc.Spec.Namespace) == 0 {
+			return fmt.Errorf("something wrong happened, the clusterclaim %s doesn't have a spec.namespace set", cc.Name)
+		}
 		cdu, err := dynamicClient.Resource(helpers.GvrCD).Namespace(cc.Spec.Namespace).Get(context.TODO(), cc.Spec.Namespace, metav1.GetOptions{})
 		if err != nil {
 			return err
