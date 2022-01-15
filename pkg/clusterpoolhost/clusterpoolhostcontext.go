@@ -44,13 +44,13 @@ func (cph *ClusterPoolHost) getClusterPoolSAToken(
 		if err != nil {
 			if clusterPoolRestConfig == nil {
 				needLogin = true
-				err = fmt.Errorf("please login on %s", cph.APIServer)
+				err = fmt.Errorf("You are not logged into  %s", cph.APIServer)
 			}
 			return
 		}
 		if clusterPoolRestConfig.Host != cph.APIServer {
 			needLogin = true
-			err = fmt.Errorf("please login on %s", cph.APIServer)
+			err = fmt.Errorf("You are not logged into %s", cph.APIServer)
 			return
 		}
 		var kubeClient kubernetes.Interface
@@ -61,7 +61,7 @@ func (cph *ClusterPoolHost) getClusterPoolSAToken(
 		_, err = kubeClient.CoreV1().Secrets(cph.Namespace).List(context.TODO(), metav1.ListOptions{})
 		if err != nil {
 			needLogin = true
-			err = fmt.Errorf("please login on %s", cph.APIServer)
+			err = fmt.Errorf("You are not logged into  %s", cph.APIServer)
 			return
 		}
 
@@ -102,7 +102,7 @@ func (cph *ClusterPoolHost) getClusterPoolSAToken(
 
 func (cph *ClusterPoolHost) openBrowser() error {
 	reader := bufio.NewReader(os.Stdin)
-	fmt.Printf("Open browser to %s (Y/N) (default Y): ", cph.Console)
+	fmt.Printf("Do you want to launch the console in the browser so that you can get the token for logging\nin via the CLI? (Y/N) (default Y): ")
 	answer, _ := reader.ReadString('\n')
 	answer = strings.TrimSuffix(answer, "\n")
 	klog.V(5).Infof("\nanswer:(%s)\n", answer)
