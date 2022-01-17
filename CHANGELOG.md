@@ -7,3 +7,5 @@
 
 ## Bug fixes
 
+- [When clusterclaim not yet running, cm use/run generate a error](https://github.com/stolostron/cm-cli/issues/167)
+
