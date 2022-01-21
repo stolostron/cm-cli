@@ -273,13 +273,6 @@ func checkClusterClaimsRunning(dynamicClient dynamic.Interface, clusterClaimName
 					len(cd.Status.APIURL) != 0 &&
 					c != nil && c.Status == corev1.ConditionStatus(metav1.ConditionTrue) {
 					running = true
-					if i == 0 && (printFlags == nil || printFlags.OutputFormat == nil || strings.HasPrefix(*printFlags.OutputFormat, "custom-columns=")) {
-						if timeout == 0 {
-							fmt.Printf("(%d) clusterclaim %s is running with id %s\n", i, clusterClaimName, cc.Spec.Namespace)
-						} else {
-							fmt.Printf("(%d/%d) clusterclaim %s is running with id %s\n", i, timeout, clusterClaimName, cc.Spec.Namespace)
-						}
-					}
 				}
 			}
 		}
@@ -292,6 +285,13 @@ func checkClusterClaimsRunning(dynamicClient dynamic.Interface, clusterClaimName
 			allRunning = false
 		} else {
 			delete(allErrors, clusterClaimName)
+			if printFlags == nil || printFlags.OutputFormat == nil || strings.HasPrefix(*printFlags.OutputFormat, "custom-columns=") {
+				if timeout == 0 {
+					fmt.Printf("(%d) clusterclaim %s is running with id %s\n", i, clusterClaimName, cc.Spec.Namespace)
+				} else {
+					fmt.Printf("(%d/%d) clusterclaim %s is running with id %s\n", i, timeout, clusterClaimName, cc.Spec.Namespace)
+				}
+			}
 		}
 	}
 	for _, msg := range allErrors {
