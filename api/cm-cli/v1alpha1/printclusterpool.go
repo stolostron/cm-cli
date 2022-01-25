@@ -28,6 +28,7 @@ type PrintClusterPoolSpec struct {
 // +kubebuilder:printcolumn:name="Cluster_Pool",type="string",JSONPath=".metadata.name"
 // +kubebuilder:printcolumn:name="Size",type="int",JSONPath=".spec.clusterPool.spec.size"
 // +kubebuilder:printcolumn:name="Ready",type="int",JSONPath=".spec.clusterPool.status.ready"
+// +kubebuilder:printcolumn:name="Standby",type="int",JSONPath=".spec.clusterPool.status.standby"
 // +kubebuilder:printcolumn:name="Actual_Size",type="int",JSONPath=".spec.clusterPool.status.size"
 
 type PrintClusterPool struct {
