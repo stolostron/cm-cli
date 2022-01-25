@@ -29,6 +29,9 @@ spec:
     - jsonPath: .spec.clusterPool.status.ready
       name: Ready
       type: int
+    - jsonPath: .spec.clusterPool.status.standby
+      name: Standby
+      type: int
     - jsonPath: .spec.clusterPool.status.size
       name: Actual_Size
       type: int
