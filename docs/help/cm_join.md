@@ -1,6 +1,6 @@
 ## cm join
 
-join a hub
+join a hub cluster
 
 ```
 cm join [flags]
@@ -18,11 +18,15 @@ cm join --hub-token <tokenID.tokenSecret> --hub-apiserver <hub_apiserveR_url> --
 ### Options
 
 ```
-      --cluster-name string    The name of the joining cluster
-  -h, --help                   help for join
-      --hub-apiserver string   The api server url to the hub
-      --hub-token string       The token to access the hub
-      --output-file string     The generated resources will be copied in the specified file
+      --cluster-name string              The name of the joining cluster
+      --force-internal-endpoint-lookup   If true, the installed klusterlet agent will be starting the cluster registration process by looking for the internal endpoint from the public cluster-info in the hub cluster instead of from --hub-apiserver.
+  -h, --help                             help for join
+      --hub-apiserver string             The api server url to the hub
+      --hub-token string                 The token to access the hub
+      --image-registry string            The name of the image registry serving OCM images. (default "quay.io/open-cluster-management")
+      --output-file string               The generated resources will be copied in the specified file
+      --version string                   The installing version of OCM components. (default "latest")
+      --wait                             If true, running the cluster registration in foreground.
 ```
 
 ### Options inherited from parent commands
@@ -30,8 +34,9 @@ cm join --hub-token <tokenID.tokenSecret> --hub-apiserver <hub_apiserveR_url> --
 ```
       --add-dir-header                   If true, adds the file directory to the header of the log messages
       --alsologtostderr                  log to standard error as well as files
-      --as string                        Username to impersonate for the operation
+      --as string                        Username to impersonate for the operation. User could be a regular user or a service account in a namespace.
       --as-group stringArray             Group to impersonate for the operation, this flag can be repeated to specify multiple groups.
+      --as-uid string                    UID to impersonate for the operation.
       --beta                             If set commands or functionalities in beta version will be available
       --cache-dir string                 Default cache directory (default "${HOME}/.kube/cache")
       --certificate-authority string     Path to a cert file for the certificate authority

@@ -12,10 +12,13 @@ import (
 )
 
 func IsSupported(cmFlags *genericclioptions.CMFlags) (isSupported bool, err error) {
-	return cmFlags.SkipServerCheck || IsRHACM(cmFlags) || IsMCE(cmFlags), err
+	return IsRHACM(cmFlags) || IsMCE(cmFlags), err
 }
 
 func IsRHACM(cmFlags *genericclioptions.CMFlags) bool {
+	if cmFlags.SkipServerCheck {
+		return true
+	}
 	cms, err := getRHACMConfigMapList(cmFlags)
 	if err != nil || len(cms.Items) == 0 {
 		return false
@@ -46,6 +49,9 @@ func getRHACMConfigMapList(cmFlags *genericclioptions.CMFlags) (cms *corev1.Conf
 }
 
 func IsMCE(cmFlags *genericclioptions.CMFlags) bool {
+	if cmFlags.SkipServerCheck {
+		return true
+	}
 	cms, err := getMCEConfigMapList(cmFlags)
 	if err != nil || len(cms.Items) == 0 {
 		return false
