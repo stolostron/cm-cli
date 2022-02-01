@@ -119,7 +119,9 @@ require (
 )
 
 replace (
+	github.com/go-logr/logr => github.com/go-logr/logr v0.4.0
 	github.com/openshift/api => github.com/openshift/api v0.0.0-20220124143425-d74727069f6f
 	k8s.io/client-go => k8s.io/client-go v0.23.3
+	k8s.io/klog/v2 => k8s.io/klog/v2 v2.9.0
 	sigs.k8s.io/apiserver-network-proxy/konnectivity-client => sigs.k8s.io/apiserver-network-proxy/konnectivity-client v0.0.27
 )
