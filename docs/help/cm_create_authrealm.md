@@ -28,6 +28,7 @@ cm create authrealm myauthrealm --routeSubDomain mysso --values values.yaml
       --output-file string           The generated resources will be copied in the specified file
       --placement string             The name of the placement
       --route-sub-domain string      the route sub domain
+      --skip-idp-check               Skips check if IDP is installed when set
       --type string                  type of proxy (dex)
       --values string                The files containing the values
 ```
