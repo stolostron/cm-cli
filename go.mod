@@ -10,7 +10,7 @@ require (
 	github.com/openshift/hive/apis v0.0.0-20211012143010-16ef5a35537d
 	github.com/spf13/cobra v1.3.0
 	github.com/spf13/pflag v1.0.5
-	github.com/stolostron/governance-policy-propagator v0.0.0-20220111211854-68e6640dc4bf
+	github.com/stolostron/governance-policy-propagator v0.0.0-20220128200210-e26d2c020e4b
 	golang.org/x/net v0.0.0-20211209124913-491a49abca63
 	k8s.io/api v0.23.3
 	k8s.io/apiextensions-apiserver v0.23.3
@@ -33,7 +33,6 @@ require (
 	github.com/Masterminds/sprig v2.22.0+incompatible // indirect
 	github.com/PuerkitoBio/purell v1.1.1 // indirect
 	github.com/PuerkitoBio/urlesc v0.0.0-20170810143723-de5bf2ad4578 // indirect
-	github.com/avast/retry-go/v3 v3.1.1 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/blang/semver v3.5.1+incompatible // indirect
 	github.com/briandowns/spinner v1.11.1 // indirect
