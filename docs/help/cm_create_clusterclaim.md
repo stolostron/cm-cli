@@ -44,8 +44,9 @@ cm create cc <clusterpool> <clusterclaim_name>[,<clusterclaim_name>...] --cph <c
 ```
       --add-dir-header                   If true, adds the file directory to the header of the log messages
       --alsologtostderr                  log to standard error as well as files
-      --as string                        Username to impersonate for the operation
+      --as string                        Username to impersonate for the operation. User could be a regular user or a service account in a namespace.
       --as-group stringArray             Group to impersonate for the operation, this flag can be repeated to specify multiple groups.
+      --as-uid string                    UID to impersonate for the operation.
       --beta                             If set commands or functionalities in beta version will be available
       --cache-dir string                 Default cache directory (default "${HOME}/.kube/cache")
       --certificate-authority string     Path to a cert file for the certificate authority

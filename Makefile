@@ -142,3 +142,43 @@ CONTROLLER_GEN=$(GOBIN)/controller-gen
 else
 CONTROLLER_GEN=$(shell which controller-gen)
 endif
+
+.PHONY: kubebuilder-tools
+## Find or download kubebuilder
+kubebuilder-tools:
+ifeq (, $(shell which kubebuilder))
+	@( \
+		set -ex ;\
+		KUBEBUILDER_TMP_DIR=$$(mktemp -d) ;\
+		cd $$KUBEBUILDER_TMP_DIR ;\
+		curl -L -o $$KUBEBUILDER_TMP_DIR/kubebuilder https://github.com/kubernetes-sigs/kubebuilder/releases/download/3.1.0/$$(go env GOOS)/$$(go env GOARCH) ;\
+		chmod +x $$KUBEBUILDER_TMP_DIR/kubebuilder && mv $$KUBEBUILDER_TMP_DIR/kubebuilder /usr/local/bin/ ;\
+	)
+endif
+
+# See https://book.kubebuilder.io/reference/envtest.html.
+#    kubebuilder 2.3.x contained kubebuilder and etc in a tgz
+#    kubebuilder 3.x only had the kubebuilder, not etcd, so we had to download a different way
+# After running this make target, you will need to either:
+# - export KUBEBUILDER_ASSETS=$HOME/kubebuilder/bin
+# OR
+# - sudo mv $HOME/kubebuilder /usr/local
+#
+# This will allow you to run `make test`
+.PHONY: envtest-tools
+## Install envtest tools to allow you to run `make test`
+envtest-tools:
+ifeq (, $(shell which etcd))
+		@{ \
+			set -ex ;\
+			ENVTEST_TMP_DIR=$$(mktemp -d) ;\
+			cd $$ENVTEST_TMP_DIR ;\
+			K8S_VERSION=1.19.2 ;\
+			curl -sSLo envtest-bins.tar.gz https://storage.googleapis.com/kubebuilder-tools/kubebuilder-tools-$$K8S_VERSION-$$(go env GOOS)-$$(go env GOARCH).tar.gz ;\
+			tar xf envtest-bins.tar.gz ;\
+			mv $$ENVTEST_TMP_DIR/kubebuilder $$HOME ;\
+			rm -rf $$ENVTEST_TMP_DIR ;\
+		}
+else
+   
+endif

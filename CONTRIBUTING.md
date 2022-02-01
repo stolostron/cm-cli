@@ -50,6 +50,11 @@ cm <verb> [subcmd...] [flags]
 - Each command package contains its own resources in the scenario package. The scenario package contains one go file which provides the `go:embed` `embed.FS` files. For example [resources.go](pkg/cmd/create/cluster/scenario/resources.go).
 - All resources must be accessed using unstrusctured, the project must not have api dependencies.
 
+## Prepare development environment
+
+1. kubebuilder must be installed, if not run `make kubebuilder-tools`.
+2. etcd must be instaled, if not run `make envtest-tools`.
+3. The environment variable `KUBEBUILDER_ASSETS` must be set to your kubebuilder binary (ie: `export KUBEBUILDER_ASSETS=$HOME/kubebuilder/bin` or `sudo mv $HOME/kubebuilder /usr/local`)
 ## build
 
 ```bash

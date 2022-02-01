@@ -3,11 +3,14 @@ package policies
 
 import (
 	"fmt"
+	"os"
+	"strings"
 
 	genericclioptionscm "github.com/stolostron/cm-cli/pkg/genericclioptions"
 	"github.com/stolostron/cm-cli/pkg/helpers"
 	"k8s.io/kubectl/pkg/cmd/get"
 	cmdutil "k8s.io/kubectl/pkg/cmd/util"
+	clusteradmhelpers "open-cluster-management.io/clusteradm/pkg/helpers"
 
 	"github.com/spf13/cobra"
 	"k8s.io/cli-runtime/pkg/genericclioptions"
@@ -33,6 +36,13 @@ func NewCmd(f cmdutil.Factory, cmFlags *genericclioptionscm.CMFlags, streams gen
 		DisableFlagsInUseLine: true,
 		Short:                 "Display policies",
 		Example:               fmt.Sprintf(example, helpers.GetExampleHeader()),
+		PreRunE: func(c *cobra.Command, args []string) error {
+			if !helpers.IsRHACM(o.CMFlags) {
+				return fmt.Errorf("this command '%s %s' is only available on RHACM", helpers.GetExampleHeader(), strings.Join(os.Args[1:], " "))
+			}
+			clusteradmhelpers.DryRunMessage(cmFlags.DryRun)
+			return nil
+		},
 		Run: func(cmd *cobra.Command, args []string) {
 			cmdutil.CheckErr(o.complete(cmd, args))
 			cmdutil.CheckErr(o.validate())

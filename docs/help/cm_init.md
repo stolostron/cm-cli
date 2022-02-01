@@ -2,6 +2,10 @@
 
 init feature or hub
 
+### Synopsis
+
+Initialize the Kubernetes cluster in the context into an OCM hub cluster by applying a fewfundamental resources including registration-operator, etc.
+
 ```
 cm init [flags]
 ```
@@ -18,10 +22,14 @@ cm init
 ### Options
 
 ```
-      --force                 If set then the hub will be reinitialized
-  -h, --help                  help for init
-      --output-file string    The generated resources will be copied in the specified file
-      --use-bootstrap-token   If set then the boostrap token will used instead of a service account token
+      --force                             If set then the hub will be reinitialized
+  -h, --help                              help for init
+      --image-registry string             The name of the image registry serving OCM images, which will be applied to all the deploying OCM components. (default "quay.io/open-cluster-management")
+      --output-file string                The generated resources will be copied in the specified file
+      --output-join-command-file string   If set, the generated join command be saved to the prescribed file.
+      --tag string                        The installing image tag that applies to all the deploying OCM components. (default "latest")
+      --use-bootstrap-token               If set then the boostrap token will used instead of a service account token
+      --wait                              If set, the command will initialize the OCM control plan in foreground.
 ```
 
 ### Options inherited from parent commands
@@ -29,8 +37,9 @@ cm init
 ```
       --add-dir-header                   If true, adds the file directory to the header of the log messages
       --alsologtostderr                  log to standard error as well as files
-      --as string                        Username to impersonate for the operation
+      --as string                        Username to impersonate for the operation. User could be a regular user or a service account in a namespace.
       --as-group stringArray             Group to impersonate for the operation, this flag can be repeated to specify multiple groups.
+      --as-uid string                    UID to impersonate for the operation.
       --beta                             If set commands or functionalities in beta version will be available
       --cache-dir string                 Default cache directory (default "${HOME}/.kube/cache")
       --certificate-authority string     Path to a cert file for the certificate authority

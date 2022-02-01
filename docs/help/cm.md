@@ -7,8 +7,9 @@ CLI for Red Hat Advanced Cluster Management
 ```
       --add-dir-header                   If true, adds the file directory to the header of the log messages
       --alsologtostderr                  log to standard error as well as files
-      --as string                        Username to impersonate for the operation
+      --as string                        Username to impersonate for the operation. User could be a regular user or a service account in a namespace.
       --as-group stringArray             Group to impersonate for the operation, this flag can be repeated to specify multiple groups.
+      --as-uid string                    UID to impersonate for the operation.
       --beta                             If set commands or functionalities in beta version will be available
       --cache-dir string                 Default cache directory (default "${HOME}/.kube/cache")
       --certificate-authority string     Path to a cert file for the certificate authority
@@ -56,7 +57,7 @@ CLI for Red Hat Advanced Cluster Management
 * [cm get](cm_get.md)	 - get a resource
 * [cm hibernate](cm_hibernate.md)	 - hibernate a resource
 * [cm init](cm_init.md)	 - init feature or hub
-* [cm join](cm_join.md)	 - join a hub
+* [cm join](cm_join.md)	 - join a hub cluster
 * [cm options](cm_options.md)	 - Print the list of flags inherited by all commands
 * [cm plugin](cm_plugin.md)	 - Provides utilities for interacting with plugins
 * [cm run](cm_run.md)	 - run a resource
