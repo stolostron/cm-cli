@@ -120,7 +120,7 @@ require (
 )
 
 replace (
-
+	github.com/avast/retry-go/v3 => github.com/avast/retry-go/v3 v3.1.1
 	github.com/go-logr/logr => github.com/go-logr/logr v0.4.0
 	github.com/onsi/ginkgo/v2 => github.com/onsi/ginkgo/v2 v2.1.1
 	github.com/onsi/gomega => github.com/onsi/gomega v1.18.0
