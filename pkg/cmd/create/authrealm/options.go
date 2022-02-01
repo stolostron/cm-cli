@@ -19,7 +19,8 @@ type Options struct {
 	valuesPath               string
 	values                   map[string]interface{}
 	//The file to output the resources will be sent to the file.
-	outputFile string
+	outputFile   string
+	skipIDPCheck bool
 }
 
 func newOptions(cmFlags *genericclioptionscm.CMFlags, streams genericclioptions.IOStreams) *Options {

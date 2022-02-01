@@ -53,6 +53,15 @@ func NewCmd(cmFlags *genericclioptionscm.CMFlags, streams genericclioptions.IOSt
 					helpers.RHACM,
 					helpers.MCE)
 			}
+			isIDPInstalled, err := helpers.IsIDPInstalled(o.CMFlags, o.skipIDPCheck)
+			if err != nil {
+				return err
+			}
+			if !isIDPInstalled {
+				return fmt.Errorf("this command '%s %s' is only available on a cluster where IDP is installed",
+					helpers.GetExampleHeader(),
+					strings.Join(os.Args[1:], " "))
+			}
 			clusteradmhelpers.DryRunMessage(cmFlags.DryRun)
 			return nil
 		},
@@ -81,6 +90,7 @@ func NewCmd(cmFlags *genericclioptionscm.CMFlags, streams genericclioptions.IOSt
 	cmd.Flags().StringVar(&o.managedClusterSetBinding, "cluster-set-binding", "", "The of the cluster set binding")
 	cmd.Flags().StringVar(&o.valuesPath, "values", "", "The files containing the values")
 	cmd.Flags().StringVar(&o.outputFile, "output-file", "", "The generated resources will be copied in the specified file")
+	cmd.Flags().BoolVar(&o.skipIDPCheck, "skip-idp-check", false, "Skips check if IDP is installed when set")
 
 	return cmd
 }
