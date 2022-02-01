@@ -33,7 +33,6 @@ require (
 	github.com/Masterminds/sprig v2.22.0+incompatible // indirect
 	github.com/PuerkitoBio/purell v1.1.1 // indirect
 	github.com/PuerkitoBio/urlesc v0.0.0-20170810143723-de5bf2ad4578 // indirect
-	github.com/avast/retry-go/v3 v3.1.1 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/blang/semver v3.5.1+incompatible // indirect
 	github.com/briandowns/spinner v1.11.1 // indirect
@@ -79,6 +78,7 @@ require (
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
 	github.com/modern-go/reflect2 v1.0.2 // indirect
 	github.com/monochromegane/go-gitignore v0.0.0-20200626010858-205db1a8cc00 // indirect
+	github.com/onsi/gomega v1.18.0 // indirect
 	github.com/openshift/library-go v0.0.0-20210916194400-ae21aab32431 // indirect
 	github.com/peterbourgon/diskv v2.0.1+incompatible // indirect
 	github.com/pkg/errors v0.9.1 // indirect
@@ -95,7 +95,7 @@ require (
 	golang.org/x/crypto v0.0.0-20211215153901-e495a2d5b3d3 // indirect
 	golang.org/x/mod v0.5.0 // indirect
 	golang.org/x/oauth2 v0.0.0-20211104180415-d3ed0bb246c8 // indirect
-	golang.org/x/sys v0.0.0-20211205182925-97ca703d548d // indirect
+	golang.org/x/sys v0.0.0-20211216021012-1d35b9e2eb4e // indirect
 	golang.org/x/term v0.0.0-20210615171337-6886f2dfbf5b // indirect
 	golang.org/x/text v0.3.7 // indirect
 	golang.org/x/time v0.0.0-20210723032227-1f47c861a9ac // indirect
@@ -120,7 +120,10 @@ require (
 )
 
 replace (
+
 	github.com/go-logr/logr => github.com/go-logr/logr v0.4.0
+	github.com/onsi/ginkgo/v2 => github.com/onsi/ginkgo/v2 v2.1.1
+	github.com/onsi/gomega => github.com/onsi/gomega v1.18.0
 	github.com/openshift/api => github.com/openshift/api v0.0.0-20220124143425-d74727069f6f
 	k8s.io/client-go => k8s.io/client-go v0.23.3
 	k8s.io/klog/v2 => k8s.io/klog/v2 v2.9.0
