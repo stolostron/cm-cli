@@ -18,6 +18,9 @@ func (o *Options) complete(cmd *cobra.Command, args []string) (err error) {
 }
 
 func (o *Options) validate() error {
+	if o.Size < 0 {
+		return fmt.Errorf("size must be specified and be greater than or equal to zero")
+	}
 	return nil
 }
 
