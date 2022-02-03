@@ -1,12 +1,19 @@
 [comment]: # ( Copyright Contributors to the Open Cluster Management project )**Table of Contents**
 
 - [Contributing guidelines](#contributing-guidelines)
-    - [Terms](#terms)
-    - [Certificate of Origin](#certificate-of-origin)
-    - [Contributing a patch](#contributing-a-patch)
-    - [Issue and pull request management](#issue-and-pull-request-management)
-    - [Requirements](#requirements)
-    - [Develop new commands](#Develop-new-commands)
+  - [Terms](#terms)
+  - [Certificate of Origin](#certificate-of-origin)
+  - [Contributing a patch](#contributing-a-patch)
+  - [Issue and pull request management](#issue-and-pull-request-management)
+- [Requirements](#requirements)
+- [Develop new commands](#develop-new-commands)
+  - [Resources](#resources)
+  - [Prepare development environment](#prepare-development-environment)
+  - [build](#build)
+  - [API](#api)
+  - [Unit tests](#unit-tests)
+  - [Functional tests](#functional-tests)
+  - [Make a release (Owners only)](#make-a-release-owners-only)
 
 # Contributing guidelines
 
@@ -58,8 +65,9 @@ cm <verb> [subcmd...] [flags]
 ## build
 
 ```bash
-make build
+make build doc-help
 ```
+
 ## API
 
 This project contains some API and these are used in order to leverage the ["github.com/kubernetes/cli-runtime/blob/master/pkg/printers/interface.go](https://github.com/kubernetes/cli-runtime/blob/master/pkg/printers/interface.go). To generate the zz_files for it run `make generate`

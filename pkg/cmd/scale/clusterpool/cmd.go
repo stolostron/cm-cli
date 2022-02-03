@@ -47,6 +47,6 @@ func NewCmd(cmFlags *genericclioptionscm.CMFlags, streams genericclioptions.IOSt
 	}
 
 	cmd.Flags().StringVar(&o.ClusterPoolHost, "cph", "", "The clusterpoolhost to use")
-	cmd.Flags().Int32Var(&o.Size, "size", 1, "Set the size of a clusterpool")
+	cmd.Flags().Int32Var(&o.Size, "size", 0, "Set the size of a clusterpool")
 	return cmd
 }
