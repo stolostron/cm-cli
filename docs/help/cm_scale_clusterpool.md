@@ -23,7 +23,7 @@ cm scale cp <clusterpool_name> --size <size> --cph <clusterpoolhost> <options>
 ```
       --cph string   The clusterpoolhost to use
   -h, --help         help for clusterpool
-      --size int32   Set the size of a clusterpool (default 1)
+      --size int32   Set the size of a clusterpool
 ```
 
 ### Options inherited from parent commands
