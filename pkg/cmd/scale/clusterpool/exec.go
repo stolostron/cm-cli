@@ -14,12 +14,16 @@ func (o *Options) complete(cmd *cobra.Command, args []string) (err error) {
 		return fmt.Errorf("clusterclaim name is missing")
 	}
 	o.ClusterPool = args[0]
+
+	if !cmd.Flags().Changed("size") {
+		return fmt.Errorf("size must be specified")
+	}
 	return nil
 }
 
 func (o *Options) validate() error {
 	if o.Size < 0 {
-		return fmt.Errorf("size must be specified and be greater than or equal to zero")
+		return fmt.Errorf("size must be greater than or equal to zero")
 	}
 	return nil
 }
