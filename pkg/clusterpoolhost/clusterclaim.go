@@ -21,6 +21,7 @@ import (
 	"k8s.io/apimachinery/pkg/util/wait"
 	"k8s.io/client-go/dynamic"
 	"k8s.io/client-go/kubernetes"
+	"k8s.io/client-go/tools/clientcmd"
 	"k8s.io/klog/v2"
 	"k8s.io/kubectl/pkg/cmd/get"
 	clusteradmapply "open-cluster-management.io/clusteradm/pkg/helpers/apply"
@@ -420,12 +421,20 @@ func (cph *ClusterPoolHost) ConvertToPrintClusterClaimList(ccl *hivev1.ClusterCl
 		if c != nil && c.Status == corev1.ConditionStatus(metav1.ConditionTrue) {
 			pcc.Spec.PowerState = string(hivev1.ClusterClaimPendingCondition)
 		}
+		pathOptions := clientcmd.NewDefaultPathOptions()
+		configapi, err := pathOptions.GetStartingConfig()
+		if err != nil {
+			pcc.Spec.ErrorMessage = err.Error()
+			pccs.Items = append(pccs.Items, pcc)
+			continue
+		}
+		pcc.Spec.InUse = configapi.CurrentContext == cph.GetClusterContextName(ccl.Items[i].Name)
 		pccs.Items = append(pccs.Items, pcc)
 	}
 	return pccs
 }
 
-func (cph *ClusterPoolHost) GetClusterClaim(clusterName string, timeout int, dryRun bool, printFlags *get.PrintFlags) (*hivev1.ClusterClaim, error) {
+func (cph *ClusterPoolHost) GetClusterClaim(clusterName string, waitRunning bool, timeout int, dryRun bool, printFlags *get.PrintFlags) (*hivev1.ClusterClaim, error) {
 	clusterPoolRestConfig, err := cph.GetGlobalRestConfig()
 	if err != nil {
 		return nil, err
@@ -435,9 +444,12 @@ func (cph *ClusterPoolHost) GetClusterClaim(clusterName string, timeout int, dry
 	if err != nil {
 		return nil, err
 	}
-	klog.V(3).Infof("Wait cc %s ready", clusterName)
-	if err = waitClusterClaimsRunning(dynamicClient, clusterName, "", cph.Namespace, timeout, printFlags); err != nil {
-		return nil, err
+
+	if waitRunning {
+		klog.V(3).Infof("Wait cc %s ready", clusterName)
+		if err = waitClusterClaimsRunning(dynamicClient, clusterName, "", cph.Namespace, timeout, printFlags); err != nil {
+			return nil, err
+		}
 	}
 
 	ccu, err := dynamicClient.Resource(helpers.GvrCC).Namespace(cph.Namespace).Get(context.TODO(), clusterName, metav1.GetOptions{})
@@ -460,23 +472,15 @@ func (cph *ClusterPoolHost) GetPrintClusterClaimCredential(cc *hivev1.ClusterCla
 	if err != nil {
 		return nil, err
 	}
+	if len(cc.Spec.Namespace) == 0 {
+		return nil, fmt.Errorf("something wrong happened, the clusterclaim %s doesn't have a spec.namespace set", cc.Name)
+	}
 	cdu, err := dynamicClient.Resource(helpers.GvrCD).Namespace(cc.Spec.Namespace).Get(context.TODO(), cc.Spec.Namespace, metav1.GetOptions{})
 	if err != nil {
 		return nil, err
 	}
 	cd := &hivev1.ClusterDeployment{}
 	if runtime.DefaultUnstructuredConverter.FromUnstructured(cdu.UnstructuredContent(), cd); err != nil {
-		return nil, err
-	}
-	if cd.Spec.PowerState == hivev1.HibernatingClusterPowerState {
-		return nil, fmt.Errorf("%s is hibernating, run a use command to resume it", cc.GetName())
-	}
-	kubeClient, err := kubernetes.NewForConfig(clusterPoolRestConfig)
-	if err != nil {
-		return nil, err
-	}
-	s, err := kubeClient.CoreV1().Secrets(cd.Namespace).Get(context.TODO(), cd.Spec.ClusterMetadata.AdminPasswordSecretRef.Name, metav1.GetOptions{})
-	if err != nil {
 		return nil, err
 	}
 	ccc := &printclusterpoolv1alpha1.PrintClusterClaimCredential{
@@ -493,6 +497,14 @@ func (cph *ClusterPoolHost) GetPrintClusterClaimCredential(cc *hivev1.ClusterCla
 		},
 	}
 	if withCredentials {
+		kubeClient, err := kubernetes.NewForConfig(clusterPoolRestConfig)
+		if err != nil {
+			return nil, err
+		}
+		s, err := kubeClient.CoreV1().Secrets(cd.Namespace).Get(context.TODO(), cd.Spec.ClusterMetadata.AdminPasswordSecretRef.Name, metav1.GetOptions{})
+		if err != nil {
+			return nil, err
+		}
 		ccc.Spec.User = string(s.Data["username"])
 		ccc.Spec.Password = string(s.Data["password"])
 	}
@@ -535,6 +547,9 @@ func (cph *ClusterPoolHost) OpenClusterClaim(clusterName string, timeout int) er
 	cc := &hivev1.ClusterClaim{}
 	if runtime.DefaultUnstructuredConverter.FromUnstructured(ccu.UnstructuredContent(), cc); err != nil {
 		return err
+	}
+	if len(cc.Spec.Namespace) == 0 {
+		return fmt.Errorf("something wrong happened, the clusterclaim %s doesn't have a spec.namespace set", cc.Name)
 	}
 	cdu, err := dynamicClient.Resource(helpers.GvrCD).Namespace(cc.Spec.Namespace).Get(context.TODO(), cc.Spec.Namespace, metav1.GetOptions{})
 	if err != nil {

@@ -22,6 +22,9 @@ spec:
     - jsonPath: .spec.clusterClaim.Name
       name: Cluster_Claim
       type: string
+    - jsonPath: .spec.InUse
+      name: In_Use
+      type: string
     - jsonPath: .spec.clusterClaim.spec.clusterPoolName
       name: Cluster_Pool
       type: string
@@ -194,6 +197,8 @@ spec:
                 required:
                 - spec
                 type: object
+              clusterClaimInUse:
+                type: boolean
               clusterPoolHostName:
                 description: 'INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
                   Important: Run "make" to regenerate code after modifying this file'
@@ -211,6 +216,7 @@ spec:
             required:
             - age
             - clusterClaim
+            - clusterClaimInUse
             - clusterPoolHostName
             - error
             - hibernate
