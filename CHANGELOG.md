@@ -10,6 +10,7 @@
 - Display an error if the clusterclaim has no namespace,  this can happen when new clusterclaim with the same name is created just of the deletion of a clusterclaim with the same name. [When clusterclaim not yet running, cm use/run generates an error](https://github.com/stolostron/cm-cli/issues/167)
 - Check if Identity Configuration Management is installed when running `cm create authrealm` 
 - [Create a cmd to install RHACM #94](https://github.com/stolostron/cm-cli/issues/94)
+- [Create a cmd to install MCE #180](https://github.com/stolostron/cm-cli/issues/180)
 ## Breaking changes
 
 ## Bug fixes
