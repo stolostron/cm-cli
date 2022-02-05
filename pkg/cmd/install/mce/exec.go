@@ -1,5 +1,5 @@
 // Copyright Contributors to the Open Cluster Management project
-package acm
+package mce
 
 import (
 	"context"
@@ -13,7 +13,7 @@ import (
 	clusteradmapply "open-cluster-management.io/clusteradm/pkg/helpers/apply"
 
 	"github.com/spf13/cobra"
-	"github.com/stolostron/cm-cli/pkg/cmd/install/acm/scenario"
+	"github.com/stolostron/cm-cli/pkg/cmd/install/mce/scenario"
 	"github.com/stolostron/cm-cli/pkg/helpers"
 	"k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -39,9 +39,9 @@ func (o *Options) run() (err error) {
 func (o *Options) runWithClient(kubeClient kubernetes.Interface,
 	apiextensionsClient apiextensionsclient.Interface,
 	dynamicClient dynamic.Interface) (err error) {
-	_, err = dynamicClient.Resource(helpers.GvrMCH).Namespace(o.namespace).Get(context.TODO(), "multiclusterhub", metav1.GetOptions{})
+	_, err = dynamicClient.Resource(helpers.GvrMCE).Namespace(o.namespace).Get(context.TODO(), "multiclusterhub", metav1.GetOptions{})
 	if err == nil {
-		return errors.NewUnauthorized("acm already installed")
+		return errors.NewUnauthorized("mce already installed")
 	}
 	output := make([]string, 0)
 	reader := scenario.GetScenarioResourcesReader()
@@ -84,10 +84,10 @@ func (o *Options) runWithClient(kubeClient kubernetes.Interface,
 	}
 	output = append(output, out...)
 
-	//Wait MCH CRD to be created
+	//Wait MCE CRD to be created
 	if !o.CMFlags.DryRun {
 		err = wait.PollImmediate(10*time.Second, time.Duration(3)*time.Minute, func() (bool, error) {
-			_, err := apiextensionsClient.ApiextensionsV1().CustomResourceDefinitions().Get(context.TODO(), "multiclusterhubs.operator.open-cluster-management.io", metav1.GetOptions{})
+			_, err := apiextensionsClient.ApiextensionsV1().CustomResourceDefinitions().Get(context.TODO(), "multiclusterengines.multicluster.openshift.io", metav1.GetOptions{})
 			if err != nil {
 				fmt.Printf("%s, waiting...\n", err)
 				return false, nil
@@ -101,7 +101,7 @@ func (o *Options) runWithClient(kubeClient kubernetes.Interface,
 	}
 
 	files = []string{
-		"install/multiclusterhub.yaml",
+		"install/multicluster-engine.yaml",
 	}
 	out, err = applier.ApplyCustomResources(reader, values, o.CMFlags.DryRun, "", files...)
 	if err != nil {
@@ -112,7 +112,7 @@ func (o *Options) runWithClient(kubeClient kubernetes.Interface,
 	if o.wait {
 		i := 0
 		wait.PollImmediate(1*time.Minute, time.Duration(o.timeout)*time.Minute, func() (bool, error) {
-			mchu, err := dynamicClient.Resource(helpers.GvrMCH).Namespace(o.namespace).Get(context.TODO(), "multiclusterhub", metav1.GetOptions{})
+			mchu, err := dynamicClient.Resource(helpers.GvrMCE).Namespace(o.namespace).Get(context.TODO(), "multiclusterengine", metav1.GetOptions{})
 			if err != nil {
 				fmt.Printf("%s, waiting...\n", err)
 				return false, nil

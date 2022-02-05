@@ -3,6 +3,7 @@ package install
 
 import (
 	"github.com/stolostron/cm-cli/pkg/cmd/install/acm"
+	"github.com/stolostron/cm-cli/pkg/cmd/install/mce"
 	genericclioptionscm "github.com/stolostron/cm-cli/pkg/genericclioptions"
 
 	"github.com/spf13/cobra"
@@ -17,6 +18,7 @@ func NewCmd(cmFlags *genericclioptionscm.CMFlags, streams genericclioptions.IOSt
 	}
 
 	cmd.AddCommand(acm.NewCmd(cmFlags, streams))
+	cmd.AddCommand(mce.NewCmd(cmFlags, streams))
 
 	return cmd
 }

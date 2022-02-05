@@ -1,5 +1,5 @@
 // Copyright Contributors to the Open Cluster Management project
-package acm
+package mce
 
 import (
 	"fmt"
@@ -16,7 +16,7 @@ import (
 
 var example = `
 # install Advanced cluster management
-%[1]s install acm --namespace <namespace> --channel <channel> [--manual-approval]
+%[1]s install mce --namespace <namespace> --channel <channel> [--manual-approval]
 `
 
 const (
@@ -28,8 +28,8 @@ func NewCmd(cmFlags *genericclioptionscm.CMFlags, streams genericclioptions.IOSt
 	o := newOptions(cmFlags, streams)
 
 	cmd := &cobra.Command{
-		Use:          "acm",
-		Short:        "install acm",
+		Use:          "mce",
+		Short:        "install mce",
 		Example:      fmt.Sprintf(example, helpers.GetExampleHeader()),
 		SilenceUsage: true,
 		PreRunE: func(c *cobra.Command, args []string) error {
@@ -61,11 +61,11 @@ func NewCmd(cmFlags *genericclioptionscm.CMFlags, streams genericclioptions.IOSt
 	}
 
 	cmd.Flags().StringVar(&o.channel, "channel", "", "The channel to use")
-	cmd.Flags().StringVar(&o.namespace, "namespace", "open-cluster-management", "The namespace where to install ACM")
-	cmd.Flags().StringVar(&o.operatorGroup, "operatorGroup", "open-cluster-management-group", "The operator group")
+	cmd.Flags().StringVar(&o.namespace, "namespace", "multicluster-engine", "The namespace where to install MCE")
+	cmd.Flags().StringVar(&o.operatorGroup, "operatorGroup", "multicluster-engine", "The operator group")
 	cmd.Flags().StringVar(&o.outputFile, "output-file", "", "The generated resources will be copied in the specified file")
-	cmd.Flags().BoolVar(&o.wait, "wait", false, "Wait until ACM installed is completed")
+	cmd.Flags().BoolVar(&o.wait, "wait", false, "Wait until MCE installed is completed")
 	cmd.Flags().BoolVar(&o.manualApproval, "manual-approval", false, "Set for manual approval otherwize automatic")
-	cmd.Flags().IntVar(&o.timeout, "timeout", 30, "Timeout to get ACM installed in minutes")
+	cmd.Flags().IntVar(&o.timeout, "timeout", 30, "Timeout to get MCE installed in minutes")
 	return cmd
 }

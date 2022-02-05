@@ -9,6 +9,7 @@ import (
 	"github.com/stolostron/cm-cli/pkg/genericclioptions"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	clusteradmhelpers "open-cluster-management.io/clusteradm/pkg/helpers"
 )
 
 func IsSupported(cmFlags *genericclioptions.CMFlags) (isSupported bool, err error) {
@@ -80,4 +81,13 @@ func getMCEConfigMapList(cmFlags *genericclioptions.CMFlags) (cms *corev1.Config
 		})
 	}
 	return cms, err
+}
+
+func IsOpenshift(cmFlags *genericclioptions.CMFlags) (bool, error) {
+	_, _, dynamicClient, err := clusteradmhelpers.GetClients(cmFlags.KubectlFactory)
+	if err != nil {
+		return false, err
+	}
+	_, err = dynamicClient.Resource(GvrOpenshiftClusterVersions).Get(context.TODO(), "version", metav1.GetOptions{})
+	return err == nil, nil
 }
