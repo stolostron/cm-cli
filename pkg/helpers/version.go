@@ -80,7 +80,7 @@ func GetMCEVersion(cmFlags *genericclioptions.CMFlags, kubeClient kubernetes.Int
 		return "", "", fmt.Errorf("no configmap found")
 	}
 	ns := cms.Items[0].Namespace
-	ucsv, err := dynamicClient.Resource(GvrMCE).Namespace(ns).List(context.TODO(), metav1.ListOptions{})
+	ucsv, err := dynamicClient.Resource(GvrCSV).Namespace(ns).List(context.TODO(), metav1.ListOptions{})
 	if err != nil {
 		return "", "", err
 	}

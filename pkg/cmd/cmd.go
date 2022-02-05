@@ -31,6 +31,7 @@ import (
 	"github.com/stolostron/cm-cli/pkg/cmd/get"
 	"github.com/stolostron/cm-cli/pkg/cmd/hibernate"
 	"github.com/stolostron/cm-cli/pkg/cmd/initialization"
+	"github.com/stolostron/cm-cli/pkg/cmd/install"
 	"github.com/stolostron/cm-cli/pkg/cmd/join"
 	"github.com/stolostron/cm-cli/pkg/cmd/run"
 	"github.com/stolostron/cm-cli/pkg/cmd/scale"
@@ -118,6 +119,12 @@ func NewCMCommand() *cobra.Command {
 				hibernate.NewCmd(cmFlags, streams),
 				console.NewCmd(cmFlags, streams),
 				with.NewCmd(cmFlags, streams),
+			},
+		},
+		{
+			Message: "install commands:",
+			Commands: []*cobra.Command{
+				install.NewCmd(cmFlags, streams),
 			},
 		},
 	}

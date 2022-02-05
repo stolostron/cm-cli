@@ -55,7 +55,7 @@ func (o *Options) run() (err error) {
 
 	if o.WithCredentials {
 		for _, clusterClaim := range strings.Split(o.ClusterClaims, ",") {
-			cc, err := cph.GetClusterClaim(clusterClaim, o.Timeout, o.CMFlags.DryRun, o.GetOptions.PrintFlags)
+			cc, err := cph.GetClusterClaim(clusterClaim, false, o.Timeout, o.CMFlags.DryRun, o.GetOptions.PrintFlags)
 			if err != nil {
 				return err
 			}

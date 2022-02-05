@@ -3,6 +3,7 @@ package clusterpoolhost
 
 import (
 	"context"
+	"fmt"
 	"strings"
 
 	hivev1 "github.com/openshift/hive/apis/hive/v1"
@@ -160,6 +161,9 @@ func (cph *ClusterPoolHost) getClusterClaimConfigAPI(clusterName string, cluster
 	err = runtime.DefaultUnstructuredConverter.FromUnstructured(ccu.UnstructuredContent(), cc)
 	if err != nil {
 		return nil, err
+	}
+	if len(cc.Spec.Namespace) == 0 {
+		return nil, fmt.Errorf("something wrong happened, the clusterclaim %s doesn't have a spec.namespace set", cc.Name)
 	}
 	cdu, err := dynamicClient.Resource(helpers.GvrCD).Namespace(cc.Spec.Namespace).Get(context.TODO(), cc.Spec.Namespace, metav1.GetOptions{})
 	if err != nil {

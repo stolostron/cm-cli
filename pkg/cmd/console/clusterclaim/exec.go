@@ -30,7 +30,7 @@ func (o *Options) run() (err error) {
 	}
 
 	if o.WithCredentials {
-		cc, err := cph.GetClusterClaim(o.ClusterClaim, o.Timeout, o.CMFlags.DryRun, o.GetOptions.PrintFlags)
+		cc, err := cph.GetClusterClaim(o.ClusterClaim, true, o.Timeout, o.CMFlags.DryRun, o.GetOptions.PrintFlags)
 		if err != nil {
 			return err
 		}

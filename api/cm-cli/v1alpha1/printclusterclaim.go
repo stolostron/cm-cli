@@ -15,6 +15,7 @@ type PrintClusterClaimSpec struct {
 	// INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
 	// Important: Run "make" to regenerate code after modifying this file
 	ClusterPoolHostName string               `json:"clusterPoolHostName"`
+	InUse               bool                 `json:"clusterClaimInUse"`
 	ClusterClaim        *hivev1.ClusterClaim `json:"clusterClaim"`
 	Hibernate           string               `json:"hibernate"`
 	PowerState          string               `json:"powerState"`
@@ -30,6 +31,7 @@ type PrintClusterClaimSpec struct {
 // +kubebuilder:resource:path=printclusterclaims
 // +kubebuilder:printcolumn:name="Cluster_Pool_Host",type="string",JSONPath=".spec.clusterPoolHostName"
 // +kubebuilder:printcolumn:name="Cluster_Claim",type="string",JSONPath=".spec.clusterClaim.Name"
+// +kubebuilder:printcolumn:name="In_Use",type="string",JSONPath=".spec.InUse"
 // +kubebuilder:printcolumn:name="Cluster_Pool",type="string",JSONPath=".spec.clusterClaim.spec.clusterPoolName"
 // +kubebuilder:printcolumn:name="Power_State",type="string",JSONPath=".spec.powerState"
 // +kubebuilder:printcolumn:name="Hibernate",type="string",JSONPath=".spec.hibernate"

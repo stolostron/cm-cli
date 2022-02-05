@@ -1,0 +1,13 @@
+# Copyright Contributors to the Open Cluster Management project
+
+apiVersion: operators.coreos.com/v1alpha1
+kind: Subscription
+metadata:
+  name: acm-operator-subscription
+  namespace: {{ .Namespace }}
+spec:
+  sourceNamespace: openshift-marketplace
+  source: redhat-operators
+  channel: {{ .Channel }}
+  installPlanApproval: {{ .Approval }}
+  name: advanced-cluster-management
