@@ -19,10 +19,6 @@ var example = `
 %[1]s install acm --namespace <namespace> --channel <channel> [--manual-approval]
 `
 
-const (
-	scenarioDirectory = "install"
-)
-
 // NewCmd provides a cobra command wrapping NewCmdImportCluster
 func NewCmd(cmFlags *genericclioptionscm.CMFlags, streams genericclioptions.IOStreams) *cobra.Command {
 	o := newOptions(cmFlags, streams)
