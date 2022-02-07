@@ -70,16 +70,20 @@ func (o *Options) complete(cmd *cobra.Command, args []string) (err error) {
 		labels["cloud"] = "auto-detect"
 	}
 
-	if o.clusterKubeConfig == "" {
+	if o.clusterKubeConfig == "" && o.clusterKubeConfigContent == "" {
 		if ikubeConfig, ok := mc["kubeConfig"]; ok {
 			o.clusterKubeConfig = ikubeConfig.(string)
 		}
 	} else {
-		b, err := ioutil.ReadFile(o.clusterKubeConfig)
-		if err != nil {
-			return err
+		if o.clusterKubeConfigContent == "" {
+			b, err := ioutil.ReadFile(o.clusterKubeConfig)
+			if err != nil {
+				return err
+			}
+			o.clusterKubeConfig = string(b)
+		} else {
+			o.clusterKubeConfig = o.clusterKubeConfigContent
 		}
-		o.clusterKubeConfig = string(b)
 	}
 
 	mc["kubeConfig"] = o.clusterKubeConfig

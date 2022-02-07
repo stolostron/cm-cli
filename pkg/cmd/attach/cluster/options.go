@@ -8,18 +8,19 @@ import (
 
 type Options struct {
 	//CMFlags: The generic optiosn from the cm cli-runtime.
-	CMFlags           *genericclioptionscm.CMFlags
-	valuesPath        string
-	values            map[string]interface{}
-	clusterName       string
-	clusterServer     string
-	clusterToken      string
-	clusterKubeConfig string
-	importFile        string
-	waitAgent         bool
-	waitAddOns        bool
-	timeout           int
-	hiveScenario      bool
+	CMFlags                  *genericclioptionscm.CMFlags
+	valuesPath               string
+	values                   map[string]interface{}
+	clusterName              string
+	clusterServer            string
+	clusterToken             string
+	clusterKubeConfig        string
+	clusterKubeConfigContent string
+	importFile               string
+	waitAgent                bool
+	waitAddOns               bool
+	timeout                  int
+	hiveScenario             bool
 
 	//The file to output the resources will be sent to the file.
 	outputFile string
