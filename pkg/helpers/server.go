@@ -91,3 +91,13 @@ func IsOpenshift(cmFlags *genericclioptions.CMFlags) (bool, error) {
 	_, err = dynamicClient.Resource(GvrOpenshiftClusterVersions).Get(context.TODO(), "version", metav1.GetOptions{})
 	return err == nil, nil
 }
+
+func IsHypershift(cmFlags *genericclioptions.CMFlags) (bool, error) {
+	_, apiExtensionClient, _, err := clusteradmhelpers.GetClients(cmFlags.KubectlFactory)
+	if err != nil {
+		return false, err
+	}
+
+	_, err = apiExtensionClient.ApiextensionsV1().CustomResourceDefinitions().Get(context.TODO(), GvrHC.GroupResource().String(), metav1.GetOptions{})
+	return err == nil, nil
+}

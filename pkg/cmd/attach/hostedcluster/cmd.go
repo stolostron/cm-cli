@@ -40,17 +40,23 @@ func NewCmd(cmFlags *genericclioptionscm.CMFlags, streams genericclioptions.IOSt
 		SilenceUsage: true,
 		PreRunE: func(c *cobra.Command, args []string) error {
 			clusteradmhelpers.DryRunMessage(cmFlags.DryRun)
+			isHypershift, err := helpers.IsHypershift(o.CMFlags)
+			if err != nil {
+				return err
+			}
 			isSupported, err := helpers.IsSupported(o.CMFlags)
 			if err != nil {
 				return err
 			}
-			if !isSupported {
-				return fmt.Errorf("this command '%s %s' is only available on %s or %s",
+			if !isSupported || !isHypershift {
+				return fmt.Errorf("this command '%s %s' is only available on %s or %s on %s",
 					helpers.GetExampleHeader(),
 					strings.Join(os.Args[1:], " "),
 					helpers.RHACM,
-					helpers.MCE)
+					helpers.MCE,
+					helpers.HYPERSHIFT)
 			}
+
 			return nil
 			// return clusterpoolhost.BackupCurrentContexts()
 		},
