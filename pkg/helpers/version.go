@@ -16,8 +16,9 @@ import (
 )
 
 const (
-	RHACM string = "RHACM"
-	MCE   string = "MCE"
+	RHACM      string = "RHACM"
+	MCE        string = "MCE"
+	HYPERSHIFT string = "Hypershift"
 )
 
 func GetACMVersion(cmFlags *genericclioptions.CMFlags, kubeClient kubernetes.Interface, dynamicClient dynamic.Interface) (version, snapshot string, err error) {

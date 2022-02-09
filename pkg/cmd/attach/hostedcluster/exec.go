@@ -9,7 +9,7 @@ import (
 	apiextensionsclient "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
-	"k8s.io/client-go/kubernetes"
+	"k8s.io/client-go/dynamic"
 	"k8s.io/klog/v2"
 	clusterclientset "open-cluster-management.io/api/client/cluster/clientset/versioned"
 	workclientset "open-cluster-management.io/api/client/work/clientset/versioned"
@@ -69,14 +69,14 @@ func (o *Options) complete(cmd *cobra.Command, args []string) (err error) {
 }
 
 func (o *Options) validate() error {
-	kubeClient, err := o.CMFlags.KubectlFactory.KubernetesClientSet()
+	dynamicClient, err := o.CMFlags.KubectlFactory.DynamicClient()
 	if err != nil {
 		return err
 	}
-	return o.validateWithClient(kubeClient)
+	return o.validateWithClient(dynamicClient)
 }
 
-func (o *Options) validateWithClient(kubeClient kubernetes.Interface) error {
+func (o *Options) validateWithClient(dynamicClient dynamic.Interface) error {
 	imc, ok := o.values["managedCluster"]
 	if !ok || imc == nil {
 		return fmt.Errorf("managedCluster is missing")
@@ -96,7 +96,7 @@ func (o *Options) validateWithClient(kubeClient kubernetes.Interface) error {
 
 	mc["name"] = o.HostedCluster
 
-	if _, err := kubeClient.CoreV1().Namespaces().Get(context.TODO(), "clusters-"+o.HostedCluster, metav1.GetOptions{}); err != nil {
+	if _, err := dynamicClient.Resource(helpers.GvrHC).Namespace("clusters").Get(context.TODO(), o.HostedCluster, metav1.GetOptions{}); err != nil {
 		return fmt.Errorf("%s is not a hostedcluster, %s", o.HostedCluster, err)
 	}
 	return nil
