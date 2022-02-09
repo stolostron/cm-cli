@@ -1,11 +1,28 @@
-## cm detach
+## cm attach hostedcluster
 
-detach a resources
+Import a hostedcluster
+
+```
+cm attach hostedcluster [flags]
+```
+
+### Examples
+
+```
+
+# Attach a cluster
+cm attach hc --values values.yaml
+
+```
 
 ### Options
 
 ```
-  -h, --help   help for detach
+  -h, --help                 help for hostedcluster
+      --output-file string   The generated resources will be copied in the specified file
+      --timeout int          Timeout to get the klusterlet agent or addons ready in seconds (default 180)
+      --values string        The files containing the values
+      --wait                 Wait until the klusterlet agent is installed
 ```
 
 ### Options inherited from parent commands
@@ -52,6 +69,5 @@ detach a resources
 
 ### SEE ALSO
 
-* [cm](cm.md)	 - CLI for Red Hat Advanced Cluster Management
-* [cm detach cluster](cm_detach_cluster.md)	 - detach a cluster, clusterclaim or hostedcluster
+* [cm attach](cm_attach.md)	 - attach a resource
 

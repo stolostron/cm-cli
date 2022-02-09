@@ -1,6 +1,6 @@
 ## cm detach cluster
 
-detach a cluster
+detach a cluster, clusterclaim or hostedcluster
 
 ```
 cm detach cluster [flags]

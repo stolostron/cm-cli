@@ -24,4 +24,5 @@ var (
 	GvrMCSB                     schema.GroupVersionResource = schema.GroupVersionResource{Group: "cluster.open-cluster-management.io", Version: "v1beta1", Resource: "managedclustersetbindings"}
 	GvrIDPConfig                schema.GroupVersionResource = schema.GroupVersionResource{Group: "identityconfig.identitatem.io", Version: "v1alpha1", Resource: "idpconfigs"}
 	GvrOpenshiftClusterVersions schema.GroupVersionResource = schema.GroupVersionResource{Group: "config.openshift.io", Version: "v1", Resource: "clusterversions"}
+	GvrHC                       schema.GroupVersionResource = schema.GroupVersionResource{Group: "hypershift.openshift.io", Version: "v1alpha1", Resource: "hostedclusters"}
 )
