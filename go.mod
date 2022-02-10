@@ -139,6 +139,7 @@ replace (
 	k8s.io/client-go => k8s.io/client-go v0.23.3
 	k8s.io/klog/v2 => k8s.io/klog/v2 v2.40.1
 	kubevirt.io/containerized-data-importer-api => github.com/kubevirt/containerized-data-importer-api v1.41.1-0.20211201033752-05520fb9f18d
+	sigs.k8s.io/cluster-api => sigs.k8s.io/cluster-api v1.0.1
 	sigs.k8s.io/apiserver-network-proxy/konnectivity-client => sigs.k8s.io/apiserver-network-proxy/konnectivity-client v0.0.27
 	sigs.k8s.io/cluster-api-provider-kubevirt => github.com/openshift/cluster-api-provider-kubevirt v0.0.0-20211223062810-ef64d5ff1cde
 )
