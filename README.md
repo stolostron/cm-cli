@@ -19,7 +19,7 @@ You can download the binary from [https://github.com/stolostron/cm-cli/releases]
 2. Plugins can be installed with the `kubectl krew install cm`
 
 ### CLI
-The binary will be installed in GOPATH/bin
+Requires `go` 1.17.  The binary will be installed in GOPATH/bin
 
 ```bash
 git clone https://github.com/stolostron/cm-cli.git
@@ -29,7 +29,7 @@ cm
 ```
 
 ### Plugin
-The binary will be installed in GOPATH/bin
+Requires `go` 1.17.  The binary will be installed in GOPATH/bin
 
 This will create a binary `oc-cm` and `kubectl-cm` in the `$GOPATH/go/bin` allowing you to call `oc cm` or `kubectl cm`
 ```bash
