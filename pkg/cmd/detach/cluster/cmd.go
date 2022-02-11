@@ -39,7 +39,7 @@ func NewCmd(cmFlags *genericclioptionscm.CMFlags, streams genericclioptions.IOSt
 
 	cluster := &cobra.Command{
 		Use:          "cluster",
-		Aliases:      []string{"clusters", "clusterclaim", "clusterclaims", "cc", "ccs", "hostedcluster", "hostedclusters", "hc", "hcs"},
+		Aliases:      []string{"clusters", "cluster", "clusterclaim", "clusterclaims", "cc", "ccs", "hostedcluster", "hostedclusters", "hc", "hcs"},
 		Short:        "detach a cluster, clusterclaim or hostedcluster",
 		Example:      fmt.Sprintf(example, helpers.GetExampleHeader()),
 		SilenceUsage: true,
