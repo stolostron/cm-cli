@@ -11,7 +11,7 @@ import (
 
 func (o *Options) complete(cmd *cobra.Command, args []string) (err error) {
 	if len(args) < 1 {
-		return fmt.Errorf("clusterclaim name is missing")
+		return fmt.Errorf("clusterpool name is missing")
 	}
 	o.ClusterPool = args[0]
 
