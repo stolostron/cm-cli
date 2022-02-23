@@ -17,6 +17,7 @@ import (
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd"
 	clientcmdapi "k8s.io/client-go/tools/clientcmd/api"
+	"k8s.io/kubectl/pkg/cmd/get"
 	clusteradmapply "open-cluster-management.io/clusteradm/pkg/helpers/apply"
 )
 
@@ -29,9 +30,10 @@ func (cph *ClusterPoolHost) SetClusterClaimContext(
 	setAsCurrent bool,
 	timeout int,
 	dryRun bool,
-	outputFile string) error {
+	outputFile string,
+	printFlags *get.PrintFlags) error {
 
-	token, serviceAccountName, ccConfigAPI, err := cph.getClusterClaimSAToken(clusterName, timeout, dryRun, outputFile)
+	token, serviceAccountName, ccConfigAPI, err := cph.getClusterClaimSAToken(clusterName, timeout, dryRun, outputFile, printFlags)
 	if err != nil {
 		return err
 	}
@@ -45,7 +47,8 @@ func (cph *ClusterPoolHost) getClusterClaimSAToken(
 	clusterName string,
 	timeout int,
 	dryRun bool,
-	outputFile string) (token, serviceAccountName string, ccConfigAPI *clientcmdapi.Config, err error) {
+	outputFile string,
+	printFlags *get.PrintFlags) (token, serviceAccountName string, ccConfigAPI *clientcmdapi.Config, err error) {
 
 	clusterPoolRestConfig, err := cph.GetGlobalRestConfig()
 	if err != nil {
@@ -80,7 +83,7 @@ func (cph *ClusterPoolHost) getClusterClaimSAToken(
 		if err = cph.setHibernateClusterClaims(clusterName, false, "", dryRun, outputFile); err != nil {
 			return
 		}
-		if err = waitClusterClaimsRunning(dynamicClientCP, clusterName, "", cph.Namespace, timeout, nil); err != nil {
+		if err = waitClusterClaimsRunning(dynamicClientCP, clusterName, "", cph.Namespace, timeout, printFlags); err != nil {
 			return
 		}
 		ccRestConfig, errG := cph.getClusterClaimRestConfig(clusterName, clusterPoolRestConfig)

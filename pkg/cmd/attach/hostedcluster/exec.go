@@ -133,6 +133,9 @@ func (o *Options) attachHostedCluster() error {
 	if err = runtime.DefaultUnstructuredConverter.FromUnstructured(hcu.UnstructuredContent(), hc); err != nil {
 		return err
 	}
+	if hc.Status.KubeConfig == nil {
+		return fmt.Errorf("kubeconfig not yet available for cluster %s", o.HostedCluster)
+	}
 	kubeConfigSecret, err := kubeClient.CoreV1().Secrets("clusters").Get(context.TODO(), hc.Status.KubeConfig.Name, metav1.GetOptions{})
 	if err != nil {
 		return err

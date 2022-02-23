@@ -26,5 +26,5 @@ func (o *Options) run() (err error) {
 		return err
 	}
 
-	return cph.SetClusterClaimContext(o.Cluster, true, o.Timeout, o.CMFlags.DryRun, o.outputFile)
+	return cph.SetClusterClaimContext(o.Cluster, true, o.Timeout, o.CMFlags.DryRun, o.outputFile, nil)
 }
