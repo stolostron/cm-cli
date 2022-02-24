@@ -59,10 +59,6 @@ func (o *Options) complete(cmd *cobra.Command, args []string) (err error) {
 		authRealm["managedClusterSet"] = o.managedClusterSet
 	}
 
-	if len(o.managedClusterSetBinding) > 0 {
-		authRealm["managedClusterSetBinding"] = o.managedClusterSetBinding
-	}
-
 	return nil
 
 }
@@ -111,8 +107,6 @@ func (o *Options) validate() (err error) {
 			Get(context.TODO(), v.(string), metav1.GetOptions{}); err != nil {
 			return err
 		}
-	}
-	if v, ok := authRealm["managedClusterSetBinding"]; ok && v != nil {
 		if _, err = dynamicClient.Resource(helpers.GvrMCSB).
 			Namespace(authRealm["namespace"].(string)).
 			Get(context.TODO(), v.(string), metav1.GetOptions{}); err != nil {
@@ -172,15 +166,15 @@ func (o *Options) runWithClient(kubeClient kubernetes.Interface,
 		authRealm["managedClusterSet"] = authRealm["name"].(string) + "-clusterset"
 	}
 
-	//create clustersetbinding if not provided
-	if managedClusterSetBinding, ok := authRealm["managedClusterSetBinding"]; !ok || managedClusterSetBinding == nil {
-		file := "create/hub/managedclusterset_binding.yaml"
+	//Create binding
+	{
+		file = "create/hub/managedclusterset_binding.yaml"
 		out, err := applier.ApplyCustomResource(reader, o.values, o.CMFlags.DryRun, "", file)
 		if err != nil {
 			return err
 		}
 		output = append(output, out)
-		authRealm["managedClusterSetBinding"] = authRealm["name"].(string) + "-clusterset"
+		authRealm["managedClusterSetBinding"] = authRealm["managedClusterSet"]
 	}
 
 	//Create secrets

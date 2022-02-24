@@ -12,7 +12,11 @@ import (
 	"github.com/stolostron/cm-cli/pkg/cmd/get/policies"
 	genericclioptionscm "github.com/stolostron/cm-cli/pkg/genericclioptions"
 	cmdutil "k8s.io/kubectl/pkg/cmd/util"
+	clusteradmaddon "open-cluster-management.io/clusteradm/pkg/cmd/get/addon"
+	clusteradmclusterset "open-cluster-management.io/clusteradm/pkg/cmd/get/clusterset"
+	clusteradmhubinfo "open-cluster-management.io/clusteradm/pkg/cmd/get/hubinfo"
 	clusteradmgettoken "open-cluster-management.io/clusteradm/pkg/cmd/get/token"
+	clusteradmwork "open-cluster-management.io/clusteradm/pkg/cmd/get/work"
 	genericclioptionsclusteradm "open-cluster-management.io/clusteradm/pkg/genericclioptions"
 
 	"github.com/spf13/cobra"
@@ -35,6 +39,10 @@ func NewCmd(f cmdutil.Factory, clusteradmFlags *genericclioptionsclusteradm.Clus
 	cmd.AddCommand(clusterpools.NewCmd(f, cmFlags, streams))
 	cmd.AddCommand(config.NewCmd(clusteradmFlags, cmFlags, streams))
 	cmd.AddCommand(policies.NewCmd(f, cmFlags, streams))
+	cmd.AddCommand(clusteradmhubinfo.NewCmd(clusteradmFlags, streams))
+	cmd.AddCommand(clusteradmaddon.NewCmd(clusteradmFlags, streams))
+	cmd.AddCommand(clusteradmclusterset.NewCmd(clusteradmFlags, streams))
+	cmd.AddCommand(clusteradmwork.NewCmd(clusteradmFlags, streams))
 
 	return cmd
 }

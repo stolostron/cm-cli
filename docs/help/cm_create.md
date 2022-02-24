@@ -58,4 +58,6 @@ create a resource
 * [cm create clusterclaim](cm_create_clusterclaim.md)	 - Create clusterclaims
 * [cm create clusterpool](cm_create_clusterpool.md)	 - Create a clusterpool
 * [cm create clusterpoolhost](cm_create_clusterpoolhost.md)	 - Initialize a clusterpool management cluster
+* [cm create clusterset](cm_create_clusterset.md)	 - create a clusterset
+* [cm create work](cm_create_work.md)	 - create a work
 

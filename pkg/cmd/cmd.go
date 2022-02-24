@@ -95,7 +95,7 @@ func NewCMCommand() *cobra.Command {
 			Commands: []*cobra.Command{
 				attach.NewCmd(cmFlags, streams),
 				detach.NewCmd(cmFlags, streams),
-				create.NewCmd(cmFlags, streams),
+				create.NewCmd(clusteradmFlags, cmFlags, streams),
 				delete.NewCmd(clusteradmFlags, cmFlags, streams),
 				scale.NewCmd(cmFlags, streams),
 				enable.NewCmd(cmFlags, streams),

@@ -8,13 +8,16 @@ import (
 	"github.com/stolostron/cm-cli/pkg/cmd/create/clusterpool"
 	"github.com/stolostron/cm-cli/pkg/cmd/create/clusterpoolhost"
 	genericclioptionscm "github.com/stolostron/cm-cli/pkg/genericclioptions"
+	clusteradmclusterset "open-cluster-management.io/clusteradm/pkg/cmd/create/clusterset"
+	clusteradmwork "open-cluster-management.io/clusteradm/pkg/cmd/create/work"
+	genericclioptionsclusteradm "open-cluster-management.io/clusteradm/pkg/genericclioptions"
 
 	"github.com/spf13/cobra"
 	"k8s.io/cli-runtime/pkg/genericclioptions"
 )
 
 // NewCmd provides a cobra command wrapping NewCmdImportCluster
-func NewCmd(cmFlags *genericclioptionscm.CMFlags, streams genericclioptions.IOStreams) *cobra.Command {
+func NewCmd(clusteradmFlags *genericclioptionsclusteradm.ClusteradmFlags, cmFlags *genericclioptionscm.CMFlags, streams genericclioptions.IOStreams) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "create",
 		Short: "create a resource",
@@ -25,6 +28,8 @@ func NewCmd(cmFlags *genericclioptionscm.CMFlags, streams genericclioptions.IOSt
 	cmd.AddCommand(clusterpoolhost.NewCmd(cmFlags, streams))
 	cmd.AddCommand(clusterclaim.NewCmd(cmFlags, streams))
 	cmd.AddCommand(clusterpool.NewCmd(cmFlags, streams))
+	cmd.AddCommand(clusteradmclusterset.NewCmd(clusteradmFlags, streams))
+	cmd.AddCommand(clusteradmwork.NewCmd(clusteradmFlags, streams))
 
 	return cmd
 }
