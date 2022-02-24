@@ -1,35 +1,26 @@
-## cm init
+## cm get works
 
-init feature or hub
-
-### Synopsis
-
-Initialize the Kubernetes cluster in the context into an OCM hub cluster by applying a fewfundamental resources including registration-operator, etc.
+get manifestwork on a specified managedcluster
 
 ```
-cm init [flags]
+cm get works [flags]
 ```
 
 ### Examples
 
 ```
 
-# Init the hub
-cm init
+# Get manifestworks in a cluster.
+cm get works --cluster cluster1
+# show a manifestwork in a cluster.
+cm get works work1 --cluster cluster1
 
 ```
 
 ### Options
 
 ```
-      --bundle-version string             the version of predefined compatible image versions (default "default")
-      --force                             If set then the hub will be reinitialized
-  -h, --help                              help for init
-      --image-registry string             The name of the image registry serving OCM images, which will be applied to all the deploying OCM components. (default "quay.io/open-cluster-management")
-      --output-file string                The generated resources will be copied in the specified file
-      --output-join-command-file string   If set, the generated join command be saved to the prescribed file.
-      --use-bootstrap-token               If set then the boostrap token will used instead of a service account token
-      --wait                              If set, the command will initialize the OCM control plan in foreground.
+  -h, --help   help for works
 ```
 
 ### Options inherited from parent commands
@@ -76,5 +67,5 @@ cm init
 
 ### SEE ALSO
 
-* [cm](cm.md)	 - CLI for Red Hat Advanced Cluster Management
+* [cm get](cm_get.md)	 - get a resource
 

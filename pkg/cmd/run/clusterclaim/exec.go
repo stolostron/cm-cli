@@ -28,7 +28,7 @@ func (o *Options) run() (err error) {
 		return err
 	}
 
-	err = cph.RunClusterClaims(o.ClusterClaims, o.SkipSchedule, o.Timeout, o.CMFlags.DryRun, o.outputFile)
+	err = cph.RunClusterClaims(o.ClusterClaims, o.SkipSchedule, o.Timeout, o.CMFlags.DryRun, o.outputFile, o.GetOptions.PrintFlags)
 	if err != nil {
 		return err
 	}

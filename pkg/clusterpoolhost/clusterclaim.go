@@ -31,7 +31,7 @@ func (cph *ClusterPoolHost) GetClusterContextName(clusterName string) string {
 	return fmt.Sprintf("%s/%s", cph.Name, clusterName)
 }
 
-func (cph *ClusterPoolHost) CreateClusterClaims(clusterClaimNames, clusterPoolName string, skipSchedule bool, autoImport bool, timeout int, dryRun bool, outputFile string) error {
+func (cph *ClusterPoolHost) CreateClusterClaims(clusterClaimNames, clusterPoolName string, skipSchedule bool, autoImport bool, timeout int, dryRun bool, outputFile string, printFlags *get.PrintFlags) error {
 	clusterPoolRestConfig, err := cph.GetGlobalRestConfig()
 	if err != nil {
 		return err
@@ -106,14 +106,14 @@ func (cph *ClusterPoolHost) CreateClusterClaims(clusterClaimNames, clusterPoolNa
 	}
 
 	if !dryRun {
-		if err := waitClusterClaimsRunning(dynamicClient, clusterClaimNames, clusterPoolName, cph.Namespace, timeout, nil); err != nil {
+		if err := waitClusterClaimsRunning(dynamicClient, clusterClaimNames, clusterPoolName, cph.Namespace, timeout, printFlags); err != nil {
 			return err
 		}
 	}
 	return clusteradmapply.WriteOutput(outputFile, output)
 }
 
-func (cph *ClusterPoolHost) RunClusterClaims(clusterClaimNames string, skipSchedule bool, timeout int, dryRun bool, outputFile string) error {
+func (cph *ClusterPoolHost) RunClusterClaims(clusterClaimNames string, skipSchedule bool, timeout int, dryRun bool, outputFile string, printFlags *get.PrintFlags) error {
 	skipScheduleAction := "true"
 	if skipSchedule {
 		skipScheduleAction = "skip"
@@ -131,7 +131,7 @@ func (cph *ClusterPoolHost) RunClusterClaims(clusterClaimNames string, skipSched
 		if err != nil {
 			return err
 		}
-		return waitClusterClaimsRunning(dynamicClient, clusterClaimNames, "", cph.Namespace, timeout, nil)
+		return waitClusterClaimsRunning(dynamicClient, clusterClaimNames, "", cph.Namespace, timeout, printFlags)
 	}
 	return nil
 }
@@ -525,7 +525,7 @@ func (cph *ClusterPoolHost) PrintClusterClaimCred(cc *hivev1.ClusterClaim, print
 	return helpers.Print(cred, printFlags)
 }
 
-func (cph *ClusterPoolHost) OpenClusterClaim(clusterName string, timeout int) error {
+func (cph *ClusterPoolHost) OpenClusterClaim(clusterName string, timeout int, printFlags *get.PrintFlags) error {
 	clusterPoolRestConfig, err := cph.GetGlobalRestConfig()
 	if err != nil {
 		return err
@@ -536,7 +536,7 @@ func (cph *ClusterPoolHost) OpenClusterClaim(clusterName string, timeout int) er
 		return err
 	}
 	klog.V(3).Infof("Wait cc %s ready", clusterName)
-	if err = waitClusterClaimsRunning(dynamicClient, clusterName, "", cph.Namespace, timeout, nil); err != nil {
+	if err = waitClusterClaimsRunning(dynamicClient, clusterName, "", cph.Namespace, timeout, printFlags); err != nil {
 		return err
 	}
 

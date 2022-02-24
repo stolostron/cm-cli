@@ -23,7 +23,7 @@ require (
 	k8s.io/klog/v2 v2.30.0
 	k8s.io/kubectl v0.23.3
 	open-cluster-management.io/api v0.6.1-0.20220127035449-918b7bf7184f
-	open-cluster-management.io/clusteradm v0.1.1-0.20220128120402-ba85108480ae
+	open-cluster-management.io/clusteradm v0.1.1-0.20220224125140-10e7165da503
 	sigs.k8s.io/controller-runtime v0.11.0
 )
 
@@ -41,6 +41,7 @@ require (
 	github.com/chai2010/gettext-go v0.0.0-20160711120539-c6fed771bfd5 // indirect
 	github.com/cpuguy83/go-md2man/v2 v2.0.1 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
+	github.com/disiqueira/gotree v1.0.0 // indirect
 	github.com/emicklei/go-restful v2.11.1+incompatible // indirect
 	github.com/evanphx/json-patch v4.12.0+incompatible // indirect
 	github.com/exponent-io/jsonpath v0.0.0-20151013193312-d6023ce2651d // indirect

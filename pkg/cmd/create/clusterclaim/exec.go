@@ -48,7 +48,7 @@ func (o *Options) run() (err error) {
 		return err
 	}
 
-	err = cph.CreateClusterClaims(o.ClusterClaims, o.ClusterPool, o.SkipSchedule, o.Import, o.Timeout, o.CMFlags.DryRun, o.outputFile)
+	err = cph.CreateClusterClaims(o.ClusterClaims, o.ClusterPool, o.SkipSchedule, o.Import, o.Timeout, o.CMFlags.DryRun, o.outputFile, o.GetOptions.PrintFlags)
 	if err != nil {
 		return err
 	}

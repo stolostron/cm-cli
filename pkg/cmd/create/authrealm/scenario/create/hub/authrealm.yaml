@@ -16,3 +16,7 @@ spec:
   ldapExtraConfigs:
 {{ toYaml .authRealm.ldapExtraConfigs | indent 4 }}
 {{- end }}
+{{- if .authRealm.githubExtraConfigs }}
+  githubExtraConfigs:
+{{ toYaml .authRealm.githubExtraConfigs | indent 4 }}
+{{- end }}

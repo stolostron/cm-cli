@@ -18,6 +18,7 @@ cm join --hub-token <tokenID.tokenSecret> --hub-apiserver <hub_apiserveR_url> --
 ### Options
 
 ```
+      --bundle-version string            version of predefined compatible image versions (default "default")
       --cluster-name string              The name of the joining cluster
       --force-internal-endpoint-lookup   If true, the installed klusterlet agent will be starting the cluster registration process by looking for the internal endpoint from the public cluster-info in the hub cluster instead of from --hub-apiserver.
   -h, --help                             help for join
@@ -25,7 +26,6 @@ cm join --hub-token <tokenID.tokenSecret> --hub-apiserver <hub_apiserveR_url> --
       --hub-token string                 The token to access the hub
       --image-registry string            The name of the image registry serving OCM images. (default "quay.io/open-cluster-management")
       --output-file string               The generated resources will be copied in the specified file
-      --version string                   The installing version of OCM components. (default "latest")
       --wait                             If true, running the cluster registration in foreground.
 ```
 

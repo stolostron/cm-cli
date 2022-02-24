@@ -1,35 +1,27 @@
-## cm init
+## cm create work
 
-init feature or hub
-
-### Synopsis
-
-Initialize the Kubernetes cluster in the context into an OCM hub cluster by applying a fewfundamental resources including registration-operator, etc.
+create a work
 
 ```
-cm init [flags]
+cm create work [flags]
 ```
 
 ### Examples
 
 ```
 
-# Init the hub
-cm init
+# create a work.
+cm create work work-example -f xxx.yaml --cluster cluster1
 
 ```
 
 ### Options
 
 ```
-      --bundle-version string             the version of predefined compatible image versions (default "default")
-      --force                             If set then the hub will be reinitialized
-  -h, --help                              help for init
-      --image-registry string             The name of the image registry serving OCM images, which will be applied to all the deploying OCM components. (default "quay.io/open-cluster-management")
-      --output-file string                The generated resources will be copied in the specified file
-      --output-join-command-file string   If set, the generated join command be saved to the prescribed file.
-      --use-bootstrap-token               If set then the boostrap token will used instead of a service account token
-      --wait                              If set, the command will initialize the OCM control plan in foreground.
+  -f, --filename strings   
+  -h, --help               help for work
+      --overwrite          Overwrite the existing work if it exists already
+  -R, --recursive          Process the directory used in -f, --filename recursively. Useful when you want to manage related manifests organized within the same directory. (default true)
 ```
 
 ### Options inherited from parent commands
@@ -76,5 +68,5 @@ cm init
 
 ### SEE ALSO
 
-* [cm](cm.md)	 - CLI for Red Hat Advanced Cluster Management
+* [cm create](cm_create.md)	 - create a resource
 

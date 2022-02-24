@@ -8,6 +8,7 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/stolostron/cm-cli/pkg/clusterpoolhost"
 	"github.com/stolostron/cm-cli/pkg/helpers"
+	"k8s.io/kubectl/pkg/cmd/get"
 )
 
 func (o *Options) complete(cmd *cobra.Command, args []string) (err error) {
@@ -32,7 +33,8 @@ func (o *Options) run() (err error) {
 }
 
 func (o *Options) executeCommand(cph *clusterpoolhost.ClusterPoolHost) (err error) {
-	err = cph.SetClusterClaimContext(o.Cluster, false, o.Timeout, o.CMFlags.DryRun, o.outputFile)
+	outputFormat := "yaml"
+	err = cph.SetClusterClaimContext(o.Cluster, false, o.Timeout, o.CMFlags.DryRun, o.outputFile, &get.PrintFlags{OutputFormat: &outputFormat})
 	if err != nil {
 		return err
 	}
