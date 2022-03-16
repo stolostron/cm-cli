@@ -27,6 +27,8 @@ import (
 	clusteradmapply "open-cluster-management.io/clusteradm/pkg/helpers/apply"
 )
 
+const clusterClaimErrorFormat = "(%d/%d) clusterclaim %s error: %s"
+
 func (cph *ClusterPoolHost) GetClusterContextName(clusterName string) string {
 	return fmt.Sprintf("%s/%s", cph.Name, clusterName)
 }
@@ -178,9 +180,9 @@ func (cph *ClusterPoolHost) setHibernateClusterClaims(clusterClaimNames string, 
 				return err
 			}
 			if hibernate {
-				cd.Spec.PowerState = hivev1.HibernatingClusterPowerState
+				cd.Spec.PowerState = hivev1.ClusterPowerStateHibernating
 			} else {
-				cd.Spec.PowerState = hivev1.RunningClusterPowerState
+				cd.Spec.PowerState = hivev1.ClusterPowerStateRunning
 			}
 			if len(skipScheduleAction) != 0 {
 				cd.Labels["hibernate"] = skipScheduleAction
@@ -240,42 +242,27 @@ func checkClusterClaimsRunning(dynamicClient dynamic.Interface, clusterClaimName
 		clusterClaimName := strings.TrimSpace(ccn)
 		ccu, err := dynamicClient.Resource(helpers.GvrCC).Namespace(namespace).Get(context.TODO(), clusterClaimName, metav1.GetOptions{})
 		if err != nil {
-			allErrors[clusterClaimName] = fmt.Errorf("(%d/%d) clusterclaim %s error: %s", i, timeout, clusterClaimName, err.Error())
+			allErrors[clusterClaimName] = fmt.Errorf(clusterClaimErrorFormat, i, timeout, clusterClaimName, err.Error())
 			continue
 		}
 		cc := &hivev1.ClusterClaim{}
 		err = runtime.DefaultUnstructuredConverter.FromUnstructured(ccu.UnstructuredContent(), cc)
 		if err != nil {
-			allErrors[clusterClaimName] = fmt.Errorf("(%d/%d) clusterclaim %s error: %s", i, timeout, clusterClaimName, err.Error())
+			allErrors[clusterClaimName] = fmt.Errorf(clusterClaimErrorFormat, i, timeout, clusterClaimName, err.Error())
 			continue
 		}
-		running := false
-		if len(cc.Spec.Namespace) != 0 {
-			cdu, err := dynamicClient.Resource(helpers.GvrCD).Namespace(cc.Spec.Namespace).Get(context.TODO(), cc.Spec.Namespace, metav1.GetOptions{})
-			if statusError, isStatus := err.(*errors.StatusError); isStatus && statusError.Status().Reason == metav1.StatusReasonForbidden {
-				allErrors[clusterClaimName] = fmt.Errorf("permissions error when accessing claimed ClusterDeployment.  permissions are likely still propagating. \nerror: %s", err.Error())
-			} else {
-				if err != nil {
-					allErrors[clusterClaimName] = fmt.Errorf("(%d/%d) clusterclaim %s error: %s", i, timeout, clusterClaimName, err.Error())
-					continue
-				}
-				cd := &hivev1.ClusterDeployment{}
-				if runtime.DefaultUnstructuredConverter.FromUnstructured(cdu.UnstructuredContent(), cd); err != nil {
-					allErrors[clusterClaimName] = fmt.Errorf("(%d/%d) clusterclaim %s error: %s", i, timeout, clusterClaimName, err.Error())
-					continue
-				}
-				if errorOnHibernate && cd.Spec.PowerState == hivev1.HibernatingClusterPowerState {
-					allErrors[clusterClaimName] = fmt.Errorf("(%d/%d) clusterclaim %s is hibernating, run a \"cm use cc\" or \"cm run cc\" command to resume it", i, timeout, cc.GetName())
-					continue
-				}
-				c := getClusterClaimRunningStatus(cc)
-				if len(cd.Spec.ClusterMetadata.AdminPasswordSecretRef.Name) != 0 &&
-					len(cd.Spec.BaseDomain) != 0 &&
-					len(cd.Status.APIURL) != 0 &&
-					c != nil && c.Status == corev1.ConditionStatus(metav1.ConditionTrue) {
-					running = true
-				}
-			}
+		running, allErrorsO, err := checkClusterClaimRunning(dynamicClient,
+			clusterClaimName,
+			namespace,
+			cc,
+			i, timeout,
+			errorOnHibernate,
+			printFlags)
+		if err != nil {
+			allErrors[clusterClaimName] = err
+		}
+		for k, v := range allErrorsO {
+			allErrors[k] = v
 		}
 		if !running {
 			if timeout == 0 {
@@ -302,6 +289,56 @@ func checkClusterClaimsRunning(dynamicClient dynamic.Interface, clusterClaimName
 		return allRunning, nil
 	}
 	return false, nil
+}
+
+func checkClusterClaimRunning(dynamicClient dynamic.Interface,
+	clusterClaimName,
+	namespace string,
+	cc *hivev1.ClusterClaim,
+	i, timeout int,
+	errorOnHibernate bool,
+	printFlags *get.PrintFlags) (running bool, allErrors map[string]error, err error) {
+	running = false
+	allErrors = make(map[string]error)
+	if len(cc.Spec.Namespace) != 0 {
+		cdu, err := dynamicClient.
+			Resource(helpers.GvrCD).
+			Namespace(cc.Spec.Namespace).
+			Get(context.TODO(), cc.Spec.Namespace, metav1.GetOptions{})
+		if statusError, isStatus := err.(*errors.StatusError); isStatus &&
+			statusError.Status().Reason == metav1.StatusReasonForbidden {
+			allErrors[clusterClaimName] = fmt.Errorf("permissions error when accessing claimed ClusterDeployment."+
+				"  permissions are likely still propagating. \nerror: %s",
+				err.Error())
+			return running, allErrors, nil
+		}
+		if err != nil {
+			return running,
+				allErrors,
+				fmt.Errorf(clusterClaimErrorFormat, i, timeout, clusterClaimName, err.Error())
+		}
+		cd := &hivev1.ClusterDeployment{}
+		if err := runtime.DefaultUnstructuredConverter.FromUnstructured(cdu.UnstructuredContent(), cd); err != nil {
+			return running,
+				allErrors,
+				fmt.Errorf(clusterClaimErrorFormat, i, timeout, clusterClaimName, err.Error())
+		}
+		if errorOnHibernate && cd.Spec.PowerState == hivev1.ClusterPowerStateHibernating {
+			return running,
+				allErrors,
+				fmt.Errorf("(%d/%d) clusterclaim %s is hibernating,"+
+					" run a \"cm use cc\" or \"cm run cc\" command to resume it",
+					i, timeout, cc.GetName())
+		}
+		c := getClusterClaimRunningStatus(cc)
+		if len(cd.Spec.ClusterMetadata.AdminPasswordSecretRef.Name) != 0 &&
+			len(cd.Spec.BaseDomain) != 0 &&
+			len(cd.Status.APIURL) != 0 &&
+			c != nil && c.Status == corev1.ConditionStatus(metav1.ConditionTrue) {
+			running = true
+		}
+	}
+	return running, allErrors, nil
 }
 
 func getClusterClaimRunningStatus(cc *hivev1.ClusterClaim) *hivev1.ClusterClaimCondition {
@@ -559,7 +596,7 @@ func (cph *ClusterPoolHost) OpenClusterClaim(clusterName string, timeout int, pr
 	if runtime.DefaultUnstructuredConverter.FromUnstructured(cdu.UnstructuredContent(), cd); err != nil {
 		return err
 	}
-	if cd.Spec.PowerState == hivev1.HibernatingClusterPowerState {
+	if cd.Spec.PowerState == hivev1.ClusterPowerStateHibernating {
 		return fmt.Errorf("%s is hibernating, run a use command to resume it", cc.GetName())
 	}
 	return helpers.Openbrowser(cd.Status.WebConsoleURL)

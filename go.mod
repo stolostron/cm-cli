@@ -7,7 +7,7 @@ require (
 	github.com/ghodss/yaml v1.0.1-0.20190212211648-25d852aebe32
 	github.com/openshift/api v3.9.1-0.20190924102528-32369d4db2ad+incompatible
 	github.com/openshift/client-go v0.0.0-20210916133943-9acee1a0fb83
-	github.com/openshift/hive/apis v0.0.0-20211012143010-16ef5a35537d
+	github.com/openshift/hive/apis v0.0.0-20220311160056-133480feffd6
 	github.com/openshift/hypershift v0.0.0-20220208150618-28995b0e2f4c
 	github.com/spf13/cobra v1.3.0
 	github.com/spf13/pflag v1.0.5
