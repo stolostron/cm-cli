@@ -305,7 +305,8 @@ func checkClusterClaimRunning(dynamicClient dynamic.Interface,
 			Resource(helpers.GvrCD).
 			Namespace(cc.Spec.Namespace).
 			Get(context.TODO(), cc.Spec.Namespace, metav1.GetOptions{})
-		if statusError, isStatus := err.(*errors.StatusError); isStatus && statusError.Status().Reason == metav1.StatusReasonForbidden {
+		if statusError, isStatus := err.(*errors.StatusError); isStatus &&
+			statusError.Status().Reason == metav1.StatusReasonForbidden {
 			allErrors[clusterClaimName] = fmt.Errorf("permissions error when accessing claimed ClusterDeployment."+
 				"  permissions are likely still propagating. \nerror: %s",
 				err.Error())
@@ -325,7 +326,9 @@ func checkClusterClaimRunning(dynamicClient dynamic.Interface,
 		if errorOnHibernate && cd.Spec.PowerState == hivev1.ClusterPowerStateHibernating {
 			return running,
 				allErrors,
-				fmt.Errorf("(%d/%d) clusterclaim %s is hibernating, run a \"cm use cc\" or \"cm run cc\" command to resume it", i, timeout, cc.GetName())
+				fmt.Errorf("(%d/%d) clusterclaim %s is hibernating,"+
+					" run a \"cm use cc\" or \"cm run cc\" command to resume it",
+					i, timeout, cc.GetName())
 		}
 		c := getClusterClaimRunningStatus(cc)
 		if len(cd.Spec.ClusterMetadata.AdminPasswordSecretRef.Name) != 0 &&
