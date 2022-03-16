@@ -769,6 +769,8 @@ github.com/openshift/custom-resource-status v0.0.0-20200602122900-c002fd1547ca h
 github.com/openshift/custom-resource-status v0.0.0-20200602122900-c002fd1547ca/go.mod h1:GDjWl0tX6FNIj82vIxeudWeSx2Ff6nDZ8uJn0ohUFvo=
 github.com/openshift/hive/apis v0.0.0-20211012143010-16ef5a35537d h1:cI2kpFYWuuqE3O5On12ndaRcrtFacNO1qQCOle4G/1s=
 github.com/openshift/hive/apis v0.0.0-20211012143010-16ef5a35537d/go.mod h1:77ODrnaHiDlfbqQgvk5nUWuqf2AsGY/99QlfNTiqHwI=
+github.com/openshift/hive/apis v0.0.0-20220311160056-133480feffd6 h1:ceX8k7NTQ9w7gxYBR4jrDOmb2tIf9jZHPORb5I08exo=
+github.com/openshift/hive/apis v0.0.0-20220311160056-133480feffd6/go.mod h1:E1bgquRiwfugdArdecPbpYIrAdve5kTzMaJb0+8jMXI=
 github.com/openshift/hypershift v0.0.0-20220208150618-28995b0e2f4c h1:D7swZBgwb3GNyJ2M9f/jaWJoM9wcwbwp4nFgYPdqgUg=
 github.com/openshift/hypershift v0.0.0-20220208150618-28995b0e2f4c/go.mod h1:04YERfD5NjtWU9HphPwfJ4TehK5QoB8J+2RnU9BN49s=
 github.com/openshift/library-go v0.0.0-20210916194400-ae21aab32431 h1:Fdg8exEe5DWwY3xmOxXy42L8K0N0nQA/q/i922kdD5M=

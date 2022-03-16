@@ -178,9 +178,9 @@ func (cph *ClusterPoolHost) setHibernateClusterClaims(clusterClaimNames string, 
 				return err
 			}
 			if hibernate {
-				cd.Spec.PowerState = hivev1.HibernatingClusterPowerState
+				cd.Spec.PowerState = hivev1.ClusterPowerStateHibernating
 			} else {
-				cd.Spec.PowerState = hivev1.RunningClusterPowerState
+				cd.Spec.PowerState = hivev1.ClusterPowerStateRunning
 			}
 			if len(skipScheduleAction) != 0 {
 				cd.Labels["hibernate"] = skipScheduleAction
@@ -264,7 +264,7 @@ func checkClusterClaimsRunning(dynamicClient dynamic.Interface, clusterClaimName
 					allErrors[clusterClaimName] = fmt.Errorf("(%d/%d) clusterclaim %s error: %s", i, timeout, clusterClaimName, err.Error())
 					continue
 				}
-				if errorOnHibernate && cd.Spec.PowerState == hivev1.HibernatingClusterPowerState {
+				if errorOnHibernate && cd.Spec.PowerState == hivev1.ClusterPowerStateHibernating {
 					allErrors[clusterClaimName] = fmt.Errorf("(%d/%d) clusterclaim %s is hibernating, run a \"cm use cc\" or \"cm run cc\" command to resume it", i, timeout, cc.GetName())
 					continue
 				}
@@ -559,7 +559,7 @@ func (cph *ClusterPoolHost) OpenClusterClaim(clusterName string, timeout int, pr
 	if runtime.DefaultUnstructuredConverter.FromUnstructured(cdu.UnstructuredContent(), cd); err != nil {
 		return err
 	}
-	if cd.Spec.PowerState == hivev1.HibernatingClusterPowerState {
+	if cd.Spec.PowerState == hivev1.ClusterPowerStateHibernating {
 		return fmt.Errorf("%s is hibernating, run a use command to resume it", cc.GetName())
 	}
 	return helpers.Openbrowser(cd.Status.WebConsoleURL)
