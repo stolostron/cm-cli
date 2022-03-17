@@ -1,10 +1,6 @@
 ## cm unbind clusterset
 
-bind a clusterset to a namespace
-
-### Synopsis
-
-bind a clusterset to a namespace to make it a “workspace namespace”. Note that the namespace SHALL NOT be an existing “cluster namespace” (i.e. the namespace has the same name of a registered managed cluster).
+unbind a clusterset from a namespace
 
 ```
 cm unbind clusterset [flags]
@@ -14,8 +10,8 @@ cm unbind clusterset [flags]
 
 ```
 
-# Bind a clusterset to a namespace
-cm bind clusterset clusterset1 --namespace default
+# UnBind a clusterset from a namespace
+cm unbind clusterset clusterset1 --namespace default
 
 ```
 

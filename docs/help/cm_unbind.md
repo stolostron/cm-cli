@@ -54,5 +54,5 @@ unbind a resource
 
 * [cm](cm.md)	 - CLI for Red Hat Advanced Cluster Management
 * [cm unbind clusterpoolhost](cm_unbind_clusterpoolhost.md)	 - set cph makes the given clusterpoolhost active/current
-* [cm unbind clusterset](cm_unbind_clusterset.md)	 - bind a clusterset to a namespace
+* [cm unbind clusterset](cm_unbind_clusterset.md)	 - unbind a clusterset from a namespace
 

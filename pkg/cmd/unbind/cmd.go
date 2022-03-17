@@ -2,8 +2,8 @@
 package unbind
 
 import (
-	"github.com/stolostron/cm-cli/pkg/cmd/bind/clusterset"
 	"github.com/stolostron/cm-cli/pkg/cmd/set/clusterpoolhost"
+	"github.com/stolostron/cm-cli/pkg/cmd/unbind/clusterset"
 	genericclioptionscm "github.com/stolostron/cm-cli/pkg/genericclioptions"
 	genericclioptionsclusteradm "open-cluster-management.io/clusteradm/pkg/genericclioptions"
 
