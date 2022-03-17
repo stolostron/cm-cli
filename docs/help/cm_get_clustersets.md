@@ -10,7 +10,7 @@ cm get clustersets [flags]
 
 ```
 
-# Get clustersets.
+# Get clustersets
 cm get clustersets
 
 ```

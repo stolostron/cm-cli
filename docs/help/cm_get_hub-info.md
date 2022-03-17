@@ -2,6 +2,10 @@
 
 get hub-info
 
+### Synopsis
+
+get hub-info about Registration Operator and Components
+
 ```
 cm get hub-info [flags]
 ```
@@ -10,7 +14,7 @@ cm get hub-info [flags]
 
 ```
 
-# Get hub-info.
+# Get hub-info
 cm get hub-info
 
 ```

@@ -7,7 +7,8 @@ import (
 	"github.com/stolostron/cm-cli/pkg/cmd/delete/clusterpool"
 	"github.com/stolostron/cm-cli/pkg/cmd/delete/clusterpoolhost"
 	genericclioptionscm "github.com/stolostron/cm-cli/pkg/genericclioptions"
-	clusteradmdeletetoken "open-cluster-management.io/clusteradm/pkg/cmd/delete/token"
+	clusteradmclusterset "open-cluster-management.io/clusteradm/pkg/cmd/delete/clusterset"
+	clusteradmclusterwork "open-cluster-management.io/clusteradm/pkg/cmd/delete/work"
 	genericclioptionsclusteradm "open-cluster-management.io/clusteradm/pkg/genericclioptions"
 
 	"github.com/spf13/cobra"
@@ -22,9 +23,10 @@ func NewCmd(clusteradmFlags *genericclioptionsclusteradm.ClusteradmFlags, cmFlag
 	}
 
 	cmd.AddCommand(cluster.NewCmd(cmFlags, streams))
-	cmd.AddCommand(clusteradmdeletetoken.NewCmd(clusteradmFlags, streams))
 	cmd.AddCommand(clusterpoolhost.NewCmd(cmFlags, streams))
 	cmd.AddCommand(clusterclaim.NewCmd(cmFlags, streams))
 	cmd.AddCommand(clusterpool.NewCmd(cmFlags, streams))
+	cmd.AddCommand(clusteradmclusterset.NewCmd(clusteradmFlags, streams))
+	cmd.AddCommand(clusteradmclusterwork.NewCmd(clusteradmFlags, streams))
 	return cmd
 }

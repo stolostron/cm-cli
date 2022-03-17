@@ -1,6 +1,6 @@
 ## cm get addon
 
-get enabled addon on specified managedcluster
+get enabled addon on specified managed cluster
 
 ```
 cm get addon [flags]
@@ -10,9 +10,9 @@ cm get addon [flags]
 
 ```
 
-# Get enabled addon on specified cluster.
+# Get enabled addon on specified cluster
 cm get addon --clusters cluster1
-# Get all enabled addon.
+# Get all enabled addon
 cm get addon
 
 ```

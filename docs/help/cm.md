@@ -47,8 +47,8 @@ CLI for Red Hat Advanced Cluster Management
 
 ### SEE ALSO
 
-* [cm accept](cm_accept.md)	 - accept a list of clusters
 * [cm attach](cm_attach.md)	 - attach a resource
+* [cm bind](cm_bind.md)	 - bind a resource
 * [cm console](cm_console.md)	 - open a console
 * [cm create](cm_create.md)	 - create a resource
 * [cm delete](cm_delete.md)	 - delete a resource
@@ -56,14 +56,13 @@ CLI for Red Hat Advanced Cluster Management
 * [cm enable](cm_enable.md)	 - enable a feature
 * [cm get](cm_get.md)	 - get a resource
 * [cm hibernate](cm_hibernate.md)	 - hibernate a resource
-* [cm init](cm_init.md)	 - init feature or hub
 * [cm install](cm_install.md)	 - install a product
-* [cm join](cm_join.md)	 - join a hub cluster
 * [cm options](cm_options.md)	 - Print the list of flags inherited by all commands
 * [cm plugin](cm_plugin.md)	 - Provides utilities for interacting with plugins
 * [cm run](cm_run.md)	 - run a resource
 * [cm scale](cm_scale.md)	 - scale a resource
 * [cm set](cm_set.md)	 - set a resource
+* [cm unbind](cm_unbind.md)	 - unbind a resource
 * [cm use](cm_use.md)	 - use a resource
 * [cm version](cm_version.md)	 - get the versions of the different components
 * [cm with](cm_with.md)	 - execute a command on a specific cluster

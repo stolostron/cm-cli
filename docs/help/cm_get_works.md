@@ -1,6 +1,6 @@
 ## cm get works
 
-get manifestwork on a specified managedcluster
+get manifestwork on a specified managed cluster
 
 ```
 cm get works [flags]
@@ -10,9 +10,9 @@ cm get works [flags]
 
 ```
 
-# Get manifestworks in a cluster.
+# Get all manifestworks in a cluster
 cm get works --cluster cluster1
-# show a manifestwork in a cluster.
+# Get a specific manifestwork in a cluster
 cm get works work1 --cluster cluster1
 
 ```

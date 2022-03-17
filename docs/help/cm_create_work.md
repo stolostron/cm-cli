@@ -2,6 +2,10 @@
 
 create a work
 
+### Synopsis
+
+create manifestwork on a specified managedcluster
+
 ```
 cm create work [flags]
 ```
@@ -10,7 +14,7 @@ cm create work [flags]
 
 ```
 
-# create a work.
+# Create manifestwork on a specified managed cluster"
 cm create work work-example -f xxx.yaml --cluster cluster1
 
 ```

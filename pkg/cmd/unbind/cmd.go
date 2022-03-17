@@ -1,9 +1,9 @@
 // Copyright Contributors to the Open Cluster Management project
-package set
+package unbind
 
 import (
+	"github.com/stolostron/cm-cli/pkg/cmd/bind/clusterset"
 	"github.com/stolostron/cm-cli/pkg/cmd/set/clusterpoolhost"
-	"github.com/stolostron/cm-cli/pkg/cmd/set/clusterset"
 	genericclioptionscm "github.com/stolostron/cm-cli/pkg/genericclioptions"
 	genericclioptionsclusteradm "open-cluster-management.io/clusteradm/pkg/genericclioptions"
 
@@ -14,8 +14,8 @@ import (
 // NewCmd provides a cobra command wrapping NewCmdImportCluster
 func NewCmd(clusteradmFlags *genericclioptionsclusteradm.ClusteradmFlags, cmFlags *genericclioptionscm.CMFlags, streams genericclioptions.IOStreams) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "set",
-		Short: "set a resource",
+		Use:   "unbind",
+		Short: "unbind a resource",
 	}
 
 	cmd.AddCommand(clusterpoolhost.NewCmd(cmFlags, streams))

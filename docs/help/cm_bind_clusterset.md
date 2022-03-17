@@ -1,28 +1,28 @@
-## cm accept
+## cm bind clusterset
 
-accept a list of clusters
+bind a clusterset to a namespace
+
+### Synopsis
+
+bind a clusterset to a namespace to make it a “workspace namespace”. Note that the namespace SHALL NOT be an existing “cluster namespace” (i.e. the namespace has the same name of a registered managed cluster).
 
 ```
-cm accept [flags]
+cm bind clusterset [flags]
 ```
 
 ### Examples
 
 ```
 
-# Accept clusters
-cm accept --clusters <cluster_1>,<cluster_2>,...
-# Accept clusters in foreground
-cm accept --clusters <cluster_1>,<cluster_2>,... --wait
+# Bind a clusterset to a namespace
+cm bind clusterset clusterset1 --namespace default
 
 ```
 
 ### Options
 
 ```
-      --clusters string   Names of the cluster to accept (comma separated)
-  -h, --help              help for accept
-      --wait              If set, wait for the managedcluster and CSR in foreground.
+  -h, --help   help for clusterset
 ```
 
 ### Options inherited from parent commands
@@ -69,5 +69,5 @@ cm accept --clusters <cluster_1>,<cluster_2>,... --wait
 
 ### SEE ALSO
 
-* [cm](cm.md)	 - CLI for Red Hat Advanced Cluster Management
+* [cm bind](cm_bind.md)	 - bind a resource
 

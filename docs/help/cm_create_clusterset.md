@@ -2,6 +2,10 @@
 
 create a clusterset
 
+### Synopsis
+
+create a clusterset, by default created cluster set will be empty
+
 ```
 cm create clusterset [flags]
 ```
@@ -10,7 +14,7 @@ cm create clusterset [flags]
 
 ```
 
-# create a clusterset.
+# Create a clusterset
 cm create clusterset clusterset1
 
 ```

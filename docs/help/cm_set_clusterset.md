@@ -1,35 +1,29 @@
-## cm init
+## cm set clusterset
 
-init feature or hub
+set clusters to a clusterset
 
 ### Synopsis
 
-Initialize the Kubernetes cluster in the context into an OCM hub cluster by applying a fewfundamental resources including registration-operator, etc.
+after setting cluster to a clusterset, clusterset contains 1 valid cluster, and in order to operate that clusterset we are supposed to bind it to an existing namespace
 
 ```
-cm init [flags]
+cm set clusterset [flags]
 ```
 
 ### Examples
 
 ```
 
-# Init the hub
-cm init
+# Set clusters to a clusterset
+cm set clusterset clusterset1 --clusters cluster1,cluster2
 
 ```
 
 ### Options
 
 ```
-      --bundle-version string             the version of predefined compatible image versions (default "default")
-      --force                             If set then the hub will be reinitialized
-  -h, --help                              help for init
-      --image-registry string             The name of the image registry serving OCM images, which will be applied to all the deploying OCM components. (default "quay.io/open-cluster-management")
-      --output-file string                The generated resources will be copied in the specified file
-      --output-join-command-file string   If set, the generated join command be saved to the prescribed file.
-      --use-bootstrap-token               If set then the boostrap token will used instead of a service account token
-      --wait                              If set, the command will initialize the OCM control plan in foreground.
+      --clusters strings   Names of the managed cluster to set to the clusterset (comma separated)
+  -h, --help               help for clusterset
 ```
 
 ### Options inherited from parent commands
@@ -76,5 +70,5 @@ cm init
 
 ### SEE ALSO
 
-* [cm](cm.md)	 - CLI for Red Hat Advanced Cluster Management
+* [cm set](cm_set.md)	 - set a resource
 

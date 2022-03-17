@@ -1,32 +1,24 @@
-## cm join
+## cm bind clusterpoolhost
 
-join a hub cluster
+set cph makes the given clusterpoolhost active/current
 
 ```
-cm join [flags]
+cm bind clusterpoolhost [flags]
 ```
 
 ### Examples
 
 ```
 
-# Join a cluster to the hub
-cm join --hub-token <tokenID.tokenSecret> --hub-apiserver <hub_apiserveR_url> --name <cluster_name>
+# Use a clusterpoolhost
+cm set cph clusterpoolhost
 
 ```
 
 ### Options
 
 ```
-      --bundle-version string            version of predefined compatible image versions (default "default")
-      --cluster-name string              The name of the joining cluster
-      --force-internal-endpoint-lookup   If true, the installed klusterlet agent will be starting the cluster registration process by looking for the internal endpoint from the public cluster-info in the hub cluster instead of from --hub-apiserver.
-  -h, --help                             help for join
-      --hub-apiserver string             The api server url to the hub
-      --hub-token string                 The token to access the hub
-      --image-registry string            The name of the image registry serving OCM images. (default "quay.io/open-cluster-management")
-      --output-file string               The generated resources will be copied in the specified file
-      --wait                             If true, running the cluster registration in foreground.
+  -h, --help   help for clusterpoolhost
 ```
 
 ### Options inherited from parent commands
@@ -73,5 +65,5 @@ cm join --hub-token <tokenID.tokenSecret> --hub-apiserver <hub_apiserveR_url> --
 
 ### SEE ALSO
 
-* [cm](cm.md)	 - CLI for Red Hat Advanced Cluster Management
+* [cm bind](cm_bind.md)	 - bind a resource
 

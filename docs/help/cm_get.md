@@ -53,7 +53,7 @@ get a resource
 ### SEE ALSO
 
 * [cm](cm.md)	 - CLI for Red Hat Advanced Cluster Management
-* [cm get addon](cm_get_addon.md)	 - get enabled addon on specified managedcluster
+* [cm get addon](cm_get_addon.md)	 - get enabled addon on specified managed cluster
 * [cm get clusterclaims](cm_get_clusterclaims.md)	 - Display clusterclaims
 * [cm get clusterpoolhosts](cm_get_clusterpoolhosts.md)	 - list the clusterpoolhosts
 * [cm get clusterpools](cm_get_clusterpools.md)	 - Get clusterpool
@@ -64,6 +64,5 @@ get a resource
 * [cm get hub-info](cm_get_hub-info.md)	 - get hub-info
 * [cm get machinepools](cm_get_machinepools.md)	 - list the machinepools for a give cluster
 * [cm get policies](cm_get_policies.md)	 - Display policies
-* [cm get token](cm_get_token.md)	 - get the bootstrap token
-* [cm get works](cm_get_works.md)	 - get manifestwork on a specified managedcluster
+* [cm get works](cm_get_works.md)	 - get manifestwork on a specified managed cluster
 

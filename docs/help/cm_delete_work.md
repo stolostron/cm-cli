@@ -1,26 +1,24 @@
-## cm get token
+## cm delete work
 
-get the bootstrap token
+delete work in specified cluster
 
 ```
-cm get token [flags]
+cm delete work [flags]
 ```
 
 ### Examples
 
 ```
 
-# Get the bootstrap token
-cm get token
+# Delete work in specified cluster
+cm delete work work-example --cluster cluster1
 
 ```
 
 ### Options
 
 ```
-  -h, --help                  help for token
-      --output-file string    The generated resources will be copied in the specified file
-      --use-bootstrap-token   If set then the boostrap token will used instead of a service account token
+  -h, --help   help for work
 ```
 
 ### Options inherited from parent commands
@@ -67,5 +65,5 @@ cm get token
 
 ### SEE ALSO
 
-* [cm get](cm_get.md)	 - get a resource
+* [cm delete](cm_delete.md)	 - delete a resource
 

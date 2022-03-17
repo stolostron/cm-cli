@@ -1,24 +1,24 @@
-## cm delete token
+## cm unbind clusterpoolhost
 
-delete the bootstrap token
+set cph makes the given clusterpoolhost active/current
 
 ```
-cm delete token [flags]
+cm unbind clusterpoolhost [flags]
 ```
 
 ### Examples
 
 ```
 
-# Delete the bootstrap token
-cm delete token
+# Use a clusterpoolhost
+cm set cph clusterpoolhost
 
 ```
 
 ### Options
 
 ```
-  -h, --help   help for token
+  -h, --help   help for clusterpoolhost
 ```
 
 ### Options inherited from parent commands
@@ -65,5 +65,5 @@ cm delete token
 
 ### SEE ALSO
 
-* [cm delete](cm_delete.md)	 - delete a resource
+* [cm unbind](cm_unbind.md)	 - unbind a resource
 
