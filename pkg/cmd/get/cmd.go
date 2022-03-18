@@ -15,7 +15,6 @@ import (
 	clusteradmaddon "open-cluster-management.io/clusteradm/pkg/cmd/get/addon"
 	clusteradmclusterset "open-cluster-management.io/clusteradm/pkg/cmd/get/clusterset"
 	clusteradmhubinfo "open-cluster-management.io/clusteradm/pkg/cmd/get/hubinfo"
-	clusteradmgettoken "open-cluster-management.io/clusteradm/pkg/cmd/get/token"
 	clusteradmwork "open-cluster-management.io/clusteradm/pkg/cmd/get/work"
 	genericclioptionsclusteradm "open-cluster-management.io/clusteradm/pkg/genericclioptions"
 
@@ -33,7 +32,6 @@ func NewCmd(f cmdutil.Factory, clusteradmFlags *genericclioptionsclusteradm.Clus
 	cmd.AddCommand(clusters.NewCmd(cmFlags, streams))
 	cmd.AddCommand(credentials.NewCmd(cmFlags, streams))
 	cmd.AddCommand(machinepools.NewCmd(cmFlags, streams))
-	cmd.AddCommand(clusteradmgettoken.NewCmd(clusteradmFlags, streams))
 	cmd.AddCommand(clusterpoolhosts.NewCmd(f, cmFlags, streams))
 	cmd.AddCommand(clusterclaim.NewCmd(f, cmFlags, streams))
 	cmd.AddCommand(clusterpools.NewCmd(f, cmFlags, streams))

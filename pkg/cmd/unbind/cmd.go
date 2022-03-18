@@ -1,9 +1,10 @@
 // Copyright Contributors to the Open Cluster Management project
-package initialization
+package unbind
 
 import (
+	"github.com/stolostron/cm-cli/pkg/cmd/set/clusterpoolhost"
+	"github.com/stolostron/cm-cli/pkg/cmd/unbind/clusterset"
 	genericclioptionscm "github.com/stolostron/cm-cli/pkg/genericclioptions"
-	clusteradminit "open-cluster-management.io/clusteradm/pkg/cmd/init"
 	genericclioptionsclusteradm "open-cluster-management.io/clusteradm/pkg/genericclioptions"
 
 	"github.com/spf13/cobra"
@@ -12,8 +13,13 @@ import (
 
 // NewCmd provides a cobra command wrapping NewCmdImportCluster
 func NewCmd(clusteradmFlags *genericclioptionsclusteradm.ClusteradmFlags, cmFlags *genericclioptionscm.CMFlags, streams genericclioptions.IOStreams) *cobra.Command {
-	cmd := clusteradminit.NewCmd(clusteradmFlags, streams)
-	cmd.Short = "init feature or hub"
+	cmd := &cobra.Command{
+		Use:   "unbind",
+		Short: "unbind a resource",
+	}
+
+	cmd.AddCommand(clusterpoolhost.NewCmd(cmFlags, streams))
+	cmd.AddCommand(clusterset.NewCmd(clusteradmFlags, cmFlags, streams))
 
 	return cmd
 }

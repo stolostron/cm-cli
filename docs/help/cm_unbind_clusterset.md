@@ -1,28 +1,24 @@
-## cm accept
+## cm unbind clusterset
 
-accept a list of clusters
+unbind a clusterset from a namespace
 
 ```
-cm accept [flags]
+cm unbind clusterset [flags]
 ```
 
 ### Examples
 
 ```
 
-# Accept clusters
-cm accept --clusters <cluster_1>,<cluster_2>,...
-# Accept clusters in foreground
-cm accept --clusters <cluster_1>,<cluster_2>,... --wait
+# UnBind a clusterset from a namespace
+cm unbind clusterset clusterset1 --namespace default
 
 ```
 
 ### Options
 
 ```
-      --clusters string   Names of the cluster to accept (comma separated)
-  -h, --help              help for accept
-      --wait              If set, wait for the managedcluster and CSR in foreground.
+  -h, --help   help for clusterset
 ```
 
 ### Options inherited from parent commands
@@ -69,5 +65,5 @@ cm accept --clusters <cluster_1>,<cluster_2>,... --wait
 
 ### SEE ALSO
 
-* [cm](cm.md)	 - CLI for Red Hat Advanced Cluster Management
+* [cm unbind](cm_unbind.md)	 - unbind a resource
 

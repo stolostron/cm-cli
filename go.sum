@@ -767,8 +767,6 @@ github.com/openshift/cluster-api-provider-kubevirt v0.0.0-20211223062810-ef64d5f
 github.com/openshift/cluster-api-provider-kubevirt v0.0.0-20211223062810-ef64d5ff1cde/go.mod h1:Z4fR4Cg8/z9GEys79MU+8CpX98aZQqI+tl9YIao0KxQ=
 github.com/openshift/custom-resource-status v0.0.0-20200602122900-c002fd1547ca h1:F1MEnOMwSrTA0YAkO0he9ip9w0JhYzI/iCB2mXmaSPg=
 github.com/openshift/custom-resource-status v0.0.0-20200602122900-c002fd1547ca/go.mod h1:GDjWl0tX6FNIj82vIxeudWeSx2Ff6nDZ8uJn0ohUFvo=
-github.com/openshift/hive/apis v0.0.0-20211012143010-16ef5a35537d h1:cI2kpFYWuuqE3O5On12ndaRcrtFacNO1qQCOle4G/1s=
-github.com/openshift/hive/apis v0.0.0-20211012143010-16ef5a35537d/go.mod h1:77ODrnaHiDlfbqQgvk5nUWuqf2AsGY/99QlfNTiqHwI=
 github.com/openshift/hive/apis v0.0.0-20220311160056-133480feffd6 h1:ceX8k7NTQ9w7gxYBR4jrDOmb2tIf9jZHPORb5I08exo=
 github.com/openshift/hive/apis v0.0.0-20220311160056-133480feffd6/go.mod h1:E1bgquRiwfugdArdecPbpYIrAdve5kTzMaJb0+8jMXI=
 github.com/openshift/hypershift v0.0.0-20220208150618-28995b0e2f4c h1:D7swZBgwb3GNyJ2M9f/jaWJoM9wcwbwp4nFgYPdqgUg=
@@ -1584,7 +1582,6 @@ k8s.io/api v0.0.0-20190725062911-6607c48751ae/go.mod h1:1O0xzX/RAtnm7l+5VEUxZ1ys
 k8s.io/api v0.17.0/go.mod h1:npsyOePkeP0CPwyGfXDHxvypiYMJxBWAMpQxCaJ4ZxI=
 k8s.io/api v0.18.0-beta.2/go.mod h1:2oeNnWEqcSmaM/ibSh3t7xcIqbkGXhzZdn4ezV9T4m0=
 k8s.io/api v0.18.6/go.mod h1:eeyxr+cwCjMdLAmr2W3RyDI0VvTawSg/3RFFBEnmZGI=
-k8s.io/api v0.20.0/go.mod h1:HyLC5l5eoS/ygQYl1BXBgFzWNlkHiAuyNAbevIn+FKg=
 k8s.io/api v0.20.1/go.mod h1:KqwcCVogGxQY3nBlRpwt+wpAMF/KjaCc7RpywacvqUo=
 k8s.io/api v0.20.2/go.mod h1:d7n6Ehyzx+S+cE3VhTGfVNNqtGc/oL9DCdYYahlurV8=
 k8s.io/api v0.20.10/go.mod h1:0kei3F6biGjtRQBo5dUeujq6Ji3UCh9aOSfp/THYd7I=
@@ -1610,7 +1607,6 @@ k8s.io/apimachinery v0.0.0-20190719140911-bfcf53abc9f8/go.mod h1:sBJWIJZfxLhp7mR
 k8s.io/apimachinery v0.17.0/go.mod h1:b9qmWdKlLuU9EBh+06BtLcSf/Mu89rWL33naRxs1uZg=
 k8s.io/apimachinery v0.18.0-beta.2/go.mod h1:9SnR/e11v5IbyPCGbvJViimtJ0SwHG4nfZFjU77ftcA=
 k8s.io/apimachinery v0.18.6/go.mod h1:OaXp26zu/5J7p0f92ASynJa1pZo06YlV9fG7BoWbCko=
-k8s.io/apimachinery v0.20.0/go.mod h1:WlLqWAHZGg07AeltaI0MV5uk1Omp8xaN0JGLY6gkRpU=
 k8s.io/apimachinery v0.20.1/go.mod h1:WlLqWAHZGg07AeltaI0MV5uk1Omp8xaN0JGLY6gkRpU=
 k8s.io/apimachinery v0.20.2/go.mod h1:WlLqWAHZGg07AeltaI0MV5uk1Omp8xaN0JGLY6gkRpU=
 k8s.io/apimachinery v0.20.10/go.mod h1:kQa//VOAwyVwJ2+L9kOREbsnryfsGSkSM1przND4+mw=
@@ -1730,8 +1726,8 @@ open-cluster-management.io/api v0.6.0/go.mod h1:0IUTh8J+p4pv1THh1r9oO0luX9Z1FLDE
 open-cluster-management.io/api v0.6.1-0.20220127035449-918b7bf7184f h1:qPXjohccAOJAa2PXSuoncKzMCmz35CScEjuseo2Siu8=
 open-cluster-management.io/api v0.6.1-0.20220127035449-918b7bf7184f/go.mod h1:0IUTh8J+p4pv1THh1r9oO0luX9Z1FLDEAmvzW09qC0o=
 open-cluster-management.io/cluster-proxy v0.1.1-0.20211222094756-297e092ffcb1/go.mod h1:kOghb1hOPcFMExSMqsetNYFtKrSioJun2wliqTcXNMU=
-open-cluster-management.io/clusteradm v0.1.1-0.20220224125140-10e7165da503 h1:qOdk1U1nLA37f3HQDAgynFmlQxfu4sbPdpZLrxAK4tE=
-open-cluster-management.io/clusteradm v0.1.1-0.20220224125140-10e7165da503/go.mod h1:1RbaSRhTSycZHKalwvIlwFa8czaPIxU5jo2ks2cK3uY=
+open-cluster-management.io/clusteradm v0.1.2-0.20220316011601-32367f6ccf8d h1:NnwhH0+PhxAIYmmeVVEPr6EZTtZwni78xU5rr5odGZc=
+open-cluster-management.io/clusteradm v0.1.2-0.20220316011601-32367f6ccf8d/go.mod h1:BYQIquUS+hg2gjp2AN3bwPVhFELHx3jGxMJgpZWTkF4=
 open-cluster-management.io/multicloud-operators-subscription v0.5.1-0.20220110225708-33d195cb3c9a h1:2fWdH8Fck+Ax2/M382e9H87N++K1kFwO+xfmroGdTdo=
 open-cluster-management.io/multicloud-operators-subscription v0.5.1-0.20220110225708-33d195cb3c9a/go.mod h1:riyPTC500zbKxVw3KT91yKNlpPxTdWDnUpOQ9xcLmXc=
 rsc.io/binaryregexp v0.2.0/go.mod h1:qTv7/COck+e2FymRvadv62gMdZztPaShugOCi3I+8D8=

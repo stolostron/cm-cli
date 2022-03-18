@@ -2,12 +2,14 @@
 # Release Content
 ## Additions
 
-- [cm attach should handle kubeconfig blobs #173](https://github.com/stolostron/cm-cli/issues/173)
-- [Create a cmd cm attach/detach hostedcluster #182](https://github.com/stolostron/cm-cli/issues/182)
-- Add githubExtraConfigs in the template for `cm create authrealm`
-- [import clusteradm cmds create clusterset|work and get addon|clusterset|hub-info|works #192](https://github.com/stolostron/cm-cli/issues/192)
+- Add `cm delete clusterset`, inhirated from clusteradm
+- Add `cm delete work`, inhirated from clusteradm
+- Add `cm set clusterset`, inhirated from clusteradm `clusteradm clusterset set`
+- Add `cm bind clusterset`, inhirated from clusteradm `clusteradm clusterset bind`
+- Add `cm unbind clusterset`, inhirated from clusteradm`clusteradm clusterset unbind`
 ## Breaking changes
 
+- Remove commands "init, join, accept, get token, delete token" as they are pure OCM and should not be used on ACM/MCE. Please use commands like `cm attach cluster`.
 ## Bug fixes
 
 

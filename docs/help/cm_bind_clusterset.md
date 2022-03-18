@@ -1,26 +1,28 @@
-## cm get token
+## cm bind clusterset
 
-get the bootstrap token
+bind a clusterset to a namespace
+
+### Synopsis
+
+bind a clusterset to a namespace to make it a “workspace namespace”. Note that the namespace SHALL NOT be an existing “cluster namespace” (i.e. the namespace has the same name of a registered managed cluster).
 
 ```
-cm get token [flags]
+cm bind clusterset [flags]
 ```
 
 ### Examples
 
 ```
 
-# Get the bootstrap token
-cm get token
+# Bind a clusterset to a namespace
+cm bind clusterset clusterset1 --namespace default
 
 ```
 
 ### Options
 
 ```
-  -h, --help                  help for token
-      --output-file string    The generated resources will be copied in the specified file
-      --use-bootstrap-token   If set then the boostrap token will used instead of a service account token
+  -h, --help   help for clusterset
 ```
 
 ### Options inherited from parent commands
@@ -67,5 +69,5 @@ cm get token
 
 ### SEE ALSO
 
-* [cm get](cm_get.md)	 - get a resource
+* [cm bind](cm_bind.md)	 - bind a resource
 

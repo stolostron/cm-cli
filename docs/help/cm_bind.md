@@ -1,11 +1,11 @@
-## cm delete
+## cm bind
 
-delete a resource
+bind a resource
 
 ### Options
 
 ```
-  -h, --help   help for delete
+  -h, --help   help for bind
 ```
 
 ### Options inherited from parent commands
@@ -53,10 +53,6 @@ delete a resource
 ### SEE ALSO
 
 * [cm](cm.md)	 - CLI for Red Hat Advanced Cluster Management
-* [cm delete cluster](cm_delete_cluster.md)	 - Delete a cluster
-* [cm delete clusterclaim](cm_delete_clusterclaim.md)	 - Delete clusterclaims
-* [cm delete clusterpool](cm_delete_clusterpool.md)	 - Delete clusterpools
-* [cm delete clusterpoolhost](cm_delete_clusterpoolhost.md)	 - delete clusterpoolhost
-* [cm delete clusterset](cm_delete_clusterset.md)	 - delete a clusterset
-* [cm delete work](cm_delete_work.md)	 - delete work in specified cluster
+* [cm bind clusterpoolhost](cm_bind_clusterpoolhost.md)	 - set cph makes the given clusterpoolhost active/current
+* [cm bind clusterset](cm_bind_clusterset.md)	 - bind a clusterset to a namespace
 

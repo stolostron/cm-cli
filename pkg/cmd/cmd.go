@@ -21,8 +21,8 @@ import (
 
 	genericclioptionsclusteradm "open-cluster-management.io/clusteradm/pkg/genericclioptions"
 
-	"github.com/stolostron/cm-cli/pkg/cmd/accept"
 	"github.com/stolostron/cm-cli/pkg/cmd/attach"
+	"github.com/stolostron/cm-cli/pkg/cmd/bind"
 	"github.com/stolostron/cm-cli/pkg/cmd/console"
 	"github.com/stolostron/cm-cli/pkg/cmd/create"
 	"github.com/stolostron/cm-cli/pkg/cmd/delete"
@@ -30,12 +30,11 @@ import (
 	"github.com/stolostron/cm-cli/pkg/cmd/enable"
 	"github.com/stolostron/cm-cli/pkg/cmd/get"
 	"github.com/stolostron/cm-cli/pkg/cmd/hibernate"
-	"github.com/stolostron/cm-cli/pkg/cmd/initialization"
 	"github.com/stolostron/cm-cli/pkg/cmd/install"
-	"github.com/stolostron/cm-cli/pkg/cmd/join"
 	"github.com/stolostron/cm-cli/pkg/cmd/run"
 	"github.com/stolostron/cm-cli/pkg/cmd/scale"
 	"github.com/stolostron/cm-cli/pkg/cmd/set"
+	"github.com/stolostron/cm-cli/pkg/cmd/unbind"
 	"github.com/stolostron/cm-cli/pkg/cmd/use"
 	"github.com/stolostron/cm-cli/pkg/cmd/version"
 	"github.com/stolostron/cm-cli/pkg/cmd/with"
@@ -100,21 +99,15 @@ func NewCMCommand() *cobra.Command {
 				scale.NewCmd(cmFlags, streams),
 				enable.NewCmd(cmFlags, streams),
 				get.NewCmd(f, clusteradmFlags, cmFlags, streams),
-				initialization.NewCmd(clusteradmFlags, cmFlags, streams),
-			},
-		},
-		{
-			Message: "Registration commands:",
-			Commands: []*cobra.Command{
-				join.NewCmd(clusteradmFlags, cmFlags, streams),
-				accept.NewCmd(clusteradmFlags, cmFlags, streams),
+				bind.NewCmd(clusteradmFlags, cmFlags, streams),
+				unbind.NewCmd(clusteradmFlags, cmFlags, streams),
 			},
 		},
 		{
 			Message: "cluster pools commands:",
 			Commands: []*cobra.Command{
 				use.NewCmd(cmFlags, streams),
-				set.NewCmd(cmFlags, streams),
+				set.NewCmd(clusteradmFlags, cmFlags, streams),
 				run.NewCmd(cmFlags, streams),
 				hibernate.NewCmd(cmFlags, streams),
 				console.NewCmd(cmFlags, streams),
