@@ -18,7 +18,8 @@ cm delete work work-example --cluster cluster1
 ### Options
 
 ```
-  -h, --help   help for work
+      --force   set force flag to enable force delete
+  -h, --help    help for work
 ```
 
 ### Options inherited from parent commands
