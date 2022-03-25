@@ -1,10 +1,10 @@
 ## cm create work
 
-create a work
+create a work using resource-to-apply yaml file
 
 ### Synopsis
 
-create manifestwork on a specified managedcluster
+create a work using a file containing common kubernetes resource manifests, or a director containing a set of manifest files.
 
 ```
 cm create work [flags]

@@ -84,7 +84,10 @@ func (cph *ClusterPoolHost) CreateClusterPool(clusterPoolName, cloud string, val
 	applierBuilder := &clusteradmapply.ApplierBuilder{}
 	applier := applierBuilder.WithClient(kubeClient, apiExtensionsClient, dynamicClient).Build()
 
-	installConfig, err := applier.MustTemplateAsset(reader, values, "", filepath.Join("create", "clusterpool", cloud, "install_config.yaml"))
+	installConfig, err := applier.MustTemplateAsset(reader,
+		values,
+		"",
+		filepath.Join("create", "clusterpool", cloud, "install_config.yaml"))
 	if err != nil {
 		return err
 	}
