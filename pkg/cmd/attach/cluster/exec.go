@@ -260,12 +260,12 @@ func (o *Options) runWithClient(kubeClient kubernetes.Interface,
 		values := make(map[string]string)
 		values["crds_yaml"] = string(importSecret.Data["crds.yaml"])
 		values["import_yaml"] = string(importSecret.Data["import.yaml"])
-		importFileContentCRD, err := applier.MustTempalteAsset(reader, values, "", "attach/managedcluster/import_crd.yaml")
+		importFileContentCRD, err := applier.MustTemplateAsset(reader, values, "", "attach/managedcluster/import_crd.yaml")
 		if err != nil {
 			return err
 		}
 		importFileContentCRDFileName := fmt.Sprintf("%s_crd.yaml", o.importFile)
-		importFileContentYAML, err := applier.MustTempalteAsset(reader, values, "", "attach/managedcluster/import_yaml.yaml")
+		importFileContentYAML, err := applier.MustTemplateAsset(reader, values, "", "attach/managedcluster/import_yaml.yaml")
 		if err != nil {
 			return err
 		}

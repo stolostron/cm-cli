@@ -148,7 +148,7 @@ func (o *Options) runWithClient(kubeClient kubernetes.Interface,
 	applierBuilder := &clusteradmapply.ApplierBuilder{}
 	applier := applierBuilder.WithClient(kubeClient, apiextensionsClient, dynamicClient).Build()
 
-	installConfig, err := applier.MustTempalteAsset(reader, o.values, "", filepath.Join(scenarioDirectory, "hub", o.cloud, "install_config.yaml"))
+	installConfig, err := applier.MustTemplateAsset(reader, o.values, "", filepath.Join(scenarioDirectory, "hub", o.cloud, "install_config.yaml"))
 	if err != nil {
 		return err
 	}
