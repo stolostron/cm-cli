@@ -84,7 +84,7 @@ func (cph *ClusterPoolHost) CreateClusterPool(clusterPoolName, cloud string, val
 	applierBuilder := &clusteradmapply.ApplierBuilder{}
 	applier := applierBuilder.WithClient(kubeClient, apiExtensionsClient, dynamicClient).Build()
 
-	installConfig, err := applier.MustTempalteAsset(reader, values, "", filepath.Join("create", "clusterpool", cloud, "install_config.yaml"))
+	installConfig, err := applier.MustTemplateAsset(reader, values, "", filepath.Join("create", "clusterpool", cloud, "install_config.yaml"))
 	if err != nil {
 		return err
 	}
@@ -332,7 +332,7 @@ func (cph *ClusterPoolHost) GetClusterPoolConfig(clusterPoolName string, without
 	klog.V(5).Infof("%v\n", values)
 	applierBuilder := &clusteradmapply.ApplierBuilder{}
 	applier := applierBuilder.WithClient(kubeClient, apiExtensionsClient, dynamicClient)
-	b, err := applier.MustTempalteAsset(reader, values, "", "config/clusterpool/config.yaml")
+	b, err := applier.MustTemplateAsset(reader, values, "", "config/clusterpool/config.yaml")
 	if err != nil {
 		return err
 	}
