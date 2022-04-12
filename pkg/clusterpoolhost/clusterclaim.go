@@ -408,7 +408,8 @@ func getClusterClaimPendingStatus(cc *hivev1.ClusterClaim) *hivev1.ClusterClaimC
 	return nil
 }
 
-func (cph *ClusterPoolHost) ConvertToPrintClusterClaimList(ccl *hivev1.ClusterClaimList, current bool) *printclusterpoolv1alpha1.PrintClusterClaimList {
+func (cph *ClusterPoolHost) ConvertToPrintClusterClaimList(ccl *hivev1.ClusterClaimList,
+	current bool) *printclusterpoolv1alpha1.PrintClusterClaimList {
 	pccs := &printclusterpoolv1alpha1.PrintClusterClaimList{}
 	for i := range ccl.Items {
 		pcc := printclusterpoolv1alpha1.PrintClusterClaim{
