@@ -4,6 +4,7 @@
 
 - Add "--current" in `cm get cc` to display the current clusterclaim in use.
 - Create binary for darwin/arm64.
+- [Support import of a cluster that is the non-active kubecontext in a kubeconfig #197](https://github.com/stolostron/cm-cli/issues/197)
 
 ## Breaking changes
 

@@ -15,6 +15,7 @@ type Options struct {
 	clusterServer            string
 	clusterToken             string
 	clusterKubeConfig        string
+	clusterKubeContext       string
 	clusterKubeConfigContent string
 	importFile               string
 	waitAgent                bool

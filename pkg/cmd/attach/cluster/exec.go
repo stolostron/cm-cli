@@ -13,6 +13,7 @@ import (
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/client-go/dynamic"
 	"k8s.io/client-go/kubernetes"
+	"k8s.io/client-go/tools/clientcmd"
 	clusterclientset "open-cluster-management.io/api/client/cluster/clientset/versioned"
 	workclientset "open-cluster-management.io/api/client/work/clientset/versioned"
 	clusteradmhelpers "open-cluster-management.io/clusteradm/pkg/helpers"
@@ -84,6 +85,22 @@ func (o *Options) complete(cmd *cobra.Command, args []string) (err error) {
 		} else {
 			o.clusterKubeConfig = o.clusterKubeConfigContent
 		}
+	}
+
+	if o.clusterKubeConfig != "" && o.clusterKubeContext != "" {
+		config, err := clientcmd.Load([]byte(o.clusterKubeConfig))
+		if err != nil {
+			return err
+		}
+		if _, ok := config.Contexts[o.clusterKubeContext]; !ok {
+			return fmt.Errorf("context %s doesn't exist in the provided kubeconfig", o.clusterKubeContext)
+		}
+		config.CurrentContext = o.clusterKubeContext
+		b, err := clientcmd.Write(*config)
+		if err != nil {
+			return err
+		}
+		o.clusterKubeConfig = string(b)
 	}
 
 	mc["kubeConfig"] = o.clusterKubeConfig
