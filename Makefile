@@ -41,6 +41,7 @@ build-bin: doc-help
 	@rm -rf bin
 	@mkdir -p bin
 	GOOS=darwin GOARCH=amd64 go build -ldflags="-s -w" -gcflags=-trimpath=x/y  -o bin/cm ./cmd/cm.go && tar -czf bin/cm_darwin_amd64.tar.gz LICENSE -C bin/ cm
+	GOOS=darwin GOARCH=arm64 go build -ldflags="-s -w" -gcflags=-trimpath=x/y  -o bin/cm ./cmd/cm.go && tar -czf bin/cm_darwin_arm64.tar.gz LICENSE -C bin/ cm
 	GOOS=linux GOARCH=amd64 go build -ldflags="-s -w" -gcflags=-trimpath=x/y  -o bin/cm ./cmd/cm.go && tar -czf bin/cm_linux_amd64.tar.gz LICENSE -C bin/ cm 
 	GOOS=linux GOARCH=arm64 go build -ldflags="-s -w" -gcflags=-trimpath=x/y  -o bin/cm ./cmd/cm.go && tar -czf bin/cm_linux_arm64.tar.gz LICENSE -C bin/ cm 
 	GOOS=linux GOARCH=ppc64le go build -ldflags="-s -w" -gcflags=-trimpath=x/y  -o bin/cm ./cmd/cm.go && tar -czf bin/cm_linux_ppc64le.tar.gz LICENSE -C bin/ cm 

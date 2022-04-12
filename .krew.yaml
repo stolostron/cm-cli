@@ -19,6 +19,12 @@ spec:
     bin: cm
   - selector:
       matchLabels:
+        os: darwin
+        arch: arm64
+    {{addURIAndSha "https://github.com/stolostron/cm-cli/releases/download/{{ .TagName }}/cm_darwin_arm64.tar.gz" .TagName }}
+    bin: cm
+  - selector:
+      matchLabels:
         os: linux
         arch: amd64
     {{addURIAndSha "https://github.com/stolostron/cm-cli/releases/download/{{ .TagName }}/cm_linux_amd64.tar.gz" .TagName }}

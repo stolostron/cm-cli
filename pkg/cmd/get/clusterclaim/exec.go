@@ -79,7 +79,7 @@ func (o *Options) getCCS(cphs *clusterpoolhost.ClusterPoolHosts) (err error) {
 			fmt.Printf("Error while retrieving clusterclaims from %s\n", cph.Name)
 			continue
 		}
-		printClusterClaimsList := cph.ConvertToPrintClusterClaimList(clusterClaims)
+		printClusterClaimsList := cph.ConvertToPrintClusterClaimList(clusterClaims, o.Current)
 		printClusterClaimLists.Items = append(printClusterClaimLists.Items, printClusterClaimsList.Items...)
 	}
 	helpers.Print(printClusterClaimLists, o.GetOptions.PrintFlags)

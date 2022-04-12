@@ -14,6 +14,7 @@ type Options struct {
 	GetOptions          *get.GetOptions
 	AllClusterPoolHosts bool
 	WithCredentials     bool
+	Current             bool
 	ClusterPoolHost     string
 	Timeout             int
 }
