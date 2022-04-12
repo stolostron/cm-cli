@@ -32,6 +32,7 @@ jobs:
             docs/help.tar.gz
             docs/help.zip
             bin/cm_darwin_amd64.tar.gz
+            bin/cm_darwin_arm64.tar.gz
             bin/cm_linux_amd64.tar.gz
             bin/cm_linux_arm64.tar.gz
             bin/cm_linux_ppc64le.tar.gz

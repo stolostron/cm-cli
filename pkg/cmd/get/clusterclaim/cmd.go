@@ -56,6 +56,7 @@ func NewCmd(f cmdutil.Factory, cmFlags *genericclioptionscm.CMFlags, streams gen
 	cmd.Flags().StringVar(&o.ClusterPoolHost, "cph", "", "The clusterpoolhost to use")
 	cmd.Flags().BoolVar(&o.WithCredentials, "creds", o.WithCredentials, "If set the credentials will be displayed")
 	cmd.Flags().BoolVarP(&o.AllClusterPoolHosts, "all-cphs", "A", o.AllClusterPoolHosts, "List the clusterclaims across all clusterpoolhosts")
+	cmd.Flags().BoolVar(&o.Current, "current", o.Current, "List the clusterclaim which is currently in use")
 	cmd.Flags().IntVar(&o.Timeout, "timeout", 60, "Timeout to get the cluster claim running")
 
 	return cmd

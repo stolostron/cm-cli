@@ -67,11 +67,11 @@ func getMCEConfigMapList(cmFlags *genericclioptions.CMFlags) (cms *corev1.Config
 		panic(err)
 	}
 	cms, err = kubeClient.CoreV1().ConfigMaps("").List(context.TODO(), metav1.ListOptions{
-		LabelSelector: fmt.Sprintf("%v = %v", "operators.coreos.com/multicluster-engine.multicluster-engine", ""),
+		LabelSelector: fmt.Sprintf("%v = %v", "operators.coreos.com/.multicluster-engine", ""),
 	})
 	if (err != nil || len(cms.Items) == 0) && len(cmFlags.ServerNamespace) != 0 {
 		cms, err = kubeClient.CoreV1().ConfigMaps(cmFlags.ServerNamespace).List(context.TODO(), metav1.ListOptions{
-			LabelSelector: fmt.Sprintf("%v = %v", "operators.coreos.com/multicluster-engine.multicluster-engine", ""),
+			LabelSelector: fmt.Sprintf("%v = %v", "operators.coreos.com/multicluster-engine."+cmFlags.ServerNamespace, ""),
 		})
 	}
 	if err != nil || len(cms.Items) == 0 {
