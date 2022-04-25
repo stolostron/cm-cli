@@ -1,5 +1,5 @@
 // Copyright Contributors to the Open Cluster Management project
-package clusterclaim
+package hosted
 
 import (
 	genericclioptionscm "github.com/stolostron/cm-cli/pkg/genericclioptions"
@@ -9,15 +9,12 @@ import (
 
 type Options struct {
 	//CMFlags: The generic optiosn from the cm cli-runtime.
-	CMFlags             *genericclioptionscm.CMFlags
-	ClusterClaim        string
-	GetOptions          *get.GetOptions
-	AllClusterPoolHosts bool
-	WithCredentials     bool
-	KubeConfig          bool
-	Current             bool
-	ClusterPoolHost     string
-	Timeout             int
+	CMFlags         *genericclioptionscm.CMFlags
+	Hosting         string
+	Hosted          string
+	Timeout         int
+	GetOptions      *get.GetOptions
+	WithCredentials bool
 }
 
 func newOptions(cmFlags *genericclioptionscm.CMFlags, streams genericclioptions.IOStreams) *Options {

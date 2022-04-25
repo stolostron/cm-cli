@@ -44,13 +44,13 @@ func (cph *ClusterPoolHost) getClusterPoolSAToken(
 		if err != nil {
 			if clusterPoolRestConfig == nil {
 				needLogin = true
-				err = fmt.Errorf("You are not logged into  %s", cph.APIServer)
+				err = fmt.Errorf("you are not logged into  %s", cph.APIServer)
 			}
 			return
 		}
 		if clusterPoolRestConfig.Host != cph.APIServer {
 			needLogin = true
-			err = fmt.Errorf("You are not logged into %s", cph.APIServer)
+			err = fmt.Errorf("you are not logged into %s", cph.APIServer)
 			return
 		}
 		var kubeClient kubernetes.Interface
@@ -61,7 +61,7 @@ func (cph *ClusterPoolHost) getClusterPoolSAToken(
 		_, err = kubeClient.CoreV1().Secrets(cph.Namespace).List(context.TODO(), metav1.ListOptions{})
 		if err != nil {
 			needLogin = true
-			err = fmt.Errorf("You are not logged into  %s", cph.APIServer)
+			err = fmt.Errorf("you are not logged into  %s", cph.APIServer)
 			return
 		}
 
