@@ -69,7 +69,10 @@ func (o *Options) getKubeConfig(cph *clusterpoolhost.ClusterPoolHost) (err error
 	if err != nil {
 		return err
 	}
-	kubeConfigSecret, err := kubeClient.CoreV1().Secrets(cd.Namespace).Get(context.TODO(), kubeConfigSecretName, metav1.GetOptions{})
+	kubeConfigSecret, err := kubeClient.
+		CoreV1().
+		Secrets(cd.Namespace).
+		Get(context.TODO(), kubeConfigSecretName, metav1.GetOptions{})
 	if err != nil {
 		return err
 	}

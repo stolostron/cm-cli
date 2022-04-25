@@ -24,12 +24,15 @@ func (cph *ClusterPoolHost) GetClusterDeployment(cc *hivev1.ClusterClaim) (*hive
 	if len(cc.Spec.Namespace) == 0 {
 		return nil, fmt.Errorf("something wrong happened, the clusterclaim %s doesn't have a spec.namespace set", cc.Name)
 	}
-	cdu, err := dynamicClient.Resource(helpers.GvrCD).Namespace(cc.Spec.Namespace).Get(context.TODO(), cc.Spec.Namespace, metav1.GetOptions{})
+	cdu, err := dynamicClient.
+		Resource(helpers.GvrCD).
+		Namespace(cc.Spec.Namespace).
+		Get(context.TODO(), cc.Spec.Namespace, metav1.GetOptions{})
 	if err != nil {
 		return nil, err
 	}
 	cd := &hivev1.ClusterDeployment{}
-	if runtime.DefaultUnstructuredConverter.FromUnstructured(cdu.UnstructuredContent(), cd); err != nil {
+	if err := runtime.DefaultUnstructuredConverter.FromUnstructured(cdu.UnstructuredContent(), cd); err != nil {
 		return nil, err
 	}
 	return cd, nil

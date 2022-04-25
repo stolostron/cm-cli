@@ -27,7 +27,7 @@ func OpenHosted(cmFlags *genericclioptions.CMFlags, clusterName string, timeout 
 		return err
 	}
 	mc := &clusterv1.ManagedCluster{}
-	if runtime.DefaultUnstructuredConverter.FromUnstructured(mcu.UnstructuredContent(), mc); err != nil {
+	if err := runtime.DefaultUnstructuredConverter.FromUnstructured(mcu.UnstructuredContent(), mc); err != nil {
 		return err
 	}
 
