@@ -4,6 +4,7 @@ package console
 import (
 	"github.com/stolostron/cm-cli/pkg/cmd/console/clusterclaim"
 	"github.com/stolostron/cm-cli/pkg/cmd/console/clusterpoolhost"
+	"github.com/stolostron/cm-cli/pkg/cmd/console/hosted"
 	genericclioptionscm "github.com/stolostron/cm-cli/pkg/genericclioptions"
 
 	"github.com/spf13/cobra"
@@ -19,6 +20,7 @@ func NewCmd(cmFlags *genericclioptionscm.CMFlags, streams genericclioptions.IOSt
 
 	cmd.AddCommand(clusterpoolhost.NewCmd(cmFlags, streams))
 	cmd.AddCommand(clusterclaim.NewCmd(cmFlags, streams))
+	cmd.AddCommand(hosted.NewCmd(cmFlags, streams))
 
 	return cmd
 }

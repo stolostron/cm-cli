@@ -508,19 +508,8 @@ func (cph *ClusterPoolHost) GetPrintClusterClaimCredential(cc *hivev1.ClusterCla
 	if err != nil {
 		return nil, err
 	}
-	dynamicClient, err := dynamic.NewForConfig(clusterPoolRestConfig)
+	cd, err := cph.GetClusterDeployment(cc)
 	if err != nil {
-		return nil, err
-	}
-	if len(cc.Spec.Namespace) == 0 {
-		return nil, fmt.Errorf("something wrong happened, the clusterclaim %s doesn't have a spec.namespace set", cc.Name)
-	}
-	cdu, err := dynamicClient.Resource(helpers.GvrCD).Namespace(cc.Spec.Namespace).Get(context.TODO(), cc.Spec.Namespace, metav1.GetOptions{})
-	if err != nil {
-		return nil, err
-	}
-	cd := &hivev1.ClusterDeployment{}
-	if runtime.DefaultUnstructuredConverter.FromUnstructured(cdu.UnstructuredContent(), cd); err != nil {
 		return nil, err
 	}
 	ccc := &printclusterpoolv1alpha1.PrintClusterClaimCredential{

@@ -5,6 +5,8 @@
 - Add "--current" in `cm get cc` to display the current clusterclaim in use.
 - Create binary for darwin/arm64.
 - [Support import of a cluster that is the non-active kubecontext in a kubeconfig #197](https://github.com/stolostron/cm-cli/issues/197)
+- Add "--kubeconfig-creds" in `cm get cc` to display the kubeconfig
+- [Open openshift console of an hypershift hosted #201](https://github.com/stolostron/cm-cli/issues/201)
 
 ## Breaking changes
 
