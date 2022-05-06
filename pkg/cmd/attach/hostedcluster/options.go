@@ -8,13 +8,14 @@ import (
 
 type Options struct {
 	//CMFlags: The generic optiosn from the cm cli-runtime.
-	CMFlags       *genericclioptionscm.CMFlags
-	HostedCluster string
-	waitAgent     bool
-	waitAddOns    bool
-	timeout       int
-	valuesPath    string
-	values        map[string]interface{}
+	CMFlags                *genericclioptionscm.CMFlags
+	HostedCluster          string
+	HostedClusterNamespace string
+	waitAgent              bool
+	waitAddOns             bool
+	timeout                int
+	valuesPath             string
+	values                 map[string]interface{}
 	//The file to output the resources will be sent to the file.
 	outputFile string
 }

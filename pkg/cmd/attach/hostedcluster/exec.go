@@ -96,7 +96,7 @@ func (o *Options) validateWithClient(dynamicClient dynamic.Interface) error {
 
 	mc["name"] = o.HostedCluster
 
-	if _, err := dynamicClient.Resource(helpers.GvrHC).Namespace("clusters").Get(context.TODO(), o.HostedCluster, metav1.GetOptions{}); err != nil {
+	if _, err := dynamicClient.Resource(helpers.GvrHC).Namespace(o.HostedClusterNamespace).Get(context.TODO(), o.HostedCluster, metav1.GetOptions{}); err != nil {
 		return fmt.Errorf("%s is not a hostedcluster, %s", o.HostedCluster, err)
 	}
 	return nil
@@ -125,7 +125,7 @@ func (o *Options) attachHostedCluster() error {
 		return err
 	}
 
-	hcu, err := dynamicClient.Resource(helpers.GvrHC).Namespace("clusters").Get(context.TODO(), o.HostedCluster, metav1.GetOptions{})
+	hcu, err := dynamicClient.Resource(helpers.GvrHC).Namespace(o.HostedClusterNamespace).Get(context.TODO(), o.HostedCluster, metav1.GetOptions{})
 	if err != nil {
 		return err
 	}
@@ -136,7 +136,7 @@ func (o *Options) attachHostedCluster() error {
 	if hc.Status.KubeConfig == nil {
 		return fmt.Errorf("kubeconfig not yet available for cluster %s", o.HostedCluster)
 	}
-	kubeConfigSecret, err := kubeClient.CoreV1().Secrets("clusters").Get(context.TODO(), hc.Status.KubeConfig.Name, metav1.GetOptions{})
+	kubeConfigSecret, err := kubeClient.CoreV1().Secrets(o.HostedClusterNamespace).Get(context.TODO(), hc.Status.KubeConfig.Name, metav1.GetOptions{})
 	if err != nil {
 		return err
 	}
