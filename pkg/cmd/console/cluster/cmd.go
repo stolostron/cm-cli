@@ -1,5 +1,5 @@
 // Copyright Contributors to the Open Cluster Management project
-package hosted
+package cluster
 
 import (
 	"fmt"
@@ -15,11 +15,8 @@ import (
 
 const (
 	example = `
-	# open the console of a hosted cluster in current clusterpoolhost
-	%[1]s console hosted <hosted-cluster-name> <hosting-cluster-name>
-	
-	# open the console of a hosted cluster of a given clusterpoolhost
-	%[1]s concole hosted <hosted-cluster-name> <hosting-cluster-name> --cph <clusterpoolhosts>
+	# open the console of a managedcluster cluster
+	%[1]s concole cluster <managed-cluster-name> 
 `
 )
 
@@ -28,28 +25,24 @@ func NewCmd(cmFlags *genericclioptionscm.CMFlags, streams genericclioptions.IOSt
 
 	o := newOptions(cmFlags, streams)
 	cmd := &cobra.Command{
-		Use:                   "hosteds",
-		Aliases:               []string{"hd", "hds", "hosted"},
+		Use:                   "cluster",
+		Aliases:               []string{"clusters"},
 		DisableFlagsInUseLine: true,
-		Short:                 "Open console of a hosted cluster",
+		Short:                 "Open console of a managed cluster",
+		Long:                  "Open the console of a managed cluster if the managed cluster was created using a hypershift or cluster claim",
 		Example:               fmt.Sprintf(example, helpers.GetExampleHeader()),
-		// PreRunE: func(cmd *cobra.Command, args []string) error {
-		// 	return clusterpoolhost.BackupCurrentContexts()
-		// },
 		Run: func(cmd *cobra.Command, args []string) {
 			cmdutil.CheckErr(o.complete(cmd, args))
 			cmdutil.CheckErr(o.validate())
 			cmdutil.CheckErr(o.run())
 		},
-		// PostRunE: func(cmd *cobra.Command, args []string) error {
-		// 	return clusterpoolhost.RestoreCurrentContexts()
-		// },
 	}
 
 	o.GetOptions.PrintFlags = get.NewGetPrintFlags()
 
 	o.GetOptions.PrintFlags.AddFlags(cmd)
 
+	cmd.Flags().StringVar(&o.ClusterPoolHost, "cph", "", "The clusterpoolhost to use")
 	cmd.Flags().IntVar(&o.Timeout, "timeout", 60, "Timeout to get the cluster claim running")
 	cmd.Flags().BoolVar(&o.WithCredentials, "creds", o.WithCredentials, "If set the credentials will be displayed")
 

@@ -13,7 +13,7 @@ cm console clusterclaims
 	# open the console of clusterclaim in current clusterpoolhost
 	cm console cc <cluster-name>
 	
-	# pen the console clusterclaims of a given clusterpoolhost
+	# open the console clusterclaims of a given clusterpoolhost
 	cm concole cc <cluster-name> --cph <clusterpoolhosts>
 
 ```

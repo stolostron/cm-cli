@@ -1,5 +1,5 @@
 // Copyright Contributors to the Open Cluster Management project
-package hosted
+package cluster
 
 import (
 	genericclioptionscm "github.com/stolostron/cm-cli/pkg/genericclioptions"
@@ -10,8 +10,8 @@ import (
 type Options struct {
 	//CMFlags: The generic optiosn from the cm cli-runtime.
 	CMFlags         *genericclioptionscm.CMFlags
-	Hosting         string
-	Hosted          string
+	ManagedCluster  string
+	ClusterPoolHost string
 	Timeout         int
 	GetOptions      *get.GetOptions
 	WithCredentials bool

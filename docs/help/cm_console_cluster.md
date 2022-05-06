@@ -1,11 +1,40 @@
-## cm console
+## cm console cluster
 
-open a console
+Open console of a managed cluster
+
+### Synopsis
+
+Open the console of a managed cluster if the managed cluster was created using a hypershift or cluster claim
+
+```
+cm console cluster
+```
+
+### Examples
+
+```
+
+	# open the console of a managedcluster cluster
+	cm concole cluster <managed-cluster-name> 
+
+```
 
 ### Options
 
 ```
-  -h, --help   help for console
+      --allow-missing-template-keys   If true, ignore any errors in templates when a field or map key is missing in the template. Only applies to golang and jsonpath output formats. (default true)
+      --cph string                    The clusterpoolhost to use
+      --creds                         If set the credentials will be displayed
+  -h, --help                          help for cluster
+  -L, --label-columns strings         Accepts a comma separated list of labels that are going to be presented as columns. Names are case-sensitive. You can also use multiple flag options like -L label1 -L label2...
+      --no-headers                    When using the default or custom-column output format, don't print headers (default print headers).
+  -o, --output string                 Output format. One of: json|yaml|name|go-template|go-template-file|template|templatefile|jsonpath|jsonpath-as-json|jsonpath-file|custom-columns-file|custom-columns|wide See custom columns [https://kubernetes.io/docs/reference/kubectl/overview/#custom-columns], golang template [http://golang.org/pkg/text/template/#pkg-overview] and jsonpath template [https://kubernetes.io/docs/reference/kubectl/jsonpath/].
+      --show-kind                     If present, list the resource type for the requested object(s).
+      --show-labels                   When printing, show all labels as the last column (default hide labels column)
+      --show-managed-fields           If true, keep the managedFields when printing objects in JSON or YAML format.
+      --sort-by string                If non-empty, sort list types using this field specification.  The field specification is expressed as a JSONPath expression (e.g. '{.metadata.name}'). The field in the API resource specified by this JSONPath expression must be an integer or a string.
+      --template string               Template string or path to template file to use when -o=go-template, -o=go-template-file. The template format is golang templates [http://golang.org/pkg/text/template/#pkg-overview].
+      --timeout int                   Timeout to get the cluster claim running (default 60)
 ```
 
 ### Options inherited from parent commands
@@ -52,8 +81,5 @@ open a console
 
 ### SEE ALSO
 
-* [cm](cm.md)	 - CLI for Red Hat Advanced Cluster Management
-* [cm console cluster](cm_console_cluster.md)	 - Open console of a managed cluster
-* [cm console clusterclaims](cm_console_clusterclaims.md)	 - Open console of a clusterclaim
-* [cm console clusterpoolhost](cm_console_clusterpoolhost.md)	 - open the console of a clusterpoolhost
+* [cm console](cm_console.md)	 - open a console
 
