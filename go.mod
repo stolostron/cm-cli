@@ -8,7 +8,7 @@ require (
 	github.com/openshift/api v3.9.1-0.20190924102528-32369d4db2ad+incompatible
 	github.com/openshift/client-go v0.0.0-20211209144617-7385dd6338e3
 	github.com/openshift/hive/apis v0.0.0-20220311160056-133480feffd6
-	github.com/openshift/hypershift v0.0.0-20220208150618-28995b0e2f4c
+	github.com/openshift/hypershift v0.0.0-20220429033705-497b2817adbc
 	github.com/spf13/cobra v1.4.0
 	github.com/spf13/pflag v1.0.5
 	github.com/stolostron/governance-policy-propagator v0.0.0-20220128200210-e26d2c020e4b
@@ -20,7 +20,7 @@ require (
 	k8s.io/client-go v12.0.0+incompatible
 	k8s.io/code-generator v0.23.5
 	k8s.io/component-base v0.23.5
-	k8s.io/klog/v2 v2.30.0
+	k8s.io/klog/v2 v2.40.1
 	k8s.io/kubectl v0.23.5
 	open-cluster-management.io/api v0.6.1-0.20220127035449-918b7bf7184f
 	open-cluster-management.io/clusteradm v0.1.2-0.20220325115750-b60656443f24
@@ -49,7 +49,7 @@ require (
 	github.com/fsnotify/fsnotify v1.5.1 // indirect
 	github.com/fvbommel/sortorder v1.0.2 // indirect
 	github.com/go-errors/errors v1.4.2 // indirect
-	github.com/go-logr/logr v1.2.0 // indirect
+	github.com/go-logr/logr v1.2.2 // indirect
 	github.com/go-openapi/jsonpointer v0.19.5 // indirect
 	github.com/go-openapi/jsonreference v0.19.6 // indirect
 	github.com/go-openapi/swag v0.21.1 // indirect
@@ -81,7 +81,7 @@ require (
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
 	github.com/modern-go/reflect2 v1.0.2 // indirect
 	github.com/monochromegane/go-gitignore v0.0.0-20200626010858-205db1a8cc00 // indirect
-	github.com/onsi/gomega v1.18.0 // indirect
+	github.com/onsi/gomega v1.18.1 // indirect
 	github.com/openshift/custom-resource-status v0.0.0-20200602122900-c002fd1547ca // indirect
 	github.com/openshift/library-go v0.0.0-20211209153216-ed9bc958bd8a // indirect
 	github.com/pborman/uuid v1.2.0 // indirect
@@ -94,6 +94,7 @@ require (
 	github.com/prometheus/procfs v0.7.3 // indirect
 	github.com/russross/blackfriday v1.6.0 // indirect
 	github.com/russross/blackfriday/v2 v2.1.0 // indirect
+	github.com/stolostron/hypershift-deployment-controller v0.0.0-20220504173208-c3d8e2032854 // indirect
 	github.com/stretchr/testify v1.7.1 // indirect
 	github.com/xlab/treeprint v1.1.0 // indirect
 	go.starlark.net v0.0.0-20220302181546-5411bad688d1 // indirect
@@ -120,9 +121,9 @@ require (
 	kubevirt.io/containerized-data-importer-api v1.41.0 // indirect
 	kubevirt.io/controller-lifecycle-operator-sdk v0.2.1 // indirect
 	open-cluster-management.io/multicloud-operators-subscription v0.5.1-0.20220110225708-33d195cb3c9a // indirect
-	sigs.k8s.io/cluster-api v1.0.1 // indirect
+	sigs.k8s.io/cluster-api v1.1.3 // indirect
 	sigs.k8s.io/cluster-api-provider-aws v1.1.0 // indirect
-	sigs.k8s.io/cluster-api-provider-ibmcloud v0.2.0-alpha.1 // indirect
+	sigs.k8s.io/cluster-api-provider-ibmcloud v0.2.0 // indirect
 	sigs.k8s.io/cluster-api-provider-kubevirt v0.0.0-00010101000000-000000000000 // indirect
 	sigs.k8s.io/json v0.0.0-20211208200746-9f7c6b3444d2 // indirect
 	sigs.k8s.io/kube-storage-version-migrator v0.0.5 // indirect
@@ -133,7 +134,6 @@ require (
 )
 
 replace (
-
 	github.com/go-logr/logr => github.com/go-logr/logr v1.2.0
 	github.com/onsi/ginkgo/v2 => github.com/onsi/ginkgo/v2 v2.1.1
 	github.com/onsi/gomega => github.com/onsi/gomega v1.18.0

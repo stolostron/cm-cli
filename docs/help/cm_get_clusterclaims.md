@@ -27,7 +27,9 @@ cm get clusterclaims
       --allow-missing-template-keys   If true, ignore any errors in templates when a field or map key is missing in the template. Only applies to golang and jsonpath output formats. (default true)
       --cph string                    The clusterpoolhost to use
       --creds                         If set the credentials will be displayed
+      --current                       List the clusterclaim which is currently in use
   -h, --help                          help for clusterclaims
+      --kubeconfig-creds              Display the kubeconfig
   -L, --label-columns strings         Accepts a comma separated list of labels that are going to be presented as columns. Names are case-sensitive. You can also use multiple flag options like -L label1 -L label2...
       --no-headers                    When using the default or custom-column output format, don't print headers (default print headers).
   -o, --output string                 Output format. One of: json|yaml|name|go-template|go-template-file|template|templatefile|jsonpath|jsonpath-as-json|jsonpath-file|custom-columns-file|custom-columns|wide See custom columns [https://kubernetes.io/docs/reference/kubectl/overview/#custom-columns], golang template [http://golang.org/pkg/text/template/#pkg-overview] and jsonpath template [https://kubernetes.io/docs/reference/kubectl/jsonpath/].

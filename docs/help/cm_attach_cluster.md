@@ -26,6 +26,7 @@ cm attach cluster mycluster --values values.yaml
 ```
       --cluster-kubeconfig string           path to the kubeconfig the cluster to import
       --cluster-kubeconfig-content string   content of the kubeconfig the cluster to import
+      --cluster-kubecontext string          context to use in the kubeconfig to import the cluster
       --cluster-server string               cluster server url of the cluster to import
       --cluster-token string                token to access the cluster to import
   -h, --help                                help for cluster

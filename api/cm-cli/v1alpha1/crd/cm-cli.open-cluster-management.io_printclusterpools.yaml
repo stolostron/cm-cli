@@ -93,34 +93,67 @@ spec:
                           for the cluster pool.
                         properties:
                           default:
-                            description: Default is the default lifetime of the claim
+                            description: 'Default is the default lifetime of the claim
                               when no lifetime is set on the claim itself. This is
                               a Duration value; see https://pkg.go.dev/time#ParseDuration
-                              for accepted formats.
-                            format: duration
+                              for accepted formats. Note: due to discrepancies in
+                              validation vs parsing, we use a Pattern instead of `Format=duration`.
+                              See https://bugzilla.redhat.com/show_bug.cgi?id=2050332
+                              https://github.com/kubernetes/apimachinery/issues/131
+                              https://github.com/kubernetes/apiextensions-apiserver/issues/56'
+                            pattern: ^([0-9]+(\.[0-9]+)?(ns|us|µs|ms|s|m|h))+$
                             type: string
                           maximum:
-                            description: Maximum is the maximum lifetime of the claim
+                            description: 'Maximum is the maximum lifetime of the claim
                               after it is assigned a cluster. If the claim still exists
                               when the lifetime has elapsed, the claim will be deleted
                               by Hive. The lifetime of a claim is the mimimum of the
                               lifetimes set by the cluster pool and the claim itself.
                               This is a Duration value; see https://pkg.go.dev/time#ParseDuration
-                              for accepted formats.
-                            format: duration
+                              for accepted formats. Note: due to discrepancies in
+                              validation vs parsing, we use a Pattern instead of `Format=duration`.
+                              See https://bugzilla.redhat.com/show_bug.cgi?id=2050332
+                              https://github.com/kubernetes/apimachinery/issues/131
+                              https://github.com/kubernetes/apiextensions-apiserver/issues/56'
+                            pattern: ^([0-9]+(\.[0-9]+)?(ns|us|µs|ms|s|m|h))+$
                             type: string
                         type: object
                       hibernateAfter:
-                        description: HibernateAfter will be applied to new ClusterDeployments
+                        description: 'HibernateAfter will be applied to new ClusterDeployments
                           created for the pool. HibernateAfter will transition clusters
                           in the clusterpool to hibernating power state after it has
                           been running for the given duration. The time that a cluster
                           has been running is the time since the cluster was installed
                           or the time since the cluster last came out of hibernation.
                           This is a Duration value; see https://pkg.go.dev/time#ParseDuration
-                          for accepted formats.
-                        format: duration
+                          for accepted formats. Note: due to discrepancies in validation
+                          vs parsing, we use a Pattern instead of `Format=duration`.
+                          See https://bugzilla.redhat.com/show_bug.cgi?id=2050332
+                          https://github.com/kubernetes/apimachinery/issues/131 https://github.com/kubernetes/apiextensions-apiserver/issues/56'
+                        pattern: ^([0-9]+(\.[0-9]+)?(ns|us|µs|ms|s|m|h))+$
                         type: string
+                      hibernationConfig:
+                        description: HibernationConfig configures the hibernation/resume
+                          behavior of ClusterDeployments owned by the ClusterPool.
+                        properties:
+                          resumeTimeout:
+                            description: 'ResumeTimeout is the maximum amount of time
+                              we will wait for an unclaimed ClusterDeployment to resume
+                              from hibernation (e.g. at the behest of runningCount,
+                              or in preparation for being claimed). If this time is
+                              exceeded, the ClusterDeployment will be considered Broken
+                              and we will replace it. The default (unspecified or
+                              zero) means no timeout -- we will allow the ClusterDeployment
+                              to continue trying to resume "forever". This is a Duration
+                              value; see https://pkg.go.dev/time#ParseDuration for
+                              accepted formats. Note: due to discrepancies in validation
+                              vs parsing, we use a Pattern instead of `Format=duration`.
+                              See https://bugzilla.redhat.com/show_bug.cgi?id=2050332
+                              https://github.com/kubernetes/apimachinery/issues/131
+                              https://github.com/kubernetes/apiextensions-apiserver/issues/56'
+                            pattern: ^([0-9]+(\.[0-9]+)?(ns|us|µs|ms|s|m|h))+$
+                            type: string
+                        type: object
                       imageSetRef:
                         description: ImageSetRef is a reference to a ClusterImageSet.
                           The release image specified in the ClusterImageSet will
@@ -133,6 +166,11 @@ spec:
                         required:
                         - name
                         type: object
+                      installAttemptsLimit:
+                        description: InstallAttemptsLimit is the maximum number of
+                          times Hive will attempt to install the cluster.
+                        format: int32
+                        type: integer
                       installConfigSecretTemplateRef:
                         description: InstallConfigSecretTemplateRef is a secret with
                           the key install-config.yaml consisting of the content of
@@ -362,6 +400,42 @@ spec:
                               region:
                                 description: Region specifies the GCP region where
                                   the cluster will be created.
+                                type: string
+                            required:
+                            - credentialsSecretRef
+                            - region
+                            type: object
+                          ibmcloud:
+                            description: IBMCloud is the configuration used when installing
+                              on IBM Cloud
+                            properties:
+                              accountID:
+                                description: AccountID is the IBM Cloud Account ID.
+                                  AccountID is DEPRECATED and is gathered via the
+                                  IBM Cloud API for the provided credentials. This
+                                  field will be ignored.
+                                type: string
+                              cisInstanceCRN:
+                                description: CISInstanceCRN is the IBM Cloud Internet
+                                  Services Instance CRN CISInstanceCRN is DEPRECATED
+                                  and gathered via the IBM Cloud API for the provided
+                                  credentials and cluster deployment base domain.
+                                  This field will be ignored.
+                                type: string
+                              credentialsSecretRef:
+                                description: CredentialsSecretRef refers to a secret
+                                  that contains IBM Cloud account access credentials.
+                                properties:
+                                  name:
+                                    description: 'Name of the referent. More info:
+                                      https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+                                      TODO: Add other useful fields. apiVersion, kind,
+                                      uid?'
+                                    type: string
+                                type: object
+                              region:
+                                description: Region specifies the IBM Cloud region
+                                  where the cluster will be created.
                                 type: string
                             required:
                             - credentialsSecretRef
@@ -603,12 +677,17 @@ spec:
                         type: array
                       ready:
                         description: Ready is the number of unclaimed clusters that
-                          have been installed and are ready to be claimed.
+                          are installed and are running and ready to be claimed.
                         format: int32
                         type: integer
                       size:
                         description: Size is the number of unclaimed clusters that
                           have been created for the pool.
+                        format: int32
+                        type: integer
+                      standby:
+                        description: Standby is the number of unclaimed clusters that
+                          are installed, but not running.
                         format: int32
                         type: integer
                     required:
