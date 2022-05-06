@@ -18,7 +18,7 @@ import (
 
 var example = `
 # Attach a cluster
-%[1]s attach hc --values values.yaml
+%[1]s attach hc --values <values.yaml> -n <hosted-cluster-namespace>
 `
 
 const (
@@ -80,6 +80,7 @@ func NewCmd(cmFlags *genericclioptionscm.CMFlags, streams genericclioptions.IOSt
 
 	cmd.SetUsageTemplate(clusteradmhelpers.UsageTempate(cmd, scenario.GetScenarioResourcesReader(), valuesTemplatePath))
 	cmd.Flags().StringVar(&o.valuesPath, "values", "", "The files containing the values")
+	cmd.Flags().StringVarP(&o.HostedClusterNamespace, "namespace", "n", "clusters", "The HostedCluster namespace")
 	cmd.Flags().StringVar(&o.outputFile, "output-file", "", "The generated resources will be copied in the specified file")
 	cmd.Flags().BoolVar(&o.waitAgent, "wait", false, "Wait until the klusterlet agent is installed")
 	//Not implemented as it requires to import all addon packages
