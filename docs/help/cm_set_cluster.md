@@ -1,28 +1,26 @@
-## cm attach hostedcluster
+## cm set cluster
 
-Import a hostedcluster
+set clusters
 
 ```
-cm attach hostedcluster [flags]
+cm set cluster [flags]
 ```
 
 ### Examples
 
 ```
 
-# Attach a cluster
-cm attach hc --values <values.yaml> -n <hosted-cluster-namespace>
+# set clusters
+cm set cluster <cluster_name>[,<clusterc_name>...] <options>
 
 ```
 
 ### Options
 
 ```
-  -h, --help                 help for hostedcluster
-      --output-file string   The generated resources will be copied in the specified file
-      --timeout int          Timeout to get the klusterlet agent or addons ready in seconds (default 180)
-      --values string        The files containing the values
-      --wait                 Wait until the klusterlet agent is installed
+  -h, --help                     help for cluster
+      --hibernate-schedule-off   Set the hibernation schedule to off
+      --hibernate-schedule-on    Set the hibernation schedule to on
 ```
 
 ### Options inherited from parent commands
@@ -69,5 +67,5 @@ cm attach hc --values <values.yaml> -n <hosted-cluster-namespace>
 
 ### SEE ALSO
 
-* [cm attach](cm_attach.md)	 - attach a resource
+* [cm set](cm_set.md)	 - set a resource
 

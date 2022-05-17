@@ -11,7 +11,7 @@ import (
 
 func (o *Options) complete(cmd *cobra.Command, args []string) (err error) {
 	if len(args) < 1 {
-		return fmt.Errorf("clusterclaim name is missing")
+		return fmt.Errorf("clusterclaim names are missing")
 	}
 	o.ClusterClaims = args[0]
 	return nil
@@ -27,5 +27,5 @@ func (o *Options) run() (err error) {
 		return err
 	}
 
-	return cph.HibernateClusterClaims(o.ClusterClaims, o.SkipSchedule, o.CMFlags.DryRun, o.outputFile)
+	return cph.HibernateClusterClaims(o.ClusterClaims, o.SkipSchedule, o.CMFlags.DryRun)
 }
