@@ -35,7 +35,7 @@ func (o *Options) run() (err error) {
 
 	for _, ccn := range strings.Split(o.Clusters, ",") {
 		ccn := strings.TrimSpace(ccn)
-		cdu, err := dynamicClient.Resource(helpers.GvrCD).Get(context.TODO(), ccn, metav1.GetOptions{})
+		cdu, err := dynamicClient.Resource(helpers.GvrCD).Namespace(ccn).Get(context.TODO(), ccn, metav1.GetOptions{})
 		if err != nil {
 			return err
 		}
