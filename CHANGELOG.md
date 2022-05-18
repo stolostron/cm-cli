@@ -7,6 +7,8 @@
     - `cm hibernate cluster <cluster_name>[,<clusterc_name>...] <options>`
     - `cm run cluster <cluster_name>[,<clusterc_name>...] <options>`
     - `cm set cluster <cluster_name>[,<clusterc_name>...] [--hibernate-schedule-on|--hibernate-schedule-off]`
+- [Add test if hibernate schedule is set #210](https://github.com/stolostron/cm-cli/issues/210)
+
 ## Breaking changes
 
 ## Bug fixes
