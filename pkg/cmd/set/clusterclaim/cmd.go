@@ -8,7 +8,6 @@ import (
 
 	genericclioptionscm "github.com/stolostron/cm-cli/pkg/genericclioptions"
 	"github.com/stolostron/cm-cli/pkg/helpers"
-	"k8s.io/kubectl/pkg/cmd/get"
 	cmdutil "k8s.io/kubectl/pkg/cmd/util"
 
 	"github.com/spf13/cobra"
@@ -16,11 +15,8 @@ import (
 )
 
 var example = `
-# Run clusterclaims
-%[1]s runcc <clusterclaim_name>[,<clusterclaim_name>...] <options>
-
-# run clusterclaims on a given clusterpoolhost
-%[1]s run cc <clusterclaim_name>[,<clusterclaim_name>...] --cph <clusterpoolhost> <options>
+# set clusters
+%[1]s set clusterclaim <clusterclaim_name>[,<clusterclaim_name>...] <options>
 `
 
 // NewCmd ...
@@ -29,7 +25,7 @@ func NewCmd(cmFlags *genericclioptionscm.CMFlags, streams genericclioptions.IOSt
 	cmd := &cobra.Command{
 		Use:          "clusterclaim",
 		Aliases:      []string{"clusterclaims", "cc", "ccs"},
-		Short:        "Run clusterclaims",
+		Short:        "set clusterclaims",
 		Example:      fmt.Sprintf(example, helpers.GetExampleHeader()),
 		SilenceUsage: true,
 		PreRunE: func(cmd *cobra.Command, args []string) error {
@@ -42,17 +38,9 @@ func NewCmd(cmFlags *genericclioptionscm.CMFlags, streams genericclioptions.IOSt
 			cmdutil.CheckErr(o.run())
 		},
 	}
-
-	o.GetOptions.PrintFlags = get.NewGetPrintFlags()
-
-	o.GetOptions.PrintFlags.AddFlags(cmd)
-
 	cmd.Flags().StringVar(&o.ClusterPoolHost, "cph", "", "The clusterpoolhost to use")
-	cmd.Flags().StringVar(&o.outputFile, "output-file", "", "The generated resources will be copied in the specified file")
-	cmd.Flags().BoolVar(&o.SkipSchedule, "skip-schedule", false, "Set the hibernation schedule to skip (deprecated)")
 	cmd.Flags().BoolVar(&o.HibernateScheduleOn, "hibernate-schedule-on", false, "Set the hibernation schedule to on")
 	cmd.Flags().BoolVar(&o.HibernateScheduleOff, "hibernate-schedule-off", false, "Set the hibernation schedule to off")
-	cmd.Flags().IntVar(&o.Timeout, "timeout", 60, "Timeout to get the cluster claim running")
-	cmd.Flags().BoolVar(&o.WithCredentials, "creds", o.WithCredentials, "If set the credentials will be displayed")
+
 	return cmd
 }

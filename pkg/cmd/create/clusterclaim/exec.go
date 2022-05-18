@@ -23,7 +23,7 @@ func (o *Options) complete(cmd *cobra.Command, args []string) (err error) {
 	return nil
 }
 
-func (o *Options) validate() error {
+func (o *Options) validate(cmd *cobra.Command) error {
 	if o.Import {
 		rhacmConstraint := ">=2.4.0"
 		supported, platform, err := helpers.IsSupportedVersion(o.CMFlags, true, o.ClusterPoolHost, rhacmConstraint, "")
@@ -48,7 +48,7 @@ func (o *Options) run() (err error) {
 		return err
 	}
 
-	err = cph.CreateClusterClaims(o.ClusterClaims, o.ClusterPool, o.SkipSchedule, o.Import, o.Timeout, o.CMFlags.DryRun, o.outputFile, o.GetOptions.PrintFlags)
+	err = cph.CreateClusterClaims(o.ClusterClaims, o.ClusterPool, o.Import, o.Timeout, o.CMFlags.DryRun, o.outputFile, o.GetOptions.PrintFlags)
 	if err != nil {
 		return err
 	}

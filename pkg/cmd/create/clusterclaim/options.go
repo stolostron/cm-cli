@@ -18,7 +18,6 @@ type Options struct {
 	GetOptions      *get.GetOptions
 	WithCredentials bool
 	Timeout         int
-	SkipSchedule    bool
 	//The file to output the resources will be sent to the file.
 	outputFile string
 }

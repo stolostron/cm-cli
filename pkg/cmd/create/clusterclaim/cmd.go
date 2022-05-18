@@ -37,7 +37,7 @@ func NewCmd(cmFlags *genericclioptionscm.CMFlags, streams genericclioptions.IOSt
 		},
 		Run: func(cmd *cobra.Command, args []string) {
 			cmdutil.CheckErr(o.complete(cmd, args))
-			cmdutil.CheckErr(o.validate())
+			cmdutil.CheckErr(o.validate(cmd))
 			cmdutil.CheckErr(o.run())
 		},
 	}
@@ -46,7 +46,6 @@ func NewCmd(cmFlags *genericclioptionscm.CMFlags, streams genericclioptions.IOSt
 
 	o.GetOptions.PrintFlags.AddFlags(cmd)
 
-	cmd.Flags().BoolVar(&o.SkipSchedule, "skip-schedule", false, "Set the hibernation schedule to skip")
 	cmd.Flags().IntVar(&o.Timeout, "timeout", 60, "Timeout to get the cluster claim running in minutes")
 	cmd.Flags().StringVar(&o.ClusterPoolHost, "cph", "", "The clusterpoolhost to use")
 	cmd.Flags().StringVar(&o.outputFile, "output-file", "", "The generated resources will be copied in the specified file")

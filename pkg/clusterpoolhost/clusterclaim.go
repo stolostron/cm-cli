@@ -33,7 +33,7 @@ func (cph *ClusterPoolHost) GetClusterContextName(clusterName string) string {
 	return fmt.Sprintf("%s/%s", cph.Name, clusterName)
 }
 
-func (cph *ClusterPoolHost) CreateClusterClaims(clusterClaimNames, clusterPoolName string, skipSchedule bool, autoImport bool, timeout int, dryRun bool, outputFile string, printFlags *get.PrintFlags) error {
+func (cph *ClusterPoolHost) CreateClusterClaims(clusterClaimNames, clusterPoolName string, autoImport bool, timeout int, dryRun bool, outputFile string, printFlags *get.PrintFlags) error {
 	clusterPoolRestConfig, err := cph.GetGlobalRestConfig()
 	if err != nil {
 		return err
@@ -115,14 +115,14 @@ func (cph *ClusterPoolHost) CreateClusterClaims(clusterClaimNames, clusterPoolNa
 	return clusteradmapply.WriteOutput(outputFile, output)
 }
 
-func (cph *ClusterPoolHost) RunClusterClaims(clusterClaimNames string, skipSchedule bool, timeout int, dryRun bool, outputFile string, printFlags *get.PrintFlags) error {
-	skipScheduleAction := "true"
-	if skipSchedule {
-		skipScheduleAction = "skip"
-	}
-	if err := cph.setHibernateClusterClaims(clusterClaimNames, false, skipScheduleAction, dryRun); err != nil {
+func (cph *ClusterPoolHost) RunClusterClaims(clusterClaimNames string, scheduleSkip string, timeout int, dryRun bool, outputFile string, printFlags *get.PrintFlags) error {
+	if err := cph.setHibernateClusterClaims(clusterClaimNames, false, dryRun); err != nil {
 		return err
 	}
+	if err := cph.SetHibernateScheduleClusterClaims(clusterClaimNames, scheduleSkip, dryRun); err != nil {
+		return err
+	}
+
 	if !dryRun {
 		clusterPoolRestConfig, err := cph.GetGlobalRestConfig()
 		if err != nil {
@@ -138,15 +138,66 @@ func (cph *ClusterPoolHost) RunClusterClaims(clusterClaimNames string, skipSched
 	return nil
 }
 
-func (cph *ClusterPoolHost) HibernateClusterClaims(clusterClaimNames string, skipSchedule, dryRun bool) error {
-	skipScheduleAction := "true"
-	if skipSchedule {
-		skipScheduleAction = "skip"
+func (cph *ClusterPoolHost) HibernateClusterClaims(clusterClaimNames string, scheduleSkip string, dryRun bool) error {
+	err := cph.setHibernateClusterClaims(clusterClaimNames, true, dryRun)
+	if err != nil {
+		return err
 	}
-	return cph.setHibernateClusterClaims(clusterClaimNames, true, skipScheduleAction, dryRun)
+	return cph.SetHibernateScheduleClusterClaims(clusterClaimNames, scheduleSkip, dryRun)
 }
 
-func (cph *ClusterPoolHost) setHibernateClusterClaims(clusterClaimNames string, hibernate bool, skipScheduleAction string, dryRun bool) error {
+func (cph *ClusterPoolHost) SetHibernateScheduleClusterClaims(clusterClaimNames string, scheduleSkip string, dryRun bool) error {
+	clusterPoolRestConfig, err := cph.GetGlobalRestConfig()
+	if err != nil {
+		return err
+	}
+
+	dynamicClient, err := dynamic.NewForConfig(clusterPoolRestConfig)
+	if err != nil {
+		return err
+	}
+
+	for _, ccn := range strings.Split(clusterClaimNames, ",") {
+		ccn := strings.TrimSpace(ccn)
+		ccu, err := dynamicClient.Resource(helpers.GvrCC).Namespace(cph.Namespace).Get(context.TODO(), ccn, metav1.GetOptions{})
+		if err != nil {
+			return err
+		}
+		cc := &hivev1.ClusterClaim{}
+		if err = runtime.DefaultUnstructuredConverter.FromUnstructured(ccu.UnstructuredContent(), cc); err != nil {
+			return err
+		}
+		if len(cc.Spec.Namespace) == 0 {
+			return fmt.Errorf("something wrong happened, the clusterclaim %s doesn't have a spec.namespace set", cc.Name)
+		}
+		cdu, err := dynamicClient.Resource(helpers.GvrCD).Namespace(cc.Spec.Namespace).Get(context.TODO(), cc.Spec.Namespace, metav1.GetOptions{})
+		if err != nil {
+			return err
+		}
+		if !dryRun {
+			cd := &hivev1.ClusterDeployment{}
+			err = runtime.DefaultUnstructuredConverter.FromUnstructured(cdu.UnstructuredContent(), cd)
+			if err != nil {
+				return err
+			}
+			if len(scheduleSkip) != 0 {
+				cd.Labels["hibernate"] = scheduleSkip
+			}
+			cdu.Object, err = runtime.DefaultUnstructuredConverter.ToUnstructured(cd)
+			if err != nil {
+				return err
+			}
+			_, err = dynamicClient.Resource(helpers.GvrCD).Namespace(cc.Spec.Namespace).Update(context.TODO(), cdu, metav1.UpdateOptions{})
+			if err != nil {
+				return err
+			}
+		}
+	}
+
+	return nil
+}
+
+func (cph *ClusterPoolHost) setHibernateClusterClaims(clusterClaimNames string, hibernate bool, dryRun bool) error {
 	clusterPoolRestConfig, err := cph.GetGlobalRestConfig()
 	if err != nil {
 		return err
@@ -184,9 +235,6 @@ func (cph *ClusterPoolHost) setHibernateClusterClaims(clusterClaimNames string, 
 				cd.Spec.PowerState = hivev1.ClusterPowerStateHibernating
 			} else {
 				cd.Spec.PowerState = hivev1.ClusterPowerStateRunning
-			}
-			if len(skipScheduleAction) != 0 {
-				cd.Labels["hibernate"] = skipScheduleAction
 			}
 			cdu.Object, err = runtime.DefaultUnstructuredConverter.ToUnstructured(cd)
 			if err != nil {

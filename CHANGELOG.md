@@ -8,6 +8,9 @@
     - `cm run cluster <cluster_name>[,<clusterc_name>...] <options>`
     - `cm set cluster <cluster_name>[,<clusterc_name>...] [--hibernate-schedule-on|--hibernate-schedule-off]`
 - [Add test if hibernate schedule is set #210](https://github.com/stolostron/cm-cli/issues/210)
+- [Deprecate --skip-schedule and replace by --hibernate-schedule-off and --hibernate-schedule-on in cm hibernate/run cc #209](https://github.com/stolostron/cm-cli/issues/209)
+- [Add hibernate schedule option in cm set cc #212](https://github.com/stolostron/cm-cli/issues/212)
+- Removed `--skip-schedule` from `cm create cc` as it wa ineffective. Use `cm set cc [--hibernate-schedule-on|--hibernate-schedule-off]` to set it.
 
 ## Breaking changes
 
