@@ -2,6 +2,7 @@
 package run
 
 import (
+	"github.com/stolostron/cm-cli/pkg/cmd/run/cluster"
 	"github.com/stolostron/cm-cli/pkg/cmd/run/clusterclaim"
 	genericclioptionscm "github.com/stolostron/cm-cli/pkg/genericclioptions"
 
@@ -17,6 +18,7 @@ func NewCmd(cmFlags *genericclioptionscm.CMFlags, streams genericclioptions.IOSt
 	}
 
 	cmd.AddCommand(clusterclaim.NewCmd(cmFlags, streams))
+	cmd.AddCommand(cluster.NewCmd(cmFlags, streams))
 
 	return cmd
 }

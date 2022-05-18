@@ -120,7 +120,7 @@ func (cph *ClusterPoolHost) RunClusterClaims(clusterClaimNames string, skipSched
 	if skipSchedule {
 		skipScheduleAction = "skip"
 	}
-	if err := cph.setHibernateClusterClaims(clusterClaimNames, false, skipScheduleAction, dryRun, outputFile); err != nil {
+	if err := cph.setHibernateClusterClaims(clusterClaimNames, false, skipScheduleAction, dryRun); err != nil {
 		return err
 	}
 	if !dryRun {
@@ -138,15 +138,15 @@ func (cph *ClusterPoolHost) RunClusterClaims(clusterClaimNames string, skipSched
 	return nil
 }
 
-func (cph *ClusterPoolHost) HibernateClusterClaims(clusterClaimNames string, skipSchedule, dryRun bool, outputFile string) error {
+func (cph *ClusterPoolHost) HibernateClusterClaims(clusterClaimNames string, skipSchedule, dryRun bool) error {
 	skipScheduleAction := "true"
 	if skipSchedule {
 		skipScheduleAction = "skip"
 	}
-	return cph.setHibernateClusterClaims(clusterClaimNames, true, skipScheduleAction, dryRun, outputFile)
+	return cph.setHibernateClusterClaims(clusterClaimNames, true, skipScheduleAction, dryRun)
 }
 
-func (cph *ClusterPoolHost) setHibernateClusterClaims(clusterClaimNames string, hibernate bool, skipScheduleAction string, dryRun bool, outputFile string) error {
+func (cph *ClusterPoolHost) setHibernateClusterClaims(clusterClaimNames string, hibernate bool, skipScheduleAction string, dryRun bool) error {
 	clusterPoolRestConfig, err := cph.GetGlobalRestConfig()
 	if err != nil {
 		return err
@@ -158,6 +158,7 @@ func (cph *ClusterPoolHost) setHibernateClusterClaims(clusterClaimNames string, 
 	}
 
 	for _, ccn := range strings.Split(clusterClaimNames, ",") {
+		ccn := strings.TrimSpace(ccn)
 		ccu, err := dynamicClient.Resource(helpers.GvrCC).Namespace(cph.Namespace).Get(context.TODO(), ccn, metav1.GetOptions{})
 		if err != nil {
 			return err

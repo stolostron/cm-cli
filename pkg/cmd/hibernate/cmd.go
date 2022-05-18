@@ -2,6 +2,7 @@
 package hibernate
 
 import (
+	"github.com/stolostron/cm-cli/pkg/cmd/hibernate/cluster"
 	"github.com/stolostron/cm-cli/pkg/cmd/hibernate/clusterclaim"
 	genericclioptionscm "github.com/stolostron/cm-cli/pkg/genericclioptions"
 
@@ -17,6 +18,7 @@ func NewCmd(cmFlags *genericclioptionscm.CMFlags, streams genericclioptions.IOSt
 	}
 
 	cmd.AddCommand(clusterclaim.NewCmd(cmFlags, streams))
+	cmd.AddCommand(cluster.NewCmd(cmFlags, streams))
 
 	return cmd
 }
