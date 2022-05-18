@@ -15,6 +15,8 @@ type Options struct {
 	HibernateScheduleOn bool
 	// hibernate schedule off
 	HibernateScheduleOff bool
+	// force the Hibernate setting however the hibernation cronjob is not present
+	HibernateScheduleForce bool
 }
 
 func newOptions(cmFlags *genericclioptionscm.CMFlags, streams genericclioptions.IOStreams) *Options {
