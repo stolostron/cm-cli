@@ -36,6 +36,28 @@ func (o *Options) validate(cmd *cobra.Command) error {
 		cmd.Flags().Lookup("hibernate-schedule-off").Changed {
 		return fmt.Errorf("flags hibernate-schedule-on and hibernate-schedule-off are mutually exclusif")
 	}
+	if cmd.Flags().Lookup("hibernate-schedule-on").Changed {
+		dynamicClient, err := o.CMFlags.KubectlFactory.DynamicClient()
+		if err != nil {
+			return err
+		}
+		cjus, err := dynamicClient.Resource(helpers.GvrCD).List(context.TODO(), metav1.ListOptions{})
+		if err != nil {
+			return err
+		}
+		found := false
+		for _, cju := range cjus.Items {
+			if cju.GetName() == "hibernation-cronjob" {
+				found = true
+			}
+		}
+		if !found && !o.HibernateScheduleForce {
+			return fmt.Errorf(`
+hibernation cronjob not installed,
+please visit https://github.com/stolostron/hibernate-cronjob#hibernate-your-hive-provisioned-clusters\n
+you can use --hibernate-schedule-force to force the setting`)
+		}
+	}
 	return nil
 }
 

@@ -18,9 +18,10 @@ cm set cluster <cluster_name>[,<clusterc_name>...] <options>
 ### Options
 
 ```
-  -h, --help                     help for cluster
-      --hibernate-schedule-off   Set the hibernation schedule to off
-      --hibernate-schedule-on    Set the hibernation schedule to on
+  -h, --help                       help for cluster
+      --hibernate-schedule-force   Force the hibernate setting
+      --hibernate-schedule-off     Set the hibernation schedule to off
+      --hibernate-schedule-on      Set the hibernation schedule to on
 ```
 
 ### Options inherited from parent commands

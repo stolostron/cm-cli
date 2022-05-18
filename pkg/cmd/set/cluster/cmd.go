@@ -40,6 +40,7 @@ func NewCmd(cmFlags *genericclioptionscm.CMFlags, streams genericclioptions.IOSt
 	}
 	cmd.Flags().BoolVar(&o.HibernateScheduleOn, "hibernate-schedule-on", false, "Set the hibernation schedule to on")
 	cmd.Flags().BoolVar(&o.HibernateScheduleOff, "hibernate-schedule-off", false, "Set the hibernation schedule to off")
+	cmd.Flags().BoolVar(&o.HibernateScheduleForce, "hibernate-schedule-force", false, "Force the hibernate setting")
 
 	return cmd
 }
