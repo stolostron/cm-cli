@@ -399,7 +399,7 @@ func getClusterClaimRunningStatus(cc *hivev1.ClusterClaim) *hivev1.ClusterClaimC
 	return nil
 }
 
-func (cph *ClusterPoolHost) DeleteClusterClaims(clusterClaimNames string, dryRun bool, outputFile string) error {
+func (cph *ClusterPoolHost) DeleteClusterClaims(clusterClaimNames string, dryRun bool) error {
 	clusterPoolRestConfig, err := cph.GetGlobalRestConfig()
 	if err != nil {
 		return err
@@ -410,11 +410,16 @@ func (cph *ClusterPoolHost) DeleteClusterClaims(clusterClaimNames string, dryRun
 		return err
 	}
 
-	if !dryRun {
-		for _, ccn := range strings.Split(clusterClaimNames, ",") {
-			clusterClaimName := strings.TrimSpace(ccn)
-			err = dynamicClient.Resource(helpers.GvrCC).Namespace(cph.Namespace).Delete(context.TODO(), clusterClaimName, metav1.DeleteOptions{})
-			if err != nil {
+	for _, ccn := range strings.Split(clusterClaimNames, ",") {
+		clusterClaimName := strings.TrimSpace(ccn)
+		if !dryRun {
+			if err := dynamicClient.Resource(helpers.GvrCC).
+				Namespace(cph.Namespace).Delete(context.TODO(), clusterClaimName, metav1.DeleteOptions{}); err != nil {
+				return err
+			}
+		} else {
+			if _, err := dynamicClient.Resource(helpers.GvrCC).
+				Namespace(cph.Namespace).Get(context.TODO(), clusterClaimName, metav1.GetOptions{}); err != nil {
 				return err
 			}
 		}

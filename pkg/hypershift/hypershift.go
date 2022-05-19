@@ -4,6 +4,7 @@ package hypershift
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	"github.com/stolostron/cm-cli/pkg/genericclioptions"
 	"github.com/stolostron/cm-cli/pkg/helpers"
@@ -30,4 +31,27 @@ func GetHypershiftDeployment(clusterName string, cmFlags *genericclioptions.CMFl
 		return nil, err
 	}
 	return hd, nil
+}
+
+func DeleteHypershiftDeployments(hypershiftDeployments string, namespace string, cmFlags *genericclioptions.CMFlags) error {
+	dynamicClient, err := cmFlags.KubectlFactory.DynamicClient()
+	if err != nil {
+		return err
+	}
+
+	for _, hdn := range strings.Split(hypershiftDeployments, ",") {
+		hypershiftDeploymentName := strings.TrimSpace(hdn)
+		if !cmFlags.DryRun {
+			if err := dynamicClient.Resource(helpers.GvrHD).
+				Namespace(namespace).Delete(context.TODO(), hypershiftDeploymentName, metav1.DeleteOptions{}); err != nil {
+				return err
+			}
+		} else {
+			if _, err := dynamicClient.Resource(helpers.GvrHD).
+				Namespace(namespace).Get(context.TODO(), hypershiftDeploymentName, metav1.GetOptions{}); err != nil {
+				return err
+			}
+		}
+	}
+	return nil
 }

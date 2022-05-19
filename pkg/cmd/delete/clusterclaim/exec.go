@@ -27,6 +27,6 @@ func (o *Options) run() (err error) {
 		return err
 	}
 
-	return cph.DeleteClusterClaims(o.ClusterClaims, o.CMFlags.DryRun, o.outputFile)
+	return cph.DeleteClusterClaims(o.ClusterClaims, o.CMFlags.DryRun)
 
 }
