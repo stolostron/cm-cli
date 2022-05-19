@@ -58,5 +58,6 @@ delete a resource
 * [cm delete clusterpool](cm_delete_clusterpool.md)	 - Delete clusterpools
 * [cm delete clusterpoolhost](cm_delete_clusterpoolhost.md)	 - delete clusterpoolhost
 * [cm delete clusterset](cm_delete_clusterset.md)	 - delete a clusterset
+* [cm delete hypershiftdeployment](cm_delete_hypershiftdeployment.md)	 - Delete hypershiftdeployment
 * [cm delete work](cm_delete_work.md)	 - delete work in specified cluster
 

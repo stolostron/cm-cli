@@ -1,43 +1,29 @@
-## cm run clusterclaim
+## cm create hypershiftdeployment
 
-Run clusterclaims
+hypershiftdeployment a cluster
 
 ```
-cm run clusterclaim [flags]
+cm create hypershiftdeployment [flags]
 ```
 
 ### Examples
 
 ```
 
-# Run clusterclaims
-cm runcc <clusterclaim_name>[,<clusterclaim_name>...] <options>
+# Create a hypershiftdeployment
+cm create hypershiftdeployment --values values.yaml
 
-# run clusterclaims on a given clusterpoolhost
-cm run cc <clusterclaim_name>[,<clusterclaim_name>...] --cph <clusterpoolhost> <options>
+# Create a hypershiftdeployment with cluster name overwrite by args
+cm create hypershiftdeployment mycluster --values values.yaml
 
 ```
 
 ### Options
 
 ```
-      --allow-missing-template-keys   If true, ignore any errors in templates when a field or map key is missing in the template. Only applies to golang and jsonpath output formats. (default true)
-      --cph string                    The clusterpoolhost to use
-      --creds                         If set the credentials will be displayed
-  -h, --help                          help for clusterclaim
-      --hibernate-schedule-off        Set the hibernation schedule to off
-      --hibernate-schedule-on         Set the hibernation schedule to on
-  -L, --label-columns strings         Accepts a comma separated list of labels that are going to be presented as columns. Names are case-sensitive. You can also use multiple flag options like -L label1 -L label2...
-      --no-headers                    When using the default or custom-column output format, don't print headers (default print headers).
-  -o, --output string                 Output format. One of: json|yaml|name|go-template|go-template-file|template|templatefile|jsonpath|jsonpath-as-json|jsonpath-file|custom-columns|custom-columns-file|wide See custom columns [https://kubernetes.io/docs/reference/kubectl/overview/#custom-columns], golang template [http://golang.org/pkg/text/template/#pkg-overview] and jsonpath template [https://kubernetes.io/docs/reference/kubectl/jsonpath/].
-      --output-file string            The generated resources will be copied in the specified file
-      --show-kind                     If present, list the resource type for the requested object(s).
-      --show-labels                   When printing, show all labels as the last column (default hide labels column)
-      --show-managed-fields           If true, keep the managedFields when printing objects in JSON or YAML format.
-      --skip-schedule                 Set the hibernation schedule to skip (deprecated)
-      --sort-by string                If non-empty, sort list types using this field specification.  The field specification is expressed as a JSONPath expression (e.g. '{.metadata.name}'). The field in the API resource specified by this JSONPath expression must be an integer or a string.
-      --template string               Template string or path to template file to use when -o=go-template, -o=go-template-file. The template format is golang templates [http://golang.org/pkg/text/template/#pkg-overview].
-      --timeout int                   Timeout to get the cluster claim running (default 60)
+  -h, --help                 help for hypershiftdeployment
+      --output-file string   The generated resources will be copied in the specified file
+      --values string        The files containing the values
 ```
 
 ### Options inherited from parent commands
@@ -84,5 +70,5 @@ cm run cc <clusterclaim_name>[,<clusterclaim_name>...] --cph <clusterpoolhost> <
 
 ### SEE ALSO
 
-* [cm run](cm_run.md)	 - run a resource
+* [cm create](cm_create.md)	 - create a resource
 

@@ -11,7 +11,7 @@ cm set cluster [flags]
 ```
 
 # set clusters
-cm set cluster <cluster_name>[,<clusterc_name>...] <options>
+cm set cluster <cluster_name>[,<cluster_name>...] <options>
 
 ```
 
