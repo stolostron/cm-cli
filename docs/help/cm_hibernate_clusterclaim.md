@@ -21,10 +21,12 @@ cm hibernate cc <clusterclaim_name>[,<clusterclaim_name>...] --cph <clusterpoolh
 ### Options
 
 ```
-      --cph string           The clusterpoolhost to use
-  -h, --help                 help for clusterclaim
-      --output-file string   The generated resources will be copied in the specified file
-      --skip-schedule        Set the hibernation schedule to skip
+      --cph string               The clusterpoolhost to use
+  -h, --help                     help for clusterclaim
+      --hibernate-schedule-off   Set the hibernation schedule to off
+      --hibernate-schedule-on    Set the hibernation schedule to on
+      --output-file string       The generated resources will be copied in the specified file
+      --skip-schedule            Set the hibernation schedule to skip (deprecated)
 ```
 
 ### Options inherited from parent commands

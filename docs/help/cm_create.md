@@ -59,5 +59,6 @@ create a resource
 * [cm create clusterpool](cm_create_clusterpool.md)	 - Create a clusterpool
 * [cm create clusterpoolhost](cm_create_clusterpoolhost.md)	 - Initialize a clusterpool management cluster
 * [cm create clusterset](cm_create_clusterset.md)	 - create a clusterset
+* [cm create hypershiftdeployment](cm_create_hypershiftdeployment.md)	 - hypershiftdeployment a cluster
 * [cm create work](cm_create_work.md)	 - create a work using resource-to-apply yaml file
 
