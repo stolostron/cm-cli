@@ -1,0 +1,11 @@
+
+# Copyright Contributors to the Open Cluster Management project
+
+managedCluster:
+  name:
+  namespace: 
+  hostingCluster:
+  hostingNamespace:
+# the cloud provider secret must be in the same namespace as the hypershift deployment
+  cloudProviderSecretName: 
+  region: 

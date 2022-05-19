@@ -7,6 +7,7 @@ import (
 	"github.com/stolostron/cm-cli/pkg/cmd/create/clusterclaim"
 	"github.com/stolostron/cm-cli/pkg/cmd/create/clusterpool"
 	"github.com/stolostron/cm-cli/pkg/cmd/create/clusterpoolhost"
+	"github.com/stolostron/cm-cli/pkg/cmd/create/hypershiftdeployment"
 	genericclioptionscm "github.com/stolostron/cm-cli/pkg/genericclioptions"
 	clusteradmclusterset "open-cluster-management.io/clusteradm/pkg/cmd/create/clusterset"
 	clusteradmwork "open-cluster-management.io/clusteradm/pkg/cmd/create/work"
@@ -30,6 +31,7 @@ func NewCmd(clusteradmFlags *genericclioptionsclusteradm.ClusteradmFlags, cmFlag
 	cmd.AddCommand(clusterpool.NewCmd(cmFlags, streams))
 	cmd.AddCommand(clusteradmclusterset.NewCmd(clusteradmFlags, streams))
 	cmd.AddCommand(clusteradmwork.NewCmd(clusteradmFlags, streams))
+	cmd.AddCommand(hypershiftdeployment.NewCmd(cmFlags, streams))
 
 	return cmd
 }

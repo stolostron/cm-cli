@@ -1,0 +1,17 @@
+# Copyright Contributors to the Open Cluster Management project
+
+apiVersion: cluster.open-cluster-management.io/v1alpha1
+kind: HypershiftDeployment
+metadata:
+  name: {{ .managedCluster.name }}
+  namespace: {{ .managedCluster.namespace }}
+spec:
+  hostingCluster: {{ .managedCluster.hostingCluster }}
+  hostingNamespace: {{ .managedCluster.hostingNamespace }}
+  infrastructure:
+    cloudProvider:
+      name: {{ .managedCluster.cloudProviderSecretName }}
+    configure: True
+    platform:
+      aws:
+        region: {{ .managedCluster.region }}
