@@ -8,17 +8,14 @@ import (
 
 type Options struct {
 	//CMFlags: The generic optiosn from the cm cli-runtime.
-	CMFlags *genericclioptionscm.CMFlags
-	//The list of cluster claim name to create (comma-separated)
-	ClusterClaims   string
+	CMFlags         *genericclioptionscm.CMFlags
 	ClusterPoolHost string
-	SkipSchedule    bool
+	// list of clusterclaim names (comma-separated)
+	ClusterClaims string
 	// hibernate schedule on
 	HibernateScheduleOn bool
 	// hibernate schedule off
 	HibernateScheduleOff bool
-	//The file to output the resources will be sent to the file.
-	outputFile string
 }
 
 func newOptions(cmFlags *genericclioptionscm.CMFlags, streams genericclioptions.IOStreams) *Options {

@@ -16,7 +16,7 @@ import (
 
 var example = `
 # set clusters
-%[1]s set cluster <cluster_name>[,<clusterc_name>...] <options>
+%[1]s set cluster <cluster_name>[,<cluster_name>...] <options>
 `
 
 // NewCmd ...

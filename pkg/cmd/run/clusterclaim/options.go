@@ -15,8 +15,12 @@ type Options struct {
 	//The list of cluster claim name to create (comma-separated)
 	ClusterClaims   string
 	ClusterPoolHost string
-	SkipSchedule    bool
-	Timeout         int
+	// hibernate schedule on
+	HibernateScheduleOn bool
+	// hibernate schedule off
+	HibernateScheduleOff bool
+	SkipSchedule         bool
+	Timeout              int
 	//The file to output the resources will be sent to the file.
 	outputFile string
 }

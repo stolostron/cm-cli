@@ -80,7 +80,7 @@ func (cph *ClusterPoolHost) getClusterClaimSAToken(
 
 	applierBuilder := &clusteradmapply.ApplierBuilder{}
 	if !dryRun {
-		if err = cph.setHibernateClusterClaims(clusterName, false, "", dryRun); err != nil {
+		if err = cph.setHibernateClusterClaims(clusterName, false, dryRun); err != nil {
 			return
 		}
 		if err = waitClusterClaimsRunning(dynamicClientCP, clusterName, "", cph.Namespace, timeout, printFlags); err != nil {

@@ -3,6 +3,7 @@ package set
 
 import (
 	"github.com/stolostron/cm-cli/pkg/cmd/set/cluster"
+	"github.com/stolostron/cm-cli/pkg/cmd/set/clusterclaim"
 	"github.com/stolostron/cm-cli/pkg/cmd/set/clusterpoolhost"
 	"github.com/stolostron/cm-cli/pkg/cmd/set/clusterset"
 	genericclioptionscm "github.com/stolostron/cm-cli/pkg/genericclioptions"
@@ -22,6 +23,7 @@ func NewCmd(clusteradmFlags *genericclioptionsclusteradm.ClusteradmFlags, cmFlag
 	cmd.AddCommand(clusterpoolhost.NewCmd(cmFlags, streams))
 	cmd.AddCommand(clusterset.NewCmd(clusteradmFlags, cmFlags, streams))
 	cmd.AddCommand(cluster.NewCmd(cmFlags, streams))
+	cmd.AddCommand(clusterclaim.NewCmd(cmFlags, streams))
 
 	return cmd
 }
