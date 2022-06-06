@@ -8,16 +8,8 @@ import (
 
 type Options struct {
 	//CMFlags: The generic optiosn from the cm cli-runtime.
-	CMFlags                 *genericclioptionscm.CMFlags
-	clusterName             string
-	clusterNamespace        string
-	hostingCluster          string
-	hostingNamespace        string
-	cloudProviderSecretName string
-	region                  string
-	location                string
-	valuesPath              string
-	values                  map[string]interface{}
+	CMFlags     *genericclioptionscm.CMFlags
+	clusterName string
 	//The file to output the resources will be sent to the file.
 	outputFile string
 }

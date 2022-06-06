@@ -16,6 +16,7 @@ import (
 	"github.com/stolostron/cm-cli/pkg/helpers"
 	apiextensionsclient "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 
 	"github.com/ghodss/yaml"
 
@@ -51,47 +52,51 @@ func (o *Options) complete(cmd *cobra.Command, args []string) (err error) {
 }
 
 func (o *Options) validate() (err error) {
-	imc, ok := o.values["managedCluster"]
-	if !ok || imc == nil {
+	_, ok, err := unstructured.NestedFieldNoCopy(o.values, "managedCluster")
+	if err != nil {
+		return err
+	}
+	if !ok {
 		return fmt.Errorf("managedCluster is missing")
 	}
-	mc := imc.(map[string]interface{})
-	icloud, ok := mc["cloud"]
-	if !ok || icloud == nil {
-		return fmt.Errorf("cloud type is missing")
-	}
-	cloud := icloud.(string)
-	if cloud != AWS && cloud != AZURE && cloud != GCP && cloud != OPENSTACK && cloud != VSPHERE {
-		return fmt.Errorf("supported cloud type are (%s, %s, %s, %s, %s) and got %s", AWS, AZURE, GCP, OPENSTACK, VSPHERE, cloud)
-	}
-	o.cloud = cloud
 
-	_, ocpImageOk := mc["ocpImage"]
-	_, imageSetRef := mc["imageSetRef"]
+	o.cloud, err = helpers.NestedString(o.values, "managedCluster.cloud")
+	if err != nil {
+		return err
+	}
+	if o.cloud != AWS &&
+		o.cloud != AZURE &&
+		o.cloud != GCP &&
+		o.cloud != OPENSTACK &&
+		o.cloud != VSPHERE {
+		return fmt.Errorf("supported cloud type are (%s, %s, %s, %s, %s) and got %s", AWS, AZURE, GCP, OPENSTACK, VSPHERE, o.cloud)
+	}
+
+	ocpImageOk, _ := helpers.NestedExists(o.values, "managedCluster.ocpImageOk")
+	imageSetRef, _ := helpers.NestedExists(o.values, "managedCluster.imageSetRef")
 	if ocpImageOk && imageSetRef {
 		return fmt.Errorf("ocpImage and imageSetRef are mutually exclusive")
 	}
 
 	if o.clusterName == "" {
-		iname, ok := mc["name"]
-		if !ok || iname == nil {
-			return fmt.Errorf("cluster name is missing")
-		}
-		o.clusterName = iname.(string)
-		if len(o.clusterName) == 0 {
-			return fmt.Errorf("managedCluster.name not specified")
+		if o.clusterName, err = helpers.NestedString(o.values, "managedCluster.name"); err != nil {
+			return err
 		}
 	}
 
-	mc["name"] = o.clusterName
+	if err = helpers.SetNestedField(o.values, o.clusterName, "managedCluster.name"); err != nil {
+		return err
+	}
 
 	if o.clusterSetName == "" {
-		if iclusterSetName, ok := mc["clusterSetName"]; ok {
-			o.clusterSetName = iclusterSetName.(string)
+		if o.clusterSetName, err = helpers.NestedString(o.values, "managedCluster.clusterSetName"); err != nil {
+			return err
 		}
 	}
 
-	mc["clusterSetName"] = o.clusterSetName
+	if err = helpers.SetNestedField(o.values, o.clusterSetName, "managedCluster.clusterSetName"); err != nil {
+		return err
+	}
 
 	return nil
 }

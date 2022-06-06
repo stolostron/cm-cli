@@ -26,6 +26,10 @@ func GetHypershiftDeployment(clusterName string, cmFlags *genericclioptions.CMFl
 		return nil, err
 	}
 
+	if len(hdus.Items) == 0 {
+		return nil, fmt.Errorf("no hypershiftdeployment found for infra-id: %s", clusterName)
+	}
+
 	hd := &hypershiftdeploymentv1alpha1.HypershiftDeployment{}
 	if err := runtime.DefaultUnstructuredConverter.FromUnstructured(hdus.Items[0].UnstructuredContent(), hd); err != nil {
 		return nil, err

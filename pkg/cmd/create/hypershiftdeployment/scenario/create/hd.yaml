@@ -10,8 +10,27 @@ spec:
   hostingNamespace: {{ .managedCluster.hostingNamespace }}
   infrastructure:
     cloudProvider:
-      name: {{ .managedCluster.cloudProviderSecretName }}
-    configure: True
+      name: {{ .managedCluster.infrastructure.cloudProvider.name }}
+    configure: {{ .managedCluster.infrastructure.configure }}
     platform:
+{{- if .managedCluster.infrastructure.platform.aws }}
       aws:
-        region: {{ .managedCluster.region }}
+        region: {{ .managedCluster.infrastructure.platform.aws.region }}
+{{- end }}
+{{- if .managedCluster.infrastructure.platform.azure }}
+      azure:
+        location: {{ .managedCluster.infrastructure.platform.azure.location }}
+{{- end }}
+{{- if .managedCluster.hostedClusterSpec }}
+  hostedClusterSpec: 
+{{ toYaml .managedCluster.hostedClusterSpec | indent 4}}
+{{- end }}
+{{- if .managedCluster.nodePools }}
+  nodePools:
+{{ $managedCluster := .managedCluster}}
+{{- range  $i, $np := .managedCluster.nodePools }}
+  - name: {{ $np.name }} 
+    spec: 
+{{ toYaml $np.spec | indent 6 }}
+{{- end }}
+{{- end }}

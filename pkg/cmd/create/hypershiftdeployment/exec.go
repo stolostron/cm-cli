@@ -10,6 +10,7 @@ import (
 	"github.com/stolostron/cm-cli/pkg/cmd/create/hypershiftdeployment/scenario"
 	"github.com/stolostron/cm-cli/pkg/helpers"
 	apiextensionsclient "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset"
+	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 
 	"k8s.io/client-go/dynamic"
 	"k8s.io/client-go/kubernetes"
@@ -43,90 +44,94 @@ func (o *Options) complete(cmd *cobra.Command, args []string) (err error) {
 }
 
 func (o *Options) validate() (err error) {
-	imc, ok := o.values["managedCluster"]
-	if !ok || imc == nil {
+	ok, err := helpers.NestedExists(o.values, "managedCluster")
+	if err != nil {
+		return err
+	}
+	if !ok {
 		return fmt.Errorf("managedCluster is missing")
 	}
-	mc := imc.(map[string]interface{})
 
 	if o.clusterName == "" {
-		iname, ok := mc["name"]
-		if !ok || iname == nil {
-			return fmt.Errorf("cluster name is missing")
-		}
-		o.clusterName = iname.(string)
-		if len(o.clusterName) == 0 {
-			return fmt.Errorf("managedCluster.name not specified")
+		if o.clusterName, err = helpers.NestedString(o.values, "managedCluster.name"); err != nil {
+			return err
 		}
 	}
 
-	mc["name"] = o.clusterName
+	if err = helpers.SetNestedField(o.values, o.clusterName, "managedCluster.name"); err != nil {
+		return err
+	}
 
 	if o.clusterNamespace == "" {
-		iname, ok := mc["namespace"]
-		if !ok || iname == nil {
-			return fmt.Errorf("cluster namespace is missing")
-		}
-		o.clusterNamespace = iname.(string)
-		if len(o.clusterNamespace) == 0 {
-			return fmt.Errorf("managedCluster.namespace not specified")
+		if o.clusterNamespace, err = helpers.NestedString(o.values, "managedCluster.namespace"); err != nil {
+			return err
 		}
 	}
 
-	mc["namespace"] = o.clusterNamespace
+	if err = helpers.SetNestedField(o.values, o.clusterName, "managedCluster.name"); err != nil {
+		return err
+	}
 
 	if o.hostingCluster == "" {
-		iname, ok := mc["hostingCluster"]
-		if !ok || iname == nil {
-			return fmt.Errorf("hostingCluster is missing")
-		}
-		o.hostingCluster = iname.(string)
-		if len(o.hostingCluster) == 0 {
-			return fmt.Errorf("managedCluster.hostingCluster not specified")
+		if o.hostingCluster, err = helpers.NestedString(o.values, "managedCluster.hostingCluster"); err != nil {
+			return err
 		}
 	}
 
-	mc["hostingCluster"] = o.hostingCluster
+	if err = helpers.SetNestedField(o.values, o.hostingCluster, "managedCluster.hostingCluster"); err != nil {
+		return err
+	}
 
 	if o.hostingNamespace == "" {
-		iname, ok := mc["hostingNamespace"]
-		if !ok || iname == nil {
-			return fmt.Errorf("hostingNamespace is missing")
-		}
-		o.hostingNamespace = iname.(string)
-		if len(o.hostingNamespace) == 0 {
-			return fmt.Errorf("managedCluster.hostingNamespace not specified")
+		if o.hostingNamespace, err = helpers.NestedString(o.values, "managedCluster.hostingNamespace"); err != nil {
+			return err
 		}
 	}
 
-	mc["hostingNamespace"] = o.hostingNamespace
+	if err = helpers.SetNestedField(o.values, o.hostingCluster, "managedCluster.hostingNamespace"); err != nil {
+		return err
+	}
 
 	if o.cloudProviderSecretName == "" {
-		iname, ok := mc["cloudProviderSecretName"]
-		if !ok || iname == nil {
-			return fmt.Errorf("cloudProviderSecretName is missing")
-		}
-		o.cloudProviderSecretName = iname.(string)
-		if len(o.cloudProviderSecretName) == 0 {
-			return fmt.Errorf("managedCluster.cloudProviderSecretName not specified")
+		if o.cloudProviderSecretName, err = helpers.NestedString(o.values, "managedCluster.infrastructure.cloudProvider.name"); err != nil {
+			return err
 		}
 	}
 
-	mc["cloudProviderSecretName"] = o.cloudProviderSecretName
+	if err = helpers.SetNestedField(o.values, o.cloudProviderSecretName, "managedCluster.infrastructure.cloudProvider.name"); err != nil {
+		return err
+	}
 
 	if o.region == "" {
-		iname, ok := mc["region"]
-		if !ok || iname == nil {
-			return fmt.Errorf("region is missing")
-		}
-		o.region = iname.(string)
-		if len(o.region) == 0 {
-			return fmt.Errorf("managedCluster.region not specified")
+		if ok, _ := helpers.NestedExists(o.values, "managedCluster.infrastructure.platform.aws.region"); ok {
+			if o.region, err = helpers.NestedString(o.values, "managedCluster.infrastructure.platform.aws.region"); err != nil {
+				return err
+			}
 		}
 	}
 
-	mc["region"] = o.region
+	if o.region != "" {
+		if err = helpers.SetNestedField(o.values, o.region, "managedCluster.infrastructure.platform.aws.region"); err != nil {
+			return err
+		}
+	}
 
+	if o.location == "" {
+		if ok, _ := helpers.NestedExists(o.values, "managedCluster.infrastructure.platform.azure.location"); ok {
+			if o.location, err = helpers.NestedString(o.values, "managedCluster.infrastructure.platform.azure.location"); err != nil {
+				return err
+			}
+		}
+	}
+
+	if o.location != "" {
+		if err = helpers.SetNestedField(o.values, o.location, "managedCluster.infrastructure.platform.azure.location"); err != nil {
+			return err
+		}
+	}
+	if len(o.region) != 0 && len(o.location) != 0 {
+		return fmt.Errorf("only one plaform specification is allowed")
+	}
 	return nil
 }
 
@@ -150,6 +155,35 @@ func (o *Options) runWithClient(kubeClient kubernetes.Interface,
 		"create/hd.yaml",
 	}
 
+	//overwrite nodepool name clusterName
+	nodePools, ok, err := unstructured.NestedSlice(o.values, "managedCluster", "nodePools")
+	if err != nil {
+		return err
+	}
+	if ok {
+		for i := range nodePools {
+			nodePool := nodePools[i].(map[string]interface{})
+			if err = unstructured.SetNestedField(nodePool, fmt.Sprintf("%s-%d", o.clusterName, i), "name"); err != nil {
+				return err
+			}
+			spec, ok, err := unstructured.NestedMap(nodePool, "spec")
+			if err != nil {
+				return err
+			}
+			if !ok {
+				return fmt.Errorf("nodepool %s spec not found", nodePool["name"])
+			}
+			if err = unstructured.SetNestedField(spec, o.clusterName, "clusterName"); err != nil {
+				return err
+			}
+			if err = unstructured.SetNestedField(nodePool, spec, "spec"); err != nil {
+				return err
+			}
+		}
+		if err := helpers.SetNestedField(o.values, nodePools, "managedCluster.nodePools"); err != nil {
+			return err
+		}
+	}
 	out, err := applier.ApplyCustomResources(reader, o.values, o.CMFlags.DryRun, "", files...)
 	if err != nil {
 		return err

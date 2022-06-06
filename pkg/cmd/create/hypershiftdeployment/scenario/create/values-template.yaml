@@ -7,5 +7,16 @@ managedCluster:
   hostingCluster:
   hostingNamespace:
 # the cloud provider secret must be in the same namespace as the hypershift deployment
-  cloudProviderSecretName: 
-  region: 
+  infrastructure:
+    cloudProvider: 
+      name:
+    configure:
+    platform:
+      aws:
+        region:
+      azure:
+        location: 
+  hostedClusterSpec:
+  nodePools:
+  
+

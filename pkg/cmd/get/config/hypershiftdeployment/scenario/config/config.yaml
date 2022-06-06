@@ -1,0 +1,11 @@
+
+# Copyright Contributors to the Open Cluster Management project
+
+managedCluster:
+  name: {{ .ObjectMeta.Name }}
+  namespace: {{ .ObjectMeta.Namespace }}
+  hostingCluster: {{ .Spec.HostingCluster }}
+  hostingNamespace: {{ .Spec.HostingNamespace }}
+  infrastructure: {{ .Spec.Infrastructure }}
+  hostedClusterSpec: {{ .Spec.HostedClusterSpec }}
+  nodePools:  {{ .Spec.NodePools }}
