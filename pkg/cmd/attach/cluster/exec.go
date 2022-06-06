@@ -10,6 +10,7 @@ import (
 	apiextensionsclient "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset"
 	"k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/client-go/dynamic"
 	"k8s.io/client-go/kubernetes"
@@ -38,8 +39,9 @@ func (o *Options) complete(cmd *cobra.Command, args []string) (err error) {
 		if err != nil {
 			return err
 		}
-		mc := o.values["managedCluster"].(map[string]interface{})
-		mc["name"] = o.clusterName
+		if err = helpers.SetNestedField(o.values, o.clusterName, "managedCluster.name"); err != nil {
+			return err
+		}
 	} else {
 		//Read values
 		o.values, err = helpers.ConvertValuesFileToValuesMap(o.valuesPath, "")
@@ -48,21 +50,28 @@ func (o *Options) complete(cmd *cobra.Command, args []string) (err error) {
 		}
 	}
 
-	imc, ok := o.values["managedCluster"]
-	if !ok || imc == nil {
+	ok, err := helpers.NestedExists(o.values, "managedCluster")
+	if err != nil {
+		return err
+	}
+	if !ok {
 		return fmt.Errorf("managedCluster is missing")
 	}
-	mc := imc.(map[string]interface{})
 
-	if _, ok := mc["labels"]; !ok {
-		mc["labels"] = map[string]interface{}{
+	ok, err = helpers.NestedExists(o.values, "managedCluster.labels")
+	if err != nil {
+		return nil
+	}
+	if !ok {
+		if err := helpers.SetNestedField(o.values, map[string]interface{}{
 			"cloud":  "auto-detect",
 			"vendor": "auto-detect",
+		}, "managedCluster.labels"); err != nil {
+			return err
 		}
 	}
 
-	ilabels := mc["labels"]
-	labels := ilabels.(map[string]interface{})
+	labels, _, err := unstructured.NestedMap(o.values, "managedCluster", "labels")
 	if _, ok := labels["vendor"]; !ok {
 		labels["vendor"] = "auto-detect"
 	}
@@ -71,9 +80,14 @@ func (o *Options) complete(cmd *cobra.Command, args []string) (err error) {
 		labels["cloud"] = "auto-detect"
 	}
 
+	if err = unstructured.SetNestedMap(o.values, labels, "managedCluster", "labels"); err != nil {
+		return err
+	}
+
 	if o.clusterKubeConfig == "" && o.clusterKubeConfigContent == "" {
-		if ikubeConfig, ok := mc["kubeConfig"]; ok {
-			o.clusterKubeConfig = ikubeConfig.(string)
+		kubeConfig, err := helpers.NestedString(o.values, "managedCluster.kubeConfig")
+		if err == nil {
+			o.clusterKubeConfig = kubeConfig
 		}
 	} else {
 		if o.clusterKubeConfigContent == "" {
@@ -103,21 +117,30 @@ func (o *Options) complete(cmd *cobra.Command, args []string) (err error) {
 		o.clusterKubeConfig = string(b)
 	}
 
-	mc["kubeConfig"] = o.clusterKubeConfig
+	if err := helpers.SetNestedField(o.values, o.clusterKubeConfig, "managedCluster.kubeConfig"); err != nil {
+		return err
+	}
 
 	if o.clusterServer == "" {
-		if iclusterServer, ok := mc["server"]; ok {
-			o.clusterServer = iclusterServer.(string)
+		server, err := helpers.NestedString(o.values, "managedCluster.server")
+		if err == nil {
+			o.clusterServer = server
 		}
 	}
-	mc["server"] = o.clusterServer
+
+	if err := helpers.SetNestedField(o.values, o.clusterServer, "managedCluster.server"); err != nil {
+		return err
+	}
 
 	if o.clusterToken == "" {
-		if iclusterToken, ok := mc["token"]; ok {
-			o.clusterToken = iclusterToken.(string)
+		token, err := helpers.NestedString(o.values, "managedCluster.token")
+		if err == nil {
+			o.clusterToken = token
 		}
 	}
-	mc["token"] = o.clusterToken
+	if err := helpers.SetNestedField(o.values, o.clusterToken, "managedCluster.token"); err != nil {
+		return err
+	}
 
 	return nil
 }

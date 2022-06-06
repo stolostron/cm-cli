@@ -4,6 +4,7 @@ package config
 import (
 	"github.com/stolostron/cm-cli/pkg/cmd/get/config/cluster"
 	"github.com/stolostron/cm-cli/pkg/cmd/get/config/clusterpool"
+	"github.com/stolostron/cm-cli/pkg/cmd/get/config/hypershiftdeployment"
 	genericclioptionscm "github.com/stolostron/cm-cli/pkg/genericclioptions"
 	genericclioptionsclusteradm "open-cluster-management.io/clusteradm/pkg/genericclioptions"
 
@@ -20,6 +21,7 @@ func NewCmd(clusteradmFlags *genericclioptionsclusteradm.ClusteradmFlags, cmFlag
 
 	cmd.AddCommand(cluster.NewCmd(cmFlags, streams))
 	cmd.AddCommand(clusterpool.NewCmd(cmFlags, streams))
+	cmd.AddCommand(hypershiftdeployment.NewCmd(cmFlags, streams))
 
 	return cmd
 }

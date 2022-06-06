@@ -2,18 +2,12 @@
 # Release Content
 ## Additions
 
-- [Take into account the namespace for the attach hostedcluster #205](https://github.com/stolostron/cm-cli/issues/205)
-- [Add cmd to run/hibernate/skip schedule hive cluster #207](https://github.com/stolostron/cm-cli/issues/207)
-    - `cm hibernate cluster <cluster_name>[,<clusterc_name>...] <options>`
-    - `cm run cluster <cluster_name>[,<clusterc_name>...] <options>`
-    - `cm set cluster <cluster_name>[,<clusterc_name>...] [--hibernate-schedule-on|--hibernate-schedule-off]`
-- [Add test if hibernate schedule is set #210](https://github.com/stolostron/cm-cli/issues/210)
-- [Deprecate --skip-schedule and replace by --hibernate-schedule-off and --hibernate-schedule-on in cm hibernate/run cc #209](https://github.com/stolostron/cm-cli/issues/209)
-- [Add hibernate schedule option in cm set cc #212](https://github.com/stolostron/cm-cli/issues/212)
-- Removed `--skip-schedule` from `cm create cc` as it wa ineffective. Use `cm set cc [--hibernate-schedule-on|--hibernate-schedule-off]` to set it.
-- [add a cm to delete an hypershift deployment #215](https://github.com/stolostron/cm-cli/issues/215)
-- [Add cm to create an hypershift deployment on a given hostingcluster #214](https://github.com/stolostron/cm-cli/issues/214)
+- [retrieve the configuration of a hypershiftdeployment in order to create another hypershiftdeployment #221](https://github.com/stolostron/cm-cli/issues/221)
+- `cm create hd` accepts `hostedClusterSpec` and `nodePools` configuration
+
 ## Breaking changes
+
+- `cm create hd` template changed to a more structured template.
 
 ## Bug fixes
 
