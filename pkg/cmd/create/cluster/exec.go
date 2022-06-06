@@ -79,8 +79,9 @@ func (o *Options) validate() (err error) {
 	}
 
 	if o.clusterName == "" {
-		if o.clusterName, err = helpers.NestedString(o.values, "managedCluster.name"); err != nil {
-			return err
+		o.clusterName, _ = helpers.NestedString(o.values, "managedCluster.name")
+		if o.clusterName == "" {
+			return fmt.Errorf("cluster name is missing")
 		}
 	}
 
@@ -89,9 +90,7 @@ func (o *Options) validate() (err error) {
 	}
 
 	if o.clusterSetName == "" {
-		if o.clusterSetName, err = helpers.NestedString(o.values, "managedCluster.clusterSetName"); err != nil {
-			return err
-		}
+		o.clusterSetName, _ = helpers.NestedString(o.values, "managedCluster.clusterSetName")
 	}
 
 	if err = helpers.SetNestedField(o.values, o.clusterSetName, "managedCluster.clusterSetName"); err != nil {

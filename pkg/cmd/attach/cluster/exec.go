@@ -39,7 +39,7 @@ func (o *Options) complete(cmd *cobra.Command, args []string) (err error) {
 		if err != nil {
 			return err
 		}
-		if err = helpers.SetNestedField(o.values, o.clusterName, "managedCluster"); err != nil {
+		if err = helpers.SetNestedField(o.values, o.clusterName, "managedCluster.name"); err != nil {
 			return err
 		}
 	} else {
