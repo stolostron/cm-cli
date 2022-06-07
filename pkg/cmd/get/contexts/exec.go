@@ -65,9 +65,10 @@ func (o *Options) run(streams genericclioptions.IOStreams) (err error) {
 	if err != nil {
 		return err
 	}
-	cmdAPIConfig.AuthInfos[currentCmdAPIConfig.CurrentContext] = currentCmdAPIConfig.AuthInfos[currentCmdAPIConfig.CurrentContext]
-	cmdAPIConfig.Contexts[currentCmdAPIConfig.CurrentContext] = currentCmdAPIConfig.Contexts[currentCmdAPIConfig.CurrentContext]
-	cmdAPIConfig.Clusters[currentCmdAPIConfig.CurrentContext] = currentCmdAPIConfig.Clusters[currentCmdAPIConfig.CurrentContext]
+	context := currentCmdAPIConfig.CurrentContext
+	cmdAPIConfig.AuthInfos[context] = currentCmdAPIConfig.AuthInfos[context]
+	cmdAPIConfig.Contexts[context] = currentCmdAPIConfig.Contexts[context]
+	cmdAPIConfig.Clusters[context] = currentCmdAPIConfig.Clusters[context]
 	cmdAPIConfig.CurrentContext = currentCmdAPIConfig.CurrentContext
 
 	dynamicClient, err := o.CMFlags.KubectlFactory.DynamicClient()
@@ -84,14 +85,14 @@ func (o *Options) run(streams genericclioptions.IOStreams) (err error) {
 		if mc.Name == "local-cluster" {
 			continue
 		}
-		clusterCmdAPIConfig, err := managedcluster.GetCmdAPIConfig(dynamicClient, kubeClient, &mc, cph)
+		clusterCmdAPIConfig, err := managedcluster.GetCmdAPIConfig(dynamicClient, kubeClient, mc, cph)
 		if err != nil {
 			return err
 		}
 		if clusterCmdAPIConfig == nil {
 			fmt.Fprintf(streams.ErrOut, "no kubeconfig found for managedcluster %s\n", mc.Name)
 		}
-		addCluster(&mc, cmdAPIConfig, clusterCmdAPIConfig)
+		addCluster(mc, cmdAPIConfig, clusterCmdAPIConfig)
 	}
 	// return err
 	data, err := clientcmd.Write(*cmdAPIConfig)
@@ -102,7 +103,7 @@ func (o *Options) run(streams genericclioptions.IOStreams) (err error) {
 	return nil
 }
 
-func addCluster(mc *clusterv1.ManagedCluster, configs, config *clientcmdapi.Config) {
+func addCluster(mc clusterv1.ManagedCluster, configs, config *clientcmdapi.Config) {
 	if config != nil {
 		for _, v := range config.AuthInfos {
 			configs.AuthInfos[mc.Name] = v

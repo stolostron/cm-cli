@@ -20,7 +20,10 @@ import (
 	clusterv1 "open-cluster-management.io/api/cluster/v1"
 )
 
-func GetCmdAPIConfig(dynamicClient dynamic.Interface, kubeClient *kubernetes.Clientset, mc *clusterv1.ManagedCluster, cph *clusterpoolhost.ClusterPoolHost) (config *clientcmdapi.Config, err error) {
+func GetCmdAPIConfig(dynamicClient dynamic.Interface,
+	kubeClient *kubernetes.Clientset,
+	mc clusterv1.ManagedCluster,
+	cph *clusterpoolhost.ClusterPoolHost) (config *clientcmdapi.Config, err error) {
 	var cd *hivev1.ClusterDeployment
 	var cc *hivev1.ClusterClaim
 	foundOnCPH := false
@@ -36,21 +39,9 @@ func GetCmdAPIConfig(dynamicClient dynamic.Interface, kubeClient *kubernetes.Cli
 	}
 	//Search for local clusterclaim
 	if cc == nil {
-		ccus, err := dynamicClient.Resource(helpers.GvrCC).List(context.TODO(), metav1.ListOptions{})
+		cc, err = getLocalClusterClaim(dynamicClient, mc)
 		if err != nil {
 			return nil, err
-		}
-		var ccu *unstructured.Unstructured
-		for _, ccui := range ccus.Items {
-			if ccui.GetName() == mc.Name {
-				ccu = &ccui
-			}
-		}
-		if ccu != nil {
-			cc := &hivev1.ClusterClaim{}
-			if runtime.DefaultUnstructuredConverter.FromUnstructured(ccu.UnstructuredContent(), cc); err != nil {
-				return nil, err
-			}
 		}
 	}
 	if cc != nil {
@@ -61,22 +52,9 @@ func GetCmdAPIConfig(dynamicClient dynamic.Interface, kubeClient *kubernetes.Cli
 	}
 	//Search for local clusterDeployment
 	if cd == nil {
-		cdus, err := dynamicClient.Resource(helpers.GvrCD).List(context.TODO(), metav1.ListOptions{})
+		cd, err = getLocalClusterDeployment(dynamicClient, mc)
 		if err != nil {
 			return nil, err
-		}
-		var cdu *unstructured.Unstructured
-		for _, cdui := range cdus.Items {
-			if cdui.GetName() == mc.Name {
-				cdu = &cdui
-				break
-			}
-		}
-		if cdu != nil {
-			cd = &hivev1.ClusterDeployment{}
-			if runtime.DefaultUnstructuredConverter.FromUnstructured(cdu.UnstructuredContent(), cd); err != nil {
-				return nil, err
-			}
 		}
 	}
 	if cd != nil {
@@ -108,6 +86,49 @@ func GetCmdAPIConfig(dynamicClient dynamic.Interface, kubeClient *kubernetes.Cli
 			}
 		}
 		return clientcmd.Load(kubeConfigSecret.Data["kubeconfig"])
+	}
+	return nil, nil
+}
+
+func getLocalClusterClaim(dynamicClient dynamic.Interface, mc clusterv1.ManagedCluster) (*hivev1.ClusterClaim, error) {
+	ccus, err := dynamicClient.Resource(helpers.GvrCC).List(context.TODO(), metav1.ListOptions{})
+	if err != nil {
+		return nil, err
+	}
+	var ccu unstructured.Unstructured
+	for _, ccui := range ccus.Items {
+		if ccui.GetName() == mc.Name {
+			ccu = ccui
+		}
+	}
+	if ccu.Object != nil {
+		cc := &hivev1.ClusterClaim{}
+		if err := runtime.DefaultUnstructuredConverter.FromUnstructured(ccu.UnstructuredContent(), cc); err != nil {
+			return nil, err
+		}
+		return cc, nil
+	}
+	return nil, nil
+}
+
+func getLocalClusterDeployment(dynamicClient dynamic.Interface, mc clusterv1.ManagedCluster) (*hivev1.ClusterDeployment, error) {
+	cdus, err := dynamicClient.Resource(helpers.GvrCD).List(context.TODO(), metav1.ListOptions{})
+	if err != nil {
+		return nil, err
+	}
+	var cdu unstructured.Unstructured
+	for _, cdui := range cdus.Items {
+		if cdui.GetName() == mc.Name {
+			cdu = cdui
+			break
+		}
+	}
+	if cdu.Object != nil {
+		cd := &hivev1.ClusterDeployment{}
+		if err := runtime.DefaultUnstructuredConverter.FromUnstructured(cdu.UnstructuredContent(), cd); err != nil {
+			return nil, err
+		}
+		return cd, nil
 	}
 	return nil, nil
 }
