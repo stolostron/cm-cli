@@ -69,7 +69,8 @@ func (o *Options) validate() (err error) {
 		o.cloud != GCP &&
 		o.cloud != OPENSTACK &&
 		o.cloud != VSPHERE {
-		return fmt.Errorf("supported cloud type are (%s, %s, %s, %s, %s) and got %s", AWS, AZURE, GCP, OPENSTACK, VSPHERE, o.cloud)
+		return fmt.Errorf("supported cloud type are (%s, %s, %s, %s, %s) and got %s",
+			AWS, AZURE, GCP, OPENSTACK, VSPHERE, o.cloud)
 	}
 
 	ocpImageOk, _ := helpers.NestedExists(o.values, "managedCluster.ocpImageOk")

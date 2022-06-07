@@ -7,6 +7,7 @@ import (
 	"github.com/stolostron/cm-cli/pkg/cmd/get/clusterpools"
 	"github.com/stolostron/cm-cli/pkg/cmd/get/clusters"
 	"github.com/stolostron/cm-cli/pkg/cmd/get/config"
+	"github.com/stolostron/cm-cli/pkg/cmd/get/contexts"
 	"github.com/stolostron/cm-cli/pkg/cmd/get/credentials"
 	"github.com/stolostron/cm-cli/pkg/cmd/get/machinepools"
 	"github.com/stolostron/cm-cli/pkg/cmd/get/policies"
@@ -41,6 +42,7 @@ func NewCmd(f cmdutil.Factory, clusteradmFlags *genericclioptionsclusteradm.Clus
 	cmd.AddCommand(clusteradmaddon.NewCmd(clusteradmFlags, streams))
 	cmd.AddCommand(clusteradmclusterset.NewCmd(clusteradmFlags, streams))
 	cmd.AddCommand(clusteradmwork.NewCmd(clusteradmFlags, streams))
+	cmd.AddCommand(contexts.NewCmd(f, cmFlags, streams))
 
 	return cmd
 }

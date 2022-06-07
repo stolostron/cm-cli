@@ -165,7 +165,7 @@ func CreateContextFronConfigAPI(configAPI *clientcmdapi.Config, token, contextNa
 	return clientcmd.WriteToFile(clientConfig, file)
 }
 
-//GetGlobalConfigAPI returns the Global ConfigAPI and if the KUBECONFIG was set.
+//GetGlobalConfigAPI returns the Global ConfigAPI without taking into account the KUBECONFIG envVar.
 func GetGlobalConfigAPI() (*clientcmdapi.Config, bool, error) {
 	return getConfigAPI(true)
 }
