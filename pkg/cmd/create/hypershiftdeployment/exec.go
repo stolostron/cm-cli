@@ -26,6 +26,11 @@ const (
 	VSPHERE   = "vsphere"
 )
 
+const (
+	azureLocationXPath = "managedCluster.infrastructure.platform.azure.location"
+	awsRegionXPath     = "managedCluster.infrastructure.platform.aws.region"
+)
+
 func (o *Options) complete(cmd *cobra.Command, args []string) (err error) {
 	o.values, err = helpers.ConvertValuesFileToValuesMap(o.valuesPath, "")
 	if err != nil {
@@ -68,7 +73,7 @@ func (o *Options) validate() (err error) {
 		}
 	}
 
-	if err = helpers.SetNestedField(o.values, o.clusterName, "managedCluster.name"); err != nil {
+	if err = helpers.SetNestedField(o.values, o.clusterNamespace, "managedCluster.namespace"); err != nil {
 		return err
 	}
 
@@ -93,39 +98,44 @@ func (o *Options) validate() (err error) {
 	}
 
 	if o.cloudProviderSecretName == "" {
-		if o.cloudProviderSecretName, err = helpers.NestedString(o.values, "managedCluster.infrastructure.cloudProvider.name"); err != nil {
+		if o.cloudProviderSecretName, err = helpers.NestedString(o.values,
+			"managedCluster.infrastructure.cloudProvider.name"); err != nil {
 			return err
 		}
 	}
 
-	if err = helpers.SetNestedField(o.values, o.cloudProviderSecretName, "managedCluster.infrastructure.cloudProvider.name"); err != nil {
+	if err = helpers.SetNestedField(o.values, o.cloudProviderSecretName,
+		"managedCluster.infrastructure.cloudProvider.name"); err != nil {
 		return err
 	}
 
 	if o.region == "" {
-		if ok, _ := helpers.NestedExists(o.values, "managedCluster.infrastructure.platform.aws.region"); ok {
-			if o.region, err = helpers.NestedString(o.values, "managedCluster.infrastructure.platform.aws.region"); err != nil {
+		if ok, _ := helpers.NestedExists(o.values, awsRegionXPath); ok {
+			if o.region, err = helpers.NestedString(o.values, awsRegionXPath); err != nil {
 				return err
 			}
 		}
 	}
 
 	if o.region != "" {
-		if err = helpers.SetNestedField(o.values, o.region, "managedCluster.infrastructure.platform.aws.region"); err != nil {
+		if err = helpers.SetNestedField(o.values, o.region, awsRegionXPath); err != nil {
 			return err
 		}
 	}
 
 	if o.location == "" {
-		if ok, _ := helpers.NestedExists(o.values, "managedCluster.infrastructure.platform.azure.location"); ok {
-			if o.location, err = helpers.NestedString(o.values, "managedCluster.infrastructure.platform.azure.location"); err != nil {
+		if ok, _ := helpers.NestedExists(o.values, azureLocationXPath); ok {
+			if o.location, err = helpers.NestedString(o.values,
+				azureLocationXPath); err != nil {
 				return err
 			}
 		}
 	}
 
 	if o.location != "" {
-		if err = helpers.SetNestedField(o.values, o.location, "managedCluster.infrastructure.platform.azure.location"); err != nil {
+		if err = helpers.SetNestedField(o.values,
+			o.location,
+			azureLocationXPath); err != nil {
 			return err
 		}
 	}

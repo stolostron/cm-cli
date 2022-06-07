@@ -30,12 +30,13 @@ func NewCmd(f cmdutil.Factory, cmFlags *genericclioptionscm.CMFlags, streams gen
 		Use:                   "contexts",
 		Aliases:               []string{"context"},
 		DisableFlagsInUseLine: true,
-		Short:                 "Get the managedcluster contexts of a hub",
+		Short:                 "Get the managedcluster's contexts of a hub",
+		Long:                  "Get the managedcluster's contexts of a hub based on hive clusterClaim and clusterDeployment",
 		Example:               fmt.Sprintf(example, helpers.GetExampleHeader()),
 		Run: func(cmd *cobra.Command, args []string) {
 			cmdutil.CheckErr(o.complete(cmd, args))
 			cmdutil.CheckErr(o.validate())
-			cmdutil.CheckErr(o.run())
+			cmdutil.CheckErr(o.run(streams))
 		},
 	}
 
