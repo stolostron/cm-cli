@@ -39,7 +39,7 @@ func (o *Options) run() (err error) {
 func (o *Options) runWithClient(kubeClient kubernetes.Interface,
 	apiextensionsClient apiextensionsclient.Interface,
 	dynamicClient dynamic.Interface) (err error) {
-	_, err = dynamicClient.Resource(helpers.GvrMCE).Namespace(o.namespace).Get(context.TODO(), "multiclusterhub", metav1.GetOptions{})
+	_, err = dynamicClient.Resource(helpers.GvrMCEV1alpha1).Namespace(o.namespace).Get(context.TODO(), "multiclusterhub", metav1.GetOptions{})
 	if err == nil {
 		return errors.NewUnauthorized("mce already installed")
 	}
@@ -112,7 +112,10 @@ func (o *Options) runWithClient(kubeClient kubernetes.Interface,
 	if o.wait {
 		i := 0
 		wait.PollImmediate(1*time.Minute, time.Duration(o.timeout)*time.Minute, func() (bool, error) {
-			mchu, err := dynamicClient.Resource(helpers.GvrMCE).Namespace(o.namespace).Get(context.TODO(), "multiclusterengine", metav1.GetOptions{})
+			mchu, err := dynamicClient.Resource(helpers.GvrMCEV1alpha1).Namespace(o.namespace).Get(context.TODO(), "multiclusterengine", metav1.GetOptions{})
+			if errors.IsNotFound(err) {
+				mchu, err = dynamicClient.Resource(helpers.GvrMCEV1).Namespace(o.namespace).Get(context.TODO(), "multiclusterengine", metav1.GetOptions{})
+			}
 			if err != nil {
 				fmt.Printf("%s, waiting...\n", err)
 				return false, nil
