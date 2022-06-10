@@ -52,6 +52,8 @@ func addKnownTypes(scheme *runtime.Scheme) error {
 		&PrintClusterPoolHost{},
 		&PrintClusterPoolHostList{},
 		&PrintClusterPoolList{},
+		&PrintComponent{},
+		&PrintComponentList{},
 		&PrintPolicies{},
 		&PrintPoliciesList{},
 	)
