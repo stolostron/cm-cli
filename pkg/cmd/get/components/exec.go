@@ -32,24 +32,23 @@ func (o *Options) run(streams genericclioptions.IOStreams) (err error) {
 	if errors.IsNotFound(err) {
 		mceu, err = dynamicClient.Resource(helpers.GvrMCEV1).Get(context.TODO(), "multiclusterengine", metav1.GetOptions{})
 	}
-	if err != nil {
-		return err
-	}
 	componentsMap := make(map[string]bool, 0)
-	components, _, err := unstructured.NestedSlice(mceu.Object, "spec", "overrides", "components")
-	if err != nil {
-		return err
-	}
-	mchs, err := dynamicClient.Resource(helpers.GvrMCH).List(context.TODO(), metav1.ListOptions{})
-	if err != nil {
-		return err
-	}
-	if len(mchs.Items) != 0 {
-		mchComponents, _, err := unstructured.NestedSlice(mchs.Items[0].Object, "spec", "overrides", "components")
+	var components []interface{}
+	if err == nil {
+		components, _, err = unstructured.NestedSlice(mceu.Object, "spec", "overrides", "components")
 		if err != nil {
 			return err
 		}
-		components = append(components, mchComponents...)
+	}
+	mchs, err := dynamicClient.Resource(helpers.GvrMCH).List(context.TODO(), metav1.ListOptions{})
+	if err == nil {
+		if len(mchs.Items) != 0 {
+			mchComponents, _, err := unstructured.NestedSlice(mchs.Items[0].Object, "spec", "overrides", "components")
+			if err != nil {
+				return err
+			}
+			components = append(components, mchComponents...)
+		}
 	}
 	for _, imceComponents := range components {
 		mceComponents := imceComponents.(map[string]interface{})

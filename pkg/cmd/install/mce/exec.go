@@ -101,11 +101,17 @@ func (o *Options) runWithClient(kubeClient kubernetes.Interface,
 	}
 
 	files = []string{
-		"install/multicluster-engine.yaml",
+		"install/multicluster-engine_v1alpha1.yaml",
 	}
 	out, err = applier.ApplyCustomResources(reader, values, o.CMFlags.DryRun, "", files...)
 	if err != nil {
-		return err
+		files = []string{
+			"install/multicluster-engine_v1.yaml",
+		}
+		out, err = applier.ApplyCustomResources(reader, values, o.CMFlags.DryRun, "", files...)
+		if err != nil {
+			return err
+		}
 	}
 	output = append(output, out...)
 

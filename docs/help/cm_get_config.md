@@ -55,4 +55,5 @@ get the config of a resource
 * [cm get](cm_get.md)	 - get a resource
 * [cm get config cluster](cm_get_config_cluster.md)	 - Display the config of a cluster
 * [cm get config clusterpool](cm_get_config_clusterpool.md)	 - Display the config of a cluster
+* [cm get config hypershiftdeployment](cm_get_config_hypershiftdeployment.md)	 - Display the config of a hypershiftdeployment
 

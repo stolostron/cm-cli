@@ -1,11 +1,32 @@
-## cm get
+## cm get contexts
 
-get a resource
+Get the managedcluster's contexts of a hub
+
+### Synopsis
+
+Get the managedcluster's contexts of a hub based on hive clusterClaim and clusterDeployment
+
+```
+cm get contexts
+```
+
+### Examples
+
+```
+
+	# get the contexts of the hub
+	cm get contexts
+	
+	# get the contexts and provide the clusterpoolhosts where the clusterclaim can be found
+	cm get contexts --cph <clusterpoolhosts>
+
+```
 
 ### Options
 
 ```
-  -h, --help   help for get
+      --cph string   The clusterpoolhost to use
+  -h, --help         help for contexts
 ```
 
 ### Options inherited from parent commands
@@ -52,19 +73,5 @@ get a resource
 
 ### SEE ALSO
 
-* [cm](cm.md)	 - CLI for Red Hat Advanced Cluster Management
-* [cm get addon](cm_get_addon.md)	 - get enabled addon on specified managed cluster
-* [cm get clusterclaims](cm_get_clusterclaims.md)	 - Display clusterclaims
-* [cm get clusterpoolhosts](cm_get_clusterpoolhosts.md)	 - list the clusterpoolhosts
-* [cm get clusterpools](cm_get_clusterpools.md)	 - Get clusterpool
-* [cm get clusters](cm_get_clusters.md)	 - Display the attached clusters
-* [cm get clustersets](cm_get_clustersets.md)	 - get clustersets
-* [cm get components](cm_get_components.md)	 - Get the list of available components
-* [cm get config](cm_get_config.md)	 - get the config of a resource
-* [cm get contexts](cm_get_contexts.md)	 - Get the managedcluster's contexts of a hub
-* [cm get credentials](cm_get_credentials.md)	 - list the credentials of cloud providers
-* [cm get hub-info](cm_get_hub-info.md)	 - get hub-info
-* [cm get machinepools](cm_get_machinepools.md)	 - list the machinepools for a give cluster
-* [cm get policies](cm_get_policies.md)	 - Display policies
-* [cm get works](cm_get_works.md)	 - get manifestwork on a specified managed cluster
+* [cm get](cm_get.md)	 - get a resource
 

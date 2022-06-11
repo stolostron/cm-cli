@@ -7,6 +7,7 @@
 - [Create a command to generate/update the $KUBECONFIG file with all clusters credentials found in a ACM HUB #222](https://github.com/stolostron/cm-cli/issues/222)
 - [Add get components #227](https://github.com/stolostron/cm-cli/issues/226)
 - Add support for mce CR V1
+- [Create commands to enable/disable components #228](https://github.com/stolostron/cm-cli/issues/228)
 ## Breaking changes
 
 - `cm create hd` template changed to a more structured template.
