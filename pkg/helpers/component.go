@@ -4,6 +4,7 @@ package helpers
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/stolostron/cm-cli/pkg/genericclioptions"
 	"k8s.io/apimachinery/pkg/api/errors"
@@ -17,6 +18,7 @@ func SetComponentEnable(cmFlags *genericclioptions.CMFlags, componentName string
 		return err
 	}
 	//Update MCE
+	found := false
 	version := GvrMCEV1alpha1
 	mceu, err := dynamicClient.Resource(version).Get(context.TODO(), "multiclusterengine", metav1.GetOptions{})
 	if errors.IsNotFound(err) {
@@ -35,6 +37,7 @@ func SetComponentEnable(cmFlags *genericclioptions.CMFlags, componentName string
 			component := components[i].(map[string]interface{})
 			if component["name"].(string) == componentName {
 				component["enabled"] = enable
+				found = true
 				break
 			}
 		}
@@ -61,6 +64,7 @@ func SetComponentEnable(cmFlags *genericclioptions.CMFlags, componentName string
 				component := components[i].(map[string]interface{})
 				if component["name"].(string) == componentName {
 					component["enable"] = enable
+					found = true
 					break
 				}
 			}
@@ -73,6 +77,9 @@ func SetComponentEnable(cmFlags *genericclioptions.CMFlags, componentName string
 				return err
 			}
 		}
+	}
+	if !found {
+		return fmt.Errorf("component %s not found", componentName)
 	}
 	return nil
 }
