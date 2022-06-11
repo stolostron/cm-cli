@@ -1,0 +1,7 @@
+# Copyright Contributors to the Open Cluster Management project
+
+apiVersion: multicluster.openshift.io/v1
+kind: MultiClusterEngine
+metadata:
+  name: multiclusterengine
+spec: {}

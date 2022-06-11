@@ -53,6 +53,7 @@ CLI for Red Hat Advanced Cluster Management
 * [cm create](cm_create.md)	 - create a resource
 * [cm delete](cm_delete.md)	 - delete a resource
 * [cm detach](cm_detach.md)	 - detach a resources
+* [cm disable](cm_disable.md)	 - disable a feature
 * [cm enable](cm_enable.md)	 - enable a feature
 * [cm get](cm_get.md)	 - get a resource
 * [cm hibernate](cm_hibernate.md)	 - hibernate a resource
