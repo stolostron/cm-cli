@@ -120,6 +120,8 @@ func GetVersion(cmFlags *genericclioptions.CMFlags, isCPHCommand bool, cphName s
 	return version, platform, err
 }
 
+//IsSupportedVersion returns boolean true if the constraint is statified along with the platform ACM/MCE.
+//Returns an error if it can not determine the version if the platform.
 func IsSupportedVersion(cmFlags *genericclioptions.CMFlags, isCPHCommand bool, cphName string, rhacmConstraint string, mceConstraint string) (isSupported bool, platform string, err error) {
 	var version string
 	f := cmFlags.KubectlFactory

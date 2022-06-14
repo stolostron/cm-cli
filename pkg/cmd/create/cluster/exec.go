@@ -150,7 +150,7 @@ func (o *Options) runWithClient(kubeClient kubernetes.Interface,
 
 	reader := scenario.GetScenarioResourcesReader()
 	attachreader := attachscenario.GetScenarioResourcesReader()
-	applierBuilder := &clusteradmapply.ApplierBuilder{}
+	applierBuilder := clusteradmapply.NewApplierBuilder()
 	applier := applierBuilder.WithClient(kubeClient, apiextensionsClient, dynamicClient).Build()
 
 	installConfig, err := applier.MustTemplateAsset(reader,

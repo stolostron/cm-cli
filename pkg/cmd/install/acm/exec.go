@@ -66,7 +66,7 @@ func (o *Options) runWithClient(kubeClient kubernetes.Interface,
 		Approval:      approval,
 	}
 
-	applierBuilder := &clusteradmapply.ApplierBuilder{}
+	applierBuilder := clusteradmapply.NewApplierBuilder()
 	applier := applierBuilder.WithClient(kubeClient, apiextensionsClient, dynamicClient).Build()
 	out, err := applier.ApplyDirectly(reader, values, o.CMFlags.DryRun, "", files...)
 	if err != nil {

@@ -78,7 +78,7 @@ func (cph *ClusterPoolHost) getClusterClaimSAToken(
 		"create/cluster/cluster-role-binding.yaml",
 	}
 
-	applierBuilder := &clusteradmapply.ApplierBuilder{}
+	applierBuilder := clusteradmapply.NewApplierBuilder()
 	if !dryRun {
 		if err = cph.setHibernateClusterClaims(clusterName, false, dryRun); err != nil {
 			return
@@ -109,7 +109,7 @@ func (cph *ClusterPoolHost) getClusterClaimSAToken(
 			return
 		}
 
-		applier := applierBuilder.WithClient(kubeClientCC, apiExtensionsClientCC, dynamicClientCC)
+		applier := applierBuilder.WithClient(kubeClientCC, apiExtensionsClientCC, dynamicClientCC).Build()
 		out, errG := applier.ApplyDirectly(reader, values, dryRun, "", files...)
 		if err != nil {
 			err = errG
@@ -125,7 +125,7 @@ func (cph *ClusterPoolHost) getClusterClaimSAToken(
 			return
 		}
 	} else {
-		applier := applierBuilder
+		applier := applierBuilder.Build()
 		out, errG := applier.MustTemplateAssets(reader, values, "", files...)
 		if err != nil {
 			err = errG

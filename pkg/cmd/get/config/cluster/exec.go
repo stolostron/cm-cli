@@ -162,8 +162,8 @@ func (o *Options) runWithClient(kubeClient kubernetes.Interface,
 	values["clusterImageSet"] = cisu.Object
 
 	klog.V(5).Infof("%v\n", values)
-	applierBuilder := &clusteradmapply.ApplierBuilder{}
-	applier := applierBuilder.WithClient(kubeClient, apiExtensionsClient, dynamicClient)
+	applierBuilder := clusteradmapply.NewApplierBuilder()
+	applier := applierBuilder.WithClient(kubeClient, apiExtensionsClient, dynamicClient).Build()
 	b, err := applier.MustTemplateAsset(reader, values, "", "config/config.yaml")
 	if err != nil {
 		return err

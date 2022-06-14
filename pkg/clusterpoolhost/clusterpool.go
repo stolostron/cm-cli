@@ -81,7 +81,7 @@ func (cph *ClusterPoolHost) CreateClusterPool(clusterPoolName, cloud string, val
 	output := make([]string, 0)
 
 	reader := scenario.GetScenarioResourcesReader()
-	applierBuilder := &clusteradmapply.ApplierBuilder{}
+	applierBuilder := clusteradmapply.NewApplierBuilder()
 	applier := applierBuilder.WithClient(kubeClient, apiExtensionsClient, dynamicClient).Build()
 
 	installConfig, err := applier.MustTemplateAsset(reader,
@@ -333,8 +333,8 @@ func (cph *ClusterPoolHost) GetClusterPoolConfig(clusterPoolName string, without
 	values["imageSetRef"] = cp.Spec.ImageSetRef.Name
 
 	klog.V(5).Infof("%v\n", values)
-	applierBuilder := &clusteradmapply.ApplierBuilder{}
-	applier := applierBuilder.WithClient(kubeClient, apiExtensionsClient, dynamicClient)
+	applierBuilder := clusteradmapply.NewApplierBuilder()
+	applier := applierBuilder.WithClient(kubeClient, apiExtensionsClient, dynamicClient).Build()
 	b, err := applier.MustTemplateAsset(reader, values, "", "config/clusterpool/config.yaml")
 	if err != nil {
 		return err

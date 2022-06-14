@@ -263,7 +263,7 @@ func (o *Options) runWithClient(kubeClient kubernetes.Interface,
 		files = append(files, "attach/hub/managed_cluster_secret.yaml")
 	}
 
-	applierBuilder := &clusteradmapply.ApplierBuilder{}
+	applierBuilder := clusteradmapply.NewApplierBuilder()
 	applier := applierBuilder.WithClient(kubeClient, apiextensionsClient, dynamicClient).Build()
 	out, err := applier.ApplyDirectly(reader, o.values, o.CMFlags.DryRun, "", files...)
 	if err != nil {
