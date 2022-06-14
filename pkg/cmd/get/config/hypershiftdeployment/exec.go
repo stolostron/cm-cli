@@ -50,8 +50,8 @@ func (o *Options) runWithClient(kubeClient kubernetes.Interface,
 	}
 
 	klog.V(5).Infof("%v\n", hd)
-	applierBuilder := &clusteradmapply.ApplierBuilder{}
-	applier := applierBuilder.WithClient(kubeClient, apiExtensionsClient, dynamicClient)
+	applierBuilder := clusteradmapply.NewApplierBuilder()
+	applier := applierBuilder.WithClient(kubeClient, apiExtensionsClient, dynamicClient).Build()
 	b, err := applier.MustTemplateAsset(reader, *hd, "", "config/config.yaml")
 	if err != nil {
 		return err

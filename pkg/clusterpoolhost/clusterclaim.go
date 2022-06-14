@@ -97,8 +97,8 @@ func (cph *ClusterPoolHost) CreateClusterClaims(clusterClaimNames, clusterPoolNa
 			"create/clusterclaim/clusterclaim_cr.yaml",
 		}
 
-		applierBuilder := &clusteradmapply.ApplierBuilder{}
-		applier := applierBuilder.WithClient(kubeClient, apiExtensionsClient, dynamicClient)
+		applierBuilder := clusteradmapply.NewApplierBuilder()
+		applier := applierBuilder.WithClient(kubeClient, apiExtensionsClient, dynamicClient).Build()
 		out, err := applier.ApplyCustomResources(reader, values, dryRun, "", files...)
 		if err != nil {
 			return err

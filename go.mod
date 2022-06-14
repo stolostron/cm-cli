@@ -12,6 +12,7 @@ require (
 	github.com/spf13/cobra v1.4.0
 	github.com/spf13/pflag v1.0.5
 	github.com/stolostron/governance-policy-propagator v0.0.0-20220128200210-e26d2c020e4b
+	github.com/stolostron/hypershift-deployment-controller v0.0.0-20220504173208-c3d8e2032854
 	golang.org/x/net v0.0.0-20220225172249-27dd8689420f
 	k8s.io/api v0.23.5
 	k8s.io/apiextensions-apiserver v0.23.5
@@ -22,8 +23,8 @@ require (
 	k8s.io/component-base v0.23.5
 	k8s.io/klog/v2 v2.40.1
 	k8s.io/kubectl v0.23.5
-	open-cluster-management.io/api v0.6.1-0.20220127035449-918b7bf7184f
-	open-cluster-management.io/clusteradm v0.1.2-0.20220325115750-b60656443f24
+	open-cluster-management.io/api v0.7.1-0.20220609092005-e8cc7a4e4c10
+	open-cluster-management.io/clusteradm v0.2.1-0.20220614134010-74409d5d766b
 	sigs.k8s.io/controller-runtime v0.11.1
 )
 
@@ -81,9 +82,8 @@ require (
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
 	github.com/modern-go/reflect2 v1.0.2 // indirect
 	github.com/monochromegane/go-gitignore v0.0.0-20200626010858-205db1a8cc00 // indirect
-	github.com/onsi/gomega v1.18.1 // indirect
 	github.com/openshift/custom-resource-status v0.0.0-20200602122900-c002fd1547ca // indirect
-	github.com/openshift/library-go v0.0.0-20211209153216-ed9bc958bd8a // indirect
+	github.com/openshift/library-go v0.0.0-20220405134141-226b07263a02 // indirect
 	github.com/pborman/uuid v1.2.0 // indirect
 	github.com/peterbourgon/diskv v2.0.1+incompatible // indirect
 	github.com/pkg/errors v0.9.1 // indirect
@@ -94,7 +94,6 @@ require (
 	github.com/prometheus/procfs v0.7.3 // indirect
 	github.com/russross/blackfriday v1.6.0 // indirect
 	github.com/russross/blackfriday/v2 v2.1.0 // indirect
-	github.com/stolostron/hypershift-deployment-controller v0.0.0-20220504173208-c3d8e2032854 // indirect
 	github.com/stretchr/testify v1.7.1 // indirect
 	github.com/xlab/treeprint v1.1.0 // indirect
 	go.starlark.net v0.0.0-20220302181546-5411bad688d1 // indirect
@@ -109,6 +108,8 @@ require (
 	golang.org/x/xerrors v0.0.0-20200804184101-5ec99f83aff1 // indirect
 	gomodules.xyz/jsonpatch/v2 v2.2.0 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
+	google.golang.org/genproto v0.0.0-20220317150908-0efb43f6373e // indirect
+	google.golang.org/grpc v1.45.0 // indirect
 	google.golang.org/protobuf v1.27.1 // indirect
 	gopkg.in/inf.v0 v0.9.1 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
@@ -120,7 +121,11 @@ require (
 	kubevirt.io/api v0.0.0-20211117075245-c94ce62baf5a // indirect
 	kubevirt.io/containerized-data-importer-api v1.41.0 // indirect
 	kubevirt.io/controller-lifecycle-operator-sdk v0.2.1 // indirect
+	open-cluster-management.io/cluster-proxy v0.1.2 // indirect
+	open-cluster-management.io/managed-serviceaccount v0.2.1-0.20220427065210-de6a7b7b5be8 // indirect
 	open-cluster-management.io/multicloud-operators-subscription v0.5.1-0.20220110225708-33d195cb3c9a // indirect
+	sigs.k8s.io/apiserver-network-proxy v0.0.30 // indirect
+	sigs.k8s.io/apiserver-network-proxy/konnectivity-client v0.0.30 // indirect
 	sigs.k8s.io/cluster-api v1.1.3 // indirect
 	sigs.k8s.io/cluster-api-provider-aws v1.1.0 // indirect
 	sigs.k8s.io/cluster-api-provider-ibmcloud v0.2.0 // indirect

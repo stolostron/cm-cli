@@ -32,6 +32,7 @@ import (
 	"github.com/stolostron/cm-cli/pkg/cmd/get"
 	"github.com/stolostron/cm-cli/pkg/cmd/hibernate"
 	"github.com/stolostron/cm-cli/pkg/cmd/install"
+	"github.com/stolostron/cm-cli/pkg/cmd/proxy"
 	"github.com/stolostron/cm-cli/pkg/cmd/run"
 	"github.com/stolostron/cm-cli/pkg/cmd/scale"
 	"github.com/stolostron/cm-cli/pkg/cmd/set"
@@ -98,11 +99,12 @@ func NewCMCommand() *cobra.Command {
 				create.NewCmd(clusteradmFlags, cmFlags, streams),
 				delete.NewCmd(clusteradmFlags, cmFlags, streams),
 				scale.NewCmd(cmFlags, streams),
-				enable.NewCmd(cmFlags, streams),
-				disable.NewCmd(cmFlags, streams),
+				enable.NewCmd(clusteradmFlags, cmFlags, streams),
+				disable.NewCmd(clusteradmFlags, cmFlags, streams),
 				get.NewCmd(f, clusteradmFlags, cmFlags, streams),
 				bind.NewCmd(clusteradmFlags, cmFlags, streams),
 				unbind.NewCmd(clusteradmFlags, cmFlags, streams),
+				proxy.NewCmd(clusteradmFlags, cmFlags, streams),
 			},
 		},
 		{

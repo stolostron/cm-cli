@@ -1,25 +1,28 @@
 // Copyright Contributors to the Open Cluster Management project
-package disable
+package addon
 
 import (
-	"github.com/stolostron/cm-cli/pkg/cmd/disable/components"
-	"github.com/stolostron/cm-cli/pkg/cmd/enable/addon"
+	"fmt"
+
 	genericclioptionscm "github.com/stolostron/cm-cli/pkg/genericclioptions"
+	clusteradmaddon "open-cluster-management.io/clusteradm/pkg/cmd/addon/enable"
 	genericclioptionsclusteradm "open-cluster-management.io/clusteradm/pkg/genericclioptions"
+	clusteradmhelpers "open-cluster-management.io/clusteradm/pkg/helpers"
 
 	"github.com/spf13/cobra"
 	"k8s.io/cli-runtime/pkg/genericclioptions"
 )
 
+var example = `
+# enable addons on the hub
+%[1]s enable addon 
+`
+
 // NewCmd provides a cobra command wrapping NewCmdImportCluster
 func NewCmd(clusteradmFlags *genericclioptionsclusteradm.ClusteradmFlags, cmFlags *genericclioptionscm.CMFlags, streams genericclioptions.IOStreams) *cobra.Command {
-	cmd := &cobra.Command{
-		Use:   "disable",
-		Short: "disable a feature",
-	}
-
-	cmd.AddCommand(components.NewCmd(cmFlags, streams))
-	cmd.AddCommand(addon.NewCmd(clusteradmFlags, cmFlags, streams))
+	cmd := clusteradmaddon.NewCmd(clusteradmFlags, streams)
+	cmd.Use = "addon"
+	cmd.Example = fmt.Sprintf(example, clusteradmhelpers.GetExampleHeader())
 
 	return cmd
 }

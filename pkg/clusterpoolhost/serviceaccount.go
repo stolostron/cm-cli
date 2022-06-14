@@ -61,8 +61,8 @@ func (cph *ClusterPoolHost) newCKServiceAccount(clusterPoolRestConfig *rest.Conf
 	files := []string{
 		"create/clusterpoolhost/sa.yaml",
 	}
-	applierBuilder := &clusteradmapply.ApplierBuilder{}
-	applier := applierBuilder.WithClient(kubeClient, apiExtensionsClient, dynamicClient)
+	applierBuilder := clusteradmapply.NewApplierBuilder()
+	applier := applierBuilder.WithClient(kubeClient, apiExtensionsClient, dynamicClient).Build()
 	out, err := applier.ApplyDirectly(reader, values, dryRun, "", files...)
 	if err != nil {
 		return err

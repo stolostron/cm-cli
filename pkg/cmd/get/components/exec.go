@@ -31,6 +31,9 @@ func (o *Options) run(streams genericclioptions.IOStreams) (err error) {
 	mceu, err := dynamicClient.Resource(helpers.GvrMCEV1alpha1).Get(context.TODO(), "multiclusterengine", metav1.GetOptions{})
 	if errors.IsNotFound(err) {
 		mceu, err = dynamicClient.Resource(helpers.GvrMCEV1).Get(context.TODO(), "multiclusterengine", metav1.GetOptions{})
+		if err != nil {
+			return err
+		}
 	}
 	componentsMap := make(map[string]bool, 0)
 	var components []interface{}
@@ -41,6 +44,9 @@ func (o *Options) run(streams genericclioptions.IOStreams) (err error) {
 		}
 	}
 	mchs, err := dynamicClient.Resource(helpers.GvrMCH).List(context.TODO(), metav1.ListOptions{})
+	if err != nil && !errors.IsNotFound(err) {
+		return err
+	}
 	if err == nil {
 		if len(mchs.Items) != 0 {
 			mchComponents, _, err := unstructured.NestedSlice(mchs.Items[0].Object, "spec", "overrides", "components")
@@ -50,9 +56,9 @@ func (o *Options) run(streams genericclioptions.IOStreams) (err error) {
 			components = append(components, mchComponents...)
 		}
 	}
-	for _, imceComponents := range components {
-		mceComponents := imceComponents.(map[string]interface{})
-		componentsMap[mceComponents["name"].(string)] = mceComponents["enabled"].(bool)
+	for _, v := range components {
+		component := v.(map[string]interface{})
+		componentsMap[component["name"].(string)] = component["enabled"].(bool)
 	}
 	printComponentList := &printv1alpha1.PrintComponentList{}
 	printComponentList.GetObjectKind().

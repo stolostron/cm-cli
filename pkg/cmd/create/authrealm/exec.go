@@ -130,7 +130,7 @@ func (o *Options) runWithClient(kubeClient kubernetes.Interface,
 	output := make([]string, 0)
 
 	reader := scenario.GetScenarioResourcesReader()
-	applierBuilder := &clusteradmapply.ApplierBuilder{}
+	applierBuilder := clusteradmapply.NewApplierBuilder()
 	applier := applierBuilder.WithClient(kubeClient, apiextensionsClient, dynamicClient).Build()
 
 	iauthRealm := o.values["authRealm"]

@@ -158,7 +158,7 @@ func (o *Options) runWithClient(kubeClient kubernetes.Interface,
 	dynamicClient dynamic.Interface) (err error) {
 	output := make([]string, 0)
 	reader := scenario.GetScenarioResourcesReader()
-	applierBuilder := &clusteradmapply.ApplierBuilder{}
+	applierBuilder := clusteradmapply.NewApplierBuilder()
 	applier := applierBuilder.WithClient(kubeClient, apiextensionsClient, dynamicClient).Build()
 
 	files := []string{

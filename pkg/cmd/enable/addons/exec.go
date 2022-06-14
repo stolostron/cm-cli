@@ -102,7 +102,7 @@ func (o *Options) runWithClient(
 		"attach/hub/klusterlet_addon_config_cr.yaml",
 	}
 
-	applierBuilder := &clusteradmapply.ApplierBuilder{}
+	applierBuilder := clusteradmapply.NewApplierBuilder()
 	applier := applierBuilder.WithClient(kubeClient, apiExtensionsClient, dynamicClient).Build()
 	out, err := applier.ApplyCustomResources(reader, o.values, o.CMFlags.DryRun, "", files...)
 	if err != nil {

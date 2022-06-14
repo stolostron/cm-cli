@@ -196,7 +196,7 @@ func (o *Options) attachClusterClaim(cph *clusterpoolhost.ClusterPoolHost) error
 		return err
 	}
 
-	applierBuilder := &clusteradmapply.ApplierBuilder{}
+	applierBuilder := clusteradmapply.NewApplierBuilder()
 	applier := applierBuilder.WithClient(kubeClient, apiExtensionsClient, dynamicClient).Build()
 	out, err := applier.ApplyDirectly(reader, o.values, o.CMFlags.DryRun, "", files...)
 	if err != nil {

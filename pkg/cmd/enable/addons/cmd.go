@@ -37,7 +37,7 @@ func NewCmd(cmFlags *genericclioptionscm.CMFlags, streams genericclioptions.IOSt
 
 	cluster := &cobra.Command{
 		Use:          "addons",
-		Short:        "Import a cluster",
+		Short:        "enable addons on managed cluster",
 		Example:      fmt.Sprintf(example, helpers.GetExampleHeader()),
 		SilenceUsage: true,
 		PreRunE: func(c *cobra.Command, args []string) error {
