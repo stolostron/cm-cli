@@ -54,6 +54,7 @@ get a resource
 
 * [cm](cm.md)	 - CLI for Red Hat Advanced Cluster Management
 * [cm get addon](cm_get_addon.md)	 - get enabled addon on specified managed cluster
+* [cm get addon](cm_get_addon.md)	 - disable specified addon on specified managed clusters
 * [cm get clusterclaims](cm_get_clusterclaims.md)	 - Display clusterclaims
 * [cm get clusterpoolhosts](cm_get_clusterpoolhosts.md)	 - list the clusterpoolhosts
 * [cm get clusterpools](cm_get_clusterpools.md)	 - Get clusterpool

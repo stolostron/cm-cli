@@ -1,29 +1,35 @@
-## cm enable addons
+## cm proxy health
 
-enable addons on managed cluster
+show the overall healthiness of cluster-proxy addon
+
+### Synopsis
+
+check the healthiness of a certain managed cluster that have cluster-proxy addon
 
 ```
-cm enable addons [flags]
+cm proxy health [flags]
 ```
 
 ### Examples
 
 ```
 
-# Enable addons on a cluster
-cm enable addons --values values.yaml
-
-# Attach a cluster with overwritting the cluster name
-cm enable addons --values values.yaml --cluster mycluster
+# check health of a managedcluster proxy 
+cm proxy health
 
 ```
 
 ### Options
 
 ```
-  -h, --help                 help for addons
-      --output-file string   The generated resources will be copied in the specified file
-      --values string        The files containing the values
+  -c, --clusters stringArray           The names of the clusters to probe
+  -h, --help                           help for health
+      --in-cluster-proxy-cert-lookup   If true, will be looking for the proxy client credentials (including CA cert, client client and key) from the ManagedProxyConfiguration in the hub cluster (default true)
+      --proxy-ca-cert string           The path to proxy server's CA certificate
+      --proxy-cert string              The path to proxy server's corresponding client certificate
+      --proxy-key string               The path to proxy server's corresponding client key
+      --proxy-server-host string       Konnectivity proxy server's entry hostname (default "127.0.0.1")
+      --proxy-server-port int          Konnectivity proxy server's entry port (default 8090)
 ```
 
 ### Options inherited from parent commands
@@ -70,5 +76,5 @@ cm enable addons --values values.yaml --cluster mycluster
 
 ### SEE ALSO
 
-* [cm enable](cm_enable.md)	 - enable a feature
+* [cm proxy](cm_proxy.md)	 - proxy commands
 

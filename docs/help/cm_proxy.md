@@ -1,29 +1,11 @@
-## cm enable addons
+## cm proxy
 
-enable addons on managed cluster
-
-```
-cm enable addons [flags]
-```
-
-### Examples
-
-```
-
-# Enable addons on a cluster
-cm enable addons --values values.yaml
-
-# Attach a cluster with overwritting the cluster name
-cm enable addons --values values.yaml --cluster mycluster
-
-```
+proxy commands
 
 ### Options
 
 ```
-  -h, --help                 help for addons
-      --output-file string   The generated resources will be copied in the specified file
-      --values string        The files containing the values
+  -h, --help   help for proxy
 ```
 
 ### Options inherited from parent commands
@@ -70,5 +52,7 @@ cm enable addons --values values.yaml --cluster mycluster
 
 ### SEE ALSO
 
-* [cm enable](cm_enable.md)	 - enable a feature
+* [cm](cm.md)	 - CLI for Red Hat Advanced Cluster Management
+* [cm proxy health](cm_proxy_health.md)	 - show the overall healthiness of cluster-proxy addon
+* [cm proxy kubectl](cm_proxy_kubectl.md)	 - Use kubectl through cluster-proxy addon.
 

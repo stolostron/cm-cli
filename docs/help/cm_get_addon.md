@@ -1,6 +1,10 @@
 ## cm get addon
 
-get enabled addon on specified managed cluster
+disable specified addon on specified managed clusters
+
+### Synopsis
+
+disable specific add-on(s) agent deployment to the given managed clusters
 
 ```
 cm get addon [flags]
@@ -10,18 +14,18 @@ cm get addon [flags]
 
 ```
 
-# Get enabled addon on specified cluster
-cm get addon --clusters cluster1
-# Get all enabled addon
-cm get addon
+# get available addons on the hub
+cm get addon 
 
 ```
 
 ### Options
 
 ```
+      --all-clusters       Make all managed clusters to disable the add-on
       --clusters strings   Names of the managed cluster to deploy the add-on to (comma separated)
   -h, --help               help for addon
+      --names strings      Names of the add-on to deploy (comma separated)
 ```
 
 ### Options inherited from parent commands

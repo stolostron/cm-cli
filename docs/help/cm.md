@@ -60,6 +60,7 @@ CLI for Red Hat Advanced Cluster Management
 * [cm install](cm_install.md)	 - install a product
 * [cm options](cm_options.md)	 - Print the list of flags inherited by all commands
 * [cm plugin](cm_plugin.md)	 - Provides utilities for interacting with plugins
+* [cm proxy](cm_proxy.md)	 - proxy commands
 * [cm run](cm_run.md)	 - run a resource
 * [cm scale](cm_scale.md)	 - scale a resource
 * [cm set](cm_set.md)	 - set a resource

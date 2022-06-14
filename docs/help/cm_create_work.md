@@ -15,13 +15,14 @@ cm create work [flags]
 ```
 
 # Create manifestwork on a specified managed cluster"
-cm create work work-example -f xxx.yaml --cluster cluster1
+cm create work work-example -f xxx.yaml --clusters cluster1
 
 ```
 
 ### Options
 
 ```
+      --clusters string    Names of the managed cluster to apply work
   -f, --filename strings   
   -h, --help               help for work
       --overwrite          Overwrite the existing work if it exists already

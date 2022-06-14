@@ -1,29 +1,31 @@
-## cm enable addons
+## cm enable addon
 
-enable addons on managed cluster
+enable specified addon
+
+### Synopsis
+
+enable specific add-on(s) agent deployment to the given managed clusters
 
 ```
-cm enable addons [flags]
+cm enable addon [flags]
 ```
 
 ### Examples
 
 ```
 
-# Enable addons on a cluster
-cm enable addons --values values.yaml
-
-# Attach a cluster with overwritting the cluster name
-cm enable addons --values values.yaml --cluster mycluster
+# enable addons on the hub
+cm enable addon 
 
 ```
 
 ### Options
 
 ```
-  -h, --help                 help for addons
+      --clusters strings     Names of the managed cluster to deploy the add-on to (comma separated)
+  -h, --help                 help for addon
+      --names strings        Names of the add-on to deploy (comma separated)
       --output-file string   The generated resources will be copied in the specified file
-      --values string        The files containing the values
 ```
 
 ### Options inherited from parent commands
