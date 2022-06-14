@@ -53,5 +53,6 @@ disable a feature
 ### SEE ALSO
 
 * [cm](cm.md)	 - CLI for Red Hat Advanced Cluster Management
+* [cm disable addon](cm_disable_addon.md)	 - enable specified addon
 * [cm disable component](cm_disable_component.md)	 - Enable components
 

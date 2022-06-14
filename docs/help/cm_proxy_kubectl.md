@@ -1,29 +1,30 @@
-## cm enable addons
+## cm proxy kubectl
 
-enable addons on managed cluster
+Use kubectl through cluster-proxy addon.
+
+### Synopsis
+
+Use kubectl through cluster-proxy addon. (Only supports managed service account token as certificate.)
 
 ```
-cm enable addons [flags]
+cm proxy kubectl [flags]
 ```
 
 ### Examples
 
 ```
 
-# Enable addons on a cluster
-cm enable addons --values values.yaml
-
-# Attach a cluster with overwritting the cluster name
-cm enable addons --values values.yaml --cluster mycluster
+# run a kubectl cmd on a managedcluster
+cm proxy kubectl cluster-name
 
 ```
 
 ### Options
 
 ```
-  -h, --help                 help for addons
-      --output-file string   The generated resources will be copied in the specified file
-      --values string        The files containing the values
+      --args string   The arguments to pass to kubectl
+  -h, --help          help for kubectl
+      --sa string     The name of the managedServiceAccount
 ```
 
 ### Options inherited from parent commands
@@ -70,5 +71,5 @@ cm enable addons --values values.yaml --cluster mycluster
 
 ### SEE ALSO
 
-* [cm enable](cm_enable.md)	 - enable a feature
+* [cm proxy](cm_proxy.md)	 - proxy commands
 
