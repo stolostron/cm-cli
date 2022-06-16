@@ -10,6 +10,7 @@ type Options struct {
 	//CMFlags: The generic optiosn from the cm cli-runtime.
 	CMFlags         *genericclioptionscm.CMFlags
 	ClusterPoolHost string
+	Current         bool
 }
 
 func newOptions(cmFlags *genericclioptionscm.CMFlags, streams genericclioptions.IOStreams) *Options {

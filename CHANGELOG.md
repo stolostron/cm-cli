@@ -2,11 +2,8 @@
 # Release Content
 ## Additions
 
-- Add `cm proxy health/kubectl` commands
-- [Enable component updates mce instead of mch #230](https://github.com/stolostron/cm-cli/issues/230)
-- upgrade to latest clusteradm package
-- Import `cm enable/disable/get addon` from clusteradm
-- Bug fixes in `cm enable/disable/get components`
+- Add `--current` as parameter of `cm get contexts` to generate a kubeconfig containing only the current used context.
+- Generate secret token due to automatic token generation deprecation on kubernetes 1.24
 
 ## Breaking changes
 

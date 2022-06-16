@@ -75,6 +75,7 @@ func (cph *ClusterPoolHost) getClusterClaimSAToken(
 
 	files := []string{
 		"create/cluster/sa.yaml",
+		"create/cluster/secret-token.yaml",
 		"create/cluster/cluster-role-binding.yaml",
 	}
 

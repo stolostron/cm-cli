@@ -60,6 +60,7 @@ func (cph *ClusterPoolHost) newCKServiceAccount(clusterPoolRestConfig *rest.Conf
 	output := make([]string, 0)
 	files := []string{
 		"create/clusterpoolhost/sa.yaml",
+		"create/clusterpoolhost/secret-token.yaml",
 	}
 	applierBuilder := clusteradmapply.NewApplierBuilder()
 	applier := applierBuilder.WithClient(kubeClient, apiExtensionsClient, dynamicClient).Build()

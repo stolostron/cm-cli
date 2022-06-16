@@ -27,32 +27,6 @@ func (o *Options) validate() error {
 
 func (o *Options) run(streams genericclioptions.IOStreams) (err error) {
 
-	cphs, err := clusterpoolhost.GetClusterPoolHosts()
-	if err != nil {
-		return err
-	}
-	var cph *clusterpoolhost.ClusterPoolHost
-	if len(cphs.ClusterPoolHosts) != 0 {
-		cph, err = clusterpoolhost.GetClusterPoolHostOrCurrent(o.ClusterPoolHost)
-		if err != nil {
-			fmt.Println("no clusterpoolhost found, will only get the contexts of hive generated clusters")
-		}
-	}
-	restConfig, err := o.CMFlags.KubectlFactory.ToRESTConfig()
-	if err != nil {
-		return err
-	}
-
-	clusterClient, err := clusterclientset.NewForConfig(restConfig)
-	if err != nil {
-		return err
-	}
-
-	mcs, err := clusterClient.ClusterV1().ManagedClusters().List(context.TODO(), metav1.ListOptions{})
-	if err != nil {
-		return err
-	}
-
 	cmdAPIConfig := &clientcmdapi.Config{
 		Kind:       "Config",
 		APIVersion: "v1",
@@ -65,34 +39,63 @@ func (o *Options) run(streams genericclioptions.IOStreams) (err error) {
 	if err != nil {
 		return err
 	}
-	context := currentCmdAPIConfig.CurrentContext
-	cmdAPIConfig.AuthInfos[context] = currentCmdAPIConfig.AuthInfos[context]
-	cmdAPIConfig.Contexts[context] = currentCmdAPIConfig.Contexts[context]
-	cmdAPIConfig.Clusters[context] = currentCmdAPIConfig.Clusters[context]
+	currentContext := currentCmdAPIConfig.CurrentContext
+	cmdAPIConfig.AuthInfos[currentContext] = currentCmdAPIConfig.AuthInfos[currentContext]
+	cmdAPIConfig.Contexts[currentContext] = currentCmdAPIConfig.Contexts[currentContext]
+	cmdAPIConfig.Clusters[currentContext] = currentCmdAPIConfig.Clusters[currentContext]
 	cmdAPIConfig.CurrentContext = currentCmdAPIConfig.CurrentContext
 
-	dynamicClient, err := o.CMFlags.KubectlFactory.DynamicClient()
-	if err != nil {
-		return err
-	}
-
-	kubeClient, err := o.CMFlags.KubectlFactory.KubernetesClientSet()
-	if err != nil {
-		return err
-	}
-
-	for _, mc := range mcs.Items {
-		if mc.Name == "local-cluster" {
-			continue
-		}
-		clusterCmdAPIConfig, err := managedcluster.GetCmdAPIConfig(dynamicClient, kubeClient, mc, cph)
+	if !o.Current {
+		cphs, err := clusterpoolhost.GetClusterPoolHosts()
 		if err != nil {
 			return err
 		}
-		if clusterCmdAPIConfig == nil {
-			fmt.Fprintf(streams.ErrOut, "no kubeconfig found for managedcluster %s\n", mc.Name)
+		var cph *clusterpoolhost.ClusterPoolHost
+		if len(cphs.ClusterPoolHosts) != 0 {
+			cph, err = clusterpoolhost.GetClusterPoolHostOrCurrent(o.ClusterPoolHost)
+			if err != nil {
+				fmt.Println("no clusterpoolhost found, will only get the contexts of hive generated clusters")
+			}
 		}
-		addCluster(mc, cmdAPIConfig, clusterCmdAPIConfig)
+
+		dynamicClient, err := o.CMFlags.KubectlFactory.DynamicClient()
+		if err != nil {
+			return err
+		}
+
+		kubeClient, err := o.CMFlags.KubectlFactory.KubernetesClientSet()
+		if err != nil {
+			return err
+		}
+
+		restConfig, err := o.CMFlags.KubectlFactory.ToRESTConfig()
+		if err != nil {
+			return err
+		}
+
+		clusterClient, err := clusterclientset.NewForConfig(restConfig)
+		if err != nil {
+			return err
+		}
+
+		mcs, err := clusterClient.ClusterV1().ManagedClusters().List(context.TODO(), metav1.ListOptions{})
+		if err != nil {
+			return err
+		}
+
+		for _, mc := range mcs.Items {
+			if mc.Name == "local-cluster" {
+				continue
+			}
+			clusterCmdAPIConfig, err := managedcluster.GetCmdAPIConfig(dynamicClient, kubeClient, mc, cph)
+			if err != nil {
+				return err
+			}
+			if clusterCmdAPIConfig == nil {
+				fmt.Fprintf(streams.ErrOut, "no kubeconfig found for managedcluster %s\n", mc.Name)
+			}
+			addCluster(mc, cmdAPIConfig, clusterCmdAPIConfig)
+		}
 	}
 	// return err
 	data, err := clientcmd.Write(*cmdAPIConfig)
