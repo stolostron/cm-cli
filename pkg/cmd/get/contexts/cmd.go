@@ -41,6 +41,7 @@ func NewCmd(f cmdutil.Factory, cmFlags *genericclioptionscm.CMFlags, streams gen
 	}
 
 	cmd.Flags().StringVar(&o.ClusterPoolHost, "cph", "", "The clusterpoolhost to use")
+	cmd.Flags().BoolVar(&o.Current, "current", false, "Generate kubeconfig only containing the current context")
 
 	return cmd
 }
