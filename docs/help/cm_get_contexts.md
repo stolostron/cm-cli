@@ -26,6 +26,7 @@ cm get contexts
 
 ```
       --cph string   The clusterpoolhost to use
+      --current      Generate kubeconfig only containing the current context
   -h, --help         help for contexts
 ```
 

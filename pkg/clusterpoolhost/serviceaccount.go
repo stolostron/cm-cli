@@ -108,25 +108,40 @@ func getSecretFromSA(
 	if err != nil {
 		return nil, err
 	}
+	secrets, err := kubeClient.CoreV1().Secrets(sa.GetNamespace()).List(context.TODO(), metav1.ListOptions{})
+	if err != nil {
+		return nil, err
+	}
 	var secret *corev1.Secret
-	var prefix string
-	for _, objectRef := range sa.Secrets {
-		if objectRef.Namespace != "" && objectRef.Namespace != namespace {
+	for i, secretI := range secrets.Items {
+		if secretI.Type != corev1.SecretTypeServiceAccountToken {
 			continue
 		}
-		prefix = serviceAccountName
-		if len(prefix) > 63 {
-			prefix = prefix[:37]
+		if v, ok := secretI.GetAnnotations()["kubernetes.io/service-account.name"]; ok && v == serviceAccountName {
+			secret = &secrets.Items[i]
+			break
 		}
-		if strings.HasPrefix(objectRef.Name, prefix) {
-			secret, err = kubeClient.CoreV1().
-				Secrets(namespace).
-				Get(context.TODO(), objectRef.Name, metav1.GetOptions{})
-			if err != nil {
+	}
+	if secret == nil {
+		var prefix string
+		for _, objectRef := range sa.Secrets {
+			if objectRef.Namespace != "" && objectRef.Namespace != namespace {
 				continue
 			}
-			if secret.Type == corev1.SecretTypeServiceAccountToken {
-				break
+			prefix = serviceAccountName
+			if len(prefix) > 63 {
+				prefix = prefix[:37]
+			}
+			if strings.HasPrefix(objectRef.Name, prefix) {
+				secret, err = kubeClient.CoreV1().
+					Secrets(namespace).
+					Get(context.TODO(), objectRef.Name, metav1.GetOptions{})
+				if err != nil {
+					continue
+				}
+				if secret.Type == corev1.SecretTypeServiceAccountToken {
+					break
+				}
 			}
 		}
 	}
@@ -134,8 +149,7 @@ func getSecretFromSA(
 		return nil, errors.NewNotFound(schema.GroupResource{
 			Group:    corev1.GroupName,
 			Resource: "secrets"},
-			fmt.Sprintf("secret with prefix %s and type %s not found in service account %s/%s",
-				prefix,
+			fmt.Sprintf("secret with type %s not found for the service account %s/%s",
 				corev1.SecretTypeServiceAccountToken,
 				namespace,
 				serviceAccountName))
