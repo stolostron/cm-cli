@@ -2,7 +2,7 @@
 
 clusterPool:
   size: 1 #Number of cluster in the pool
-  master: 
+  master:
     replicas: 3 #Number of master node, default 3
   worker:
     replicas: 3 #Number of worker node, default 3
@@ -23,7 +23,7 @@ clusterPool:
   #     "email": ""
   #   }
   # }
-  imagePullSecret: |- 
+  imagePullSecret: |-
     pullSecret
   sshPublicKey: |-
     Public key
@@ -34,13 +34,19 @@ clusterPool:
     region: # Region (ie: us-east-1)
     master:
       type: m5.xlarge
-      rootVolume: # see below the default values 
+      #zones: OPTIONAL list of one or more zones in the region (ie: for us-east-1)
+      #- us-east-1a
+      #- us-east-1b
+      rootVolume: # see below the default values
         iops: 4000
         size: 100
         type: gp2
     worker:
       type: m5.xlarge
-      rootVolume: # see below the default values 
+      #zones: OPTIONAL list of one or more zones in the region (ie: for us-east-1)
+      #- us-east-1a
+      #- us-east-1b
+      rootVolume: # see below the default values
         iops: 2000
         size: 100
         type: gp2

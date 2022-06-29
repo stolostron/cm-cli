@@ -15,16 +15,20 @@ controlPlane:
       rootVolume:
 {{ toYaml .clusterPool.aws.master.rootVolume | indent 8}}
 {{- else }}
-      rootVolume: # see below the default values 
+      rootVolume: # see below the default values
         iops: 4000
         size: 100
         type: gp2
 {{- end -}}
 {{- else }}
-      rootVolume: # see below the default values 
+      rootVolume: # see below the default values
         iops: 4000
         size: 100
         type: gp2
+{{- end }}
+{{- if .clusterPool.aws.master.zones }}
+      zones:
+{{ toYaml .clusterPool.aws.master.zones | indent 8}}
 {{- end }}
       type: {{ if .clusterPool.aws.master }}{{ default "m5.xlarge" .clusterPool.aws.master.type }}{{ else }}m5.xlarge{{end}}
 compute:
@@ -38,23 +42,27 @@ compute:
       rootVolume:
 {{ toYaml .clusterPool.aws.worker.rootVolume | indent 8 -}}
 {{- else }}
-      rootVolume: # see below the default values 
+      rootVolume: # see below the default values
         iops: 2000
         size: 100
         type: gp2
 {{- end -}}
 {{- else }}
-      rootVolume: # see below the default values 
+      rootVolume: # see below the default values
         iops: 2000
         size: 100
         type: gp2
+{{- end }}
+{{- if .clusterPool.aws.worker.zones }}
+      zones:
+{{ toYaml .clusterPool.aws.worker.zones | indent 8}}
 {{- end }}
       type: {{ if .clusterPool.aws.worker }}{{ default "m5.xlarge" .clusterPool.aws.worker.type }}{{ else }}m5.xlarge{{end}}
 networking:
   clusterNetwork:
   - cidr: 10.128.0.0/14
     hostPrefix: 23
-  machineNetwork: 
+  machineNetwork:
   - cidr: 10.0.0.0/16
   networkType: OpenShiftSDN
   serviceNetwork:
