@@ -2,10 +2,12 @@
 package cluster
 
 import (
+	"context"
 	"path/filepath"
 	"testing"
 
 	corev1 "k8s.io/api/core/v1"
+	"sigs.k8s.io/controller-runtime/pkg/envtest"
 
 	genericclioptionscm "github.com/stolostron/cm-cli/pkg/genericclioptions"
 	"github.com/stolostron/cm-cli/pkg/helpers"
@@ -13,16 +15,12 @@ import (
 
 	"github.com/spf13/cobra"
 	apiextensionsclient "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset"
-	fakeapiextensionsclient "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset/fake"
-	"k8s.io/client-go/discovery"
-	fakediscovery "k8s.io/client-go/discovery/fake"
+	cligenericclioptions "k8s.io/cli-runtime/pkg/genericclioptions"
 	"k8s.io/client-go/dynamic"
-	fakedynamic "k8s.io/client-go/dynamic/fake"
 	"k8s.io/client-go/kubernetes"
-	fakekubernetes "k8s.io/client-go/kubernetes/fake"
-	"k8s.io/kubectl/pkg/scheme"
-	clusterclientset "open-cluster-management.io/api/client/cluster/clientset/versioned/fake"
-	workclientset "open-cluster-management.io/api/client/work/clientset/versioned/fake"
+	cmdutil "k8s.io/kubectl/pkg/cmd/util"
+	clusterclientset "open-cluster-management.io/api/client/cluster/clientset/versioned"
+	workclientset "open-cluster-management.io/api/client/work/clientset/versioned"
 )
 
 var testDir = filepath.Join("test", "unit")
@@ -247,79 +245,49 @@ func TestOptions_validate(t *testing.T) {
 }
 
 func TestOptions_runWithClient(t *testing.T) {
+	testEnv := &envtest.Environment{
+		CRDDirectoryPaths: []string{
+			//DV added this line and copyed the authrealms CRD
+			filepath.Join("..", "..", "..", "..", "test", "unit", "crd", "external"),
+		},
+		ErrorIfCRDPathMissing: true,
+	}
+	cfg, err := testEnv.Start()
+	if err != nil {
+		t.Error(err)
+	}
+
+	defer testEnv.Stop()
+
 	pullSecret := corev1.Secret{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "pull-secret",
 			Namespace: "openshift-config",
 		},
 		Data: map[string][]byte{
-			".dockerconfigjson": []byte("crds: mycrds"),
+			".dockerconfigjson": []byte("{\"crds\": \"mycrds\"}"),
 		},
 	}
 	values, err := helpers.ConvertValuesFileToValuesMap(filepath.Join(testDir, "values-fake-aws.yaml"), "")
 	if err != nil {
 		t.Fatal(err)
 	}
-	apiextensionsClient := fakeapiextensionsclient.NewSimpleClientset()
-	s := scheme.Scheme
-	kubeClient := fakekubernetes.NewSimpleClientset(pullSecret.DeepCopyObject())
-	kubeClientNoPullSecret := fakekubernetes.NewSimpleClientset()
-	dynamicClient := fakedynamic.NewSimpleDynamicClient(s)
-	discoveryClient := kubeClient.Discovery()
-	discoveryClient.(*fakediscovery.FakeDiscovery).Resources = []*metav1.APIResourceList{
-		{
-			GroupVersion: "v1",
-			APIResources: []metav1.APIResource{
-				{
-					Name:       "secrets",
-					Namespaced: true,
-					Kind:       "Secret",
-				},
-			},
+	apiextensionsClient := apiextensionsclient.NewForConfigOrDie(cfg)
+	kubeClient := kubernetes.NewForConfigOrDie(cfg)
+	if _, err = kubeClient.CoreV1().Namespaces().Create(context.TODO(), &corev1.Namespace{
+		ObjectMeta: metav1.ObjectMeta{
+			Name: "openshift-config",
 		},
-		{
-			GroupVersion: "cluster.open-cluster-management.io/v1",
-			APIResources: []metav1.APIResource{
-				{
-					Name:       "managedclusters",
-					Namespaced: false,
-					Kind:       "ManagedCluster",
-				},
-			},
-		},
-		{
-			GroupVersion: "agent.open-cluster-management.io/v1",
-			APIResources: []metav1.APIResource{
-				{
-					Name:       "klusteraddonconfigs",
-					Namespaced: false,
-					Kind:       "KlusterletAddonConfig",
-				},
-			},
-		},
-		{
-			GroupVersion: "hive.openshift.io/v1",
-			APIResources: []metav1.APIResource{
-				{
-					Name:       "machinepools",
-					Namespaced: false,
-					Kind:       "MachinePool",
-				},
-				{
-					Name:       "clusterimagesets",
-					Namespaced: false,
-					Kind:       "ClusterImageSet",
-				},
-				{
-					Name:       "clusterdeployments",
-					Namespaced: false,
-					Kind:       "ClusterDeployment",
-				},
-			},
-		},
+	}, metav1.CreateOptions{}); err != nil {
+		t.Error(err)
 	}
-	clusterClient := clusterclientset.NewSimpleClientset()
-	workClient := workclientset.NewSimpleClientset()
+	dynamicClient := dynamic.NewForConfigOrDie(cfg)
+	clusterClient := clusterclientset.NewForConfigOrDie(cfg)
+	workClient := workclientset.NewForConfigOrDie(cfg)
+
+	configFlag := cligenericclioptions.NewConfigFlags(true)
+	f := cmdutil.NewFactory(configFlag)
+
 	type fields struct {
 		CMFlags     *genericclioptionscm.CMFlags
 		clusterName string
@@ -332,7 +300,6 @@ func TestOptions_runWithClient(t *testing.T) {
 		kubeClient          kubernetes.Interface
 		dynamicClient       dynamic.Interface
 		apiextensionsClient apiextensionsclient.Interface
-		discoveryClient     discovery.DiscoveryInterface
 		clusterClient       *clusterclientset.Clientset
 		workClient          *workclientset.Clientset
 	}
@@ -343,36 +310,67 @@ func TestOptions_runWithClient(t *testing.T) {
 		wantErr bool
 	}{
 		{
-			name: "Success",
+			name: "Failed no pullsecret",
 			fields: fields{
-				CMFlags: genericclioptionscm.NewCMFlags(nil),
+				CMFlags: genericclioptionscm.NewCMFlags(f),
 				values:  values,
 				cloud:   "aws",
 			},
 			args: args{
 				kubeClient:          kubeClient,
-				discoveryClient:     discoveryClient,
+				apiextensionsClient: apiextensionsClient,
+				dynamicClient:       dynamicClient,
+			},
+			wantErr: true,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			o := &Options{
+				CMFlags:     tt.fields.CMFlags,
+				clusterName: tt.fields.clusterName,
+				cloud:       tt.fields.cloud,
+				valuesPath:  tt.fields.valuesPath,
+				values:      tt.fields.values,
+				outputFile:  tt.fields.outputFile,
+			}
+			if err := o.runWithClient(tt.args.kubeClient,
+				tt.args.apiextensionsClient,
+				tt.args.dynamicClient,
+				tt.args.clusterClient,
+				tt.args.workClient); (err != nil) != tt.wantErr {
+				t.Errorf("Options.runWithClient() error = %v, wantErr %v", err, tt.wantErr)
+			}
+		})
+	}
+
+	//Add pull secret
+	if _, err = kubeClient.CoreV1().Secrets("openshift-config").Create(context.TODO(), &pullSecret, metav1.CreateOptions{}); err != nil {
+		t.Error(err)
+	}
+
+	tests = []struct {
+		name    string
+		fields  fields
+		args    args
+		wantErr bool
+	}{
+		{
+			name: "Success",
+			fields: fields{
+				CMFlags: genericclioptionscm.NewCMFlags(f),
+				values:  values,
+				cloud:   "aws",
+			},
+			args: args{
+				kubeClient:          kubeClient,
 				apiextensionsClient: apiextensionsClient,
 				dynamicClient:       dynamicClient,
 				clusterClient:       clusterClient,
 				workClient:          workClient,
 			},
 			wantErr: false,
-		},
-		{
-			name: "Failed no pullsecret",
-			fields: fields{
-				CMFlags: genericclioptionscm.NewCMFlags(nil),
-				values:  values,
-				cloud:   "aws",
-			},
-			args: args{
-				kubeClient:          kubeClientNoPullSecret,
-				discoveryClient:     discoveryClient,
-				apiextensionsClient: apiextensionsClient,
-				dynamicClient:       dynamicClient,
-			},
-			wantErr: true,
 		},
 	}
 	for _, tt := range tests {
@@ -394,4 +392,5 @@ func TestOptions_runWithClient(t *testing.T) {
 			}
 		})
 	}
+
 }
