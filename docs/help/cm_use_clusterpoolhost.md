@@ -18,7 +18,8 @@ cm use clusterpoolhost|cph clusterpoolhost
 ### Options
 
 ```
-  -h, --help   help for clusterpoolhost
+  -h, --help                 help for clusterpoolhost
+      --output-file string   The generated resources will be copied in the specified file
 ```
 
 ### Options inherited from parent commands
