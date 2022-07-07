@@ -4,6 +4,8 @@
 
 -  [Add support to AWS clusterpool to support a list of zones #236](https://github.com/stolostron/cm-cli/issues/236)
 - [klusteraddon error when create cluster on MCE #240](https://github.com/stolostron/cm-cli/issues/240)
+- Add `--output-file` in `cm use cph`
 ## Breaking changes
 
 ## Bug fixes
+- [cm use cph failes on a new cph #241](https://github.com/stolostron/cm-cli/issues/241)
