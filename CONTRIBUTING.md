@@ -87,7 +87,7 @@ A total coverage is shown when running `make test`. For the time being, the `cmd
 
 1. Create a branch
 2. run `make doc-help`
-3. Update the VERSION.txt with the semver of the new release
+3. Update the VERSION.txt with the semver of the new release (if not yet done)
 4. Create a PR and merge it
 5. Run `make release` on the main branch
 6. Monitor the github action.
