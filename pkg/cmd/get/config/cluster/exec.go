@@ -10,6 +10,7 @@ import (
 	"github.com/ghodss/yaml"
 	hivev1 "github.com/openshift/hive/apis/hive/v1"
 	"github.com/spf13/cobra"
+	"github.com/stolostron/applier/pkg/apply"
 	"github.com/stolostron/cm-cli/pkg/cmd/get/config/cluster/scenario"
 	"github.com/stolostron/cm-cli/pkg/helpers"
 	apiextensionsClient "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset"
@@ -20,7 +21,6 @@ import (
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/klog/v2"
 	clusteradmhelpers "open-cluster-management.io/clusteradm/pkg/helpers"
-	clusteradmapply "open-cluster-management.io/clusteradm/pkg/helpers/apply"
 )
 
 func (o *Options) complete(cmd *cobra.Command, args []string) (err error) {
@@ -162,7 +162,7 @@ func (o *Options) runWithClient(kubeClient kubernetes.Interface,
 	values["clusterImageSet"] = cisu.Object
 
 	klog.V(5).Infof("%v\n", values)
-	applierBuilder := clusteradmapply.NewApplierBuilder()
+	applierBuilder := apply.NewApplierBuilder()
 	applier := applierBuilder.WithClient(kubeClient, apiExtensionsClient, dynamicClient).Build()
 	b, err := applier.MustTemplateAsset(reader, values, "", "config/config.yaml")
 	if err != nil {

@@ -14,9 +14,9 @@ import (
 	"k8s.io/klog/v2"
 	clusterclientset "open-cluster-management.io/api/client/cluster/clientset/versioned"
 	workclientset "open-cluster-management.io/api/client/work/clientset/versioned"
-	clusteradmapply "open-cluster-management.io/clusteradm/pkg/helpers/apply"
 
 	"github.com/spf13/cobra"
+	"github.com/stolostron/applier/pkg/apply"
 	"github.com/stolostron/cm-cli/pkg/clusterpoolhost"
 	"github.com/stolostron/cm-cli/pkg/cmd/attach/cluster/scenario"
 	"github.com/stolostron/cm-cli/pkg/helpers"
@@ -196,7 +196,7 @@ func (o *Options) attachClusterClaim(cph *clusterpoolhost.ClusterPoolHost) error
 		return err
 	}
 
-	applierBuilder := clusteradmapply.NewApplierBuilder()
+	applierBuilder := apply.NewApplierBuilder()
 	applier := applierBuilder.WithClient(kubeClient, apiExtensionsClient, dynamicClient).Build()
 	out, err := applier.ApplyDirectly(reader, o.values, o.CMFlags.DryRun, "", files...)
 	if err != nil {
@@ -235,5 +235,5 @@ func (o *Options) attachClusterClaim(cph *clusterpoolhost.ClusterPoolHost) error
 		}
 	}
 
-	return clusteradmapply.WriteOutput(o.outputFile, output)
+	return apply.WriteOutput(o.outputFile, output)
 }

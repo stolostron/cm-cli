@@ -118,7 +118,7 @@ functional-test-full-clean:
 	@build/run-functional-tests-clean.sh
 
 .PHONY: manifests
-manifests:
+manifests: controller-gen 
 	$(CONTROLLER_GEN) $(CRD_OPTIONS) rbac:roleName=manager-role webhook paths="./..." output:crd:artifacts:config=api/cm-cli/v1alpha1/crd
 
 .PHONY: generate

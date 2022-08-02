@@ -9,6 +9,7 @@ import (
 
 	userv1 "github.com/openshift/api/user/v1"
 	userv1typedclient "github.com/openshift/client-go/user/clientset/versioned/typed/user/v1"
+	"github.com/stolostron/applier/pkg/apply"
 	"github.com/stolostron/cm-cli/pkg/clusterpoolhost/scenario"
 	corev1 "k8s.io/api/core/v1"
 	apiextensionsclient "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset"
@@ -19,7 +20,6 @@ import (
 	"k8s.io/client-go/dynamic"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
-	clusteradmapply "open-cluster-management.io/clusteradm/pkg/helpers/apply"
 )
 
 //WhoAmI returns the current user
@@ -62,7 +62,7 @@ func (cph *ClusterPoolHost) newCKServiceAccount(clusterPoolRestConfig *rest.Conf
 		"create/clusterpoolhost/sa.yaml",
 		"create/clusterpoolhost/secret-token.yaml",
 	}
-	applierBuilder := clusteradmapply.NewApplierBuilder()
+	applierBuilder := apply.NewApplierBuilder()
 	applier := applierBuilder.WithClient(kubeClient, apiExtensionsClient, dynamicClient).Build()
 	out, err := applier.ApplyDirectly(reader, values, dryRun, "", files...)
 	if err != nil {
@@ -70,7 +70,7 @@ func (cph *ClusterPoolHost) newCKServiceAccount(clusterPoolRestConfig *rest.Conf
 	}
 	output = append(output, out...)
 
-	err = clusteradmapply.WriteOutput(outputFile, output)
+	err = apply.WriteOutput(outputFile, output)
 	if err != nil {
 		return err
 	}

@@ -9,7 +9,7 @@ import (
 	"path/filepath"
 
 	"github.com/ghodss/yaml"
-	"open-cluster-management.io/clusteradm/pkg/helpers/asset"
+	"github.com/stolostron/applier/pkg/asset"
 )
 
 func ConvertValuesFileToValuesMap(path, prefix string) (values map[string]interface{}, err error) {

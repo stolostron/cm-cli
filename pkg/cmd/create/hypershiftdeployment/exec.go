@@ -5,8 +5,8 @@ import (
 	"fmt"
 
 	clusteradmhelpers "open-cluster-management.io/clusteradm/pkg/helpers"
-	clusteradmapply "open-cluster-management.io/clusteradm/pkg/helpers/apply"
 
+	"github.com/stolostron/applier/pkg/apply"
 	"github.com/stolostron/cm-cli/pkg/cmd/create/hypershiftdeployment/scenario"
 	"github.com/stolostron/cm-cli/pkg/helpers"
 	apiextensionsclient "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset"
@@ -158,7 +158,7 @@ func (o *Options) runWithClient(kubeClient kubernetes.Interface,
 	dynamicClient dynamic.Interface) (err error) {
 	output := make([]string, 0)
 	reader := scenario.GetScenarioResourcesReader()
-	applierBuilder := clusteradmapply.NewApplierBuilder()
+	applierBuilder := apply.NewApplierBuilder()
 	applier := applierBuilder.WithClient(kubeClient, apiextensionsClient, dynamicClient).Build()
 
 	files := []string{
@@ -200,5 +200,5 @@ func (o *Options) runWithClient(kubeClient kubernetes.Interface,
 	}
 	output = append(output, out...)
 
-	return clusteradmapply.WriteOutput(o.outputFile, output)
+	return apply.WriteOutput(o.outputFile, output)
 }

@@ -5,3 +5,7 @@
 ## Breaking changes
 
 ## Bug fixes
+
+## Internal changes
+
+- Use [applier](github.com/stolostron/applier) instead of clusteradm package to apply resources

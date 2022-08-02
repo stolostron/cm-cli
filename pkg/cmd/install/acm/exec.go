@@ -10,9 +10,9 @@ import (
 	"k8s.io/client-go/dynamic"
 	"k8s.io/client-go/kubernetes"
 	clusteradmhelpers "open-cluster-management.io/clusteradm/pkg/helpers"
-	clusteradmapply "open-cluster-management.io/clusteradm/pkg/helpers/apply"
 
 	"github.com/spf13/cobra"
+	"github.com/stolostron/applier/pkg/apply"
 	"github.com/stolostron/cm-cli/pkg/cmd/install/acm/scenario"
 	"github.com/stolostron/cm-cli/pkg/helpers"
 	"k8s.io/apimachinery/pkg/api/errors"
@@ -66,7 +66,7 @@ func (o *Options) runWithClient(kubeClient kubernetes.Interface,
 		Approval:      approval,
 	}
 
-	applierBuilder := clusteradmapply.NewApplierBuilder()
+	applierBuilder := apply.NewApplierBuilder()
 	applier := applierBuilder.WithClient(kubeClient, apiextensionsClient, dynamicClient).Build()
 	out, err := applier.ApplyDirectly(reader, values, o.CMFlags.DryRun, "", files...)
 	if err != nil {
@@ -131,5 +131,5 @@ func (o *Options) runWithClient(kubeClient kubernetes.Interface,
 			return true, nil
 		})
 	}
-	return clusteradmapply.WriteOutput(o.outputFile, output)
+	return apply.WriteOutput(o.outputFile, output)
 }

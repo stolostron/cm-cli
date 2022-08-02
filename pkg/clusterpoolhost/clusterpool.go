@@ -11,6 +11,7 @@ import (
 
 	"github.com/ghodss/yaml"
 	hivev1 "github.com/openshift/hive/apis/hive/v1"
+	"github.com/stolostron/applier/pkg/apply"
 	printclusterpoolv1alpha1 "github.com/stolostron/cm-cli/api/cm-cli/v1alpha1"
 	"github.com/stolostron/cm-cli/pkg/clusterpoolhost/scenario"
 	"github.com/stolostron/cm-cli/pkg/helpers"
@@ -21,7 +22,6 @@ import (
 	"k8s.io/client-go/dynamic"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/klog/v2"
-	clusteradmapply "open-cluster-management.io/clusteradm/pkg/helpers/apply"
 )
 
 func (cph *ClusterPoolHost) SizeClusterPool(clusterPoolName string, size int32, dryRun bool) error {
@@ -81,7 +81,7 @@ func (cph *ClusterPoolHost) CreateClusterPool(clusterPoolName, cloud string, val
 	output := make([]string, 0)
 
 	reader := scenario.GetScenarioResourcesReader()
-	applierBuilder := clusteradmapply.NewApplierBuilder()
+	applierBuilder := apply.NewApplierBuilder()
 	applier := applierBuilder.WithClient(kubeClient, apiExtensionsClient, dynamicClient).Build()
 
 	installConfig, err := applier.MustTemplateAsset(reader,
@@ -130,7 +130,7 @@ func (cph *ClusterPoolHost) CreateClusterPool(clusterPoolName, cloud string, val
 	}
 	output = append(output, out...)
 
-	return clusteradmapply.WriteOutput(outputFile, output)
+	return apply.WriteOutput(outputFile, output)
 }
 
 func (cph *ClusterPoolHost) DeleteClusterPools(clusterPoolNames string, dryRun bool, outputFile string) error {
@@ -333,7 +333,7 @@ func (cph *ClusterPoolHost) GetClusterPoolConfig(clusterPoolName string, without
 	values["imageSetRef"] = cp.Spec.ImageSetRef.Name
 
 	klog.V(5).Infof("%v\n", values)
-	applierBuilder := clusteradmapply.NewApplierBuilder()
+	applierBuilder := apply.NewApplierBuilder()
 	applier := applierBuilder.WithClient(kubeClient, apiExtensionsClient, dynamicClient).Build()
 	b, err := applier.MustTemplateAsset(reader, values, "", "config/clusterpool/config.yaml")
 	if err != nil {

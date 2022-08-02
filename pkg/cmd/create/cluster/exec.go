@@ -9,8 +9,8 @@ import (
 	clusterclientset "open-cluster-management.io/api/client/cluster/clientset/versioned"
 	workclientset "open-cluster-management.io/api/client/work/clientset/versioned"
 	clusteradmhelpers "open-cluster-management.io/clusteradm/pkg/helpers"
-	clusteradmapply "open-cluster-management.io/clusteradm/pkg/helpers/apply"
 
+	"github.com/stolostron/applier/pkg/apply"
 	attachscenario "github.com/stolostron/cm-cli/pkg/cmd/attach/cluster/scenario"
 	"github.com/stolostron/cm-cli/pkg/cmd/create/cluster/scenario"
 	"github.com/stolostron/cm-cli/pkg/helpers"
@@ -150,7 +150,7 @@ func (o *Options) runWithClient(kubeClient kubernetes.Interface,
 
 	reader := scenario.GetScenarioResourcesReader()
 	attachreader := attachscenario.GetScenarioResourcesReader()
-	applierBuilder := clusteradmapply.NewApplierBuilder()
+	applierBuilder := apply.NewApplierBuilder()
 	applier := applierBuilder.WithClient(kubeClient, apiextensionsClient, dynamicClient).Build()
 
 	installConfig, err := applier.MustTemplateAsset(reader,
@@ -224,5 +224,5 @@ func (o *Options) runWithClient(kubeClient kubernetes.Interface,
 			return helpers.WaitKlusterletAddons(workClient, o.clusterName, o.timeout)
 		}
 	}
-	return clusteradmapply.WriteOutput(o.outputFile, output)
+	return apply.WriteOutput(o.outputFile, output)
 }
