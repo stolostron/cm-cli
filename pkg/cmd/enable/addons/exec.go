@@ -8,9 +8,9 @@ import (
 	"k8s.io/client-go/dynamic"
 	"k8s.io/client-go/kubernetes"
 	clusteradmhelpers "open-cluster-management.io/clusteradm/pkg/helpers"
-	clusteradmapply "open-cluster-management.io/clusteradm/pkg/helpers/apply"
 
 	"github.com/spf13/cobra"
+	"github.com/stolostron/applier/pkg/apply"
 	attachscenario "github.com/stolostron/cm-cli/pkg/cmd/attach/cluster/scenario"
 	"github.com/stolostron/cm-cli/pkg/cmd/enable/addons/scenario"
 	"github.com/stolostron/cm-cli/pkg/helpers"
@@ -102,12 +102,12 @@ func (o *Options) runWithClient(
 		"attach/hub/klusterlet_addon_config_cr.yaml",
 	}
 
-	applierBuilder := clusteradmapply.NewApplierBuilder()
+	applierBuilder := apply.NewApplierBuilder()
 	applier := applierBuilder.WithClient(kubeClient, apiExtensionsClient, dynamicClient).Build()
 	out, err := applier.ApplyCustomResources(reader, o.values, o.CMFlags.DryRun, "", files...)
 	if err != nil {
 		return err
 	}
 	output = append(output, out...)
-	return clusteradmapply.WriteOutput(o.outputFile, output)
+	return apply.WriteOutput(o.outputFile, output)
 }

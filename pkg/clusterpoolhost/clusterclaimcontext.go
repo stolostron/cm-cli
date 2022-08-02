@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	hivev1 "github.com/openshift/hive/apis/hive/v1"
+	"github.com/stolostron/applier/pkg/apply"
 	"github.com/stolostron/cm-cli/pkg/clusterpoolhost/scenario"
 	"github.com/stolostron/cm-cli/pkg/helpers"
 	apiextensionsclient "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset"
@@ -18,7 +19,6 @@ import (
 	"k8s.io/client-go/tools/clientcmd"
 	clientcmdapi "k8s.io/client-go/tools/clientcmd/api"
 	"k8s.io/kubectl/pkg/cmd/get"
-	clusteradmapply "open-cluster-management.io/clusteradm/pkg/helpers/apply"
 )
 
 const (
@@ -79,7 +79,7 @@ func (cph *ClusterPoolHost) getClusterClaimSAToken(
 		"create/cluster/cluster-role-binding.yaml",
 	}
 
-	applierBuilder := clusteradmapply.NewApplierBuilder()
+	applierBuilder := apply.NewApplierBuilder()
 	if !dryRun {
 		if err = cph.setHibernateClusterClaims(clusterName, false, dryRun); err != nil {
 			return
@@ -135,7 +135,7 @@ func (cph *ClusterPoolHost) getClusterClaimSAToken(
 		output = append(output, out...)
 	}
 
-	err = clusteradmapply.WriteOutput(outputFile, output)
+	err = apply.WriteOutput(outputFile, output)
 	if err != nil {
 		return
 	}

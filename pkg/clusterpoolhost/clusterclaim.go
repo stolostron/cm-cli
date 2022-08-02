@@ -9,6 +9,7 @@ import (
 	"time"
 
 	hivev1 "github.com/openshift/hive/apis/hive/v1"
+	"github.com/stolostron/applier/pkg/apply"
 	printclusterpoolv1alpha1 "github.com/stolostron/cm-cli/api/cm-cli/v1alpha1"
 	"github.com/stolostron/cm-cli/pkg/clusterpoolhost/scenario"
 	"github.com/stolostron/cm-cli/pkg/helpers"
@@ -24,7 +25,6 @@ import (
 	"k8s.io/client-go/tools/clientcmd"
 	"k8s.io/klog/v2"
 	"k8s.io/kubectl/pkg/cmd/get"
-	clusteradmapply "open-cluster-management.io/clusteradm/pkg/helpers/apply"
 )
 
 const clusterClaimErrorFormat = "(%d/%d) clusterclaim %s error: %s"
@@ -97,7 +97,7 @@ func (cph *ClusterPoolHost) CreateClusterClaims(clusterClaimNames, clusterPoolNa
 			"create/clusterclaim/clusterclaim_cr.yaml",
 		}
 
-		applierBuilder := clusteradmapply.NewApplierBuilder()
+		applierBuilder := apply.NewApplierBuilder()
 		applier := applierBuilder.WithClient(kubeClient, apiExtensionsClient, dynamicClient).Build()
 		out, err := applier.ApplyCustomResources(reader, values, dryRun, "", files...)
 		if err != nil {
@@ -112,7 +112,7 @@ func (cph *ClusterPoolHost) CreateClusterClaims(clusterClaimNames, clusterPoolNa
 			return err
 		}
 	}
-	return clusteradmapply.WriteOutput(outputFile, output)
+	return apply.WriteOutput(outputFile, output)
 }
 
 func (cph *ClusterPoolHost) RunClusterClaims(clusterClaimNames string, scheduleSkip string, timeout int, dryRun bool, outputFile string, printFlags *get.PrintFlags) error {

@@ -18,9 +18,9 @@ import (
 	clusterclientset "open-cluster-management.io/api/client/cluster/clientset/versioned"
 	workclientset "open-cluster-management.io/api/client/work/clientset/versioned"
 	clusteradmhelpers "open-cluster-management.io/clusteradm/pkg/helpers"
-	clusteradmapply "open-cluster-management.io/clusteradm/pkg/helpers/apply"
 
 	"github.com/spf13/cobra"
+	"github.com/stolostron/applier/pkg/apply"
 	"github.com/stolostron/cm-cli/pkg/cmd/attach/cluster/scenario"
 	"github.com/stolostron/cm-cli/pkg/helpers"
 )
@@ -263,7 +263,7 @@ func (o *Options) runWithClient(kubeClient kubernetes.Interface,
 		files = append(files, "attach/hub/managed_cluster_secret.yaml")
 	}
 
-	applierBuilder := clusteradmapply.NewApplierBuilder()
+	applierBuilder := apply.NewApplierBuilder()
 	applier := applierBuilder.WithClient(kubeClient, apiextensionsClient, dynamicClient).Build()
 	out, err := applier.ApplyDirectly(reader, o.values, o.CMFlags.DryRun, "", files...)
 	if err != nil {
@@ -332,5 +332,5 @@ func (o *Options) runWithClient(kubeClient kubernetes.Interface,
 			return helpers.WaitKlusterletAddons(workClient, o.clusterName, o.timeout)
 		}
 	}
-	return clusteradmapply.WriteOutput(o.outputFile, output)
+	return apply.WriteOutput(o.outputFile, output)
 }

@@ -1,31 +1,32 @@
 module github.com/stolostron/cm-cli
 
-go 1.17
+go 1.18
 
 require (
 	github.com/Masterminds/semver v1.5.0
 	github.com/ghodss/yaml v1.0.1-0.20190212211648-25d852aebe32
 	github.com/openshift/api v3.9.1-0.20190924102528-32369d4db2ad+incompatible
-	github.com/openshift/client-go v0.0.0-20211209144617-7385dd6338e3
+	github.com/openshift/client-go v0.0.0-20220525160904-9e1acff93e4a
 	github.com/openshift/hive/apis v0.0.0-20220311160056-133480feffd6
 	github.com/openshift/hypershift v0.0.0-20220429033705-497b2817adbc
-	github.com/spf13/cobra v1.4.0
+	github.com/spf13/cobra v1.5.0
 	github.com/spf13/pflag v1.0.5
+	github.com/stolostron/applier v1.1.0
 	github.com/stolostron/governance-policy-propagator v0.0.0-20220128200210-e26d2c020e4b
 	github.com/stolostron/hypershift-deployment-controller v0.0.0-20220504173208-c3d8e2032854
 	golang.org/x/net v0.0.0-20220225172249-27dd8689420f
-	k8s.io/api v0.23.5
-	k8s.io/apiextensions-apiserver v0.23.5
-	k8s.io/apimachinery v0.23.5
-	k8s.io/cli-runtime v0.23.5
+	k8s.io/api v0.24.3
+	k8s.io/apiextensions-apiserver v0.24.2
+	k8s.io/apimachinery v0.24.3
+	k8s.io/cli-runtime v0.24.3
 	k8s.io/client-go v12.0.0+incompatible
-	k8s.io/code-generator v0.23.5
-	k8s.io/component-base v0.23.5
-	k8s.io/klog/v2 v2.40.1
-	k8s.io/kubectl v0.23.5
-	open-cluster-management.io/api v0.7.1-0.20220609092005-e8cc7a4e4c10
-	open-cluster-management.io/clusteradm v0.2.1-0.20220614134010-74409d5d766b
-	sigs.k8s.io/controller-runtime v0.11.1
+	k8s.io/code-generator v0.24.3
+	k8s.io/component-base v0.24.3
+	k8s.io/klog/v2 v2.60.1
+	k8s.io/kubectl v0.24.3
+	open-cluster-management.io/api v0.8.0
+	open-cluster-management.io/clusteradm v0.2.1-0.20220802021931-9b464f8c1a7c
+	sigs.k8s.io/controller-runtime v0.12.2
 )
 
 require (
@@ -40,7 +41,7 @@ require (
 	github.com/briandowns/spinner v1.18.1 // indirect
 	github.com/cespare/xxhash/v2 v2.1.2 // indirect
 	github.com/chai2010/gettext-go v0.0.0-20160711120539-c6fed771bfd5 // indirect
-	github.com/cpuguy83/go-md2man/v2 v2.0.1 // indirect
+	github.com/cpuguy83/go-md2man/v2 v2.0.2 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/disiqueira/gotree v1.0.0 // indirect
 	github.com/emicklei/go-restful v2.11.1+incompatible // indirect
@@ -83,7 +84,7 @@ require (
 	github.com/modern-go/reflect2 v1.0.2 // indirect
 	github.com/monochromegane/go-gitignore v0.0.0-20200626010858-205db1a8cc00 // indirect
 	github.com/openshift/custom-resource-status v0.0.0-20200602122900-c002fd1547ca // indirect
-	github.com/openshift/library-go v0.0.0-20220405134141-226b07263a02 // indirect
+	github.com/openshift/library-go v0.0.0-20220713145611-ca167a8bd342 // indirect
 	github.com/pborman/uuid v1.2.0 // indirect
 	github.com/peterbourgon/diskv v2.0.1+incompatible // indirect
 	github.com/pkg/errors v0.9.1 // indirect
@@ -98,13 +99,13 @@ require (
 	github.com/xlab/treeprint v1.1.0 // indirect
 	go.starlark.net v0.0.0-20220302181546-5411bad688d1 // indirect
 	golang.org/x/crypto v0.0.0-20220321153916-2c7772ba3064 // indirect
-	golang.org/x/mod v0.5.0 // indirect
-	golang.org/x/oauth2 v0.0.0-20220309155454-6242fa91716a // indirect
+	golang.org/x/mod v0.6.0-dev.0.20220106191415-9b9b3d81d5e3 // indirect
+	golang.org/x/oauth2 v0.0.0-20220411215720-9780585627b5 // indirect
 	golang.org/x/sys v0.0.0-20220319134239-a9b59b0215f8 // indirect
 	golang.org/x/term v0.0.0-20210927222741-03fcf44c2211 // indirect
 	golang.org/x/text v0.3.7 // indirect
 	golang.org/x/time v0.0.0-20220224211638-0e9765cccd65 // indirect
-	golang.org/x/tools v0.1.6-0.20210820212750-d4cc65f0b2ff // indirect
+	golang.org/x/tools v0.1.10-0.20220218145154-897bd77cd717 // indirect
 	golang.org/x/xerrors v0.0.0-20200804184101-5ec99f83aff1 // indirect
 	gomodules.xyz/jsonpatch/v2 v2.2.0 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
@@ -114,9 +115,9 @@ require (
 	gopkg.in/inf.v0 v0.9.1 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b // indirect
-	k8s.io/gengo v0.0.0-20210813121822-485abfe95c7c // indirect
-	k8s.io/kube-aggregator v0.23.5 // indirect
-	k8s.io/kube-openapi v0.0.0-20220316025549-ddc66922ab18 // indirect
+	k8s.io/gengo v0.0.0-20211129171323-c02415ce4185 // indirect
+	k8s.io/kube-aggregator v0.24.0 // indirect
+	k8s.io/kube-openapi v0.0.0-20220328201542-3ee0da9b0b42 // indirect
 	k8s.io/utils v0.0.0-20220210201930-3a6ce19ff2f9 // indirect
 	kubevirt.io/api v0.0.0-20211117075245-c94ce62baf5a // indirect
 	kubevirt.io/containerized-data-importer-api v1.41.0 // indirect
@@ -132,21 +133,29 @@ require (
 	sigs.k8s.io/cluster-api-provider-kubevirt v0.0.0-00010101000000-000000000000 // indirect
 	sigs.k8s.io/json v0.0.0-20211208200746-9f7c6b3444d2 // indirect
 	sigs.k8s.io/kube-storage-version-migrator v0.0.5 // indirect
-	sigs.k8s.io/kustomize/api v0.11.2 // indirect
-	sigs.k8s.io/kustomize/kyaml v0.13.3 // indirect
+	sigs.k8s.io/kustomize/api v0.11.4 // indirect
+	sigs.k8s.io/kustomize/kyaml v0.13.6 // indirect
 	sigs.k8s.io/structured-merge-diff/v4 v4.2.1 // indirect
 	sigs.k8s.io/yaml v1.3.0 // indirect
 )
 
 replace (
-	github.com/go-logr/logr => github.com/go-logr/logr v1.2.0
-	github.com/onsi/ginkgo/v2 => github.com/onsi/ginkgo/v2 v2.1.1
 	github.com/onsi/gomega => github.com/onsi/gomega v1.18.0
 	github.com/openshift/api => github.com/openshift/api v0.0.0-20220124143425-d74727069f6f
+
+	k8s.io/api => k8s.io/api v0.23.5
+	k8s.io/apiextensions-apiserver => k8s.io/apiextensions-apiserver v0.23.5
+	k8s.io/apimachinery => k8s.io/apimachinery v0.23.5
+	k8s.io/cli-runtime => k8s.io/cli-runtime v0.23.5
 	k8s.io/client-go => k8s.io/client-go v0.23.5
+	k8s.io/component-base => k8s.io/component-base v0.23.5
 	k8s.io/klog/v2 => k8s.io/klog/v2 v2.40.1
 	k8s.io/kube-openapi => k8s.io/kube-openapi v0.0.0-20220310132336-3f90b8c54bbb // Lock gnostic path to googleapis/gnostic instead of google/gnostic
+	k8s.io/kubectl => k8s.io/kubectl v0.23.5
 	kubevirt.io/containerized-data-importer-api => github.com/kubevirt/containerized-data-importer-api v1.41.1-0.20211201033752-05520fb9f18d
-	sigs.k8s.io/apiserver-network-proxy/konnectivity-client => sigs.k8s.io/apiserver-network-proxy/konnectivity-client v0.0.27
+	sigs.k8s.io/apiserver-network-proxy/konnectivity-client => sigs.k8s.io/apiserver-network-proxy/konnectivity-client v0.0.30
 	sigs.k8s.io/cluster-api-provider-kubevirt => github.com/openshift/cluster-api-provider-kubevirt v0.0.0-20211223062810-ef64d5ff1cde
+	// github.com/go-logr/logr => github.com/go-logr/logr v1.2.0
+	// github.com/onsi/ginkgo/v2 => github.com/onsi/ginkgo/v2 v2.1.1
+	sigs.k8s.io/controller-runtime => sigs.k8s.io/controller-runtime v0.11.1
 )
