@@ -8,8 +8,8 @@ import (
 	"k8s.io/client-go/kubernetes"
 
 	"github.com/spf13/cobra"
-	cmcli "github.com/stolostron/cm-cli"
 	"github.com/stolostron/cm-cli/pkg/helpers"
+	"github.com/stolostron/cm-cli/version"
 )
 
 func (o *Options) complete(cmd *cobra.Command, args []string) (err error) {
@@ -20,7 +20,7 @@ func (o *Options) validate() error {
 	return nil
 }
 func (o *Options) run() (err error) {
-	fmt.Printf("client\t\t\tversion\t:%s\n", cmcli.GetVersion())
+	fmt.Printf("client\t\t\tversion\t:%s\n", version.GetVersion())
 	isSupported, err := helpers.IsSupported(o.CMFlags)
 	if err != nil {
 		return err

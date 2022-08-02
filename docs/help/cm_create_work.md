@@ -14,8 +14,21 @@ cm create work [flags]
 
 ```
 
-# Create manifestwork on a specified managed cluster"
+# Create manifestwork on a specified managed cluster.
 cm create work work-example -f xxx.yaml --clusters cluster1
+
+# Update manifestwork on a specified managed cluster.
+cm create work work-example -f xxx.yaml --clusters cluster1 --overwrite
+
+# Create manifestwork on placement selected managed clusters.
+# For example, if placement1 in default namespace select cluster1 and cluster2, 
+# then the manifestwork will be created on cluster1 and cluster2.
+cm create work work-example -f xxx.yaml --placement default/placement1
+
+# Reschedule manifestwork to placement newly selected clusters.
+# For example, if placement1 update decision to cluster2 and cluster3, 
+# then the manifestwork will be deleted from cluster1 and created on cluster3.
+cm create work work-example -f xxx.yaml --placement default/placement1 --overwrite
 
 ```
 
@@ -26,6 +39,7 @@ cm create work work-example -f xxx.yaml --clusters cluster1
   -f, --filename strings   
   -h, --help               help for work
       --overwrite          Overwrite the existing work if it exists already
+      --placement string   Specify an existing placement with format <namespace>/<name>
   -R, --recursive          Process the directory used in -f, --filename recursively. Useful when you want to manage related manifests organized within the same directory. (default true)
 ```
 
