@@ -22,6 +22,7 @@ cm enable addon
 ### Options
 
 ```
+      --annotate strings     Annotations to add to the ManagedClusterAddon (eg. key1=value1,key2=value2)
       --clusters strings     Names of the managed cluster to deploy the add-on to (comma separated)
   -h, --help                 help for addon
       --names strings        Names of the add-on to deploy (comma separated)

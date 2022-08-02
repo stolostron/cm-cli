@@ -32,7 +32,8 @@ deps:
 .PHONY: build
 build: 
 	rm -f ${GOPATH}/bin/cm
-	go install ./cmd/cm.go
+	go install .
+	mv ${GOPATH}/bin/cm-cli ${GOPATH}/bin/cm
 
 .PHONY: build-bin
 build-bin: doc-help
@@ -40,13 +41,13 @@ build-bin: doc-help
 	zip -q docs/help.zip -j docs/help/*
 	@rm -rf bin
 	@mkdir -p bin
-	GOOS=darwin GOARCH=amd64 go build -ldflags="-s -w" -gcflags=-trimpath=x/y  -o bin/cm ./cmd/cm.go && tar -czf bin/cm_darwin_amd64.tar.gz LICENSE -C bin/ cm
-	GOOS=darwin GOARCH=arm64 go build -ldflags="-s -w" -gcflags=-trimpath=x/y  -o bin/cm ./cmd/cm.go && tar -czf bin/cm_darwin_arm64.tar.gz LICENSE -C bin/ cm
-	GOOS=linux GOARCH=amd64 go build -ldflags="-s -w" -gcflags=-trimpath=x/y  -o bin/cm ./cmd/cm.go && tar -czf bin/cm_linux_amd64.tar.gz LICENSE -C bin/ cm 
-	GOOS=linux GOARCH=arm64 go build -ldflags="-s -w" -gcflags=-trimpath=x/y  -o bin/cm ./cmd/cm.go && tar -czf bin/cm_linux_arm64.tar.gz LICENSE -C bin/ cm 
-	GOOS=linux GOARCH=ppc64le go build -ldflags="-s -w" -gcflags=-trimpath=x/y  -o bin/cm ./cmd/cm.go && tar -czf bin/cm_linux_ppc64le.tar.gz LICENSE -C bin/ cm 
-	GOOS=linux GOARCH=s390x go build -ldflags="-s -w" -gcflags=-trimpath=x/y  -o bin/cm ./cmd/cm.go && tar -czf bin/cm_linux_s390x.tar.gz LICENSE -C bin/ cm
-	GOOS=windows GOARCH=amd64 go build -ldflags="-s -w" -gcflags=-trimpath=x/y  -o bin/cm.exe ./cmd/cm.go && zip -q bin/cm_windows_amd64.zip LICENSE -j bin/cm.exe
+	GOOS=darwin GOARCH=amd64 go build -ldflags="-s -w" -gcflags=-trimpath=x/y  -o bin/cm . && tar -czf bin/cm_darwin_amd64.tar.gz LICENSE -C bin/ cm
+	GOOS=darwin GOARCH=arm64 go build -ldflags="-s -w" -gcflags=-trimpath=x/y  -o bin/cm . && tar -czf bin/cm_darwin_arm64.tar.gz LICENSE -C bin/ cm
+	GOOS=linux GOARCH=amd64 go build -ldflags="-s -w" -gcflags=-trimpath=x/y  -o bin/cm . && tar -czf bin/cm_linux_amd64.tar.gz LICENSE -C bin/ cm 
+	GOOS=linux GOARCH=arm64 go build -ldflags="-s -w" -gcflags=-trimpath=x/y  -o bin/cm . && tar -czf bin/cm_linux_arm64.tar.gz LICENSE -C bin/ cm 
+	GOOS=linux GOARCH=ppc64le go build -ldflags="-s -w" -gcflags=-trimpath=x/y  -o bin/cm . && tar -czf bin/cm_linux_ppc64le.tar.gz LICENSE -C bin/ cm 
+	GOOS=linux GOARCH=s390x go build -ldflags="-s -w" -gcflags=-trimpath=x/y  -o bin/cm . && tar -czf bin/cm_linux_s390x.tar.gz LICENSE -C bin/ cm
+	GOOS=windows GOARCH=amd64 go build -ldflags="-s -w" -gcflags=-trimpath=x/y  -o bin/cm.exe . && zip -q bin/cm_windows_amd64.zip LICENSE -j bin/cm.exe
 
 .PHONY: release
 release: 
