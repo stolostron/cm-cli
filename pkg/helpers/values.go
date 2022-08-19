@@ -25,7 +25,7 @@ func ConvertValuesFileToValuesMap(path, prefix string) (values map[string]interf
 	if err != nil {
 		return nil, err
 	}
-	if fi.Mode()&os.ModeNamedPipe != 0 {
+	if fi.Mode()&os.ModeCharDevice == 0 {
 		b = append(b, '\n')
 		pdata, err := ioutil.ReadAll(os.Stdin)
 		if err != nil {

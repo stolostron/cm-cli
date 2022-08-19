@@ -51,7 +51,7 @@ build-bin: doc-help
 
 .PHONY: release
 release: 
-	@if [[ -z "${VERSION}" ]]; then VERSION=`cat VERSION.txt`; echo $$VERSION; fi; \
+	@if [[ -z "${VERSION}" ]]; then VERSION=`cat version/VERSION.txt`; echo $$VERSION; fi; \
 	git tag v$$VERSION && git push upstream --tags
 
 .PHONY: build-krew

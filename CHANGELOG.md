@@ -6,6 +6,7 @@
 
 ## Bug fixes
 
+- Change pipe to ModeCharDevice test.
 ## Internal changes
 
 - Use [applier](github.com/stolostron/applier) instead of clusteradm package to apply resources
