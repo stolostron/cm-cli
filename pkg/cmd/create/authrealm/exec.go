@@ -10,12 +10,9 @@ import (
 	"github.com/stolostron/applier/pkg/apply"
 	"github.com/stolostron/cm-cli/pkg/cmd/create/authrealm/scenario"
 	"github.com/stolostron/cm-cli/pkg/helpers"
-	apiextensionsclient "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset"
 
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-
-	"k8s.io/client-go/dynamic"
-	"k8s.io/client-go/kubernetes"
+	"k8s.io/client-go/rest"
 
 	"github.com/spf13/cobra"
 )
@@ -117,21 +114,19 @@ func (o *Options) validate() (err error) {
 }
 
 func (o *Options) run() error {
-	kubeClient, apiextensionsClient, dynamicClient, err := clusteradmhelpers.GetClients(o.CMFlags.KubectlFactory)
+	restConfig, err := o.CMFlags.KubectlFactory.ToRESTConfig()
 	if err != nil {
 		return err
 	}
-	return o.runWithClient(kubeClient, apiextensionsClient, dynamicClient)
+	return o.runWithClient(restConfig)
 }
 
-func (o *Options) runWithClient(kubeClient kubernetes.Interface,
-	apiextensionsClient apiextensionsclient.Interface,
-	dynamicClient dynamic.Interface) (err error) {
+func (o *Options) runWithClient(restConfig *rest.Config) (err error) {
 	output := make([]string, 0)
 
 	reader := scenario.GetScenarioResourcesReader()
 	applierBuilder := apply.NewApplierBuilder()
-	applier := applierBuilder.WithClient(kubeClient, apiextensionsClient, dynamicClient).Build()
+	applier := applierBuilder.WithRestConfig(restConfig).Build()
 
 	iauthRealm := o.values["authRealm"]
 	authRealm := iauthRealm.(map[string]interface{})

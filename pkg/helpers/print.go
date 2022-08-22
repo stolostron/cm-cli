@@ -54,7 +54,7 @@ func Print(obj runtime.Object, printFlags *get.PrintFlags) error {
 }
 
 func searchCRD(reader *asset.ScenarioResourcesReader, kind string) (*apiextensionsv1.CustomResourceDefinition, error) {
-	crdFileNames, err := reader.AssetNames(nil)
+	crdFileNames, err := reader.AssetNames(nil, nil, "")
 	if err != nil {
 		return nil, err
 	}

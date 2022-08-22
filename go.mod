@@ -11,7 +11,7 @@ require (
 	github.com/openshift/hypershift v0.0.0-20220429033705-497b2817adbc
 	github.com/spf13/cobra v1.5.0
 	github.com/spf13/pflag v1.0.5
-	github.com/stolostron/applier v1.1.0
+	github.com/stolostron/applier v1.2.5-0.20220822005819-3dc2b46b7e02
 	github.com/stolostron/governance-policy-propagator v0.0.0-20220128200210-e26d2c020e4b
 	github.com/stolostron/hypershift-deployment-controller v0.0.0-20220504173208-c3d8e2032854
 	golang.org/x/net v0.0.0-20220225172249-27dd8689420f

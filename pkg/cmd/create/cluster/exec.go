@@ -8,20 +8,17 @@ import (
 
 	clusterclientset "open-cluster-management.io/api/client/cluster/clientset/versioned"
 	workclientset "open-cluster-management.io/api/client/work/clientset/versioned"
-	clusteradmhelpers "open-cluster-management.io/clusteradm/pkg/helpers"
 
 	"github.com/stolostron/applier/pkg/apply"
 	attachscenario "github.com/stolostron/cm-cli/pkg/cmd/attach/cluster/scenario"
 	"github.com/stolostron/cm-cli/pkg/cmd/create/cluster/scenario"
 	"github.com/stolostron/cm-cli/pkg/helpers"
-	apiextensionsclient "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
+	"k8s.io/client-go/kubernetes"
+	"k8s.io/client-go/rest"
 
 	"github.com/ghodss/yaml"
-
-	"k8s.io/client-go/dynamic"
-	"k8s.io/client-go/kubernetes"
 
 	"github.com/spf13/cobra"
 )
@@ -102,11 +99,11 @@ func (o *Options) validate() (err error) {
 }
 
 func (o *Options) run() error {
-	kubeClient, apiextensionsClient, dynamicClient, err := clusteradmhelpers.GetClients(o.CMFlags.KubectlFactory)
+	restConfig, err := o.CMFlags.KubectlFactory.ToRESTConfig()
 	if err != nil {
 		return err
 	}
-	restConfig, err := o.CMFlags.KubectlFactory.ToRESTConfig()
+	kubeClient, err := kubernetes.NewForConfig(restConfig)
 	if err != nil {
 		return err
 	}
@@ -118,12 +115,12 @@ func (o *Options) run() error {
 	if err != nil {
 		return err
 	}
-	return o.runWithClient(kubeClient, apiextensionsClient, dynamicClient, clusterClient, workClient)
+	return o.runWithClient(restConfig, kubeClient, clusterClient, workClient)
 }
 
-func (o *Options) runWithClient(kubeClient kubernetes.Interface,
-	apiextensionsClient apiextensionsclient.Interface,
-	dynamicClient dynamic.Interface,
+func (o *Options) runWithClient(
+	restConfig *rest.Config,
+	kubeClient kubernetes.Interface,
 	clusterClient clusterclientset.Interface,
 	workClient workclientset.Interface) (err error) {
 	output := make([]string, 0)
@@ -151,7 +148,7 @@ func (o *Options) runWithClient(kubeClient kubernetes.Interface,
 	reader := scenario.GetScenarioResourcesReader()
 	attachreader := attachscenario.GetScenarioResourcesReader()
 	applierBuilder := apply.NewApplierBuilder()
-	applier := applierBuilder.WithClient(kubeClient, apiextensionsClient, dynamicClient).Build()
+	applier := applierBuilder.WithRestConfig(restConfig).Build()
 
 	installConfig, err := applier.MustTemplateAsset(reader,
 		o.values,

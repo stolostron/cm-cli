@@ -8,8 +8,7 @@ import (
 
 	apiextensionsclient "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset"
 	"k8s.io/client-go/dynamic"
-	"k8s.io/client-go/kubernetes"
-	clusteradmhelpers "open-cluster-management.io/clusteradm/pkg/helpers"
+	"k8s.io/client-go/rest"
 
 	"github.com/spf13/cobra"
 	"github.com/stolostron/applier/pkg/apply"
@@ -29,14 +28,22 @@ func (o *Options) validate() error {
 }
 
 func (o *Options) run() (err error) {
-	kubeClient, apiextensionsClient, dynamicClient, err := clusteradmhelpers.GetClients(o.CMFlags.KubectlFactory)
+	restConfig, err := o.CMFlags.KubectlFactory.ToRESTConfig()
 	if err != nil {
 		return err
 	}
-	return o.runWithClient(kubeClient, apiextensionsClient, dynamicClient)
+	dynamicClient, err := o.CMFlags.KubectlFactory.DynamicClient()
+	if err != nil {
+		return err
+	}
+	apiextensionsClient, err := apiextensionsclient.NewForConfig(restConfig)
+	if err != nil {
+		return err
+	}
+	return o.runWithClient(restConfig, apiextensionsClient, dynamicClient)
 }
 
-func (o *Options) runWithClient(kubeClient kubernetes.Interface,
+func (o *Options) runWithClient(restConfig *rest.Config,
 	apiextensionsClient apiextensionsclient.Interface,
 	dynamicClient dynamic.Interface) (err error) {
 	_, err = dynamicClient.Resource(helpers.GvrMCEV1alpha1).Namespace(o.namespace).Get(context.TODO(), "multiclusterhub", metav1.GetOptions{})
@@ -67,7 +74,7 @@ func (o *Options) runWithClient(kubeClient kubernetes.Interface,
 	}
 
 	applierBuilder := apply.NewApplierBuilder()
-	applier := applierBuilder.WithClient(kubeClient, apiextensionsClient, dynamicClient).Build()
+	applier := applierBuilder.WithRestConfig(restConfig).Build()
 	out, err := applier.ApplyDirectly(reader, values, o.CMFlags.DryRun, "", files...)
 	if err != nil {
 		return err

@@ -14,7 +14,6 @@ import (
 	"github.com/stolostron/cm-cli/pkg/clusterpoolhost/scenario"
 	"github.com/stolostron/cm-cli/pkg/helpers"
 	corev1 "k8s.io/api/core/v1"
-	apiextensionsclient "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset"
 	"k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -38,17 +37,7 @@ func (cph *ClusterPoolHost) CreateClusterClaims(clusterClaimNames, clusterPoolNa
 	if err != nil {
 		return err
 	}
-	kubeClient, err := kubernetes.NewForConfig(clusterPoolRestConfig)
-	if err != nil {
-		return err
-	}
-
 	dynamicClient, err := dynamic.NewForConfig(clusterPoolRestConfig)
-	if err != nil {
-		return err
-	}
-
-	apiExtensionsClient, err := apiextensionsclient.NewForConfig(clusterPoolRestConfig)
 	if err != nil {
 		return err
 	}
@@ -98,7 +87,7 @@ func (cph *ClusterPoolHost) CreateClusterClaims(clusterClaimNames, clusterPoolNa
 		}
 
 		applierBuilder := apply.NewApplierBuilder()
-		applier := applierBuilder.WithClient(kubeClient, apiExtensionsClient, dynamicClient).Build()
+		applier := applierBuilder.WithRestConfig(clusterPoolRestConfig).Build()
 		out, err := applier.ApplyCustomResources(reader, values, dryRun, "", files...)
 		if err != nil {
 			return err
@@ -501,6 +490,7 @@ func (cph *ClusterPoolHost) ConvertToPrintClusterClaimList(ccl *hivev1.ClusterCl
 			pccs.Items = append(pccs.Items, pcc)
 			continue
 		}
+		// Check the code as cd is always not nil, maybe the below condition can be removed.
 		if cd != nil {
 			pcc.Spec.PowerState = string(cd.Spec.PowerState)
 			pcc.Spec.Hibernate = cd.Labels["hibernate"]

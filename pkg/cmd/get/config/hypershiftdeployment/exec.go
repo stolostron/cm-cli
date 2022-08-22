@@ -9,11 +9,8 @@ import (
 	"github.com/stolostron/applier/pkg/apply"
 	"github.com/stolostron/cm-cli/pkg/cmd/get/config/hypershiftdeployment/scenario"
 	"github.com/stolostron/cm-cli/pkg/hypershift"
-	apiextensionsClient "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset"
-	"k8s.io/client-go/dynamic"
-	"k8s.io/client-go/kubernetes"
+	"k8s.io/client-go/rest"
 	"k8s.io/klog/v2"
-	clusteradmhelpers "open-cluster-management.io/clusteradm/pkg/helpers"
 )
 
 func (o *Options) complete(cmd *cobra.Command, args []string) (err error) {
@@ -31,16 +28,14 @@ func (o *Options) validate() error {
 }
 
 func (o *Options) run() (err error) {
-	kubeClient, apiextensionsClient, dynamicClient, err := clusteradmhelpers.GetClients(o.CMFlags.KubectlFactory)
+	restConfig, err := o.CMFlags.KubectlFactory.ToRESTConfig()
 	if err != nil {
 		return err
 	}
-	return o.runWithClient(kubeClient, apiextensionsClient, dynamicClient)
+	return o.runWithClient(restConfig)
 }
 
-func (o *Options) runWithClient(kubeClient kubernetes.Interface,
-	apiExtensionsClient apiextensionsClient.Interface,
-	dynamicClient dynamic.Interface) (err error) {
+func (o *Options) runWithClient(restConfig *rest.Config) (err error) {
 	reader := scenario.GetScenarioResourcesReader()
 
 	//Get hypershiftdeployment
@@ -51,7 +46,7 @@ func (o *Options) runWithClient(kubeClient kubernetes.Interface,
 
 	klog.V(5).Infof("%v\n", hd)
 	applierBuilder := apply.NewApplierBuilder()
-	applier := applierBuilder.WithClient(kubeClient, apiExtensionsClient, dynamicClient).Build()
+	applier := applierBuilder.WithRestConfig(restConfig).Build()
 	b, err := applier.MustTemplateAsset(reader, *hd, "", "config/config.yaml")
 	if err != nil {
 		return err

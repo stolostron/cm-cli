@@ -14,10 +14,9 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	"github.com/spf13/cobra"
-	apiextensionsclient "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset"
 	cligenericclioptions "k8s.io/cli-runtime/pkg/genericclioptions"
-	"k8s.io/client-go/dynamic"
 	"k8s.io/client-go/kubernetes"
+	"k8s.io/client-go/rest"
 	cmdutil "k8s.io/kubectl/pkg/cmd/util"
 	clusterclientset "open-cluster-management.io/api/client/cluster/clientset/versioned"
 	workclientset "open-cluster-management.io/api/client/work/clientset/versioned"
@@ -272,7 +271,6 @@ func TestOptions_runWithClient(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	apiextensionsClient := apiextensionsclient.NewForConfigOrDie(cfg)
 	kubeClient := kubernetes.NewForConfigOrDie(cfg)
 	if _, err = kubeClient.CoreV1().Namespaces().Create(context.TODO(), &corev1.Namespace{
 		ObjectMeta: metav1.ObjectMeta{
@@ -281,7 +279,6 @@ func TestOptions_runWithClient(t *testing.T) {
 	}, metav1.CreateOptions{}); err != nil {
 		t.Error(err)
 	}
-	dynamicClient := dynamic.NewForConfigOrDie(cfg)
 	clusterClient := clusterclientset.NewForConfigOrDie(cfg)
 	workClient := workclientset.NewForConfigOrDie(cfg)
 
@@ -297,11 +294,10 @@ func TestOptions_runWithClient(t *testing.T) {
 		outputFile  string
 	}
 	type args struct {
-		kubeClient          kubernetes.Interface
-		dynamicClient       dynamic.Interface
-		apiextensionsClient apiextensionsclient.Interface
-		clusterClient       *clusterclientset.Clientset
-		workClient          *workclientset.Clientset
+		restConfig    *rest.Config
+		kubeClient    kubernetes.Interface
+		clusterClient *clusterclientset.Clientset
+		workClient    *workclientset.Clientset
 	}
 	tests := []struct {
 		name    string
@@ -317,9 +313,8 @@ func TestOptions_runWithClient(t *testing.T) {
 				cloud:   "aws",
 			},
 			args: args{
-				kubeClient:          kubeClient,
-				apiextensionsClient: apiextensionsClient,
-				dynamicClient:       dynamicClient,
+				kubeClient: kubeClient,
+				restConfig: cfg,
 			},
 			wantErr: true,
 		},
@@ -335,9 +330,8 @@ func TestOptions_runWithClient(t *testing.T) {
 				values:      tt.fields.values,
 				outputFile:  tt.fields.outputFile,
 			}
-			if err := o.runWithClient(tt.args.kubeClient,
-				tt.args.apiextensionsClient,
-				tt.args.dynamicClient,
+			if err := o.runWithClient(tt.args.restConfig,
+				tt.args.kubeClient,
 				tt.args.clusterClient,
 				tt.args.workClient); (err != nil) != tt.wantErr {
 				t.Errorf("Options.runWithClient() error = %v, wantErr %v", err, tt.wantErr)
@@ -364,11 +358,10 @@ func TestOptions_runWithClient(t *testing.T) {
 				cloud:   "aws",
 			},
 			args: args{
-				kubeClient:          kubeClient,
-				apiextensionsClient: apiextensionsClient,
-				dynamicClient:       dynamicClient,
-				clusterClient:       clusterClient,
-				workClient:          workClient,
+				restConfig:    cfg,
+				kubeClient:    kubeClient,
+				clusterClient: clusterClient,
+				workClient:    workClient,
 			},
 			wantErr: false,
 		},
@@ -383,9 +376,8 @@ func TestOptions_runWithClient(t *testing.T) {
 				values:      tt.fields.values,
 				outputFile:  tt.fields.outputFile,
 			}
-			if err := o.runWithClient(tt.args.kubeClient,
-				tt.args.apiextensionsClient,
-				tt.args.dynamicClient,
+			if err := o.runWithClient(tt.args.restConfig,
+				tt.args.kubeClient,
 				tt.args.clusterClient,
 				tt.args.workClient); (err != nil) != tt.wantErr {
 				t.Errorf("Options.runWithClient() error = %v, wantErr %v", err, tt.wantErr)

@@ -646,8 +646,8 @@ github.com/spf13/viper v1.4.0/go.mod h1:PTJ7Z/lr49W6bUbkmS1V3by4uWynFiR9p7+dSq/y
 github.com/spf13/viper v1.7.0/go.mod h1:8WkrPz2fc9jxqZNCJI/76HCieCp4Q8HaLFoCha5qpdg=
 github.com/spf13/viper v1.8.1/go.mod h1:o0Pch8wJ9BVSWGQMbra6iw0oQ5oktSIBaujf1rJH9Ns=
 github.com/stoewer/go-strcase v1.2.0/go.mod h1:IBiWB2sKIp3wVVQ3Y035++gc+knqhUQag1KpM8ahLw8=
-github.com/stolostron/applier v1.1.0 h1:w2fnS5mQMo3edHGoJkQwxU136KcLCjwfdA31B9knVzM=
-github.com/stolostron/applier v1.1.0/go.mod h1:ivUpfrcdZcQL0TkcAiJ5t6kLh2LdHuVbxMWS54OfO10=
+github.com/stolostron/applier v1.2.5-0.20220822005819-3dc2b46b7e02 h1:LMqG5i5rJIXgiXKIRSb2eTwHmA2MiOPrIXWxWTUQDmk=
+github.com/stolostron/applier v1.2.5-0.20220822005819-3dc2b46b7e02/go.mod h1:ivUpfrcdZcQL0TkcAiJ5t6kLh2LdHuVbxMWS54OfO10=
 github.com/stolostron/governance-policy-propagator v0.0.0-20220128200210-e26d2c020e4b h1:Ik5KejLzY+YO2cVPFDjTB9j7bag5bJUEN4FUzFqgOjM=
 github.com/stolostron/governance-policy-propagator v0.0.0-20220128200210-e26d2c020e4b/go.mod h1:QVHcUwp7+8YeAbnoiOS/64IVXn97oPtMTTcPU5HwEnQ=
 github.com/stolostron/hypershift-deployment-controller v0.0.0-20220504173208-c3d8e2032854 h1:DzZ4CYDEelllXiDb4hrlK6KqnpTmFm2SZ07+F1WJUgQ=
