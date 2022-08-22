@@ -12,12 +12,10 @@ import (
 	"github.com/stolostron/applier/pkg/apply"
 	"github.com/stolostron/cm-cli/pkg/clusterpoolhost/scenario"
 	corev1 "k8s.io/api/core/v1"
-	apiextensionsclient "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset"
 	"k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/apimachinery/pkg/util/wait"
-	"k8s.io/client-go/dynamic"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
 )
@@ -44,16 +42,6 @@ func (cph *ClusterPoolHost) newCKServiceAccount(clusterPoolRestConfig *rest.Conf
 		return err
 	}
 
-	apiExtensionsClient, err := apiextensionsclient.NewForConfig(clusterPoolRestConfig)
-	if err != nil {
-		return err
-	}
-
-	dynamicClient, err := dynamic.NewForConfig(clusterPoolRestConfig)
-	if err != nil {
-		return err
-	}
-
 	values := make(map[string]string)
 	values["Name"] = user
 	values["Namespace"] = cph.Namespace
@@ -63,7 +51,7 @@ func (cph *ClusterPoolHost) newCKServiceAccount(clusterPoolRestConfig *rest.Conf
 		"create/clusterpoolhost/secret-token.yaml",
 	}
 	applierBuilder := apply.NewApplierBuilder()
-	applier := applierBuilder.WithClient(kubeClient, apiExtensionsClient, dynamicClient).Build()
+	applier := applierBuilder.WithRestConfig(clusterPoolRestConfig).Build()
 	out, err := applier.ApplyDirectly(reader, values, dryRun, "", files...)
 	if err != nil {
 		return err

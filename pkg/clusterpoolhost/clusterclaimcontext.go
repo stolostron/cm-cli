@@ -10,7 +10,6 @@ import (
 	"github.com/stolostron/applier/pkg/apply"
 	"github.com/stolostron/cm-cli/pkg/clusterpoolhost/scenario"
 	"github.com/stolostron/cm-cli/pkg/helpers"
-	apiextensionsclient "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/client-go/dynamic"
@@ -98,19 +97,7 @@ func (cph *ClusterPoolHost) getClusterClaimSAToken(
 			return
 		}
 
-		dynamicClientCC, errG := dynamic.NewForConfig(ccRestConfig)
-		if err != nil {
-			err = errG
-			return
-		}
-
-		apiExtensionsClientCC, errG := apiextensionsclient.NewForConfig(ccRestConfig)
-		if err != nil {
-			err = errG
-			return
-		}
-
-		applier := applierBuilder.WithClient(kubeClientCC, apiExtensionsClientCC, dynamicClientCC).Build()
+		applier := applierBuilder.WithRestConfig(ccRestConfig).Build()
 		out, errG := applier.ApplyDirectly(reader, values, dryRun, "", files...)
 		if err != nil {
 			err = errG

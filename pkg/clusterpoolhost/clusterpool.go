@@ -15,7 +15,6 @@ import (
 	printclusterpoolv1alpha1 "github.com/stolostron/cm-cli/api/cm-cli/v1alpha1"
 	"github.com/stolostron/cm-cli/pkg/clusterpoolhost/scenario"
 	"github.com/stolostron/cm-cli/pkg/helpers"
-	apiextensionsclient "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -63,26 +62,11 @@ func (cph *ClusterPoolHost) CreateClusterPool(clusterPoolName, cloud string, val
 		return err
 	}
 
-	kubeClient, err := kubernetes.NewForConfig(clusterPoolRestConfig)
-	if err != nil {
-		return err
-	}
-
-	dynamicClient, err := dynamic.NewForConfig(clusterPoolRestConfig)
-	if err != nil {
-		return err
-	}
-
-	apiExtensionsClient, err := apiextensionsclient.NewForConfig(clusterPoolRestConfig)
-	if err != nil {
-		return err
-	}
-
 	output := make([]string, 0)
 
 	reader := scenario.GetScenarioResourcesReader()
 	applierBuilder := apply.NewApplierBuilder()
-	applier := applierBuilder.WithClient(kubeClient, apiExtensionsClient, dynamicClient).Build()
+	applier := applierBuilder.WithRestConfig(clusterPoolRestConfig).Build()
 
 	installConfig, err := applier.MustTemplateAsset(reader,
 		values,
@@ -233,11 +217,6 @@ func (cph *ClusterPoolHost) GetClusterPoolConfig(clusterPoolName string, without
 		return err
 	}
 
-	apiExtensionsClient, err := apiextensionsclient.NewForConfig(clusterPoolRestConfig)
-	if err != nil {
-		return err
-	}
-
 	//Get clusterDeployment
 	cpu, err := dynamicClient.Resource(helpers.GvrCP).Namespace(cph.Namespace).Get(context.TODO(), clusterPoolName, metav1.GetOptions{})
 	if err != nil {
@@ -334,7 +313,7 @@ func (cph *ClusterPoolHost) GetClusterPoolConfig(clusterPoolName string, without
 
 	klog.V(5).Infof("%v\n", values)
 	applierBuilder := apply.NewApplierBuilder()
-	applier := applierBuilder.WithClient(kubeClient, apiExtensionsClient, dynamicClient).Build()
+	applier := applierBuilder.WithRestConfig(clusterPoolRestConfig).Build()
 	b, err := applier.MustTemplateAsset(reader, values, "", "config/clusterpool/config.yaml")
 	if err != nil {
 		return err

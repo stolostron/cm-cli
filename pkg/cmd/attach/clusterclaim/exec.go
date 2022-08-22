@@ -6,7 +6,6 @@ import (
 	"fmt"
 
 	hivev1 "github.com/openshift/hive/apis/hive/v1"
-	apiextensionsclient "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/client-go/dynamic"
@@ -165,11 +164,6 @@ func (o *Options) attachClusterClaim(cph *clusterpoolhost.ClusterPoolHost) error
 		return err
 	}
 
-	kubeClient, err := kubernetes.NewForConfig(hubRestConfig)
-	if err != nil {
-		return err
-	}
-
 	rhacmConstraint := ">=2.3.0"
 	mceConstraint := ">=1.0.0"
 
@@ -186,18 +180,8 @@ func (o *Options) attachClusterClaim(cph *clusterpoolhost.ClusterPoolHost) error
 		}
 	}
 
-	dynamicClient, err := dynamic.NewForConfig(hubRestConfig)
-	if err != nil {
-		return err
-	}
-
-	apiExtensionsClient, err := apiextensionsclient.NewForConfig(hubRestConfig)
-	if err != nil {
-		return err
-	}
-
 	applierBuilder := apply.NewApplierBuilder()
-	applier := applierBuilder.WithClient(kubeClient, apiExtensionsClient, dynamicClient).Build()
+	applier := applierBuilder.WithRestConfig(hubRestConfig).Build()
 	out, err := applier.ApplyDirectly(reader, o.values, o.CMFlags.DryRun, "", files...)
 	if err != nil {
 		return err

@@ -14,24 +14,24 @@ import (
 
 func ConvertValuesFileToValuesMap(path, prefix string) (values map[string]interface{}, err error) {
 	var b []byte
-	if path != "" {
+	if len(path) != 0 {
 		b, err = ioutil.ReadFile(filepath.Clean(path))
 		if err != nil {
 			return nil, err
 		}
-	}
-
-	fi, err := os.Stdin.Stat()
-	if err != nil {
-		return nil, err
-	}
-	if fi.Mode()&os.ModeCharDevice == 0 {
-		b = append(b, '\n')
-		pdata, err := ioutil.ReadAll(os.Stdin)
+	} else {
+		fi, err := os.Stdin.Stat()
 		if err != nil {
 			return nil, err
 		}
-		b = append(b, pdata...)
+		if fi.Mode()&os.ModeCharDevice == 0 {
+			b = append(b, '\n')
+			pdata, err := ioutil.ReadAll(os.Stdin)
+			if err != nil {
+				return nil, err
+			}
+			b = append(b, pdata...)
+		}
 	}
 
 	valuesc := make(map[string]interface{})
