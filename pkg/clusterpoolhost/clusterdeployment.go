@@ -22,7 +22,7 @@ func (cph *ClusterPoolHost) GetClusterDeployment(cc *hivev1.ClusterClaim) (*hive
 		return nil, err
 	}
 	if len(cc.Spec.Namespace) == 0 {
-		return nil, fmt.Errorf("something wrong happened, the clusterclaim %s doesn't have a spec.namespace set", cc.Name)
+		return nil, fmt.Errorf("the clusterclaim %s doesn't have a spec.namespace set yet and so the clusterdeployment can not be found", cc.Name)
 	}
 	cdu, err := dynamicClient.
 		Resource(helpers.GvrCD).
