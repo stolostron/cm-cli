@@ -52,7 +52,7 @@ func (o *Options) run() (err error) {
 }
 
 func (o *Options) getKubeConfig(cph *clusterpoolhost.ClusterPoolHost) (err error) {
-	cc, err := cph.GetClusterClaim(o.ClusterClaim, o.WithCredentials, o.Timeout, o.CMFlags.DryRun, o.GetOptions.PrintFlags)
+	cc, err := cph.GetClusterClaim(o.ClusterClaim, false, o.Timeout, o.CMFlags.DryRun, o.GetOptions.PrintFlags)
 	if err != nil {
 		return err
 	}
@@ -81,7 +81,7 @@ func (o *Options) getKubeConfig(cph *clusterpoolhost.ClusterPoolHost) (err error
 }
 
 func (o *Options) getCC(cph *clusterpoolhost.ClusterPoolHost) (err error) {
-	cc, err := cph.GetClusterClaim(o.ClusterClaim, o.WithCredentials, o.Timeout, o.CMFlags.DryRun, o.GetOptions.PrintFlags)
+	cc, err := cph.GetClusterClaim(o.ClusterClaim, false, o.Timeout, o.CMFlags.DryRun, o.GetOptions.PrintFlags)
 	if err != nil {
 		return err
 	}
